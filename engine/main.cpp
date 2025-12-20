@@ -49,7 +49,6 @@ int Main()
                 .AddModule<ParticleModule>()
                 .AddModule<GameModule>()
                 .AddModule<InspectorModule>()
-                //.AddModule<AnalyticsModule>()
                 .AddModule<ScriptingModule>();
         }
 

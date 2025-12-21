@@ -1,6 +1,6 @@
 #include "input/sdl/sdl_input_device_manager.hpp"
 #include "hashmap_utils.hpp"
-#include "log.hpp"
+
 #include <SDL3/SDL.h>
 
 SDLInputDeviceManager::SDLInputDeviceManager()
@@ -43,7 +43,7 @@ void SDLInputDeviceManager::UpdateEvent(const SDL_Event& event)
         if (!IsGamepadAvailable())
         {
             _gamepad.sdlHandle = SDL_OpenGamepad(event.gdevice.which);
-            bblog::info("[INPUT] SDL gamepad device added.");
+            spdlog::info("[INPUT] SDL gamepad device added.");
         }
         break;
     }
@@ -54,7 +54,7 @@ void SDLInputDeviceManager::UpdateEvent(const SDL_Event& event)
             if (SDL_GetGamepadID(_gamepad.sdlHandle) == event.gdevice.which)
             {
                 CloseGamepad();
-                bblog::info("[INPUT] SDL gamepad device removed.");
+                spdlog::info("[INPUT] SDL gamepad device removed.");
             }
         }
         break;
@@ -168,7 +168,7 @@ GamepadType SDLInputDeviceManager::GetGamepadType() const
 
     if (!IsGamepadAvailable())
     {
-        bblog::error("[Input] No gamepad available while trying to get it's type!");
+        spdlog::error("[Input] No gamepad available while trying to get it's type!");
         return GamepadType::eUnknown;
     }
 

@@ -3,7 +3,7 @@
 #include <sstream>
 
 #include "file_io.hpp"
-#include "log.hpp"
+
 #include "main_script.hpp"
 #include "scripting_context.hpp"
 #include "time_module.hpp"

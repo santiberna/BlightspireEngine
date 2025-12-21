@@ -1,6 +1,5 @@
 #pragma once
 
-#include "log.hpp"
 #include "spirv_reflect.h"
 #include "vertex.hpp"
 #include "vulkan_context.hpp"

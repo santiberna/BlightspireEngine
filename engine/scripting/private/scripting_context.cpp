@@ -1,6 +1,6 @@
 #include "scripting_context.hpp"
 #include "file_io.hpp"
-#include "log.hpp"
+
 #include "profile_macros.hpp"
 
 #include <filesystem>
@@ -109,7 +109,7 @@ std::optional<std::string> ScriptingContext::RunScript(const std::string& path)
     }
     catch (const wren::Exception& e)
     {
-        bblog::error(e.what());
+        spdlog::error(e.what());
     }
 
     return std::nullopt;

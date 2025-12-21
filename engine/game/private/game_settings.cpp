@@ -15,7 +15,7 @@ GameSettings GameSettings::FromFile(const std::string& path)
         }
         catch (const std::exception& e)
         {
-            bblog::warn("Outdated settings file, reverting to defaults.");
+            spdlog::warn("Outdated settings file, reverting to defaults.");
             out.SaveToFile(path);
         }
     }
@@ -34,6 +34,6 @@ void GameSettings::SaveToFile(const std::string& path) const
     }
     else
     {
-        bblog::error("Error serializing user settings: {}", path);
+        spdlog::error("Error serializing user settings: {}", path);
     }
 }

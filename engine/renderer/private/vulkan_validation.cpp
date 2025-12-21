@@ -1,6 +1,5 @@
 #include "vulkan_validation.hpp"
 #include "common.hpp"
-#include "log.hpp"
 
 void util::PopulateDebugMessengerCreateInfo(vk::DebugUtilsMessengerCreateInfoEXT& createInfo)
 {
@@ -52,7 +51,7 @@ VKAPI_ATTR VkBool32 VKAPI_CALL util::DebugCallback(
     }
 
     if (messageSeverity >= vk::DebugUtilsMessageSeverityFlagBitsEXT::eWarning)
-        bblog::log(logLevel, "{0} Validation layer: {1}", typeText, pCallbackData->pMessage);
+        spdlog::log(logLevel, "{0} Validation layer: {1}", typeText, pCallbackData->pMessage);
 
     if (logLevel == spdlog::level::err)
     {

@@ -1,6 +1,6 @@
 #include "input/action_manager.hpp"
 #include "input/input_codes/input_names.hpp"
-#include "log.hpp"
+
 #include <algorithm>
 
 ActionManager::ActionManager(const InputDeviceManager& inputDeviceManager)
@@ -16,11 +16,11 @@ void ActionManager::SetActiveActionSet(std::string_view actionSetName)
 
     if (itr == _gameActions.end())
     {
-        bblog::error("[Input] Failed to find action set: \"{}\"", actionSetName);
+        spdlog::error("[Input] Failed to find action set: \"{}\"", actionSetName);
         return;
     }
 
-    // bblog::info("[Input] Changed to action set: \"{}\"", actionSetName);
+    // spdlog::info("[Input] Changed to action set: \"{}\"", actionSetName);
     uint32_t index = itr - _gameActions.begin();
     _activeActionSet = index;
 }
@@ -29,7 +29,7 @@ DigitalActionResult ActionManager::GetDigitalAction(std::string_view actionName)
 {
     if (_gameActions.empty())
     {
-        bblog::error("[Input] No game actions are set while trying to get action: \"{}\"", actionName);
+        spdlog::error("[Input] No game actions are set while trying to get action: \"{}\"", actionName);
         return DigitalActionResult {};
     }
 
@@ -41,7 +41,7 @@ DigitalActionResult ActionManager::GetDigitalAction(std::string_view actionName)
         { return action.name == actionName; });
     if (itr == actionSet.digitalActions.end())
     {
-        bblog::error("[Input] Failed to find digital action: \"{}\"", actionName);
+        spdlog::error("[Input] Failed to find digital action: \"{}\"", actionName);
         return DigitalActionResult {};
     }
 
@@ -52,7 +52,7 @@ glm::vec2 ActionManager::GetAnalogAction(std::string_view actionName) const
 {
     if (_gameActions.empty())
     {
-        bblog::error("[Input] No game actions are set while trying to get action: \"{}\"", actionName);
+        spdlog::error("[Input] No game actions are set while trying to get action: \"{}\"", actionName);
         return { 0.0f, 0.0f };
     }
 
@@ -64,7 +64,7 @@ glm::vec2 ActionManager::GetAnalogAction(std::string_view actionName) const
         { return action.name == actionName; });
     if (itr == actionSet.analogActions.end())
     {
-        bblog::error("[Input] Failed to find analog action: \"{}\"", actionName);
+        spdlog::error("[Input] Failed to find analog action: \"{}\"", actionName);
         return { 0.0f, 0.0f };
     }
 
@@ -75,7 +75,7 @@ std::vector<BindingOriginVisual> ActionManager::GetDigitalActionBindingOriginVis
 {
     if (_gameActions.empty())
     {
-        bblog::error("[Input] No game actions are set while trying to get action: \"{}\"", actionName);
+        spdlog::error("[Input] No game actions are set while trying to get action: \"{}\"", actionName);
         return {};
     }
 
@@ -87,7 +87,7 @@ std::vector<BindingOriginVisual> ActionManager::GetDigitalActionBindingOriginVis
         { return action.name == actionName; });
     if (actionItr == actionSet.digitalActions.end())
     {
-        bblog::error("[Input] Failed to find digital action: \"{}\"", actionName);
+        spdlog::error("[Input] Failed to find digital action: \"{}\"", actionName);
         return {};
     }
 
@@ -101,7 +101,7 @@ std::vector<BindingOriginVisual> ActionManager::GetAnalogActionBindingOriginVisu
 {
     if (_gameActions.empty())
     {
-        bblog::error("[Input] No game actions are set while trying to get action: \"{}\"", actionName);
+        spdlog::error("[Input] No game actions are set while trying to get action: \"{}\"", actionName);
         return {};
     }
 
@@ -113,7 +113,7 @@ std::vector<BindingOriginVisual> ActionManager::GetAnalogActionBindingOriginVisu
         { return action.name == actionName; });
     if (actionItr == actionSet.analogActions.end())
     {
-        bblog::error("[Input] Failed to find analog action: \"{}\"", actionName);
+        spdlog::error("[Input] Failed to find analog action: \"{}\"", actionName);
         return {};
     }
 

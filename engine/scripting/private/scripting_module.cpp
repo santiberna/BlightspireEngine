@@ -1,7 +1,7 @@
 #include "scripting_module.hpp"
 #include "bytes.hpp"
 #include "file_io.hpp"
-#include "log.hpp"
+
 #include "profile_macros.hpp"
 #include "time_module.hpp"
 #include "wren_bindings.hpp"
@@ -44,7 +44,7 @@ ModuleTickOrder ScriptingModule::Init(MAYBE_UNUSED Engine& engine)
     _context = std::make_unique<ScriptingContext>(config);
     _engineBindingsPath = "game/engine_api.wren";
 
-    _context->SetScriptingOutputStream(bblog::default_logger());
+    _context->SetScriptingOutputStream(spdlog::default_logger());
 
     return ModuleTickOrder::ePreTick;
 }

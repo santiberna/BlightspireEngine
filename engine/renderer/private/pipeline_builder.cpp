@@ -156,7 +156,7 @@ void PipelineBuilder::ReflectDescriptorLayouts(const PipelineBuilder::ShaderStag
             }
             else
             {
-                bblog::warn("Failed reflecting name of descriptor set binding!");
+                spdlog::warn("Failed reflecting name of descriptor set binding!");
                 names.emplace_back("\0");
             }
         }
@@ -390,7 +390,7 @@ vk::Pipeline ComputePipelineBuilder::CreatePipeline()
 {
     if (_pipelineShaderStages.size() > 1)
     {
-        bblog::warn("Created compute pipeline that had more than one shader stages present. First one is used, others are ignored.");
+        spdlog::warn("Created compute pipeline that had more than one shader stages present. First one is used, others are ignored.");
     }
 
     vk::ComputePipelineCreateInfo computePipelineCreateInfo {

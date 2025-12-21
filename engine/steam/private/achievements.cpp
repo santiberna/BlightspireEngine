@@ -1,5 +1,4 @@
 ﻿#include "achievements.hpp"
-#include "log.hpp"
 
 #include <magic_enum.hpp>
 
@@ -51,7 +50,7 @@ void SteamAchievementManager::OnUserStatsReceived(UserStatsReceived_t* pCallback
     {
         if (k_EResultOK == pCallback->m_eResult)
         {
-            bblog::info("Received achievements from Steam");
+            spdlog::info("Received achievements from Steam");
             _initialized = true;
 
             // load achievements
@@ -64,7 +63,7 @@ void SteamAchievementManager::OnUserStatsReceived(UserStatsReceived_t* pCallback
                     std::memcpy(ach.name, SteamUserStats()->GetAchievementDisplayAttribute(ach.apiId.c_str(), "name"), sizeof(ach.name));
                     std::memcpy(ach.description, SteamUserStats()->GetAchievementDisplayAttribute(ach.apiId.c_str(), "desc"), sizeof(ach.description));
 
-                    bblog::info("{}: {}", ach.name, ach.description);
+                    spdlog::info("{}: {}", ach.name, ach.description);
                 }
                 else
                 {
@@ -74,7 +73,7 @@ void SteamAchievementManager::OnUserStatsReceived(UserStatsReceived_t* pCallback
         }
         else
         {
-            bblog::error("RequestStats - failed, {}", magic_enum::enum_name(pCallback->m_eResult));
+            spdlog::error("RequestStats - failed, {}", magic_enum::enum_name(pCallback->m_eResult));
         }
     }
 }
@@ -86,7 +85,7 @@ void SteamAchievementManager::OnUserStatsStored(UserStatsStored_t* pCallback)
     {
         if (k_EResultOK != pCallback->m_eResult)
         {
-            bblog::error("StatsStored - failed, {}", magic_enum::enum_name(pCallback->m_eResult));
+            spdlog::error("StatsStored - failed, {}", magic_enum::enum_name(pCallback->m_eResult));
         }
     }
 }
@@ -96,6 +95,6 @@ void SteamAchievementManager::OnAchievementStored(UserAchievementStored_t* pCall
     // we may get callbacks for other games' stats arriving, ignore them
     if (_appID == pCallback->m_nGameID)
     {
-        bblog::info("Stored Achievement for Steam\n");
+        spdlog::info("Stored Achievement for Steam\n");
     }
 }

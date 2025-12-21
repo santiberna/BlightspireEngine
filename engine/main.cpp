@@ -65,7 +65,7 @@ int Main()
             instance.GetModule<TimeModule>().ResetTimer();
         }
 
-        bblog::info("{}ms taken for complete startup!", startupTimer.GetElapsed().count());
+        spdlog::info("{}ms taken for complete startup!", startupTimer.GetElapsed().count());
         result = instance.Run();
     }
 

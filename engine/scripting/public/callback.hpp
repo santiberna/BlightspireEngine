@@ -1,5 +1,5 @@
 #pragma once
-#include "log.hpp"
+
 #include "wren_common.hpp"
 
 #include <variant>
@@ -21,7 +21,7 @@ struct Callback
         }
         catch (const wren::Exception& e)
         {
-            bblog::warn("[WREN WARNING] could not bind wren lambda to callback: {}", e.what());
+            spdlog::warn("[WREN WARNING] could not bind wren lambda to callback: {}", e.what());
         }
     }
 
@@ -39,7 +39,7 @@ private:
             }
             catch (wren::Exception& ex)
             {
-                bblog::error(ex.what());
+                spdlog::error(ex.what());
             }
         };
     };

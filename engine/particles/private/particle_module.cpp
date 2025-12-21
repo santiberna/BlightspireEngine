@@ -132,7 +132,7 @@ ResourceHandle<GPUImage>& ParticleModule::GetEmitterImage(std::string fileName, 
             return resource;
         }
 
-        bblog::error("[Particles] Emitter image {} not found!", fileName);
+        spdlog::error("[Particles] Emitter image {} not found!", fileName);
         imageFound = false;
         return _emitterImages.begin()->second;
     }
@@ -264,6 +264,6 @@ void ParticleModule::SpawnBurst(entt::entity entity, const ParticleBurst& burst)
     }
     else
     {
-        bblog::error("Particle Emitter component from entity %i not found!", static_cast<size_t>(entity));
+        spdlog::error("Particle Emitter component from entity %i not found!", static_cast<size_t>(entity));
     }
 }

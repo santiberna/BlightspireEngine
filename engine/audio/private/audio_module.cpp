@@ -10,8 +10,6 @@
 #include "ecs_module.hpp"
 #include "physics_module.hpp"
 
-#include "log.hpp"
-
 inline FMOD_VECTOR GLMToFMOD(const glm::vec3& v)
 {
     FMOD_VECTOR vec;
@@ -57,10 +55,10 @@ ModuleTickOrder AudioModule::Init(MAYBE_UNUSED Engine& engine)
 
     catch (std::exception& e)
     {
-        bblog::error("FMOD did not initialize successfully: {0}", e.what());
+        spdlog::error("FMOD did not initialize successfully: {0}", e.what());
         return tickOrder;
     }
-    bblog::info("FMOD initialized successfully");
+    spdlog::info("FMOD initialized successfully");
 
     return tickOrder;
 }
@@ -91,7 +89,7 @@ void AudioModule::Shutdown(MAYBE_UNUSED Engine& engine)
     _coreSystem = nullptr;
     _studioSystem = nullptr;
 
-    bblog::info("FMOD shutdown");
+    spdlog::info("FMOD shutdown");
 }
 
 void AudioModule::Reset()
@@ -157,7 +155,7 @@ SoundID AudioModule::LoadSFX(SoundInfo& soundInfo)
     soundInfo.uid = hash;
     if (_sounds.contains(hash) && _soundInfos.contains(soundInfo.path.data()))
     {
-        bblog::warn("Sound at path already loaded: {0}", soundInfo.path);
+        spdlog::warn("Sound at path already loaded: {0}", soundInfo.path);
         return hash;
     }
 
@@ -183,7 +181,7 @@ SoundInstance AudioModule::PlaySFX(SoundID id, const float volume, const bool st
 {
     if (!_sounds.contains(id))
     {
-        bblog::error("Could not play sound, sound not loaded: {0}", id);
+        spdlog::error("Could not play sound, sound not loaded: {0}", id);
         return SoundInstance(-1, false);
     }
 
@@ -268,7 +266,7 @@ void AudioModule::SetBusChannelVolume(const std::string& name, float value)
     }
     else
     {
-        bblog::warn("No event bus with the name {}.", name);
+        spdlog::warn("No event bus with the name {}.", name);
     }
 }
 
@@ -303,7 +301,7 @@ void AudioModule::UpdateSound3DAttributes(const ChannelID id, const glm::vec3& p
 {
     if (!_channelsActive.contains(id))
     {
-        bblog::warn("Tried to update 3d attributes of sound that isn't playing");
+        spdlog::warn("Tried to update 3d attributes of sound that isn't playing");
         return;
     }
 
@@ -427,7 +425,7 @@ void AudioModule::SetEvent3DAttributes(EventInstance instance, const glm::vec3& 
 
     if (!_events.contains(instance.id))
     {
-        bblog::warn("Tried to update event 3d attributes, of event that isn't playing");
+        spdlog::warn("Tried to update event 3d attributes, of event that isn't playing");
         return;
     }
 

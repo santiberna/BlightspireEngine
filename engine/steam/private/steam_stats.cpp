@@ -1,5 +1,4 @@
 ﻿#include "steam_stats.hpp"
-#include "log.hpp"
 
 #include <magic_enum.hpp>
 
@@ -94,7 +93,7 @@ void SteamStatManager::OnUserStatsReceived(UserStatsReceived_t* pCallback)
     {
         if (k_EResultOK == pCallback->m_eResult)
         {
-            bblog::info("Received stats from Steam");
+            spdlog::info("Received stats from Steam");
 
             for (size_t i = 0; i < _stats.size(); ++i)
             {
@@ -114,13 +113,13 @@ void SteamStatManager::OnUserStatsReceived(UserStatsReceived_t* pCallback)
                 default:
                     break;
                 }
-                bblog::info("Loaded stat {} with values: {} ; {}. ID: {}", stat.name, stat.value, stat.floatValue, stat.id);
+                spdlog::info("Loaded stat {} with values: {} ; {}. ID: {}", stat.name, stat.value, stat.floatValue, stat.id);
             }
             _initialized = true;
         }
         else
         {
-            bblog::error("RequestStats - failed, {}", magic_enum::enum_name(pCallback->m_eResult));
+            spdlog::error("RequestStats - failed, {}", magic_enum::enum_name(pCallback->m_eResult));
         }
     }
 }
@@ -136,7 +135,7 @@ void SteamStatManager::OnUserStatsStored(UserStatsStored_t* pCallback)
             {
                 // One or more stats we set broke a constraint. They've been reverted,
                 // and we should re-iterate the values now to keep in sync.
-                bblog::error("StoreStats - some failed to validate");
+                spdlog::error("StoreStats - some failed to validate");
                 // Fake up a callback here so that we re-load the values.
                 UserStatsReceived_t callback;
                 callback.m_eResult = k_EResultOK;
@@ -145,7 +144,7 @@ void SteamStatManager::OnUserStatsStored(UserStatsStored_t* pCallback)
             }
             else
             {
-                bblog::error("StoreStats - failed, {}", magic_enum::enum_name(pCallback->m_eResult));
+                spdlog::error("StoreStats - failed, {}", magic_enum::enum_name(pCallback->m_eResult));
             }
         }
     }

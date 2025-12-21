@@ -1,5 +1,5 @@
 #include "main_script.hpp"
-#include "log.hpp"
+
 #include "wren_engine.hpp"
 
 #include <tracy/Tracy.hpp>
@@ -18,7 +18,7 @@ MainScript::MainScript(Engine* e, wren::VM& vm, const std::string& module, const
     }
     catch (wren::Exception& e)
     {
-        bblog::error(e.what());
+        spdlog::error(e.what());
         valid = false;
         return;
     }
@@ -29,7 +29,7 @@ MainScript::MainScript(Engine* e, wren::VM& vm, const std::string& module, const
     }
     catch (wren::Exception& ex)
     {
-        bblog::error(ex.what());
+        spdlog::error(ex.what());
         valid = false;
         return;
     }
@@ -46,7 +46,7 @@ MainScript::~MainScript()
     }
     catch (wren::Exception& ex)
     {
-        bblog::error(ex.what());
+        spdlog::error(ex.what());
     }
 }
 
@@ -61,7 +61,7 @@ void MainScript::Update(DeltaMS deltatime)
     }
     catch (wren::Exception& ex)
     {
-        bblog::error(ex.what());
+        spdlog::error(ex.what());
         valid = false;
     }
 }

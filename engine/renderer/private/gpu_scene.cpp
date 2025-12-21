@@ -348,7 +348,7 @@ void GPUScene::UpdateDirectionalLightData(SceneData& scene, uint32_t frameIndex)
     {
         if (directionalLightIsSet)
         {
-            bblog::warn("Only 1 directional light is supported, the first one available will be used.");
+            spdlog::warn("Only 1 directional light is supported, the first one available will be used.");
             return;
         }
 
@@ -397,7 +397,7 @@ void GPUScene::UpdatePointLightData(PointLightArray& pointLightArray, MAYBE_UNUS
     {
         if (pointLightCount >= MAX_POINT_LIGHTS)
         {
-            bblog::warn("Reached the limit of point lights available");
+            spdlog::warn("Reached the limit of point lights available");
             break;
         }
 
@@ -422,7 +422,7 @@ void GPUScene::UpdateCameraData(uint32_t frameIndex)
     {
         if (mainCameraIsSet)
         {
-            bblog::warn("Only 1 camera is supported, the first one available will be used.");
+            spdlog::warn("Only 1 camera is supported, the first one available will be used.");
             return;
         }
 
@@ -530,7 +530,7 @@ ResourceHandle<GPUImage>& GPUScene::GetDecalImage(std::string fileName)
             return resource;
         }
 
-        bblog::error("[Error] Decal image not found!");
+        spdlog::error("[Error] Decal image not found!");
         return _decalImages.begin()->second;
     }
 

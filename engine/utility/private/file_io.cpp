@@ -16,7 +16,7 @@ std::optional<PhysFS::ifstream> fileIO::OpenReadStream(const std::string& path)
     }
     catch (const std::exception& exception)
     {
-        bblog::error("File error: {}", exception.what());
+        spdlog::error("File error: {}", exception.what());
         return std::nullopt;
     }
 }
@@ -34,7 +34,7 @@ std::optional<PhysFS::ofstream> fileIO::OpenWriteStream(const std::string& path)
     }
     catch (const std::exception& exception)
     {
-        bblog::error("File error: {}", exception.what());
+        spdlog::error("File error: {}", exception.what());
         return std::nullopt;
     }
 }
@@ -127,7 +127,7 @@ void fileIO::Init(bool useStandard)
 {
     if (!PhysFS::init(""))
     {
-        bblog::error("Failed initializing PhysFS!\n{}", PHYSFS_getErrorByCode(PHYSFS_getLastErrorCode()));
+        spdlog::error("Failed initializing PhysFS!\n{}", PHYSFS_getErrorByCode(PHYSFS_getLastErrorCode()));
         return;
     }
 
@@ -137,14 +137,14 @@ void fileIO::Init(bool useStandard)
     {
         if (!PhysFS::mount("data.bin", "", true))
         {
-            bblog::error("Failed mounting PhysFS!\n{}", PHYSFS_getErrorByCode(PHYSFS_getLastErrorCode()));
+            spdlog::error("Failed mounting PhysFS!\n{}", PHYSFS_getErrorByCode(PHYSFS_getLastErrorCode()));
         }
     }
     else
     {
         if (!PhysFS::mount("./", "/", true))
         {
-            bblog::error("Failed mounting PhysFS!\n{}", PHYSFS_getErrorByCode(PHYSFS_getLastErrorCode()));
+            spdlog::error("Failed mounting PhysFS!\n{}", PHYSFS_getErrorByCode(PHYSFS_getLastErrorCode()));
         }
     }
 }

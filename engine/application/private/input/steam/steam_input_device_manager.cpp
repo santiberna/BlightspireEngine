@@ -1,5 +1,5 @@
 #include "input/steam/steam_input_device_manager.hpp"
-#include "log.hpp"
+
 #include <array>
 
 SteamInputDeviceManager::SteamInputDeviceManager()
@@ -48,7 +48,7 @@ GamepadType SteamInputDeviceManager::GetGamepadType() const
 
     if (!IsGamepadAvailable())
     {
-        bblog::error("[Input] No gamepad available while trying to get it's type!");
+        spdlog::error("[Input] No gamepad available while trying to get it's type!");
         return GamepadType::eUnknown;
     }
 
@@ -65,7 +65,7 @@ void SteamInputDeviceManager::UpdateControllerConnectivity()
     {
         if (_inputHandle != 0)
         {
-            bblog::info("[Input] Steam gamepad device removed");
+            spdlog::info("[Input] Steam gamepad device removed");
         }
 
         _inputHandle = 0;
@@ -75,6 +75,6 @@ void SteamInputDeviceManager::UpdateControllerConnectivity()
     if (_inputHandle != handles[0])
     {
         _inputHandle = handles[0];
-        bblog::info("[Input] Steam gamepad device added");
+        spdlog::info("[Input] Steam gamepad device added");
     }
 }

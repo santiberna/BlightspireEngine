@@ -5,7 +5,7 @@
 #include "ecs_module.hpp"
 #include "file_io.hpp"
 #include "lib/include_fastgltf.hpp"
-#include "log.hpp"
+
 #include "math_util.hpp"
 #include "physics/shape_factory.hpp"
 #include "profile_macros.hpp"
@@ -123,14 +123,14 @@ fastgltf::Asset LoadFastGLTFAsset(std::string_view path)
     auto loadedGltf = parser.loadGltf(fileStream, directory, DEFAULT_LOAD_FLAGS);
     if (!loadedGltf)
     {
-        bblog::error("error in gltf");
+        spdlog::error("error in gltf");
         throw std::runtime_error(getErrorMessage(loadedGltf.error()).data());
     }
 
     auto gltf = std::move(loadedGltf.get());
 
     if (gltf.scenes.size() > 1)
-        bblog::warn("GLTF contains more than one scene, but we only load one scene!");
+        spdlog::warn("GLTF contains more than one scene, but we only load one scene!");
 
     return gltf;
 }
@@ -225,7 +225,7 @@ CPUModel ModelLoading::LoadGLTF(std::string_view path)
     auto loadedGltf = parser.loadGltf(fileStream, directory, DEFAULT_LOAD_FLAGS);
     if (!loadedGltf)
     {
-        bblog::error("error in gltf");
+        spdlog::error("error in gltf");
         throw std::runtime_error(getErrorMessage(loadedGltf.error()).data());
     }
 
@@ -235,7 +235,7 @@ CPUModel ModelLoading::LoadGLTF(std::string_view path)
     std::string_view name = path.substr(offset, path.find_last_of('.') - offset);
 
     if (gltf.scenes.size() > 1)
-        bblog::warn("GLTF contains more than one scene, but we only load one scene!");
+        spdlog::warn("GLTF contains more than one scene, but we only load one scene!");
 
     return ProcessModel(gltf, name);
 }
@@ -544,7 +544,7 @@ CPUImage ProcessImage(const fastgltf::Image& gltfImage, const fastgltf::Asset& g
                        auto stream = fileIO::OpenReadStream(path);
                        stbi_uc* stbiData = fileIO::LoadImageFromIfstream(stream.value(), &width, &height, &nrChannels, 4);
                        if (!stbiData)
-                           bblog::error("Failed loading data from STBI at path: {}", path);
+                           spdlog::error("Failed loading data from STBI at path: {}", path);
 
                        data = std::vector<std::byte>(width * height * 4);
                        std::memcpy(data.data(), reinterpret_cast<std::byte*>(stbiData), data.size());

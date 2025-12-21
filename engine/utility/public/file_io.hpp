@@ -1,6 +1,5 @@
 #pragma once
 
-#include "log.hpp"
 #include "physfs.hpp"
 #include <chrono>
 #include <fstream>

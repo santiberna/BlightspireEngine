@@ -359,7 +359,7 @@ GPUImage::GPUImage(const CPUImage& creation, ResourceHandle<Sampler> textureSamp
         }
         else
         {
-            bblog::warn("Creating an unnamed image!");
+            spdlog::warn("Creating an unnamed image!");
         }
     }
 }

@@ -2,8 +2,6 @@
 
 #include <algorithm>
 
-#include "log.hpp"
-
 void AnimationControlComponent::PlayByIndex(uint32_t animationIndex, float speed, bool looping, float blendTime, bool blendMatch)
 {
     bool useBlend = blendTime > 0.0f && activeAnimation.has_value();
@@ -33,7 +31,7 @@ void AnimationControlComponent::Play(const std::string& name, float speed, bool 
     }
     else
     {
-        bblog::warn("Tried to use invalid animation name: {}", name);
+        spdlog::warn("Tried to use invalid animation name: {}", name);
     }
 }
 

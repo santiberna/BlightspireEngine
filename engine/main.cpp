@@ -18,7 +18,9 @@
 int Main()
 {
 #ifdef DISTRIBUTION
-    bblog::StartWritingToFile();
+    bb::setupFileLogger();
+#else
+    bb::setupDefaultLogger();
 #endif
 
 #ifdef DISTRIBUTION

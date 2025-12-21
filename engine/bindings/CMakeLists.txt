@@ -9,7 +9,6 @@ target_link_libraries(Bindings
         PRIVATE Audio
         PRIVATE Renderer
         PRIVATE Particles
-        PRIVATE GameAnalytics
         PRIVATE magic_enum::magic_enum
 )
 

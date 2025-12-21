@@ -1,4 +1,3 @@
-#include "analytics_module.hpp"
 #include "application_module.hpp"
 #include "audio_module.hpp"
 #include "ecs_module.hpp"
@@ -50,7 +49,6 @@ int Main()
                 .AddModule<ParticleModule>()
                 .AddModule<GameModule>()
                 .AddModule<InspectorModule>()
-                //.AddModule<AnalyticsModule>()
                 .AddModule<ScriptingModule>();
         }
 

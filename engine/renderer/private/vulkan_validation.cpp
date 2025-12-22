@@ -30,7 +30,7 @@ VKAPI_ATTR VkBool32 VKAPI_CALL util::DebugCallback(
         typeText = "[PERFORMANCE]";
     }
 
-    bblog::level::level_enum logLevel {};
+    spdlog::level::level_enum logLevel {};
 
     switch (messageSeverity)
     {

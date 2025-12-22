@@ -1,6 +1,5 @@
 #include "resource_management/image_resource_manager.hpp"
 
-#include "log.hpp"
 #include "vulkan_context.hpp"
 #include "vulkan_helper.hpp"
 

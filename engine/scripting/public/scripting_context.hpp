@@ -1,8 +1,8 @@
 #pragma once
 
 #include "common.hpp"
-#include "log.hpp"
 #include "wren_common.hpp"
+#include <spdlog/spdlog.h>
 
 #include <cstdint>
 #include <iostream>
@@ -35,11 +35,11 @@ public:
     std::optional<std::string> RunScript(const std::string& path);
 
     // Sets the output stream for system log calls
-    void SetScriptingOutputStream(std::shared_ptr<bblog::logger> stream) { _wrenOutStream = stream; }
+    void SetScriptingOutputStream(std::shared_ptr<spdlog::logger> stream) { _wrenOutStream = stream; }
     void FlushOutputStream() { _wrenOutStream->flush(); }
 
 private:
     VMInitConfig _vmInitConfig {};
     std::unique_ptr<wren::VM> _vm;
-    std::shared_ptr<bblog::logger> _wrenOutStream = nullptr;
+    std::shared_ptr<spdlog::logger> _wrenOutStream = nullptr;
 };

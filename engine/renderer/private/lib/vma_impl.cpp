@@ -1,5 +1,6 @@
-#include "log.hpp"
+
 #include <spdlog/fmt/bundled/printf.h>
+#include <spdlog/spdlog.h>
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wunused-function"
@@ -9,10 +10,10 @@
 #pragma clang diagnostic ignored "-Wnullability-completeness"
 
 #define VMA_IMPLEMENTATION
-#define VMA_LEAK_LOG_FORMAT(format, ...)                 \
-    do                                                   \
-    {                                                    \
-        bblog::error(fmt::sprintf(format, __VA_ARGS__)); \
+#define VMA_LEAK_LOG_FORMAT(format, ...)                  \
+    do                                                    \
+    {                                                     \
+        spdlog::error(fmt::sprintf(format, __VA_ARGS__)); \
     } while (false)
 
 #include "vma/vk_mem_alloc.h"

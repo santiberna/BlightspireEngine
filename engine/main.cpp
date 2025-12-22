@@ -14,11 +14,14 @@
 #include "thread_module.hpp"
 #include "time_module.hpp"
 #include "ui_module.hpp"
+#include <log_setup.hpp>
 
 int Main()
 {
 #ifdef DISTRIBUTION
-    bblog::StartWritingToFile();
+    bb::setupFileLogger();
+#else
+    bb::setupDefaultLogger();
 #endif
 
 #ifdef DISTRIBUTION
@@ -63,7 +66,7 @@ int Main()
             instance.GetModule<TimeModule>().ResetTimer();
         }
 
-        bblog::info("{}ms taken for complete startup!", startupTimer.GetElapsed().count());
+        spdlog::info("{}ms taken for complete startup!", startupTimer.GetElapsed().count());
         result = instance.Run();
     }
 

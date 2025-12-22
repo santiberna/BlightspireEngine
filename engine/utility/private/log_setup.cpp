@@ -1,4 +1,4 @@
-#include "log.hpp"
+#include "log_setup.hpp"
 #include <spdlog/sinks/rotating_file_sink.h>
 #include <time.h>
 
@@ -28,7 +28,7 @@ OSVERSIONINFOEX GetWindowsVersion()
 }
 #endif
 
-std::string GetOSName()
+std::string bb::getOsName()
 {
 #ifdef _WIN32
     double majorVersion = 0.0;
@@ -65,7 +65,12 @@ std::string SerializeTimePoint(const std::chrono::system_clock::time_point& time
     return ss.str();
 }
 
-void spdlog::StartWritingToFile()
+void bb::setupDefaultLogger()
+{
+    // No config needed yet
+}
+
+void bb::setupFileLogger()
 {
     const std::string logFileDir = "logs/";
     const std::string logFileExtension = ".bblog";
@@ -80,12 +85,7 @@ void spdlog::StartWritingToFile()
     constexpr size_t maxFiles = 3;
 
     auto fileLogger = spdlog::rotating_logger_mt("bblog", fullName, maxFileSize, maxFiles);
-    bblog::set_default_logger(fileLogger);
 
-    bblog::flush_on(bblog::level::level_enum::trace); // Flush on everything
-}
-
-void spdlog::PrintOSName()
-{
-    bblog::info("Operating System: {}", GetOSName());
+    spdlog::set_default_logger(fileLogger);
+    spdlog::flush_on(spdlog::level::level_enum::trace); // Flush on everything
 }

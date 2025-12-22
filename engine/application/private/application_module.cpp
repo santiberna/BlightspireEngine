@@ -4,8 +4,9 @@
 #include "input/sdl/sdl_input_device_manager.hpp"
 #include "input/steam/steam_action_manager.hpp"
 #include "input/steam/steam_input_device_manager.hpp"
-#include "log.hpp"
 #include "steam_module.hpp"
+
+#include <spdlog/spdlog.h>
 
 // SDL throws some weird errors when parsed with clang-analyzer (used in clang-tidy checks)
 // This definition fixes the issues and does not change the final build output
@@ -23,7 +24,7 @@ ModuleTickOrder ApplicationModule::Init(Engine& engine)
 
     if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMEPAD))
     {
-        bblog::error("Failed initializing SDL: {0}", SDL_GetError());
+        spdlog::error("Failed initializing SDL: {0}", SDL_GetError());
         engine.SetExit(-1);
         return priority;
     }
@@ -35,7 +36,7 @@ ModuleTickOrder ApplicationModule::Init(Engine& engine)
 
     if (dm == nullptr)
     {
-        bblog::error("Failed retrieving DisplayMode: {0}", SDL_GetError());
+        spdlog::error("Failed retrieving DisplayMode: {0}", SDL_GetError());
         engine.SetExit(-1);
         return priority;
     }
@@ -48,7 +49,7 @@ ModuleTickOrder ApplicationModule::Init(Engine& engine)
 
     if (_window == nullptr)
     {
-        bblog::error("Failed creating SDL window: {}", SDL_GetError());
+        spdlog::error("Failed creating SDL window: {}", SDL_GetError());
         engine.SetExit(-1);
         SDL_Quit();
         return priority;
@@ -70,7 +71,7 @@ ModuleTickOrder ApplicationModule::Init(Engine& engine)
     }
     else
     {
-        bblog::warn("Unable to load window icon!");
+        spdlog::warn("Unable to load window icon!");
     }
 
     uint32_t sdlExtensionsCount = 0;
@@ -84,7 +85,7 @@ ModuleTickOrder ApplicationModule::Init(Engine& engine)
         VkSurfaceKHR surface {};
         if (!SDL_Vulkan_CreateSurface(_window, instance, nullptr, &surface))
         {
-            bblog::error("Failed creating SDL vk::Surface: {}", SDL_GetError());
+            spdlog::error("Failed creating SDL vk::Surface: {}", SDL_GetError());
         }
         return vk::SurfaceKHR(surface);
     };
@@ -92,14 +93,14 @@ ModuleTickOrder ApplicationModule::Init(Engine& engine)
     const SteamModule& steam = engine.GetModule<SteamModule>();
     if (steam.InputAvailable())
     {
-        bblog::info("Steam Input available, creating SteamActionManager. Controller input settings will be used from Steam");
+        spdlog::info("Steam Input available, creating SteamActionManager. Controller input settings will be used from Steam");
         _inputDeviceManager = std::make_unique<SteamInputDeviceManager>();
         const SteamInputDeviceManager& inputManager = dynamic_cast<SteamInputDeviceManager&>(*_inputDeviceManager);
         _actionManager = std::make_unique<SteamActionManager>(inputManager);
     }
     else
     {
-        bblog::info("Steam Input not available, creating default ActionManager. Controller input settings will be used from program");
+        spdlog::info("Steam Input not available, creating default ActionManager. Controller input settings will be used from program");
         _inputDeviceManager = std::make_unique<SDLInputDeviceManager>();
         const SDLInputDeviceManager& inputManager = dynamic_cast<SDLInputDeviceManager&>(*_inputDeviceManager);
         _actionManager = std::make_unique<SDLActionManager>(inputManager);
@@ -160,7 +161,7 @@ void ApplicationModule::OpenExternalBrowser(const std::string& url)
 {
     if (SDL_OpenURL(url.c_str()) == false)
     {
-        bblog::error("Failed opening external browser with url: ", url);
+        spdlog::error("Failed opening external browser with url: ", url);
     }
 }
 

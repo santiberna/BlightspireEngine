@@ -96,7 +96,7 @@ void InspectorModule::Tick(MAYBE_UNUSED Engine& engine)
     {
         if (ImGui::Button("Reload Game"))
         {
-            bblog::info("Hot reloaded environment!");
+            spdlog::info("Hot reloaded environment!");
             auto& game = engine.GetModule<GameModule>();
             game.SetNextScene(engine.GetModule<ScriptingModule>().GetMainScriptPath());
         }
@@ -316,7 +316,7 @@ void DumpVMAStats(Engine& engine)
     }
     else
     {
-        bblog::error("Failed writing VMA stats to file!");
+        spdlog::error("Failed writing VMA stats to file!");
     }
     vmaFreeStatsString(engine.GetModule<RendererModule>().GetRenderer()->GetContext()->VulkanContext()->MemoryAllocator(), statsJson);
 }

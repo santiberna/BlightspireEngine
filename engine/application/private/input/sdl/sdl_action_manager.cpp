@@ -1,6 +1,6 @@
 #include "input/sdl/sdl_action_manager.hpp"
 #include "input/sdl/sdl_input_device_manager.hpp"
-#include "log.hpp"
+
 #include <algorithm>
 #include <magic_enum.hpp>
 
@@ -65,7 +65,7 @@ glm::vec2 SDLActionManager::CheckInput(MAYBE_UNUSED std::string_view actionName,
 
     default:
     {
-        bblog::error("[Input] Unsupported analog input \"{}\" for action: \"{}\"", magic_enum::enum_name(gamepadAnalog), actionName);
+        spdlog::error("[Input] Unsupported analog input \"{}\" for action: \"{}\"", magic_enum::enum_name(gamepadAnalog), actionName);
         break;
     }
     }

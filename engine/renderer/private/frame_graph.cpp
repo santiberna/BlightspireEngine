@@ -386,7 +386,7 @@ void FrameGraph::CreateColorImageBarrier(const GPUImage& image, ResourceState st
         break;
     }
     default:
-        bblog::error("[Frame Graph] Unsupported color image resource usage: {}", magic_enum::enum_name(state));
+        spdlog::error("[Frame Graph] Unsupported color image resource usage: {}", magic_enum::enum_name(state));
         break;
     }
 }
@@ -424,7 +424,7 @@ void FrameGraph::CreateDepthImageBarrier(const GPUImage& image, ResourceState st
         break;
     }
     default:
-        bblog::error("[Frame Graph] Unsupported depth image resource usage: {}", magic_enum::enum_name(state));
+        spdlog::error("[Frame Graph] Unsupported depth image resource usage: {}", magic_enum::enum_name(state));
         break;
     }
 }
@@ -462,7 +462,7 @@ void FrameGraph::CreateGeneralImageBarrier(const GPUImage& image, ResourceState 
         break;
     }
     default:
-        bblog::error("[Frame Graph] Unsupported general image resource usage: {}", magic_enum::enum_name(state));
+        spdlog::error("[Frame Graph] Unsupported general image resource usage: {}", magic_enum::enum_name(state));
         break;
     }
 }
@@ -498,7 +498,7 @@ void FrameGraph::CreateBufferBarrier(const FrameGraphResource& resource, Resourc
     case ResourceState::eReusedOutputAfterOutput:
     case ResourceState::eReusedOutputAfterInput:
     default:
-        bblog::error("[Frame Graph] Unsupported buffer resource usage: {}", magic_enum::enum_name(state));
+        spdlog::error("[Frame Graph] Unsupported buffer resource usage: {}", magic_enum::enum_name(state));
         break;
     }
 }

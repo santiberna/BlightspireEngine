@@ -94,7 +94,7 @@ void PhysicsModule::Tick(MAYBE_UNUSED Engine& engine)
 
         if (error != JPH::EPhysicsUpdateError::None)
         {
-            bblog::error("[PHYSICS] Simulation step error has occurred");
+            spdlog::error("[PHYSICS] Simulation step error has occurred");
         }
     }
 

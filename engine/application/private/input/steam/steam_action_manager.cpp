@@ -1,9 +1,11 @@
 #include "input/steam/steam_action_manager.hpp"
 #include "hashmap_utils.hpp"
 #include "input/steam/steam_input_device_manager.hpp"
-#include "log.hpp"
+
 #include <array>
 #include <filesystem>
+#include <spdlog/spdlog.h>
+
 
 SteamActionManager::SteamActionManager(const SteamInputDeviceManager& steamInputDeviceManager)
     : ActionManager(steamInputDeviceManager)
@@ -101,7 +103,7 @@ glm::vec2 SteamActionManager::CheckInput(std::string_view actionName, MAYBE_UNUS
     auto itr = actionSetCache.gamepadAnalogActionsCache.find(actionName.data());
     if (itr == actionSetCache.gamepadAnalogActionsCache.end())
     {
-        bblog::error("[Input] Failed to find analog action cache \"{}\" in the current active action set \"{}\"", actionName, _gameActions[_activeActionSet].name);
+        spdlog::error("[Input] Failed to find analog action cache \"{}\" in the current active action set \"{}\"", actionName, _gameActions[_activeActionSet].name);
         return { 0.0f, 0.0f };
     }
 
@@ -118,7 +120,7 @@ std::vector<BindingOriginVisual> SteamActionManager::GetDigitalActionGamepadOrig
 
     if (_gameActions.empty())
     {
-        bblog::error("[Input] No game actions are set while trying to get action: \"{}\"", action.name);
+        spdlog::error("[Input] No game actions are set while trying to get action: \"{}\"", action.name);
         return {};
     }
 
@@ -135,7 +137,7 @@ std::vector<BindingOriginVisual> SteamActionManager::GetDigitalActionGamepadOrig
     auto itr = actionSetCache.gamepadDigitalActionsCache.find(action.name.data());
     if (itr == actionSetCache.gamepadDigitalActionsCache.end())
     {
-        bblog::error("[Input] Failed to find digital action cache \"{}\" in the current active action set \"{}\"", action.name, _gameActions[_activeActionSet].name);
+        spdlog::error("[Input] Failed to find digital action cache \"{}\" in the current active action set \"{}\"", action.name, _gameActions[_activeActionSet].name);
         return {};
     }
 
@@ -167,7 +169,7 @@ std::vector<BindingOriginVisual> SteamActionManager::GetAnalogActionGamepadOrigi
 
     if (_gameActions.empty())
     {
-        bblog::error("[Input] No game actions are set while trying to get action: \"{}\"", action.name);
+        spdlog::error("[Input] No game actions are set while trying to get action: \"{}\"", action.name);
         return {};
     }
 
@@ -184,7 +186,7 @@ std::vector<BindingOriginVisual> SteamActionManager::GetAnalogActionGamepadOrigi
     auto itr = actionSetCache.gamepadAnalogActionsCache.find(action.name.data());
     if (itr == actionSetCache.gamepadAnalogActionsCache.end())
     {
-        bblog::error("[Input] Failed to find analog action cache \"{}\" in the current active action set \"{}\"", action.name, _gameActions[_activeActionSet].name);
+        spdlog::error("[Input] Failed to find analog action cache \"{}\" in the current active action set \"{}\"", action.name, _gameActions[_activeActionSet].name);
         return {};
     }
 

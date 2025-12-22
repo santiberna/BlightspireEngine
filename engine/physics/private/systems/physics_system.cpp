@@ -50,7 +50,7 @@ void PhysicsSystem::Update(MAYBE_UNUSED ECSModule& ecs, MAYBE_UNUSED float delta
     {
         if (_physicsModule.GetBodyInterface().GetMotionType(active_body) == JPH::EMotionType::Static)
         {
-            bblog::trace("Skipping static body");
+            spdlog::trace("Skipping static body");
             return;
         }
 

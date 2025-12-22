@@ -140,7 +140,7 @@ ModuleTickOrder GameModule::Init(Engine& engine)
 
     auto OpenDiscordURL = [&engine]()
     {
-        bblog::info("Opening Discord LINK");
+        spdlog::info("Opening Discord LINK");
         auto& steam = engine.GetModule<SteamModule>();
         if (steam.Available())
         {

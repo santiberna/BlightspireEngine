@@ -3,7 +3,8 @@
 #include "audio_emitter_component.hpp"
 #include "audio_listener_component.hpp"
 #include "audio_module.hpp"
-#include "log.hpp"
+#include <spdlog/spdlog.h>
+
 #include "wren_entity.hpp"
 
 namespace bindings
@@ -28,7 +29,7 @@ std::optional<SoundInstance> PlaySFX(AudioModule& self, const std::string& path,
 {
     if (!self.isSFXLoaded(path))
     {
-        bblog::error("Tried to play a sound that was not loaded: {0}", path);
+        spdlog::error("Tried to play a sound that was not loaded: {0}", path);
         return std::nullopt;
     }
 

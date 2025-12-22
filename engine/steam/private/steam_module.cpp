@@ -1,8 +1,8 @@
 #include "steam_module.hpp"
 #include "achievements.hpp"
-#include "log.hpp"
 #include "steam_include.hpp"
 
+#include <spdlog/spdlog.h>
 #include <time_module.hpp>
 
 void DebugCallback(int severity, const char* message)
@@ -13,13 +13,13 @@ void DebugCallback(int severity, const char* message)
     switch (severity)
     {
     case 0:
-        bblog::info("[Steamworks] {}", message);
+        spdlog::info("[Steamworks] {}", message);
         break;
     case 1:
-        bblog::warn("[Steamworks] {}", message);
+        spdlog::warn("[Steamworks] {}", message);
         break;
     default:
-        bblog::error("[Steamworks] {}", message);
+        spdlog::error("[Steamworks] {}", message);
     }
 }
 
@@ -28,7 +28,7 @@ ModuleTickOrder SteamModule::Init(MAYBE_UNUSED Engine& engine)
     SteamErrMsg errorMessage = { 0 };
     if (SteamAPI_InitEx(&errorMessage) != k_ESteamAPIInitResult_OK)
     {
-        bblog::error("[Steamworks] {}", errorMessage);
+        spdlog::error("[Steamworks] {}", errorMessage);
 
         return ModuleTickOrder::ePreTick;
     }
@@ -38,7 +38,7 @@ ModuleTickOrder SteamModule::Init(MAYBE_UNUSED Engine& engine)
     // User doesn't have to be logged in to use steam input, but the base API still has to be available
     if (!SteamInput()->Init(false))
     {
-        bblog::error("[Steamworks] Failed to initialize Steam Input");
+        spdlog::error("[Steamworks] Failed to initialize Steam Input");
 
         return ModuleTickOrder::ePreTick;
     }
@@ -48,7 +48,7 @@ ModuleTickOrder SteamModule::Init(MAYBE_UNUSED Engine& engine)
 
     if (!SteamUser()->BLoggedOn())
     {
-        bblog::warn("[Steamworks] Steam user is not logged in, Steamworks API functionality will be unavailable");
+        spdlog::warn("[Steamworks] Steam user is not logged in, Steamworks API functionality will be unavailable");
 
         return ModuleTickOrder::ePreTick;
     }
@@ -114,14 +114,14 @@ void SteamModule::SaveStats()
     }
     else
     {
-        bblog::error("Cannot save stats, SteamStats does not exist.");
+        spdlog::error("Cannot save stats, SteamStats does not exist.");
     }
 }
 void SteamModule::OpenSteamBrowser(const std::string& url)
 {
     if (_steamAvailable == false)
     {
-        bblog::error("Steam is not available, cannot open Steam browser.");
+        spdlog::error("Steam is not available, cannot open Steam browser.");
     }
     else
     {

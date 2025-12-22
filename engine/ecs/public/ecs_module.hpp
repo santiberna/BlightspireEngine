@@ -1,12 +1,14 @@
 #pragma once
 #include "common.hpp"
 #include "engine.hpp"
-#include "log.hpp"
+
 #include "system_interface.hpp"
 #include "utility/entity_serializer.hpp"
 
 #include <cassert>
 #include <entt/entity/registry.hpp>
+#include <spdlog/spdlog.h>
+
 
 struct DeleteTag
 {
@@ -58,7 +60,7 @@ void ECSModule::AddSystem(Args&&... args)
     requires IsSystem<T>
 {
     systems.emplace_back(std::make_unique<T>(std::forward<Args>(args)...));
-    bblog::info("{}, created", typeid(T).name());
+    spdlog::info("{}, created", typeid(T).name());
 }
 
 template <typename T>

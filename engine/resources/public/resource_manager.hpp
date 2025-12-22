@@ -7,7 +7,8 @@
 #include <vector>
 
 #include "common.hpp"
-#include "log.hpp"
+#include <cassert>
+
 
 template <typename T>
 struct ResourceHandle;

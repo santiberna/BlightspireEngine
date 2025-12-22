@@ -5,7 +5,6 @@
 
 #include "cereal/archives/json.hpp"
 #include "cereal/cereal.hpp"
-#include "log.hpp"
 
 namespace Serialization
 {
@@ -26,7 +25,7 @@ void SerialiseToJSON(const std::filesystem::path& path, const T& object)
     }
     else
     {
-        bblog::error("Failed to write to file in Serialization::SerialiseToJson with filepath {}", path.string());
+        spdlog::error("Failed to write to file in Serialization::SerialiseToJson with filepath {}", path.string());
     }
 }
 }

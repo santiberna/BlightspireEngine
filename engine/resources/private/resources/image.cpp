@@ -3,7 +3,9 @@
 #include "vulkan_helper.hpp"
 
 #include <file_io.hpp>
+#include <spdlog/spdlog.h>
 #include <stb_image.h>
+
 
 CPUImage& CPUImage::FromPNG(std::string_view path)
 {
@@ -359,7 +361,7 @@ GPUImage::GPUImage(const CPUImage& creation, ResourceHandle<Sampler> textureSamp
         }
         else
         {
-            bblog::warn("Creating an unnamed image!");
+            spdlog::warn("Creating an unnamed image!");
         }
     }
 }

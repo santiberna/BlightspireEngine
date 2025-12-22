@@ -6,8 +6,8 @@
 #include <Jolt/Physics/Collision/Shape/ConvexHullShape.h>
 #include <Jolt/Physics/Collision/Shape/MeshShape.h>
 #include <Jolt/Physics/Collision/Shape/SphereShape.h>
+#include <spdlog/spdlog.h>
 
-#include "log.hpp"
 
 JPH::ShapeRefC ShapeFactory::MakeBoxShape(const glm::vec3& size)
 {
@@ -50,7 +50,7 @@ bool IsTriangleDegenerate(const glm::vec3& v0, const glm::vec3& v1, const glm::v
 
     if (lengthSquared <= 1e-15f)
     {
-        bblog::info("{}", lengthSquared);
+        spdlog::info("{}", lengthSquared);
     }
 
     return lengthSquared <= 1e-12f;

@@ -5,7 +5,6 @@
 #include "components/transform_component.hpp"
 #include "components/wants_shadows_updated.hpp"
 #include "components/world_matrix_component.hpp"
-#include "log.hpp"
 
 #include <entt/entity/registry.hpp>
 #include <glm/gtx/matrix_decompose.hpp>
@@ -16,7 +15,7 @@ bool CheckPhysicsAssert(entt::registry& reg, entt::entity entity)
     if (reg.all_of<RigidbodyComponent>(entity))
     {
         auto* name = reg.try_get<NameComponent>(entity);
-        bblog::warn("{} already has a RigidbodyComponent", name != nullptr ? name->name : "Unnamed entity");
+        spdlog::warn("{} already has a RigidbodyComponent", name != nullptr ? name->name : "Unnamed entity");
         return false;
     }
     return true;
@@ -90,7 +89,7 @@ void TransformHelpers::SetLocalTransform(entt::registry& reg, entt::entity entit
 
     if (std::abs(scale.x) < 0.0001f || std::abs(scale.y) < 0.0001f || std::abs(scale.z) < 0.0001f)
     {
-        bblog::warn("Too small scale");
+        spdlog::warn("Too small scale");
         return;
     }
 

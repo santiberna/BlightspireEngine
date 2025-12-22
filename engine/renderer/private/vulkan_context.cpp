@@ -4,16 +4,17 @@
 #include <set>
 
 #include "application_module.hpp"
-#include "log.hpp"
 #include "pipeline_builder.hpp"
 #include "swap_chain.hpp"
 #include "vulkan_helper.hpp"
 #include "vulkan_validation.hpp"
+#include <log_setup.hpp>
+
 
 VulkanContext::VulkanContext(const VulkanInitInfo& initInfo)
 {
     _validationEnabled = CheckValidationLayerSupport() && ENABLE_VALIDATION_LAYERS;
-    bblog::info("Validation layers enabled: {}", _validationEnabled ? "TRUE" : "FALSE");
+    spdlog::info("Validation layers enabled: {}", _validationEnabled ? "TRUE" : "FALSE");
 
     CreateInstance(initInfo);
     _dldi = bb::VulkanDispatchLoader { _instance, vkGetInstanceProcAddr, _device, vkGetDeviceProcAddr };
@@ -42,18 +43,18 @@ VulkanContext::VulkanContext(const VulkanInitInfo& initInfo)
     _physicalDevice.getProperties(&properties);
     _minUniformBufferOffsetAlignment = properties.limits.minUniformBufferOffsetAlignment;
 
-    bblog::info("##### SYSTEM INFO #####");
-    bblog::PrintOSName();
+    spdlog::info("##### SYSTEM INFO #####");
+    spdlog::info("Operating System: {}", bb::getOsName());
 
     uint32_t apiVersion = vk::enumerateInstanceVersion();
     uint32_t major = VK_VERSION_MAJOR(apiVersion);
     uint32_t minor = VK_VERSION_MINOR(apiVersion);
     uint32_t patch = VK_VERSION_PATCH(apiVersion);
-    bblog::info("Vulkan Version Installed: {}.{}.{}", major, minor, patch);
+    spdlog::info("Vulkan Version Installed: {}.{}.{}", major, minor, patch);
 
-    bblog::info("GPU: {}", std::string(properties.deviceName));
-    bblog::info("GPU Driver Version (encoded): {}", properties.driverVersion); // Encoding can be different for each vendor
-    bblog::info("#######################");
+    spdlog::info("GPU: {}", std::string(properties.deviceName));
+    spdlog::info("GPU Driver Version (encoded): {}", properties.driverVersion); // Encoding can be different for each vendor
+    spdlog::info("#######################");
 }
 
 VulkanContext::~VulkanContext()

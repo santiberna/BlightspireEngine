@@ -1,7 +1,6 @@
 #include "fmod_debug.hpp"
 #include "common.hpp"
 #include "fmod_include.hpp"
-#include "log.hpp"
 
 #include <iostream>
 
@@ -9,7 +8,7 @@ void FMOD_CHECKRESULT_fn(FMOD_RESULT result, MAYBE_UNUSED const char* file, int 
 {
     if (result != FMOD_OK)
     {
-        bblog::error("FMOD ERROR: audio_module.cpp [Line {0} ] {1} - {2}", line, static_cast<int>(result), FMOD_ErrorString(result));
+        spdlog::error("FMOD ERROR: audio_module.cpp [Line {0} ] {1} - {2}", line, static_cast<int>(result), FMOD_ErrorString(result));
         throw std::runtime_error(FMOD_ErrorString(result));
     }
 }
@@ -46,7 +45,7 @@ void StartFMODDebugLogger()
 
     if (result != FMOD_OK)
     {
-        bblog::error("FMOD Error: {0}", FMOD_ErrorString(result));
+        spdlog::error("FMOD Error: {0}", FMOD_ErrorString(result));
     }
 #endif
 }

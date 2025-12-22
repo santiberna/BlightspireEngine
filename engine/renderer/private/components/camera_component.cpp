@@ -1,7 +1,6 @@
 #include "components/camera_component.hpp"
 
 #include "imgui_internal.h"
-#include "log.hpp"
 
 #include <glm/gtc/type_ptr.hpp>
 
@@ -27,7 +26,7 @@ void CameraComponent::Inspect()
     }
     else
     {
-        bblog::warn("CameraComponent", "Invalid projection type: {}", currentProjection);
+        spdlog::warn("CameraComponent", "Invalid projection type: {}", currentProjection);
     }
 
     ImGui::SliderInt("Projection##Camera", &currentProjection, 0, projectionElementCount - 1, currentProjectionName);

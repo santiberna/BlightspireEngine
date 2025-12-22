@@ -5,7 +5,6 @@
 
 #include "wren_bindings.hpp"
 
-#include "log.hpp"
 #include "scripting_context.hpp"
 #include "scripting_module.hpp"
 #include "time_module.hpp"

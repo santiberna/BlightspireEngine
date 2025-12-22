@@ -1,7 +1,7 @@
 #include "main_script.hpp"
 
 #include "wren_engine.hpp"
-
+#include <spdlog/spdlog.h>
 #include <tracy/Tracy.hpp>
 
 MainScript::MainScript(Engine* e, wren::VM& vm, const std::string& module, const std::string& className)

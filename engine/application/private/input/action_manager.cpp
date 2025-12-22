@@ -2,6 +2,7 @@
 #include "input/input_codes/input_names.hpp"
 
 #include <algorithm>
+#include <spdlog/spdlog.h>
 
 ActionManager::ActionManager(const InputDeviceManager& inputDeviceManager)
     : _inputDeviceManager(inputDeviceManager)

@@ -1,5 +1,6 @@
 ﻿#include "steam_stats.hpp"
 
+#include <spdlog/spdlog.h>
 #include <magic_enum.hpp>
 
 SteamStatManager::SteamStatManager(std::span<Stat> stats)

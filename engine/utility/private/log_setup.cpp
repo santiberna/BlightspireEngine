@@ -28,7 +28,7 @@ OSVERSIONINFOEX GetWindowsVersion()
 }
 #endif
 
-std::string GetOSName()
+std::string bb::getOsName()
 {
 #ifdef _WIN32
     double majorVersion = 0.0;
@@ -88,9 +88,4 @@ void bb::setupFileLogger()
 
     spdlog::set_default_logger(fileLogger);
     spdlog::flush_on(spdlog::level::level_enum::trace); // Flush on everything
-}
-
-void PrintOSName()
-{
-    spdlog::info("Operating System: {}", GetOSName());
 }

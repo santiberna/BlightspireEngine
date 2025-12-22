@@ -4,8 +4,9 @@
 #include "input/sdl/sdl_input_device_manager.hpp"
 #include "input/steam/steam_action_manager.hpp"
 #include "input/steam/steam_input_device_manager.hpp"
-
 #include "steam_module.hpp"
+
+#include <spdlog/spdlog.h>
 
 // SDL throws some weird errors when parsed with clang-analyzer (used in clang-tidy checks)
 // This definition fixes the issues and does not change the final build output

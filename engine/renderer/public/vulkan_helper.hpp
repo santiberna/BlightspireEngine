@@ -5,6 +5,7 @@
 #include "vulkan_context.hpp"
 #include <glm/glm.hpp>
 #include <magic_enum.hpp>
+#include <spdlog/spdlog.h>
 
 namespace util
 {

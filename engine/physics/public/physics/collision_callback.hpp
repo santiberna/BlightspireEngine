@@ -4,6 +4,7 @@
 #include "wren_entity.hpp"
 
 #include <functional>
+#include <spdlog/spdlog.h>
 #include <variant>
 
 struct CollisionCallback

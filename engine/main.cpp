@@ -14,6 +14,7 @@
 #include "thread_module.hpp"
 #include "time_module.hpp"
 #include "ui_module.hpp"
+#include <log_setup.hpp>
 
 int Main()
 {

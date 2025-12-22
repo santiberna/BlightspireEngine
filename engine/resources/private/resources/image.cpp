@@ -3,7 +3,9 @@
 #include "vulkan_helper.hpp"
 
 #include <file_io.hpp>
+#include <spdlog/spdlog.h>
 #include <stb_image.h>
+
 
 CPUImage& CPUImage::FromPNG(std::string_view path)
 {

@@ -1,5 +1,6 @@
 
 #include <spdlog/fmt/bundled/printf.h>
+#include <spdlog/spdlog.h>
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wunused-function"

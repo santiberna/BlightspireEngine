@@ -1,6 +1,7 @@
 #include "file_io.hpp"
 #include <bit>
 #include <filesystem>
+#include <spdlog/spdlog.h>
 #include <stb_image.h>
 
 std::optional<PhysFS::ifstream> fileIO::OpenReadStream(const std::string& path)

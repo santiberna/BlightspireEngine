@@ -2,6 +2,7 @@
 
 #include "wren_common.hpp"
 
+#include <spdlog/spdlog.h>
 #include <variant>
 
 struct Callback

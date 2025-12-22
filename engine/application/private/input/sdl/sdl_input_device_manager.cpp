@@ -2,6 +2,7 @@
 #include "hashmap_utils.hpp"
 
 #include <SDL3/SDL.h>
+#include <spdlog/spdlog.h>
 
 SDLInputDeviceManager::SDLInputDeviceManager()
     : InputDeviceManager()

@@ -4,11 +4,12 @@
 #include <set>
 
 #include "application_module.hpp"
-
 #include "pipeline_builder.hpp"
 #include "swap_chain.hpp"
 #include "vulkan_helper.hpp"
 #include "vulkan_validation.hpp"
+#include <log_setup.hpp>
+
 
 VulkanContext::VulkanContext(const VulkanInitInfo& initInfo)
 {
@@ -43,7 +44,7 @@ VulkanContext::VulkanContext(const VulkanInitInfo& initInfo)
     _minUniformBufferOffsetAlignment = properties.limits.minUniformBufferOffsetAlignment;
 
     spdlog::info("##### SYSTEM INFO #####");
-    spdlog::PrintOSName();
+    spdlog::info("Operating System: {}", bb::getOsName());
 
     uint32_t apiVersion = vk::enumerateInstanceVersion();
     uint32_t major = VK_VERSION_MAJOR(apiVersion);

@@ -6,6 +6,8 @@
 #include <Jolt/Physics/Collision/Shape/ConvexHullShape.h>
 #include <Jolt/Physics/Collision/Shape/MeshShape.h>
 #include <Jolt/Physics/Collision/Shape/SphereShape.h>
+#include <spdlog/spdlog.h>
+
 
 JPH::ShapeRefC ShapeFactory::MakeBoxShape(const glm::vec3& size)
 {

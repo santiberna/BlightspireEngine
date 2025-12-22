@@ -9,4 +9,7 @@ void setupDefaultLogger();
 
 // After this is called, the logs are written to a file, instead of the console. Overwrites the default logger
 void setupFileLogger();
+
+// Returns the name of the running system
+std::string getOsName();
 }

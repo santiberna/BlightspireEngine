@@ -1,5 +1,6 @@
 ﻿#include "achievements.hpp"
 
+#include <spdlog/spdlog.h>
 #include <magic_enum.hpp>
 
 SteamAchievementManager::SteamAchievementManager(std::span<Achievement> achievements)

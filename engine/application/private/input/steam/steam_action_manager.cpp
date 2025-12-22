@@ -4,6 +4,8 @@
 
 #include <array>
 #include <filesystem>
+#include <spdlog/spdlog.h>
+
 
 SteamActionManager::SteamActionManager(const SteamInputDeviceManager& steamInputDeviceManager)
     : ActionManager(steamInputDeviceManager)

@@ -1,8 +1,8 @@
 #include "steam_module.hpp"
 #include "achievements.hpp"
-
 #include "steam_include.hpp"
 
+#include <spdlog/spdlog.h>
 #include <time_module.hpp>
 
 void DebugCallback(int severity, const char* message)

@@ -1,8 +1,8 @@
 #include "vulkan_helper.hpp"
 
 #include "tracy/Tracy.hpp"
-#include "vk_mem_alloc.h"
 #include "vulkan_include.hpp"
+#include <vma/vk_mem_alloc.h>
 
 void util::VK_ASSERT(vk::Result result, std::string_view message)
 {
@@ -357,7 +357,7 @@ void util::CopyImageToImage(vk::CommandBuffer commandBuffer, vk::Image srcImage,
     commandBuffer.blitImage2(&blitInfo);
 }
 
-void util::BeginLabel(vk::Queue queue, std::string_view label, glm::vec3 color, const vk::DispatchLoaderDynamic dldi)
+void util::BeginQueueLabel(vk::Queue queue, std::string_view label, glm::vec3 color, const bb::VulkanDispatchLoader& dldi)
 {
     if (!ENABLE_VALIDATION_LAYERS)
         return;
@@ -369,14 +369,14 @@ void util::BeginLabel(vk::Queue queue, std::string_view label, glm::vec3 color, 
     queue.beginDebugUtilsLabelEXT(&labelExt, dldi);
 }
 
-void util::EndLabel(vk::Queue queue, const vk::DispatchLoaderDynamic dldi)
+void util::EndQueueLabel(vk::Queue queue, const bb::VulkanDispatchLoader& dldi)
 {
     if (!ENABLE_VALIDATION_LAYERS)
         return;
     queue.endDebugUtilsLabelEXT(dldi);
 }
 
-void util::BeginLabel(vk::CommandBuffer commandBuffer, std::string_view label, glm::vec3 color, const vk::DispatchLoaderDynamic dldi)
+void util::BeginLabel(vk::CommandBuffer commandBuffer, std::string_view label, glm::vec3 color, const bb::VulkanDispatchLoader& dldi)
 {
     if (!ENABLE_VALIDATION_LAYERS)
         return;
@@ -388,7 +388,7 @@ void util::BeginLabel(vk::CommandBuffer commandBuffer, std::string_view label, g
     commandBuffer.beginDebugUtilsLabelEXT(&labelExt, dldi);
 }
 
-void util::EndLabel(vk::CommandBuffer commandBuffer, const vk::DispatchLoaderDynamic dldi)
+void util::EndLabel(vk::CommandBuffer commandBuffer, const bb::VulkanDispatchLoader& dldi)
 {
     if (!ENABLE_VALIDATION_LAYERS)
         return;

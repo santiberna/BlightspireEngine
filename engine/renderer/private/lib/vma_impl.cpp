@@ -15,6 +15,6 @@
         bblog::error(fmt::sprintf(format, __VA_ARGS__)); \
     } while (false)
 
-#include "vk_mem_alloc.h"
+#include "vma/vk_mem_alloc.h"
 
 #pragma clang diagnostic pop

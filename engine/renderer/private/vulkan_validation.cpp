@@ -11,51 +11,48 @@ void util::PopulateDebugMessengerCreateInfo(vk::DebugUtilsMessengerCreateInfoEXT
 }
 
 VKAPI_ATTR VkBool32 VKAPI_CALL util::DebugCallback(
-    VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
-    VkDebugUtilsMessageTypeFlagsEXT messageType,
-    const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
+    vk::DebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
+    vk::DebugUtilsMessageTypeFlagsEXT messageType,
+    const vk::DebugUtilsMessengerCallbackDataEXT* pCallbackData,
     MAYBE_UNUSED void* pUserData)
 {
-    static std::string type;
-    switch (messageType)
+    const char* typeText = "[UNKNOWN]";
+
+    if (messageType & vk::DebugUtilsMessageTypeFlagBitsEXT::eGeneral)
     {
-    case VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT:
-        type = "[GENERAL]";
-        break;
-    case VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT:
-        type = "[VALIDATION]";
-        break;
-    case VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT:
-        type = "[PERFORMANCE]";
-        break;
+        typeText = "[GENERAL]";
+    }
+    else if (messageType & vk::DebugUtilsMessageTypeFlagBitsEXT::eValidation)
+    {
+        typeText = "[VALIDATION]";
+    }
+    else if (messageType & vk::DebugUtilsMessageTypeFlagBitsEXT::ePerformance)
+    {
+        typeText = "[PERFORMANCE]";
     }
 
-    static std::string severity {};
     bblog::level::level_enum logLevel {};
+
     switch (messageSeverity)
     {
-    case VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT:
-        severity = "[VERBOSE]";
+    case vk::DebugUtilsMessageSeverityFlagBitsEXT::eVerbose:
         logLevel = spdlog::level::level_enum::trace;
         break;
-    case VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT:
-        severity = "[INFO]";
+    case vk::DebugUtilsMessageSeverityFlagBitsEXT::eInfo:
         logLevel = spdlog::level::level_enum::info;
         break;
-    case VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT:
-        severity = "[WARNING]";
+    case vk::DebugUtilsMessageSeverityFlagBitsEXT::eWarning:
         logLevel = spdlog::level::level_enum::warn;
         break;
-    case VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT:
-        severity = "[ERROR]";
+    case vk::DebugUtilsMessageSeverityFlagBitsEXT::eError:
         logLevel = spdlog::level::level_enum::err;
         break;
     default:
         break;
     }
 
-    if (messageSeverity >= VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT)
-        bblog::log(logLevel, "{0} Validation layer: {1}", type, pCallbackData->pMessage);
+    if (messageSeverity >= vk::DebugUtilsMessageSeverityFlagBitsEXT::eWarning)
+        bblog::log(logLevel, "{0} Validation layer: {1}", typeText, pCallbackData->pMessage);
 
     if (logLevel == spdlog::level::err)
     {

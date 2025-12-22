@@ -2,7 +2,7 @@
 
 #include <memory>
 #include <optional>
-#include <vk_mem_alloc.h>
+#include <vma_include.hpp>
 
 #include "common.hpp"
 #include "vulkan_include.hpp"
@@ -54,9 +54,10 @@ public:
     vk::SurfaceKHR Surface() const { return _surface; }
     vk::DescriptorPool DescriptorPool() const { return _descriptorPool; }
     vk::CommandPool CommandPool() const { return _commandPool; }
-    vk::DispatchLoaderDynamic Dldi() const { return _dldi; }
     VmaAllocator MemoryAllocator() const { return _vmaAllocator; }
-    const QueueFamilyIndices& QueueFamilies() const { return _queueFamilyIndices; }
+
+    NO_DISCARD const bb::VulkanDispatchLoader& Dldi() const { return _dldi; }
+    NO_DISCARD const QueueFamilyIndices& QueueFamilies() const { return _queueFamilyIndices; }
 
 private:
     friend class Renderer;
@@ -69,7 +70,7 @@ private:
     vk::SurfaceKHR _surface;
     vk::DescriptorPool _descriptorPool;
     vk::CommandPool _commandPool;
-    vk::DispatchLoaderDynamic _dldi;
+    bb::VulkanDispatchLoader _dldi;
     VmaAllocator _vmaAllocator;
     QueueFamilyIndices _queueFamilyIndices;
     uint32_t _minUniformBufferOffsetAlignment;

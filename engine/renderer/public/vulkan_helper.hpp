@@ -54,11 +54,24 @@ void InitializeImageMemoryBarrier(vk::ImageMemoryBarrier2& barrier, vk::Image im
 void TransitionImageLayout(vk::CommandBuffer commandBuffer, vk::Image image, vk::Format format, vk::ImageLayout oldLayout, vk::ImageLayout newLayout, uint32_t numLayers = 1, uint32_t mipLevel = 0, uint32_t mipCount = 1, vk::ImageAspectFlagBits imageAspect = vk::ImageAspectFlagBits::eColor);
 void CopyBufferToImage(vk::CommandBuffer commandBuffer, vk::Buffer buffer, vk::Image image, uint32_t width, uint32_t height);
 void CopyImageToImage(vk::CommandBuffer commandBuffer, vk::Image srcImage, vk::Image dstImage, vk::Extent2D srcSize, vk::Extent2D dstSize);
-void BeginLabel(vk::Queue queue, std::string_view label, glm::vec3 color, const vk::DispatchLoaderDynamic dldi);
-void EndLabel(vk::Queue queue, const vk::DispatchLoaderDynamic dldi);
-void BeginLabel(vk::CommandBuffer commandBuffer, std::string_view label, glm::vec3 color, const vk::DispatchLoaderDynamic dldi);
-void EndLabel(vk::CommandBuffer commandBuffer, const vk::DispatchLoaderDynamic dldi);
+
 vk::ImageAspectFlags GetImageAspectFlags(vk::Format format);
+
+void BeginLabel(vk::CommandBuffer commandBuffer,
+    std::string_view label,
+    glm::vec3 color,
+    const bb::VulkanDispatchLoader& dldi);
+
+void EndLabel(vk::CommandBuffer commandBuffer, const bb::VulkanDispatchLoader& dldi);
+
+void BeginQueueLabel(
+    vk::Queue queue,
+    std::string_view label,
+    glm::vec3 color,
+    const bb::VulkanDispatchLoader& dldi);
+
+void EndQueueLabel(vk::Queue queue, const bb::VulkanDispatchLoader& dldi);
+
 template <typename T>
 static void NameObject(T object, std::string_view label, std::shared_ptr<VulkanContext> context)
 {

@@ -20,24 +20,14 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(SpdLog)
 
-# Vulkan
+# Vulkan + VMA
+# NOTE: include VMA in your installation of the Vulkan SDK
 find_package(Vulkan REQUIRED)
 add_library(VulkanAPI INTERFACE)
 
 target_link_libraries(VulkanAPI INTERFACE ${Vulkan_LIBRARY})
-target_include_directories(VulkanAPI INTERFACE Vulkan-Headers/include)
+target_include_directories(VulkanAPI INTERFACE ${Vulkan_INCLUDE_DIRS})
 target_compile_definitions(VulkanAPI INTERFACE VULKAN_HPP_NO_CONSTRUCTORS)
-
-# Vulkan Memory allocator
-FetchContent_Declare(
-        VMA
-        GIT_REPOSITORY https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator.git
-        GIT_TAG v3.1.0
-        GIT_SHALLOW TRUE
-        GIT_PROGRESS TRUE
-)
-
-FetchContent_MakeAvailable(VMA)
 
 # FastGLTF
 FetchContent_Declare(

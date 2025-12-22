@@ -10,7 +10,6 @@ target_link_libraries(Renderer
         PUBLIC Settings
 
         PUBLIC VulkanAPI
-        PUBLIC VulkanMemoryAllocator
         PUBLIC spirv-reflect-static
 )
 

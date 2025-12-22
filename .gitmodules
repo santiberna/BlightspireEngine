@@ -17,3 +17,6 @@
 [submodule "external/visit_struct"]
 	path = external/visit_struct
 	url = https://github.com/cbeck88/visit_struct
+[submodule "external/Jolt"]
+	path = external/Jolt
+	url = https://github.com/jrouwe/JoltPhysics.git

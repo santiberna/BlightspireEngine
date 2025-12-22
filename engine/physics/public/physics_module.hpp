@@ -6,6 +6,7 @@
 #include <entt/entity/entity.hpp>
 #include <glm/vec3.hpp>
 #include <unordered_map>
+#include <unordered_set>
 
 // The Jolt headers don't include Jolt.h. Always include Jolt.h before including any other Jolt header.
 #include <Jolt/Jolt.h>

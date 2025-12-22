@@ -129,17 +129,10 @@ FetchContent_MakeAvailable(GLM)
 target_compile_definitions(glm PUBLIC GLM_FORCE_DEPTH_ZERO_TO_ONE PUBLIC GLM_ENABLE_EXPERIMENTAL PUBLIC GLM_FORCE_QUAT_DATA_WXYZ)
 
 # Jolt
-FetchContent_Declare(
-        JoltPhysics
-        GIT_REPOSITORY "https://github.com/jrouwe/JoltPhysics"
-        GIT_TAG "0a7d2501b33e1251101392d2be403c551ce5f963"
-        SOURCE_SUBDIR "Build"
-)
-
 set(INTERPROCEDURAL_OPTIMIZATION OFF)
 set(CPP_RTTI_ENABLED ON)
 set(ENABLE_ALL_WARNINGS OFF)
-if("${CMAKE_PRESET_NAME}" STREQUAL "x64-Distribution" OR "${CMAKE_PRESET_NAME}" STREQUAL "WSL-Distribution")
+if(CMAKE_BUILD_TYPE STREQUAL "Release")
     set(USE_ASSERTS OFF)
 endif()
 
@@ -154,9 +147,9 @@ set(USE_TZCNT ON)
 set(USE_F16C ON)
 set(USE_FMADD ON)
 
-FetchContent_MakeAvailable(JoltPhysics)
+add_subdirectory(Jolt/Build)
 
-if (CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
+if (NOT CMAKE_BUILD_TYPE STREQUAL "Release")
     target_compile_definitions(Jolt PUBLIC JPH_DEBUG_RENDERER)
 endif ()
 

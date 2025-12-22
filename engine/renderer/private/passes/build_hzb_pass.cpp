@@ -128,7 +128,7 @@ void BuildHzbPass::CreateUpdateTemplate()
     vk::DescriptorUpdateTemplateCreateInfo updateTemplateInfo {
         .descriptorUpdateEntryCount = updateTemplateEntries.size(),
         .pDescriptorUpdateEntries = updateTemplateEntries.data(),
-        .templateType = vk::DescriptorUpdateTemplateType::ePushDescriptorsKHR,
+        .templateType = vk::DescriptorUpdateTemplateType::ePushDescriptors,
         .descriptorSetLayout = _hzbImageDSL,
         .pipelineBindPoint = vk::PipelineBindPoint::eCompute,
         .pipelineLayout = _buildHzbPipelineLayout,

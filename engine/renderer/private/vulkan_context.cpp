@@ -16,7 +16,7 @@ VulkanContext::VulkanContext(const VulkanInitInfo& initInfo)
     bblog::info("Validation layers enabled: {}", _validationEnabled ? "TRUE" : "FALSE");
 
     CreateInstance(initInfo);
-    _dldi = vk::DispatchLoaderDynamic { _instance, vkGetInstanceProcAddr, _device, vkGetDeviceProcAddr };
+    _dldi = bb::VulkanDispatchLoader { _instance, vkGetInstanceProcAddr, _device, vkGetDeviceProcAddr };
     SetupDebugMessenger();
     _surface = initInfo.retrieveSurface(_instance);
 

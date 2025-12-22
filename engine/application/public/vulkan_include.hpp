@@ -14,3 +14,9 @@
 #undef Convex
 #undef near
 #undef far
+
+// Exposing dispatch loader, since it is used but lives in vk::detail
+namespace bb
+{
+using VulkanDispatchLoader = vk::detail::DispatchLoaderDynamic;
+}

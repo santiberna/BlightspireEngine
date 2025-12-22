@@ -1,11 +1,12 @@
 #pragma once
 
-#include "input_bindings_visualization_cache.hpp"
 #include "common.hpp"
 #include "engine.hpp"
 #include "game_settings.hpp"
+#include "input_bindings_visualization_cache.hpp"
 #include "scene/model_loader.hpp"
 #include "ui/ui_menus.hpp"
+
 
 #include "achievements.hpp"
 #include "steam_stats.hpp"
@@ -51,8 +52,6 @@ class GameModule : public ModuleInterface
     void Tick(MAYBE_UNUSED Engine& engine) override;
     void Shutdown(MAYBE_UNUSED Engine& engine) override;
     std::string_view GetName() override { return "Game Module"; }
-
-    glm::ivec2 _lastMousePos {};
 
 public:
     GameModule() = default;

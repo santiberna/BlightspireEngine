@@ -27,7 +27,7 @@ add_library(VulkanAPI INTERFACE)
 
 target_link_libraries(VulkanAPI INTERFACE ${Vulkan_LIBRARY})
 target_include_directories(VulkanAPI INTERFACE ${Vulkan_INCLUDE_DIRS})
-target_compile_definitions(VulkanAPI INTERFACE VULKAN_HPP_NO_CONSTRUCTORS VULKAN_HPP_DISPATCH_LOADER_DYNAMIC)
+target_compile_definitions(VulkanAPI INTERFACE VULKAN_HPP_NO_CONSTRUCTORS)
 
 # FastGLTF
 FetchContent_Declare(

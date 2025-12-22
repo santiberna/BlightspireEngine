@@ -1,8 +1,9 @@
 #include "vulkan_helper.hpp"
 
 #include "tracy/Tracy.hpp"
-#include "vk_mem_alloc.h"
 #include "vulkan_include.hpp"
+#include <vma/vk_mem_alloc.h>
+
 
 void util::VK_ASSERT(vk::Result result, std::string_view message)
 {

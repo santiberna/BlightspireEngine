@@ -14,12 +14,6 @@
 
 #include <file_io.hpp>
 
-// Every test will initialize a wren virtual machine, better keep memory requirements low
-const VMInitConfig MEMORY_CONFIG {
-    { "", "./game/tests/", "./game/" },
-    256ull * 4ull, 256ull, 50
-};
-
 namespace bind
 {
 
@@ -39,7 +33,13 @@ TEST(ForeignDataTests, ForeignBasicClass)
 {
     fileIO::Init(true);
 
-    ScriptingContext context { MEMORY_CONFIG };
+    // Every test will initialize a wren virtual machine, better keep memory requirements low
+    const VMInitConfig VM_MEMORY_CONFIG {
+        { "", "./game/tests/", "./game/" },
+        256ull * 4ull, 256ull, 50
+    };
+
+    ScriptingContext context { VM_MEMORY_CONFIG };
 
     auto& vm = context.GetVM();
 

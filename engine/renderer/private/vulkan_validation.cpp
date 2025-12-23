@@ -1,6 +1,8 @@
 #include "vulkan_validation.hpp"
 #include "common.hpp"
 
+#include <spdlog/spdlog.h>
+
 void util::PopulateDebugMessengerCreateInfo(vk::DebugUtilsMessengerCreateInfoEXT& createInfo)
 {
     createInfo = vk::DebugUtilsMessengerCreateInfoEXT {};

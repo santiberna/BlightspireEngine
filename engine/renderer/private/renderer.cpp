@@ -269,7 +269,6 @@ Renderer::Renderer(ApplicationModule& application, Viewport& viewport, const std
     FrameGraphNodeCreation particlePass { *_particlePass };
     particlePass.SetName("Particle pass")
         .SetDebugLabelColor(GetColor(ColorType::Plum))
-        .AddOutput(_gBuffers->Depth(), FrameGraphResourceType::eAttachment)
         .AddOutput(_hdrTarget, FrameGraphResourceType::eAttachment)
         .AddOutput(_gBuffers->Depth(), FrameGraphResourceType::eAttachment)
         .AddOutput(_bloomTarget, FrameGraphResourceType::eAttachment);

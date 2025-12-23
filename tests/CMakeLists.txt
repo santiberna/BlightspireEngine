@@ -24,6 +24,5 @@ FetchContent_MakeAvailable(GoogleTest)
 
 target_link_libraries(UnitTests
         PRIVATE ProjectSettings
-        PRIVATE GTest::gtest
         PRIVATE GTest::gtest_main
 )

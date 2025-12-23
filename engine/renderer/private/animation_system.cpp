@@ -17,11 +17,6 @@
 #include <glm/gtx/quaternion.hpp>
 #include <tracy/Tracy.hpp>
 
-AnimationSystem::AnimationSystem(RendererModule& rendererModule)
-    : _rendererModule(rendererModule)
-{
-}
-
 AnimationSystem::~AnimationSystem() = default;
 
 void AnimationSystem::Update(ECSModule& ecs, float dt)

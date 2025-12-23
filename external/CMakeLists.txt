@@ -244,3 +244,20 @@ elseif (LINUX)
             INTERFACE -DVK_USE_PLATFORM_XLIB_KHR)
 endif ()
 
+# AngelScript
+add_subdirectory(angelscript/sdk/angelscript/projects/cmake)
+
+add_library(angelscript-addons)
+target_include_directories(angelscript-addons PUBLIC angelscript/sdk/add_on)
+target_link_libraries(angelscript-addons PUBLIC angelscript)
+
+set(AS_ADD_ON_DIR angelscript/sdk/add_on)
+target_sources(angelscript-addons
+        PUBLIC
+        ${AS_ADD_ON_DIR}/scriptstdstring/scriptstdstring.h
+        ${AS_ADD_ON_DIR}/scriptarray/scriptarray.h
+
+        PRIVATE
+        ${AS_ADD_ON_DIR}/scriptstdstring/scriptstdstring.cpp
+        ${AS_ADD_ON_DIR}/scriptarray/scriptarray.cpp
+)

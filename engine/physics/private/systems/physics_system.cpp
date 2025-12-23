@@ -32,9 +32,8 @@
 
 #include <tracy/Tracy.hpp>
 
-PhysicsSystem::PhysicsSystem(Engine& engine, ECSModule& ecs, PhysicsModule& physicsModule)
-    : engine(engine)
-    , _ecs(ecs)
+PhysicsSystem::PhysicsSystem(ECSModule& ecs, PhysicsModule& physicsModule)
+    : _ecs(ecs)
     , _physicsModule(physicsModule)
 {
 }

@@ -64,6 +64,7 @@ Renderer::Renderer(ApplicationModule& application, Viewport& viewport, const std
         ZoneScopedN("Swapchain creation");
         auto vulkanInfo = application.GetVulkanInfo();
         _swapChain = std::make_unique<SwapChain>(_context, glm::uvec2 { vulkanInfo.width, vulkanInfo.height });
+        _renderFinishedSemaphores.resize(_swapChain->GetImageCount());
     }
 
     {
@@ -261,14 +262,14 @@ Renderer::Renderer(ApplicationModule& application, Viewport& viewport, const std
     FrameGraphNodeCreation skyDomePass { *_skydomePass };
     skyDomePass.SetName("Sky dome pass")
         .SetDebugLabelColor(GetColor(ColorType::Pistachio))
-        .AddInput(_gBuffers->Depth(), FrameGraphResourceType::eAttachment)
+        .AddOutput(_gBuffers->Depth(), FrameGraphResourceType::eAttachment, true)
         .AddOutput(_hdrTarget, FrameGraphResourceType::eAttachment, true)
         .AddOutput(_bloomTarget, FrameGraphResourceType::eAttachment, true);
 
     FrameGraphNodeCreation particlePass { *_particlePass };
     particlePass.SetName("Particle pass")
         .SetDebugLabelColor(GetColor(ColorType::Plum))
-        .AddInput(_gBuffers->Depth(), FrameGraphResourceType::eAttachment)
+        .AddOutput(_gBuffers->Depth(), FrameGraphResourceType::eAttachment)
         .AddOutput(_hdrTarget, FrameGraphResourceType::eAttachment)
         .AddOutput(_gBuffers->Depth(), FrameGraphResourceType::eAttachment)
         .AddOutput(_bloomTarget, FrameGraphResourceType::eAttachment);
@@ -317,7 +318,7 @@ Renderer::Renderer(ApplicationModule& application, Viewport& viewport, const std
     FrameGraphNodeCreation debugPass { *_debugPass };
     debugPass.SetName("Debug pass")
         .SetDebugLabelColor(GetColor(ColorType::BrightTeal))
-        .AddInput(_gBuffers->Depth(), FrameGraphResourceType::eAttachment)
+        .AddOutput(_gBuffers->Depth(), FrameGraphResourceType::eAttachment)
         .AddOutput(_fxaaTarget, FrameGraphResourceType::eAttachment);
 
     FrameGraphNodeCreation presentationPass { *_presentationPass };
@@ -603,21 +604,31 @@ void Renderer::UpdateBindless()
 
 void Renderer::Render(float deltaTime)
 {
+    vk::Result result {};
+    vk::Device device = _context->VulkanContext()->Device();
+
     {
         ZoneNamedN(zz, "Wait On Fence", true);
-        util::VK_ASSERT(_context->VulkanContext()->Device().waitForFences(1, &_inFlightFences[_currentFrame], vk::True, std::numeric_limits<uint64_t>::max()),
-            "Failed waiting on in flight fence!");
+        result = device.waitForFences(1, &_inFlightFences[_currentFrame], vk::True, std::numeric_limits<uint64_t>::max());
+        util::VK_ASSERT(result, "Failed waiting on in flight fence!");
     }
 
+    {
+        ZoneNamedN(zz, "Reset Fence", true);
+        result = device.resetFences(1, &_inFlightFences[_currentFrame]);
+        util::VK_ASSERT(result, "Failed resetting fences!");
+    }
+
+    // Needs to happen after fence.
+    // TODO: Needs to have a better spot than here.
     _bloomSettings->Update(_currentFrame);
     _viewport.SubmitDrawInfo(_uiPass->GetDrawList());
-    uint32_t imageIndex {};
-    vk::Result result {};
 
+    uint32_t imageIndex {};
     {
         ZoneNamedN(zz, "Acquire Next Image", true);
 
-        result = _context->VulkanContext()->Device().acquireNextImageKHR(_swapChain->GetSwapChain(), std::numeric_limits<uint64_t>::max(),
+        result = device.acquireNextImageKHR(_swapChain->GetSwapChain(), std::numeric_limits<uint64_t>::max(),
             _imageAvailableSemaphores[_currentFrame], nullptr, &imageIndex);
 
         if (result == vk::Result::eErrorOutOfDateKHR || result == vk::Result::eSuboptimalKHR)
@@ -632,11 +643,6 @@ void Renderer::Render(float deltaTime)
     }
 
     {
-        ZoneNamedN(zz, "Reset Fence", true);
-        util::VK_ASSERT(_context->VulkanContext()->Device().resetFences(1, &_inFlightFences[_currentFrame]), "Failed resetting fences!");
-    }
-
-    {
         ZoneNamedN(zz, "Reset Command Buffer", true);
         _commandBuffers[_currentFrame].reset();
     }
@@ -647,7 +653,8 @@ void Renderer::Render(float deltaTime)
     _context->GetDrawStats().Clear();
 
     vk::CommandBufferBeginInfo commandBufferBeginInfo {};
-    util::VK_ASSERT(_commandBuffers[_currentFrame].begin(&commandBufferBeginInfo), "Failed to begin recording command buffer!");
+    result = _commandBuffers[_currentFrame].begin(&commandBufferBeginInfo);
+    util::VK_ASSERT(result, "Failed to begin recording command buffer!");
 
     RecordCommandBuffer(_commandBuffers[_currentFrame], imageIndex, deltaTime);
 
@@ -655,7 +662,7 @@ void Renderer::Render(float deltaTime)
 
     vk::Semaphore waitSemaphore = _imageAvailableSemaphores[_currentFrame];
     vk::PipelineStageFlags waitStage = vk::PipelineStageFlagBits::eColorAttachmentOutput;
-    vk::Semaphore signalSemaphore = _renderFinishedSemaphores[_currentFrame];
+    vk::Semaphore signalSemaphore = _renderFinishedSemaphores[imageIndex];
 
     vk::SubmitInfo submitInfo {
         .waitSemaphoreCount = 1,
@@ -669,7 +676,11 @@ void Renderer::Render(float deltaTime)
 
     {
         ZoneNamedN(zz, "Submit Commands", true);
-        util::VK_ASSERT(_context->VulkanContext()->GraphicsQueue().submit(1, &submitInfo, _inFlightFences[_currentFrame]), "Failed submitting to graphics queue!");
+        vk::Queue graphicsQueue = _context->VulkanContext()->GraphicsQueue();
+
+        result = graphicsQueue.submit(1, &submitInfo, _inFlightFences[_currentFrame]);
+
+        util::VK_ASSERT(result, "Failed submitting to graphics queue!");
     }
 
     vk::SwapchainKHR swapchain = _swapChain->GetSwapChain();
@@ -683,7 +694,8 @@ void Renderer::Render(float deltaTime)
 
     {
         ZoneNamedN(zz, "Present Image", true);
-        result = _context->VulkanContext()->PresentQueue().presentKHR(&presentInfo);
+        vk::Queue presentQueue = _context->VulkanContext()->PresentQueue();
+        result = presentQueue.presentKHR(&presentInfo);
     }
 
     if (result == vk::Result::eErrorOutOfDateKHR || result == vk::Result::eSuboptimalKHR || _swapChain->GetImageSize() != _application.DisplaySize())

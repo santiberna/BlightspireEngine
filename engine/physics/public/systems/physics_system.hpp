@@ -10,7 +10,7 @@ class PhysicsModule;
 class PhysicsSystem : public SystemInterface
 {
 public:
-    PhysicsSystem(Engine& engine, ECSModule& ecs, PhysicsModule& physicsModule);
+    PhysicsSystem(ECSModule& ecs, PhysicsModule& physicsModule);
     ~PhysicsSystem() = default;
     NON_COPYABLE(PhysicsSystem);
     NON_MOVABLE(PhysicsSystem);
@@ -24,7 +24,6 @@ public:
     std::string_view GetName() override { return "PhysicsSystem"; }
 
 private:
-    Engine& engine;
     ECSModule& _ecs;
     PhysicsModule& _physicsModule;
 };

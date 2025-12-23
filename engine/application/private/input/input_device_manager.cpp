@@ -4,7 +4,7 @@
 
 #include <SDL3/SDL.h>
 #include <glm/glm.hpp>
-#include <imgui.h>
+#include <imgui_include.hpp>
 
 InputDeviceManager::InputDeviceManager()
 {

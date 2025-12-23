@@ -10,7 +10,6 @@
 #include "vulkan_validation.hpp"
 #include <log_setup.hpp>
 
-
 VulkanContext::VulkanContext(const VulkanInitInfo& initInfo)
 {
     _validationEnabled = CheckValidationLayerSupport() && ENABLE_VALIDATION_LAYERS;
@@ -265,16 +264,6 @@ void VulkanContext::CreateDevice()
     createInfo.pEnabledFeatures = nullptr;
     createInfo.enabledExtensionCount = static_cast<uint32_t>(_deviceExtensions.size());
     createInfo.ppEnabledExtensionNames = _deviceExtensions.data();
-
-    if (_validationEnabled)
-    {
-        createInfo.enabledLayerCount = static_cast<uint32_t>(_validationLayers.size());
-        createInfo.ppEnabledLayerNames = _validationLayers.data();
-    }
-    else
-    {
-        createInfo.enabledLayerCount = 0;
-    }
 
     util::VK_ASSERT(_physicalDevice.createDevice(&createInfo, nullptr, &_device), "Failed creating a logical device!");
 

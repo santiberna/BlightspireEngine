@@ -58,7 +58,7 @@ ModuleTickOrder PhysicsModule::Init(MAYBE_UNUSED Engine& engine)
     _physicsSystem->SetGravity(JPH::Vec3(0, -PHYSICS_GRAVITATIONAL_CONSTANT, 0));
 
     auto& ecs = engine.GetModule<ECSModule>();
-    ecs.AddSystem<PhysicsSystem>(engine, ecs, *this);
+    ecs.AddSystem<PhysicsSystem>(ecs, *this);
 
     // A contact listener gets notified when bodies (are about to) collide, and when they separate again.
     // Note that this is called from a job so whatever you do here needs to be thread safe.

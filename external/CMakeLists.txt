@@ -89,15 +89,7 @@ set(TRACY_ON_DEMAND ON)
 FetchContent_MakeAvailable(Tracy)
 
 # EnTT
-FetchContent_Declare(
-        EnTT
-        GIT_REPOSITORY https://github.com/skypjack/entt.git
-        GIT_TAG v3.13.2
-        GIT_SHALLOW TRUE
-        GIT_PROGRESS TRUE
-)
-
-FetchContent_MakeAvailable(EnTT)
+add_subdirectory(entt)
 
 # SDL
 FetchContent_Declare(

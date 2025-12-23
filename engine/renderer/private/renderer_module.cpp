@@ -26,7 +26,7 @@ ModuleTickOrder RendererModule::Init(Engine& engine)
     _context = std::make_shared<GraphicsContext>(engine.GetModule<ApplicationModule>().GetVulkanInfo());
     _renderer = std::make_shared<Renderer>(engine.GetModule<ApplicationModule>(), engine.GetModule<UIModule>().GetViewport(), _context, ecs);
 
-    ecs.AddSystem<AnimationSystem>(*this);
+    ecs.AddSystem<AnimationSystem>();
 
     return ModuleTickOrder::eRender;
 }

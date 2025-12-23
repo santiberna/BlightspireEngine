@@ -11,7 +11,7 @@ class RendererModule;
 class AnimationSystem final : public SystemInterface
 {
 public:
-    AnimationSystem(RendererModule& rendererModule);
+    AnimationSystem() = default;
     ~AnimationSystem() override;
 
     void Update(ECSModule& ecs, float dt) override;
@@ -21,7 +21,5 @@ public:
     std::string_view GetName() override { return "AnimationSystem"; }
 
 private:
-    RendererModule& _rendererModule;
-
     void RecursiveCalculateMatrix(entt::entity entity, const glm::mat4& parentMatrix, ECSModule& ecs, const SkeletonComponent& skeleton);
 };

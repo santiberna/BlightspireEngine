@@ -5,7 +5,7 @@
 #include <cstdint>
 #include <memory>
 #include <vector>
-#include <vma/vk_mem_alloc.h>
+#include <vma_include.hpp>
 
 #include "vulkan_include.hpp"
 

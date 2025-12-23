@@ -98,5 +98,19 @@
         "CMAKE_BUILD_TYPE": "Release"
       }
     }
+  ],
+  "testPresets": [
+    {
+      "name": "Test x64-Debug",
+      "configurePreset": "x64-Debug",
+      "execution": {
+        "stopOnFailure": false,
+        "parallel": 0
+      },
+      "output": {
+        "outputOnFailure": true,
+        "verbosity": "verbose"
+      }
+    }
   ]
 }

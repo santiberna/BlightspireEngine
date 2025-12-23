@@ -1,5 +1,5 @@
 ### PROJECT ###
-cmake_minimum_required(VERSION 3.22.1)
+cmake_minimum_required(VERSION 3.24)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
@@ -19,8 +19,9 @@ option(WARNINGS_AS_ERRORS "Enable warnings as errors" OFF)
 option(COMPILE_TESTS "Compile with Unit Tests" ON)
 option(COMPILE_SHADERS "Compile all GLSL shaders as part of build step" ON)
 
+### COMPILE OPTIMIZATIONS (OFF by default cause they may cause issues) ###
 option(ENABLE_PCH "Compile with precompiled header" OFF)
-option(ENABLE_UNITY "Compile using Unity Builds" ON)
+option(ENABLE_UNITY "Compile using Unity Builds" OFF)
 
 add_library(ProjectSettings INTERFACE)
 target_compile_features(ProjectSettings INTERFACE cxx_std_20)
@@ -42,6 +43,7 @@ if (ENABLE_UNITY)
 endif ()
 
 # Define if it's the distribution config for main file
+# TODO: probably move these defines to a better place (also in codebase)
 if ("${CMAKE_PRESET_NAME}" STREQUAL "x64-Distribution" OR "${CMAKE_PRESET_NAME}" STREQUAL "WSL-Distribution")
     add_compile_definitions(DISTRIBUTION)
 endif ()
@@ -51,6 +53,7 @@ add_subdirectory(external)
 
 # Add unit testing target executable
 if (COMPILE_TESTS)
+    enable_testing()
     add_subdirectory(tests)
 endif ()
 
@@ -81,8 +84,8 @@ endif ()
 set_target_properties(CustomTech PROPERTIES OUTPUT_NAME "Blightspire")
 
 target_link_libraries(CustomTech
-        PRIVATE ProjectSettings
-        PRIVATE Engine
+    PRIVATE ProjectSettings
+    PRIVATE Engine
 )
 
 ### SHADERS COMPILE STEP ###

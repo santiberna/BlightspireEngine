@@ -1,6 +1,6 @@
 #include "bloom_settings.hpp"
 
-#include <imgui.h>
+#include <imgui_include.hpp>
 
 #include "graphics_context.hpp"
 #include "graphics_resources.hpp"

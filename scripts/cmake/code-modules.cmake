@@ -42,9 +42,9 @@ function(module_default_init module)
         file(GLOB_RECURSE test_sources CONFIGURE_DEPENDS "tests/*.cpp")
 
         if (test_sources)
-            target_sources(UnitTests PRIVATE ${test_sources})
-            target_link_libraries(UnitTests PRIVATE ${module})
-            target_include_directories(UnitTests PRIVATE "private")
+            target_sources(${module} PRIVATE ${test_sources})
+            target_link_libraries(${module} PRIVATE GTest::gtest)
+            target_link_libraries(UnitTests PRIVATE $<LINK_LIBRARY:WHOLE_ARCHIVE,${module}>)
         endif ()
 
     endif ()

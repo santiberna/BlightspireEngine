@@ -7,6 +7,7 @@
 #include <Jolt/Renderer/DebugRendererSimple.h>
 
 #include <glm/vec3.hpp>
+#include <unordered_set>
 #include <vector>
 
 class LayerBodyDrawFilter : public JPH::BodyDrawFilter

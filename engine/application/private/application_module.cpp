@@ -14,8 +14,8 @@
 
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_vulkan.h>
-#include <backends/imgui_impl_sdl3.h>
 #include <file_io.hpp>
+#include <imgui_sdl_include.hpp>
 #include <stb_image.h>
 
 ModuleTickOrder ApplicationModule::Init(Engine& engine)

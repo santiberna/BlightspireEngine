@@ -1,7 +1,4 @@
 #include "components/camera_component.hpp"
-
-#include "imgui_internal.h"
-
 #include <glm/gtc/type_ptr.hpp>
 
 namespace EnttEditor

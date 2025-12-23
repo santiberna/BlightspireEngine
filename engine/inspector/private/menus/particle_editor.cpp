@@ -8,7 +8,7 @@
 #include "game_module.hpp"
 #include "resource_management/image_resource_manager.hpp"
 
-#include "imgui.h"
+#include <imgui_include.hpp>
 #include <magic_enum.hpp>
 #include <misc/cpp/imgui_stdlib.h>
 

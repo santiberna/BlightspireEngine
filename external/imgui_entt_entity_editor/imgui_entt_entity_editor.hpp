@@ -7,9 +7,15 @@
 #include <string>
 
 #include <entt/entt.hpp>
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnontrivial-memcall"
+
 #include <imgui.h>
 
-#include "ecs_module.hpp"
+#pragma clang diagnostic pop
+
+#include <ecs_module.hpp>
 
 #ifndef ENTTEDITOR_IEEE_ASSERT
 #define ENTTEDITOR_IEEE_ASSERT(x) assert(x)
@@ -85,7 +91,8 @@ public:
 
     ECSModule& _ecs;
 
-    EntityEditor(ECSModule& ecs) : _ecs(ecs)
+    EntityEditor(ECSModule& ecs)
+        : _ecs(ecs)
     {
     }
 

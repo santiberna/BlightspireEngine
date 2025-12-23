@@ -34,7 +34,7 @@ VulkanContext::VulkanContext(const VulkanInitInfo& initInfo)
     vmaAllocatorCreateInfo.physicalDevice = _physicalDevice;
     vmaAllocatorCreateInfo.device = _device;
     vmaAllocatorCreateInfo.instance = _instance;
-    vmaAllocatorCreateInfo.vulkanApiVersion = vk::makeApiVersion(0, 1, 3, 0);
+    vmaAllocatorCreateInfo.vulkanApiVersion = vk::makeApiVersion(0, 1, 4, 0);
     vmaAllocatorCreateInfo.pVulkanFunctions = &vulkanFunctions;
     vmaCreateAllocator(&vmaAllocatorCreateInfo, &_vmaAllocator);
 
@@ -78,7 +78,7 @@ void VulkanContext::CreateInstance(const VulkanInitInfo& initInfo)
         .applicationVersion = vk::makeApiVersion(0, 0, 0, 0),
         .pEngineName = "BB Engine",
         .engineVersion = vk::makeApiVersion(0, 1, 0, 0),
-        .apiVersion = vk::makeApiVersion(0, 1, 3, 0),
+        .apiVersion = vk::makeApiVersion(0, 1, 4, 0),
     };
 
     vk::StructureChain<vk::InstanceCreateInfo, vk::DebugUtilsMessengerCreateInfoEXT>

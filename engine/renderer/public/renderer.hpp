@@ -123,7 +123,7 @@ private:
     ResourceHandle<Sampler> _nearestSampler;
 
     std::array<vk::Semaphore, MAX_FRAMES_IN_FLIGHT> _imageAvailableSemaphores;
-    std::array<vk::Semaphore, MAX_FRAMES_IN_FLIGHT> _renderFinishedSemaphores;
+    std::vector<vk::Semaphore> _renderFinishedSemaphores; // Should be the size of the amount of images in the swapchain
     std::array<vk::Fence, MAX_FRAMES_IN_FLIGHT> _inFlightFences;
 
     std::shared_ptr<BatchBuffer> _staticBatchBuffer;

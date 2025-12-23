@@ -25,7 +25,7 @@ void SwapChain::CreateSwapChain(const glm::uvec2& screenSize)
     auto surfaceFormat = ChooseSwapSurfaceFormat(swapChainSupport.formats);
     auto extent = ChooseSwapExtent(swapChainSupport.capabilities, screenSize);
 
-    uint32_t imageCount = std::clamp(3u, swapChainSupport.capabilities.minImageCount, swapChainSupport.capabilities.minImageCount); // Make use of triple buffering.
+    uint32_t imageCount = std::clamp(3u, swapChainSupport.capabilities.minImageCount, swapChainSupport.capabilities.maxImageCount); // Make use of triple buffering.
     if (swapChainSupport.capabilities.maxImageCount > 0 && imageCount > swapChainSupport.capabilities.maxImageCount)
         imageCount = swapChainSupport.capabilities.maxImageCount;
 

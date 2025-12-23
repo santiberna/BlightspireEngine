@@ -84,8 +84,8 @@ endif ()
 set_target_properties(CustomTech PROPERTIES OUTPUT_NAME "Blightspire")
 
 target_link_libraries(CustomTech
-        PRIVATE ProjectSettings
-        PRIVATE Engine
+    PRIVATE ProjectSettings
+    PRIVATE Engine
 )
 
 ### SHADERS COMPILE STEP ###

@@ -73,6 +73,7 @@ FetchContent_Declare(
 set(WRENBIND17_BUILD_WREN ON)
 FetchContent_MakeAvailable(wren)
 
+target_compile_options(Wren PRIVATE -Wno-deprecated-declarations)
 
 # Tracy Profiler
 FetchContent_Declare(

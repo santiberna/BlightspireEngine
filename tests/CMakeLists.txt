@@ -23,6 +23,10 @@ override_option(gtest_force_shared_crt ON)
 FetchContent_MakeAvailable(GoogleTest)
 
 target_link_libraries(UnitTests
-        PRIVATE ProjectSettings
+        PRIVATE Engine
+        PRIVATE GTest::gtest
         PRIVATE GTest::gtest_main
 )
+
+include(GoogleTest)
+gtest_discover_tests(UnitTests)

@@ -43,8 +43,8 @@ function(module_default_init module)
 
         if (test_sources)
             target_sources(${module} PRIVATE ${test_sources})
-            target_link_libraries(${module} PUBLIC GTest::gtest)
-            target_link_libraries(UnitTests PRIVATE ${module})
+            target_link_libraries(${module} PRIVATE GTest::gtest)
+            target_link_libraries(UnitTests PRIVATE $<LINK_LIBRARY:WHOLE_ARCHIVE,${module}>)
         endif ()
 
     endif ()

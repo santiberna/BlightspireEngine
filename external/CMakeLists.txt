@@ -181,6 +181,7 @@ set(implot_files ${implot_sources} ${implot_headers})
 
 add_library(ImGui ${imgui_files} ${implot_files} "imgui_entt_entity_editor/imgui_entt_entity_editor.hpp")
 target_compile_definitions(ImGui PRIVATE SDL_ENABLE_OLD_NAMES)
+target_compile_options(ImGui PRIVATE -Wno-nontrivial-memcall)
 
 target_link_libraries(ImGui
         PRIVATE SDL3::SDL3-static

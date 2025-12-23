@@ -162,7 +162,7 @@ uint32_t VulkanContext::RateDeviceSuitability(const vk::PhysicalDevice& deviceTo
         return 0;
 
     // Check for bindless rendering support.
-    if (!indexingFeatures.descriptorBindingPartiallyBound || !indexingFeatures.runtimeDescriptorArray)
+    if (!indexingFeatures.descriptorBindingPartiallyBound || !indexingFeatures.runtimeDescriptorArray || !indexingFeatures.descriptorBindingUniformBufferUpdateAfterBind)
         return 0;
 
     // Check support for swap chain.
@@ -245,18 +245,25 @@ void VulkanContext::CreateDevice()
 
     vk::StructureChain<vk::DeviceCreateInfo, vk::PhysicalDeviceFeatures2, vk::PhysicalDeviceDynamicRenderingFeaturesKHR, vk::PhysicalDeviceDescriptorIndexingFeatures, vk::PhysicalDeviceSynchronization2Features> structureChain;
 
+    // TODO: this section needs to be revised
+    // getFeatures2 already fills in the structureChain with ALL supported features
+    // setting them manually after this is redundant and at worse, enables features that are not supported
+    // Since we are not doing something crazy like conditionally rendering based on features
+    // its probably best to filter devices based on their supported features in RateDeviceSuitability
+
+    auto& deviceFeatures = structureChain.get<vk::PhysicalDeviceFeatures2>();
+    _physicalDevice.getFeatures2(&deviceFeatures);
+
     auto& synchronization2Features = structureChain.get<vk::PhysicalDeviceSynchronization2Features>();
     synchronization2Features.synchronization2 = true;
 
     auto& indexingFeatures = structureChain.get<vk::PhysicalDeviceDescriptorIndexingFeatures>();
     indexingFeatures.runtimeDescriptorArray = true;
     indexingFeatures.descriptorBindingPartiallyBound = true;
+    indexingFeatures.descriptorBindingUniformBufferUpdateAfterBind = vk::True;
 
     auto& dynamicRenderingFeaturesKhr = structureChain.get<vk::PhysicalDeviceDynamicRenderingFeaturesKHR>();
     dynamicRenderingFeaturesKhr.dynamicRendering = true;
-
-    auto& deviceFeatures = structureChain.get<vk::PhysicalDeviceFeatures2>();
-    _physicalDevice.getFeatures2(&deviceFeatures);
 
     auto& createInfo = structureChain.get<vk::DeviceCreateInfo>();
     createInfo.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size());

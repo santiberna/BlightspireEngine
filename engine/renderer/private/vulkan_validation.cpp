@@ -53,10 +53,9 @@ VKAPI_ATTR VkBool32 VKAPI_CALL util::DebugCallback(
     if (messageSeverity >= vk::DebugUtilsMessageSeverityFlagBitsEXT::eWarning)
         spdlog::log(logLevel, "{0} Validation layer: {1}", typeText, pCallbackData->pMessage);
 
-    if (logLevel == spdlog::level::err)
-    {
-        assert(false && "Vulkan Error: check logs");
-    }
+    // Do not abort or assert(false) here.
+    // Validation errors are not fatal and the application can output extra debug logs in some circumstances after this is called.
+    // Prefer breakpoints in the debugger if needed
 
     return VK_FALSE;
 }

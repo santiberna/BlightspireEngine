@@ -263,3 +263,16 @@ target_sources(angelscript-addons
         ${AS_ADD_ON_DIR}/scriptstdstring/scriptstdstring.cpp
         ${AS_ADD_ON_DIR}/scriptarray/scriptarray.cpp
 )
+
+# RTTR
+override_option(BUILD_RTTR_DYNAMIC OFF)
+override_option(BUILD_UNIT_TESTS OFF)
+override_option(BUILD_STATIC ON)
+override_option(BUILD_BENCHMARKS OFF)
+override_option(BUILD_EXAMPLES OFF)
+override_option(BUILD_DOCUMENTATION OFF)
+override_option(BUILD_INSTALLER OFF)
+override_option(BUILD_PACKAGE OFF)
+override_option(USE_PCH OFF)
+
+add_subdirectory(rttr)

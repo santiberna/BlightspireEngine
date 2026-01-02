@@ -5,4 +5,5 @@ target_link_libraries(Scripting2
         PRIVATE Utility
         PRIVATE angelscript
         PRIVATE angelscript-addons
+        PRIVATE RTTR::Core
 )

@@ -23,6 +23,3 @@
 [submodule "external/angelscript"]
 	path = external/angelscript
 	url = https://github.com/anjo76/angelscript.git
-[submodule "external/rttr"]
-	path = external/rttr
-	url = https://github.com/santiberna/rttr-smallfix.git

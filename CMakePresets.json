@@ -104,8 +104,7 @@
       "name": "Test x64-Debug",
       "configurePreset": "x64-Debug",
       "execution": {
-        "stopOnFailure": false,
-        "parallel": 0
+        "stopOnFailure": false
       },
       "output": {
         "outputOnFailure": true,

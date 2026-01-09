@@ -5,12 +5,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
 set(CMAKE_BUILD_RPATH "$ORIGIN")
 
-project(Project)
-
-### HELPERS AND INCLUDES
-
-include(FetchContent)
-include(scripts/cmake/code-modules.cmake)
+project(BlightSpireEngine)
 
 ### COMPILATION SETTINGS ###
 
@@ -23,15 +18,15 @@ option(COMPILE_SHADERS "Compile all GLSL shaders as part of build step" ON)
 option(ENABLE_PCH "Compile with precompiled header" OFF)
 option(ENABLE_UNITY "Compile using Unity Builds" OFF)
 
-add_library(ProjectSettings INTERFACE)
-target_compile_features(ProjectSettings INTERFACE cxx_std_20)
+### HELPERS AND INCLUDES
 
-target_compile_options(ProjectSettings
-        INTERFACE -Wall INTERFACE -Wextra INTERFACE -Wno-unknown-pragmas)
+include(FetchContent)
+include(cmake/config_helpers.cmake)
+include(cmake/code_modules.cmake)
+include(cmake/flags_target.cmake)
 
 if (WARNINGS_AS_ERRORS)
     message(STATUS "### Warnings are enabled as Errors")
-    target_compile_options(ProjectSettings INTERFACE -Werror)
 endif ()
 
 if (ENABLE_PCH)
@@ -42,20 +37,13 @@ if (ENABLE_UNITY)
     message(STATUS "### Compiling with Unity (Jumbo) builds")
 endif ()
 
-# Define if it's the distribution config for main file
-# TODO: probably move these defines to a better place (also in codebase)
-if ("${CMAKE_PRESET_NAME}" STREQUAL "x64-Distribution" OR "${CMAKE_PRESET_NAME}" STREQUAL "WSL-Distribution")
-    add_compile_definitions(DISTRIBUTION)
-endif ()
-
-# Add external dependencies
-add_subdirectory(external)
-
-# Add unit testing target executable
 if (COMPILE_TESTS)
     enable_testing()
     add_subdirectory(tests)
 endif ()
+
+# Add external dependencies
+add_subdirectory(external)
 
 # Add engine library
 add_subdirectory(engine)

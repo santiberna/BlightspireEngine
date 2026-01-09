@@ -72,7 +72,7 @@ endif ()
 set_target_properties(CustomTech PROPERTIES OUTPUT_NAME "Blightspire")
 
 target_link_libraries(CustomTech
-    PRIVATE ProjectSettings
+    PRIVATE CompilerFlags
     PRIVATE Engine
 )
 

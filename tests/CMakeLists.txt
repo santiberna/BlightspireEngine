@@ -25,7 +25,7 @@ FetchContent_MakeAvailable(GoogleTest)
 target_compile_options(gtest PRIVATE -Wno-character-conversion)
 
 target_link_libraries(UnitTests
-        PRIVATE ProjectSettings
+        PRIVATE CompilerFlags
         PRIVATE Engine
         PRIVATE GTest::gtest
         PRIVATE GTest::gtest_main

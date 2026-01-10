@@ -5,7 +5,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
 set(CMAKE_BUILD_RPATH "$ORIGIN")
 
-project(BlightSpireEngine)
+project(BlightspireEngine)
 
 ### COMPILATION SETTINGS ###
 
@@ -58,20 +58,19 @@ endif ()
 
 # Add executable with settings based on configuration used
 if ("${CMAKE_PRESET_NAME}" STREQUAL "x64-Distribution")
-    add_executable(CustomTech WIN32 "engine/main.cpp" ${APP_ICON_RESOURCE_WINDOWS})
+    add_executable(Blightspire WIN32 "engine/main.cpp" ${APP_ICON_RESOURCE_WINDOWS})
 elseif ("${CMAKE_PRESET_NAME}" STREQUAL "WSL-Distribution")
-    add_executable(CustomTech "engine/main.cpp")
-    set_target_properties(CustomTech
+    add_executable(Blightspire "engine/main.cpp")
+    set_target_properties(Blightspire
             PROPERTIES
             LINK_FLAGS "-mwindows"
     )
 else ()
-    add_executable(CustomTech "engine/main.cpp" ${APP_ICON_RESOURCE_WINDOWS})
+    add_executable(Blightspire "engine/main.cpp" ${APP_ICON_RESOURCE_WINDOWS})
 endif ()
 
-set_target_properties(CustomTech PROPERTIES OUTPUT_NAME "Blightspire")
 
-target_link_libraries(CustomTech
+target_link_libraries(Blightspire
     PRIVATE CompilerFlags
     PRIVATE Engine
 )
@@ -80,5 +79,5 @@ target_link_libraries(CustomTech
 if (COMPILE_SHADERS)
     message(STATUS "### Shaders will be compiled on build")
     add_subdirectory(shaders)
-    add_dependencies(CustomTech Shaders)
+    add_dependencies(Blightspire Shaders)
 endif ()

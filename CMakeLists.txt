@@ -38,6 +38,7 @@ if (ENABLE_UNITY)
 endif ()
 
 if (COMPILE_TESTS)
+    message(STATUS "### Unit Tests are enabled")
     enable_testing()
     add_subdirectory(tests)
 endif ()

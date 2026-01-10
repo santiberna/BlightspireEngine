@@ -96,7 +96,7 @@ add_subdirectory(entt)
 FetchContent_Declare(
         SDL
         GIT_REPOSITORY https://github.com/libsdl-org/SDL.git
-        GIT_TAG release-3.2.0
+        GIT_TAG release-3.4.0
         GIT_SHALLOW TRUE
         GIT_PROGRESS TRUE
 )

@@ -16,6 +16,9 @@ The contribution pipeline is to just make pull requests and please don't push to
 
 ## Build instructions
 
-Refer back to the wiki in the original Blightspire project for all the setup and configuration needed.
+THINGS THAT YOU SHOULD PROBABLY DO:
+- Update LLVM and CMake: Clang introduces a lot of new C++ warnings that are flagged as unknown when compiling with an older version and for now the project makes use of WHOLE_ARCHIVE flags for proper unit test registration, which only configure correctly on newer versions of CMake
+- Make sure your vulkan SDK version is updated (atleast 1.4.335.0) and include vk_mem_alloc header when installing the SDK (avoids having to pull another dependency ourselves)
 
+Refer back to the wiki in the original Blightspire project for all the previous setup and configuration needed.
 If anything doesn't work, I probably changed it. Make an issue for it if that happens :)

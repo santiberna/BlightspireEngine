@@ -1,12 +1,10 @@
-add_library(Particles)
-module_default_init(Particles)
+module_declare(STATIC)
 
-target_link_libraries(Particles
-        PUBLIC Core
-        PUBLIC ECS
-        PUBLIC Settings
-
-        PRIVATE Utility
-        PRIVATE Renderer
-        PRIVATE Physics
+target_link_libraries(particles
+        PUBLIC core
+        PUBLIC ecs
+        PUBLIC settings
+        PRIVATE utility
+        PRIVATE renderer
+        PRIVATE physics
 )

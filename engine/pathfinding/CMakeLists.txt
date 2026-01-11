@@ -1,10 +1,10 @@
-add_library(Pathfinding)
-module_default_init(Pathfinding)
+module_declare(STATIC)
 
-target_link_libraries(Pathfinding
-        PUBLIC Core
-        PUBLIC Application
-        PUBLIC Physics
-        PUBLIC Renderer
-        PUBLIC Resources
+target_link_libraries(pathfinding
+        PUBLIC core
+        PUBLIC application
+        PUBLIC physics
+        PUBLIC renderer
+        PUBLIC resources
+        PRIVATE game
 )

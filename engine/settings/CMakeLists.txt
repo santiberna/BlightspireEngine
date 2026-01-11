@@ -1,13 +1,12 @@
-add_library(Settings)
-module_default_init(Settings)
+module_declare(STATIC)
 
-target_link_libraries(Settings
-        PUBLIC Utility
+target_link_libraries(settings
+        PUBLIC utility
 
         PRIVATE cereal
         PUBLIC glm::glm
 )
 
-target_include_directories(Settings
+target_include_directories(settings
         PUBLIC "${PROJECT_SOURCE_DIR}/external/visit_struct/include"
 )

@@ -1,13 +1,13 @@
-add_library(Renderer)
-module_default_init(Renderer)
+module_declare(STATIC)
 
-target_link_libraries(Renderer
-        PUBLIC Core
-        PUBLIC Application
-        PUBLIC Particles
-        PUBLIC ECS
-        PUBLIC UserInterface
-        PUBLIC Settings
+target_link_libraries(renderer
+        PUBLIC core
+        PUBLIC application
+        PUBLIC particles
+        PUBLIC ecs
+        PUBLIC user_interface
+        PUBLIC settings
+        PUBLIC physics
 
         PUBLIC VulkanAPI
         PUBLIC spirv-reflect-static

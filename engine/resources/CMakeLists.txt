@@ -1,15 +1,14 @@
-add_library(Resources)
-module_default_init(Resources)
+module_declare(STATIC)
 
-target_link_libraries(Resources
-        PUBLIC Core
-        PUBLIC Renderer
-        PUBLIC Thread
+target_link_libraries(resources
+        PUBLIC core
+        PUBLIC renderer
+        PUBLIC thread
 
         PRIVATE fastgltf::fastgltf
 )
 
-target_include_directories(Resources
+target_include_directories(resources
         PRIVATE "${PROJECT_SOURCE_DIR}/external/stb"
 )
 

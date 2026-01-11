@@ -1,9 +1,9 @@
-add_library(Audio)
-module_default_init(Audio)
+module_declare(STATIC)
 
-target_link_libraries(Audio
-        PUBLIC Core
-        PUBLIC ECS
-        PRIVATE Physics
+target_link_libraries(audio
+        PUBLIC core
+        PUBLIC ecs
+        PRIVATE physics
+        
         PRIVATE FMOD
 )

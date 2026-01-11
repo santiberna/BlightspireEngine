@@ -25,7 +25,7 @@ function(module_declare type)
         if (test_sources)
             target_sources(${module} PRIVATE ${test_sources})
             target_link_libraries(${module} PRIVATE GTest::gtest)
-            target_link_libraries(UnitTests PRIVATE $<LINK_LIBRARY:WHOLE_ARCHIVE,${module}>)
+            target_link_libraries(UnitTests PRIVATE ${module})
         endif ()
 
     endif ()

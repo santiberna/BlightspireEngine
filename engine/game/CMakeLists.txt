@@ -1,11 +1,12 @@
-add_library(Game)
-module_default_init(Game)
+module_declare(STATIC)
 
-target_link_libraries(Game
-        PUBLIC Core
-        PUBLIC ECS
-        PUBLIC UserInterface
-        PUBLIC Renderer
-        PUBLIC Resources
-        PUBLIC Steam
+target_link_libraries(game
+        PUBLIC core
+        PUBLIC ecs
+        PUBLIC user_interface
+        PUBLIC renderer
+        PUBLIC resources
+        PUBLIC steam
+        PRIVATE audio
+        PRIVATE pathfinding
 )

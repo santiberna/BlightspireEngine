@@ -1,6 +1,5 @@
-add_library(Thread)
-module_default_init(Thread)
+module_declare(STATIC)
 
-target_link_libraries(Thread
-        PUBLIC Core
+target_link_libraries(thread
+        PUBLIC core
 )

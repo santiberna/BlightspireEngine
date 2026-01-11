@@ -1,12 +1,12 @@
-add_library(ECS)
-module_default_init(ECS)
+module_declare(STATIC)
 
-target_link_libraries(ECS
-        PUBLIC Core
+target_link_libraries(ecs
+        PUBLIC core
+        PUBLIC scripting
+        
+        PRIVATE physics
+
         PUBLIC EnTT::EnTT
         PUBLIC cereal
         PUBLIC ImGui
-        PUBLIC Scripting
-        
-        PRIVATE Physics
 )

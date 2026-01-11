@@ -1,7 +1,6 @@
-add_library(Core)
-module_default_init(Core)
+module_declare(STATIC)
 
 # Linked libraries or other modules (use PUBLIC for propagating includes)
-target_link_libraries(Core
-        PUBLIC Utility
+target_link_libraries(core
+        PUBLIC utility
 )

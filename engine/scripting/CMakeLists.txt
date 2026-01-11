@@ -1,12 +1,9 @@
-add_library(Scripting
-        public/callback.hpp
-        public/callback.hpp
-        public/callback.hpp)
-module_default_init(Scripting)
+module_declare(STATIC)
 
-target_link_libraries(Scripting
+target_link_libraries(scripting
+        PUBLIC core
+        PRIVATE bindings
+
         PUBLIC WrenBind17
         PUBLIC Wren
-        PUBLIC Core
-        PRIVATE Bindings
 )

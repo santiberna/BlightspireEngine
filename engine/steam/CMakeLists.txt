@@ -1,7 +1,6 @@
-add_library(Steam)
-module_default_init(Steam)
+module_declare(STATIC)
 
-target_link_libraries(Steam
+target_link_libraries(steam
         PUBLIC Steamworks
-        PUBLIC Core
+        PUBLIC core
 )

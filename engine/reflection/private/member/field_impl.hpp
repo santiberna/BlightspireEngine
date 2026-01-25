@@ -22,7 +22,7 @@ NO_DISCARD const T* Field::access(const Instance& instance) const
 template <typename T>
 NO_DISCARD T* Field::access(Instance& instance)
 {
-    if (instance.isType(*this->owner))
+    if (!instance.isType(*this->owner))
     {
         return nullptr;
     }

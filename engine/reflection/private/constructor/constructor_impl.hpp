@@ -31,7 +31,7 @@ Instance ConstructorImpl<Class, Args...>::invoke(TypeStore& type_store, const Ar
     constexpr auto ARG_SIZE = sizeof...(Args);
     assert(this->parameters.types.size() == ARG_SIZE);
 
-    if (!this->parameters.validate_args(args))
+    if (!this->parameters.validateArgs(args))
     {
         throw std::runtime_error("Parameter type or count mismatch");
     }
@@ -53,7 +53,7 @@ Instance ConstructorImpl<Class, Args...>::emplace(TypeStore& type_store, void* m
     constexpr auto ARG_SIZE = sizeof...(Args);
     assert(this->parameters.types.size() == ARG_SIZE);
 
-    if (!this->parameters.validate_args(args))
+    if (!this->parameters.validateArgs(args))
     {
         throw std::runtime_error("Parameter type or count mismatch");
     }

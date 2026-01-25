@@ -34,7 +34,7 @@ Instance MethodImpl<Ret, Class, Args...>::invoke(TypeStore& type_store, Instance
     constexpr auto ARG_SIZE = sizeof...(Args);
     assert(this->parameters.types.size() == ARG_SIZE);
 
-    if (!this->parameters.validate_args(args))
+    if (!this->parameters.validateArgs(args))
     {
         throw std::runtime_error("Parameter type or count mismatch");
     }

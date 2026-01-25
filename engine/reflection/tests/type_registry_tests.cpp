@@ -13,6 +13,8 @@ TEST(TypeTests, MemberMethod)
     auto store = TypeStore {};
     auto constructor = ConstructorImpl<TestType, int>(store);
 
+    auto a = Field(store, &TestType::a);
+
     auto is_zero = MethodImpl(store, &TestType::is_zero);
     auto set = MethodImpl(store, &TestType::set);
 
@@ -30,4 +32,8 @@ TEST(TypeTests, MemberMethod)
 
     ASSERT_NE(result, nullptr);
     ASSERT_TRUE(*result);
+
+    auto* value = a.access<int>(instance);
+    ASSERT_NE(value, nullptr);
+    ASSERT_EQ(*value, 0);
 }

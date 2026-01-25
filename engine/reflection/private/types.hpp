@@ -10,17 +10,11 @@
 
 class Type;
 class TypeStore;
-struct MemberVariable;
-struct MemberMethod;
-struct Constructor;
-struct Destructor;
+class Field;
+class Method;
+class Constructor;
+class Destructor;
 class Instance;
-
-struct Destructor
-{
-    virtual ~Destructor() = default;
-    virtual void invoke(void* mem) const = 0;
-};
 
 class TypeStore
 {
@@ -44,7 +38,7 @@ public:
     NO_DISCARD bool is() const;
 
     NON_COPYABLE(Type);
-    DEFAULT_MOVABLE(Type); // todo: this struct should not be movable either
+    DEFAULT_MOVABLE(Type);
 
     NO_DISCARD const Destructor* getDestructor() const;
     NO_DISCARD std::type_index getIndex() const;
@@ -60,53 +54,16 @@ private:
 
     // Factory set
     std::optional<std::string> alias {};
-    std::vector<MemberVariable> variables {};
-    std::vector<std::unique_ptr<MemberMethod>> methods {};
+    std::vector<Field> fields {};
+    std::vector<std::unique_ptr<Method>> methods {};
     std::vector<std::unique_ptr<Constructor>> constructor {};
 
     friend class TypeStore;
 };
 
-struct ParameterList
-{
-    std::vector<Type*> types;
-};
-
 struct ArgumentList
 {
     std::vector<Instance*> values;
-};
-
-struct MemberVariable
-{
-    std::string name;
-    size_t offset {};
-    Type* type {};
-};
-
-struct MemberMethod
-{
-    std::string name {};
-    ParameterList parameters {};
-
-    MemberMethod() = default;
-    virtual ~MemberMethod() = default;
-    NON_COPYABLE(MemberMethod);
-    NON_MOVABLE(MemberMethod);
-
-    NO_DISCARD virtual Instance invoke(TypeStore& type_store, Instance& object, const ArgumentList& parameters) const = 0;
-};
-
-struct Constructor
-{
-    ParameterList parameters {};
-
-    Constructor() = default;
-    virtual ~Constructor() = default;
-    NON_COPYABLE(Constructor);
-    NON_MOVABLE(Constructor);
-
-    NO_DISCARD virtual Instance invoke(TypeStore& type_store, const ArgumentList& parameters) const = 0;
 };
 
 class Instance
@@ -135,8 +92,32 @@ public:
 
     NO_DISCARD bool isValid() const;
     NO_DISCARD bool isType(const Type& type) const;
+    NO_DISCARD const void* getAddress() const;
 
 private:
     void* ptr {};
     const Type* type {};
+};
+
+struct ParameterList
+{
+    std::vector<Type*> types;
+
+    NO_DISCARD bool validateArgs(const ArgumentList& args) const
+    {
+        if (types.size() != args.values.size())
+        {
+            return false;
+        }
+        for (size_t i = 0; i < types.size(); i++)
+        {
+            auto* arg = args.values[i];
+            auto* type = types[i];
+            if (!arg->isType(*type))
+            {
+                return false;
+            }
+        }
+        return true;
+    }
 };

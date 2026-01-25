@@ -19,7 +19,7 @@ Instance::~Instance()
     assert((this->ptr == nullptr) == (this->type == nullptr));
     if (this->ptr != nullptr && this->type != nullptr)
     {
-        this->type->getDestructor()->invoke(this->ptr);
+        this->type->getDestructor()->invoke_delete(this->ptr);
     }
 }
 
@@ -35,12 +35,17 @@ bool Instance::isType(const Type& type) const
     return this->type == &type;
 }
 
-NO_DISCARD const Destructor* Type::getDestructor() const
+const Destructor* Type::getDestructor() const
 {
     return destructor.get();
 }
 
-NO_DISCARD std::type_index Type::getIndex() const
+std::type_index Type::getIndex() const
 {
     return { *this->index };
+}
+
+const void* Instance::getAddress() const
+{
+    return this->ptr;
 }

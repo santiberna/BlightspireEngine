@@ -1,41 +1,33 @@
 #include <gtest/gtest.h>
-#include <type_registry.hpp>
+#include <impls.hpp>
 
-struct TestItem
+struct TestType
 {
-    std::string name;
+    int a = 0;
+    bool is_zero() { return !(bool)(a); }
+    void set(int b) { a = b; }
 };
 
-namespace TestNamespace
+TEST(TypeTests, MemberMethod)
 {
-struct TestItem2
-{
-    std::string name;
-};
+    auto store = TypeStore {};
+    auto constructor = ConstructorImpl<TestType, int>(store);
+
+    auto is_zero = MethodImpl(store, &TestType::is_zero);
+    auto set = MethodImpl(store, &TestType::set);
+
+    ASSERT_EQ(is_zero.parameters.types.size(), 0);
+    ASSERT_EQ(set.parameters.types.size(), 1);
+
+    Instance in = Instance(store, 3);
+    auto instance = constructor.invoke(store, { std::vector<Instance*> { &in } });
+
+    *in.cast<int>() = 0;
+    set.invoke(store, instance, { { &in } });
+
+    auto ret = is_zero.invoke(store, instance, {});
+    bool* result = ret.cast<bool>();
+
+    ASSERT_NE(result, nullptr);
+    ASSERT_TRUE(*result);
 }
-
-TEST(TypeRegistryTests, NewType)
-{
-    auto registry = TypeRegistry();
-    registry.newType<TestItem>();
-
-    EXPECT_TRUE(registry.containsType<TestItem>());
-}
-
-TEST(TypeRegistryTests, NewTypeCheckName)
-{
-    auto registry = TypeRegistry();
-    registry.newType<TestItem>();
-    registry.newType<TestNamespace::TestItem2>();
-
-    EXPECT_TRUE(registry.containsTypeNamed("TestItem"));
-    EXPECT_TRUE(registry.containsTypeNamed("TestNamespace::TestItem2"));
-}
-
-// TEST(TypeRegistryTests, GetTypeNames)
-// {
-//     auto registry = TypeRegistry();
-//     registry.newType<TestItem>();
-
-//     EXPECT_TRUE(condition)
-// }

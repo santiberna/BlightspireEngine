@@ -16,37 +16,18 @@ TEST(TypeTests, MemberMethod)
 
     builder.addConstructor<>()
         .addConstructor<int>()
-        // .addConstMethod(&TestType::is_zero)
-        // .addMethod(&TestType::set)
-        // .addField(&TestType::a)
+        //  .addConstMethod(&TestType::is_zero)
+        //  .addMethod(&TestType::set)
+        //  .addField(&TestType::a)
         .addConstant("Constant", 42)
         .addConstant("Constant2", 69);
 
-    auto type = store.get<TestType>();
+    auto* type = store.get<TestType>();
     EXPECT_EQ(type->getConstant("Constant"), 42);
     EXPECT_EQ(type->getConstant("Constant2"), 69);
 
-    // auto constructor = ConstructorImpl<TestType, int>(store);
-    // auto a = Field(store, &TestType::a);
-    // auto is_zero = MethodImpl(store, &TestType::is_zero);
-    // auto set = MethodImpl(store, &TestType::set);
+    Instance params = store.makeInstance(42);
+    auto instance = type->construct({ { &params } });
 
-    // ASSERT_EQ(is_zero.parameters.types.size(), 0);
-    // ASSERT_EQ(set.parameters.types.size(), 1);
-
-    // Instance in = Instance(store, 3);
-    // auto instance = constructor.invoke(store, { std::vector<Instance*> { &in } });
-
-    // *in.cast<int>() = 0;
-    // (void)set.invoke(store, instance, { { &in } });
-
-    // auto ret = is_zero.invoke(store, instance, {});
-    // bool* result = ret.cast<bool>();
-
-    // ASSERT_NE(result, nullptr);
-    // ASSERT_TRUE(*result);
-
-    // auto* value = a.access<int>(instance);
-    // ASSERT_NE(value, nullptr);
-    // ASSERT_EQ(*value, 0);
+    ASSERT_EQ(instance.getType(), store.get<TestType>());
 }

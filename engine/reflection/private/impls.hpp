@@ -10,10 +10,15 @@
 
 /// Template impls
 
-template <typename T> Instance::Instance(TypeStore& type_store, T val)
+template <typename T> Instance::Instance(const Type* type, T val)
 {
+    if (type->getIndex() != typeid(T))
+    {
+        throw std::runtime_error("Creating an instance from incorrect type!");
+    }
+
     this->ptr = new T(std::move(val));
-    this->type = type_store.get<T>();
+    this->type = type;
 }
 
 template <typename T> T* Instance::cast()
@@ -32,6 +37,11 @@ template <typename T> const T* Instance::cast() const
 
 template <typename T> bool Type::is() const { return this->getIndex() == typeid(T); }
 
+template <typename T> Instance TypeStore::makeInstance(T&& val)
+{
+    return Instance(this->get<T>(), std::forward<T>(val));
+}
+
 template <typename T> Type* TypeStore::get()
 {
     std::type_index index = typeid(T);
@@ -42,7 +52,7 @@ template <typename T> Type* TypeStore::get()
         return it->second.get();
     }
 
-    Type type {};
+    Type type { this };
 
     type.index = &typeid(T);
     type.name = std::string(typeid(T).name());

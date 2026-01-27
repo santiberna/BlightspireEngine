@@ -33,7 +33,7 @@ Instance ConstructorImpl<Class, Args...>::invoke(
     TypeStore& type_store, const ArgumentList& args) const
 {
     constexpr auto ARG_SIZE = sizeof...(Args);
-    assert(this->parameters.types.size() == ARG_SIZE);
+    assert(this->parameters.length() == ARG_SIZE);
 
     if (!this->parameters.validateArgs(args))
     {
@@ -49,7 +49,8 @@ NO_DISCARD Instance ConstructorImpl<Class, Args...>::invokeHelper(TypeStore& typ
     const ArgumentList& args, MAYBE_UNUSED std::index_sequence<Is...> _sequence) const
 {
     Class val = Class { *(*args.values[Is]).cast<Args>()... };
-    return Instance(type_store, std::move(val));
+    auto type = type_store.get<Class>();
+    return Instance(type, std::move(val));
 }
 
 template <typename Class, typename... Args>
@@ -57,7 +58,7 @@ Instance ConstructorImpl<Class, Args...>::emplace(
     TypeStore& type_store, void* mem, const ArgumentList& args) const
 {
     constexpr auto ARG_SIZE = sizeof...(Args);
-    assert(this->parameters.types.size() == ARG_SIZE);
+    assert(this->parameters.length() == ARG_SIZE);
 
     if (!this->parameters.validateArgs(args))
     {

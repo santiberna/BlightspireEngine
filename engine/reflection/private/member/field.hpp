@@ -1,6 +1,5 @@
 #pragma once
 #include <types.hpp>
-
 class Field
 {
 public:
@@ -8,6 +7,8 @@ public:
 
     template <typename Class, typename Member>
     Field(TypeStore& type_store, MemberPointer<Class, Member> mem_ptr);
+
+    ~Field() = default;
 
     /// Returns nullptr if there is a type mismatch in the passed instance or the accessed type
     template <typename T> NO_DISCARD const T* access(const Instance& instance) const;

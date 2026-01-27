@@ -1,5 +1,10 @@
 #include <impls.hpp>
 
+Type::Type(TypeStore* owner_store)
+    : owner_store(owner_store)
+{
+}
+
 Instance::Instance(Instance&& other) noexcept
 {
     std::swap(other.ptr, this->ptr);
@@ -30,7 +35,7 @@ bool Instance::isValid() const
     return ptr != nullptr;
 }
 
-bool Instance::isType(const Type& type) const { return this->type == &type; }
+const Type* Instance::getType() const { return this->type; }
 
 const Destructor* Type::getDestructor() const { return destructor.get(); }
 
@@ -45,4 +50,17 @@ std::optional<uint64_t> Type::getConstant(std::string_view name) const
         return it->second;
     }
     return std::nullopt;
+}
+
+Instance Type::construct(const ArgumentList& arguments) const
+{
+    auto params = arguments.asTypes();
+    auto list = ParameterList(params);
+
+    if (auto it = constructors.find(list); it != constructors.end())
+    {
+        assert(owner_store != nullptr);
+        return it->second->invoke(*owner_store, arguments);
+    }
+    return {};
 }

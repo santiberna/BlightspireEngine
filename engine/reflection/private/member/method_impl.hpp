@@ -43,7 +43,7 @@ Instance MethodImpl<Ret, Class, Qualifiers, Args...>::invoke(
     TypeStore& type_store, Instance& object, const ArgumentList& args) const
 {
     constexpr auto ARG_SIZE = sizeof...(Args);
-    assert(this->parameters.types.size() == ARG_SIZE);
+    assert(this->parameters.length() == ARG_SIZE);
 
     if (!this->parameters.validateArgs(args))
     {

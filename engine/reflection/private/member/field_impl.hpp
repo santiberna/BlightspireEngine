@@ -13,16 +13,14 @@ Field::Field(TypeStore& type_store, Member Class::* mem_ptr)
     this->offset = reinterpret_cast<size_t>(address);
 }
 
-template <typename T>
-NO_DISCARD const T* Field::access(const Instance& instance) const
+template <typename T> NO_DISCARD const T* Field::access(const Instance& instance) const
 {
     return const_cast<Field*>(this)->access<T>(const_cast<Instance&>(instance));
 }
 
-template <typename T>
-NO_DISCARD T* Field::access(Instance& instance)
+template <typename T> NO_DISCARD T* Field::access(Instance& instance)
 {
-    if (!instance.isType(*this->owner))
+    if (!(instance.getType() == this->owner))
     {
         return nullptr;
     }

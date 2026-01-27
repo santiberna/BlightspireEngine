@@ -1,5 +1,7 @@
 #include <impls.hpp>
 
+#include <member/constant.hpp>
+
 Instance::Instance(Instance&& other) noexcept
 {
     std::swap(other.ptr, this->ptr);
@@ -19,7 +21,7 @@ Instance::~Instance()
     assert((this->ptr == nullptr) == (this->type == nullptr));
     if (this->ptr != nullptr && this->type != nullptr)
     {
-        this->type->getDestructor()->invoke_delete(this->ptr);
+        this->type->getDestructor()->invokeDelete(this->ptr);
     }
 }
 
@@ -30,22 +32,25 @@ bool Instance::isValid() const
     return ptr != nullptr;
 }
 
-bool Instance::isType(const Type& type) const
+bool Instance::isType(const Type& type) const { return this->type == &type; }
+
+const Destructor* Type::getDestructor() const { return destructor.get(); }
+
+std::type_index Type::getIndex() const { return { *this->index }; }
+
+const void* Instance::getAddress() const { return this->ptr; }
+
+void Type::setConstant(std::string_view name, uint64_t value)
 {
-    return this->type == &type;
+    auto name_str = std::string(name);
+    constants.emplace(name_str, Constant(name_str, value));
 }
 
-const Destructor* Type::getDestructor() const
+NO_DISCARD const Constant* Type::getConstant(std::string_view name) const
 {
-    return destructor.get();
-}
-
-std::type_index Type::getIndex() const
-{
-    return { *this->index };
-}
-
-const void* Instance::getAddress() const
-{
-    return this->ptr;
+    if (auto it = constants.find(std::string(name)); it != constants.end())
+    {
+        return &it->second;
+    }
+    return nullptr;
 }

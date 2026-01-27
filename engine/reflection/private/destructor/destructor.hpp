@@ -10,7 +10,7 @@ public:
     NON_COPYABLE(Destructor);
     NON_MOVABLE(Destructor);
 
-    virtual void invoke_delete(void* mem) const = 0;
+    virtual void invokeDelete(void* mem) const = 0;
 };
 
 #include <destructor/destructor_impl.hpp>

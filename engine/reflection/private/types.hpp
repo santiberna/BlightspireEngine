@@ -8,6 +8,8 @@
 #include <unordered_map>
 #include <vector>
 
+#include <member/constant.hpp>
+
 class Type;
 class TypeStore;
 class Field;
@@ -15,7 +17,7 @@ class Method;
 class Constructor;
 class Destructor;
 class Instance;
-
+class Constant;
 class TypeStore
 {
 public:
@@ -24,8 +26,7 @@ public:
 
     NON_COPYABLE(TypeStore);
 
-    template <typename T>
-    Type* get();
+    template <typename T> Type* get();
 
 private:
     std::unordered_map<std::type_index, std::unique_ptr<Type>> type_map;
@@ -34,11 +35,13 @@ private:
 class Type
 {
 public:
-    template <typename T>
-    NO_DISCARD bool is() const;
+    template <typename T> NO_DISCARD bool is() const;
 
     NON_COPYABLE(Type);
     DEFAULT_MOVABLE(Type);
+
+    void setConstant(std::string_view name, uint64_t value);
+    NO_DISCARD const Constant* getConstant(std::string_view name) const;
 
     NO_DISCARD const Destructor* getDestructor() const;
     NO_DISCARD std::type_index getIndex() const;
@@ -57,8 +60,10 @@ private:
     std::vector<Field> fields {};
     std::vector<std::unique_ptr<Method>> methods {};
     std::vector<std::unique_ptr<Constructor>> constructor {};
+    std::unordered_map<std::string, Constant> constants {};
 
     friend class TypeStore;
+    friend class TypeBuilder;
 };
 
 struct ArgumentList
@@ -76,19 +81,16 @@ public:
         : ptr(ptr)
         , type(type) { };
 
-    template <typename T>
-    Instance(TypeStore& type_store, T val);
+    template <typename T> Instance(TypeStore& type_store, T val);
 
     NON_COPYABLE(Instance);
     Instance(Instance&&) noexcept;
     Instance& operator=(Instance&&) noexcept;
     ~Instance();
 
-    template <typename T>
-    const T* cast() const;
+    template <typename T> const T* cast() const;
 
-    template <typename T>
-    T* cast();
+    template <typename T> T* cast();
 
     NO_DISCARD bool isValid() const;
     NO_DISCARD bool isType(const Type& type) const;

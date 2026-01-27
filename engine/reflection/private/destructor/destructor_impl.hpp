@@ -5,7 +5,7 @@ template <typename T>
 class DestructorImpl : public Destructor
 {
 public:
-    void invoke_delete(void* mem) const override
+    void invokeDelete(void* mem) const override
     {
         delete static_cast<T*>(mem);
     }

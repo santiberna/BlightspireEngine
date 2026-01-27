@@ -3,18 +3,19 @@
 
 #include <stdexcept>
 
-template <typename Ret, typename Class, typename... Args>
-class MethodImpl : public Method
+template <typename Ret, typename Class, typename... Args> class MethodImpl : public Method
 {
     using Callable = Ret (Class::*)(Args...);
 
 public:
     MethodImpl(TypeStore& type_store, Callable ptr);
-    NO_DISCARD Instance invoke(TypeStore& type_store, Instance& object, const ArgumentList& parameters) const override;
+    NO_DISCARD Instance invoke(
+        TypeStore& type_store, Instance& object, const ArgumentList& parameters) const override;
 
 private:
     template <std::size_t... Is>
-    NO_DISCARD Ret invokeHelper(Class* obj, const ArgumentList& args, std::index_sequence<Is...>) const;
+    NO_DISCARD Ret invokeHelper(
+        Class* obj, const ArgumentList& args, std::index_sequence<Is...> sequence) const;
 
     Callable callable {};
 };
@@ -29,7 +30,8 @@ MethodImpl<Ret, Class, Args...>::MethodImpl(TypeStore& type_store, Callable ptr)
 }
 
 template <typename Ret, typename Class, typename... Args>
-Instance MethodImpl<Ret, Class, Args...>::invoke(TypeStore& type_store, Instance& object, const ArgumentList& args) const
+Instance MethodImpl<Ret, Class, Args...>::invoke(
+    TypeStore& type_store, Instance& object, const ArgumentList& args) const
 {
     constexpr auto ARG_SIZE = sizeof...(Args);
     assert(this->parameters.types.size() == ARG_SIZE);
@@ -60,7 +62,8 @@ Instance MethodImpl<Ret, Class, Args...>::invoke(TypeStore& type_store, Instance
 
 template <typename Ret, typename Class, typename... Args>
 template <std::size_t... Is>
-Ret MethodImpl<Ret, Class, Args...>::invokeHelper(Class* obj, const ArgumentList& args, std::index_sequence<Is...>) const
+Ret MethodImpl<Ret, Class, Args...>::invokeHelper(
+    Class* obj, const ArgumentList& args, MAYBE_UNUSED std::index_sequence<Is...> sequence) const
 {
     return (obj->*callable)(*(*args.values[Is]).cast<Args>()...);
 }

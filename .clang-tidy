@@ -47,7 +47,7 @@ CheckOptions:
 
   # Naming convention for functions
   - key: readability-identifier-naming.FunctionCase
-    value: CamelCase
+    value: camelBack
   - key: readability-identifier-naming.FunctionPrefix
     value: ''
   - key: readability-identifier-naming.FunctionSuffix
@@ -55,7 +55,7 @@ CheckOptions:
 
   # Naming convention for methods
   - key: readability-identifier-naming.MethodCase
-    value: CamelCase
+    value: camelBack
   - key: readability-identifier-naming.MethodPrefix
     value: ''
   - key: readability-identifier-naming.MethodSuffix
@@ -63,7 +63,7 @@ CheckOptions:
 
   # Naming convention for variables
   - key: readability-identifier-naming.VariableCase
-    value: camelBack
+    value: lower_case
   - key: readability-identifier-naming.VariablePrefix
     value: ''
   - key: readability-identifier-naming.VariableSuffix
@@ -71,7 +71,7 @@ CheckOptions:
 
   # Naming convention for public member variables
   - key: readability-identifier-naming.PublicMemberCase
-    value: camelBack
+    value: lower_case
   - key: readability-identifier-naming.PublicMemberPrefix
     value: ''
   - key: readability-identifier-naming.PublicMemberSuffix
@@ -79,9 +79,9 @@ CheckOptions:
 
   # Naming convention for member variables
   - key: readability-identifier-naming.MemberCase
-    value: camelBack
+    value: lower_case
   - key: readability-identifier-naming.MemberPrefix
-    value: '_'
+    value: ''
   - key: readability-identifier-naming.MemberSuffix
     value: ''
 

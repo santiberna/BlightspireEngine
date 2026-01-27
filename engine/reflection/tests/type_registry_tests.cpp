@@ -12,9 +12,7 @@ TEST(TypeTests, MemberMethod)
 {
     auto store = TypeStore {};
     auto constructor = ConstructorImpl<TestType, int>(store);
-
     auto a = Field(store, &TestType::a);
-
     auto is_zero = MethodImpl(store, &TestType::is_zero);
     auto set = MethodImpl(store, &TestType::set);
 
@@ -25,7 +23,7 @@ TEST(TypeTests, MemberMethod)
     auto instance = constructor.invoke(store, { std::vector<Instance*> { &in } });
 
     *in.cast<int>() = 0;
-    set.invoke(store, instance, { { &in } });
+    (void)set.invoke(store, instance, { { &in } });
 
     auto ret = is_zero.invoke(store, instance, {});
     bool* result = ret.cast<bool>();

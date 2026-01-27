@@ -10,15 +10,13 @@
 
 /// Template impls
 
-template <typename T>
-Instance::Instance(TypeStore& type_store, T val)
+template <typename T> Instance::Instance(TypeStore& type_store, T val)
 {
     this->ptr = new T(std::move(val));
     this->type = type_store.get<T>();
 }
 
-template <typename T>
-T* Instance::cast()
+template <typename T> T* Instance::cast()
 {
     if (this->type->is<T>())
     {
@@ -27,20 +25,14 @@ T* Instance::cast()
     return nullptr;
 }
 
-template <typename T>
-const T* Instance::cast() const
+template <typename T> const T* Instance::cast() const
 {
     return const_cast<Instance*>(this)->cast<T>();
 }
 
-template <typename T>
-bool Type::is() const
-{
-    return this->getIndex() == typeid(T);
-}
+template <typename T> bool Type::is() const { return this->getIndex() == typeid(T); }
 
-template <typename T>
-Type* TypeStore::get()
+template <typename T> Type* TypeStore::get()
 {
     std::type_index index = typeid(T);
 

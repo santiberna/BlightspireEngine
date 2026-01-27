@@ -8,10 +8,7 @@
 #include <unordered_map>
 #include <vector>
 
-#include <member/constant.hpp>
-
 class Type;
-class TypeStore;
 class Field;
 class Method;
 class Constructor;
@@ -40,8 +37,7 @@ public:
     NON_COPYABLE(Type);
     DEFAULT_MOVABLE(Type);
 
-    void setConstant(std::string_view name, uint64_t value);
-    NO_DISCARD const Constant* getConstant(std::string_view name) const;
+    NO_DISCARD std::optional<uint64_t> getConstant(std::string_view name) const;
 
     NO_DISCARD const Destructor* getDestructor() const;
     NO_DISCARD std::type_index getIndex() const;
@@ -60,10 +56,11 @@ private:
     std::vector<Field> fields {};
     std::vector<std::unique_ptr<Method>> methods {};
     std::vector<std::unique_ptr<Constructor>> constructor {};
-    std::unordered_map<std::string, Constant> constants {};
+    std::unordered_map<std::string, uint64_t> constants {};
 
-    friend class TypeStore;
-    friend class TypeBuilder;
+    friend TypeStore;
+
+    template <typename T> friend class TypeBuilder;
 };
 
 struct ArgumentList

@@ -1,13 +1,22 @@
 #pragma once
 #include <member/method.hpp>
+#include <types.hpp>
 
 #include <stdexcept>
 
-template <typename Ret, typename Class, typename... Args> class MethodImpl : public Method
+// Qualifiers can only be void of const void
+template <typename Ret, typename Class, typename Qualifiers, typename... Args>
+class MethodImpl : public Method
 {
-    using Callable = Ret (Class::*)(Args...);
+    // Static assert to validate Qualifiers
+    static_assert(std::is_same_v<Qualifiers, void> || std::is_same_v<Qualifiers, const void>,
+        "Qualifiers must be either void (non-const) or const void (const member function)");
 
 public:
+    // Conditional type based on Qualifiers
+    using Callable = std::conditional_t<std::is_same_v<Qualifiers, const void>,
+        ConstMemberPointer<Class, Ret, Args...>, MemberPointer<Class, Ret, Args...>>;
+
     MethodImpl(TypeStore& type_store, Callable ptr);
     NO_DISCARD Instance invoke(
         TypeStore& type_store, Instance& object, const ArgumentList& parameters) const override;
@@ -20,8 +29,8 @@ private:
     Callable callable {};
 };
 
-template <typename Ret, typename Class, typename... Args>
-MethodImpl<Ret, Class, Args...>::MethodImpl(TypeStore& type_store, Callable ptr)
+template <typename Ret, typename Class, typename Qualifiers, typename... Args>
+MethodImpl<Ret, Class, Qualifiers, Args...>::MethodImpl(TypeStore& type_store, Callable ptr)
     : Method()
 {
     this->name = "Unimplemented!";
@@ -29,8 +38,8 @@ MethodImpl<Ret, Class, Args...>::MethodImpl(TypeStore& type_store, Callable ptr)
     this->parameters = ParameterList { { type_store.get<Args>()... } };
 }
 
-template <typename Ret, typename Class, typename... Args>
-Instance MethodImpl<Ret, Class, Args...>::invoke(
+template <typename Ret, typename Class, typename Qualifiers, typename... Args>
+Instance MethodImpl<Ret, Class, Qualifiers, Args...>::invoke(
     TypeStore& type_store, Instance& object, const ArgumentList& args) const
 {
     constexpr auto ARG_SIZE = sizeof...(Args);
@@ -60,9 +69,9 @@ Instance MethodImpl<Ret, Class, Args...>::invoke(
     }
 }
 
-template <typename Ret, typename Class, typename... Args>
+template <typename Ret, typename Class, typename Qualifiers, typename... Args>
 template <std::size_t... Is>
-Ret MethodImpl<Ret, Class, Args...>::invokeHelper(
+Ret MethodImpl<Ret, Class, Qualifiers, Args...>::invokeHelper(
     Class* obj, const ArgumentList& args, MAYBE_UNUSED std::index_sequence<Is...> sequence) const
 {
     return (obj->*callable)(*(*args.values[Is]).cast<Args>()...);

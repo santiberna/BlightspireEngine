@@ -4,6 +4,12 @@
 class Method
 {
 public:
+    template <typename Class, typename Ret, typename... Args>
+    using MemberPointer = Ret (Class::*)(Args...);
+
+    template <typename Class, typename Ret, typename... Args>
+    using ConstMemberPointer = Ret (Class::*)(Args...) const;
+
     std::string name {};
     ParameterList parameters {};
 

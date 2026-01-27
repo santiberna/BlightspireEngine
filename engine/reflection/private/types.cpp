@@ -1,7 +1,5 @@
 #include <impls.hpp>
 
-#include <member/constant.hpp>
-
 Instance::Instance(Instance&& other) noexcept
 {
     std::swap(other.ptr, this->ptr);
@@ -40,17 +38,11 @@ std::type_index Type::getIndex() const { return { *this->index }; }
 
 const void* Instance::getAddress() const { return this->ptr; }
 
-void Type::setConstant(std::string_view name, uint64_t value)
+std::optional<uint64_t> Type::getConstant(std::string_view name) const
 {
-    auto name_str = std::string(name);
-    constants.emplace(name_str, Constant(name_str, value));
-}
-
-NO_DISCARD const Constant* Type::getConstant(std::string_view name) const
-{
-    if (auto it = constants.find(std::string(name)); it != constants.end())
+    if (auto it = this->constants.find(std::string(name)); it != this->constants.end())
     {
-        return &it->second;
+        return it->second;
     }
-    return nullptr;
+    return std::nullopt;
 }

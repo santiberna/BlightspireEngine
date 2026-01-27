@@ -1,5 +1,4 @@
 #include <gtest/gtest.h>
-#include <impls.hpp>
 #include <type/builder.hpp>
 
 struct TestType

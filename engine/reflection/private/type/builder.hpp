@@ -4,7 +4,6 @@
 
 #include <constructor/constructor.hpp>
 #include <member/method.hpp>
-#include <types.hpp>
 
 template <typename T> class TypeBuilder
 {

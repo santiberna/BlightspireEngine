@@ -1,5 +1,11 @@
 #pragma once
-#include <types.hpp>
+#include <common.hpp>
+
+#include <string>
+
+class TypeStore;
+class Instance;
+class Type;
 class Field
 {
 public:

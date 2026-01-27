@@ -1,8 +1,8 @@
 #pragma once
 #include <member/method.hpp>
-#include <types.hpp>
-
 #include <stdexcept>
+
+#include <type/store.hpp>
 
 // Qualifiers can only be void of const void
 template <typename Ret, typename Class, typename Qualifiers, typename... Args>

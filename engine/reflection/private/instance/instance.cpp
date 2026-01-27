@@ -1,9 +1,10 @@
-#include <impls.hpp>
+#include <instance/instance.hpp>
 
-Type::Type(TypeStore* owner_store)
-    : owner_store(owner_store)
-{
-}
+#include <destructor/destructor.hpp>
+#include <type/type.hpp>
+
+#include <cassert>
+#include <utility>
 
 Instance::Instance(Instance&& other) noexcept
 {
@@ -37,30 +38,4 @@ bool Instance::isValid() const
 
 const Type* Instance::getType() const { return this->type; }
 
-const Destructor* Type::getDestructor() const { return destructor.get(); }
-
-std::type_index Type::getIndex() const { return { *this->index }; }
-
 const void* Instance::getAddress() const { return this->ptr; }
-
-std::optional<uint64_t> Type::getConstant(std::string_view name) const
-{
-    if (auto it = this->constants.find(std::string(name)); it != this->constants.end())
-    {
-        return it->second;
-    }
-    return std::nullopt;
-}
-
-Instance Type::construct(const ArgumentList& arguments) const
-{
-    auto params = arguments.asTypes();
-    auto list = ParameterList(params);
-
-    if (auto it = constructors.find(list); it != constructors.end())
-    {
-        assert(owner_store != nullptr);
-        return it->second->invoke(*owner_store, arguments);
-    }
-    return {};
-}

@@ -2,6 +2,9 @@
 #include <constructor/constructor.hpp>
 #include <stdexcept>
 
+#include <instance/instance.hpp>
+#include <type/store.hpp>
+
 template <typename Class, typename... Args> class ConstructorImpl : public Constructor
 {
 public:

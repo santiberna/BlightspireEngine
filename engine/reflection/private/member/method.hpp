@@ -1,5 +1,12 @@
 #pragma once
-#include <types.hpp>
+#include <common.hpp>
+#include <string>
+
+#include <utility/argument_list.hpp>
+#include <utility/parameter_list.hpp>
+
+class Instance;
+class TypeStore;
 
 class Method
 {

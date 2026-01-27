@@ -1,7 +1,11 @@
 #pragma once
-#include <types.hpp>
+#include <common.hpp>
+
+#include <utility/argument_list.hpp>
 #include <utility/parameter_list.hpp>
 
+class Instance;
+class TypeStore;
 class Constructor
 {
 public:

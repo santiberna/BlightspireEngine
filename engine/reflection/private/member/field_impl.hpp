@@ -4,7 +4,6 @@
 #include <instance/instance.hpp>
 #include <type/store.hpp>
 
-
 template <typename Class, typename Member>
 Field::Field(TypeStore& type_store, Member Class::* mem_ptr)
 {

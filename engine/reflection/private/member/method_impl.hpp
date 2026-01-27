@@ -1,7 +1,8 @@
 #pragma once
 #include <member/method.hpp>
-#include <stdexcept>
 
+#include <instance/instance.hpp>
+#include <stdexcept>
 #include <type/store.hpp>
 
 // Qualifiers can only be void of const void

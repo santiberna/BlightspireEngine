@@ -15,8 +15,8 @@ TEST(TypeTests, MemberMethod)
 
     builder.addConstructor<>()
         .addConstructor<int>()
-        //.addConstMethod(&TestType::is_zero)
-        //.addMethod(&TestType::set)
+        .addConstMethod(&TestType::is_zero)
+        .addMethod(&TestType::set)
         .addField(&TestType::a)
         .addConstant("Constant", 42)
         .addConstant("Constant2", 69);
@@ -30,6 +30,6 @@ TEST(TypeTests, MemberMethod)
 
     ASSERT_EQ(instance.getType(), store.get<TestType>());
 
-    // auto* failed_cast = instance.cast<int>();
-    // ASSERT_TRUE(failed_cast == nullptr);
+    auto* failed_cast = instance.cast<int>();
+    ASSERT_TRUE(failed_cast == nullptr);
 }

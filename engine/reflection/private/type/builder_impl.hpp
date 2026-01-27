@@ -32,8 +32,8 @@ template <typename Ret, typename... Args>
 TypeBuilder<T>& TypeBuilder<T>::addConstMethod(Method::ConstMemberPointer<T, Ret, Args...> ptr)
 {
     using Impl = MethodImpl<Ret, T, const void, Args...>;
-    auto field = std::make_unique<Impl>(type_store, ptr);
-    for_type->methods.emplace_back(std::move(field));
+    auto method = std::make_unique<Impl>(type_store, ptr);
+    for_type->methods.emplace_back(std::move(method));
     return *this;
 }
 

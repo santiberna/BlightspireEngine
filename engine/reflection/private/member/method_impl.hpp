@@ -66,7 +66,7 @@ Instance MethodImpl<Ret, Class, Qualifiers, Args...>::invoke(
     else
     {
         Ret result = invokeHelper(obj, args, std::index_sequence_for<Args...> {});
-        return Instance(type_store, std::move(result));
+        return Instance(type_store.get<Ret>(), std::move(result));
     }
 }
 

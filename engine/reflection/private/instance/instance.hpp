@@ -3,6 +3,7 @@
 
 #include <memory>
 #include <string_view>
+#include <utility/argument_list.hpp>
 
 class Type;
 
@@ -20,8 +21,8 @@ public:
     template <typename T> NO_DISCARD bool is() const;
     template <typename T> NO_DISCARD std::shared_ptr<const T> cast() const;
     template <typename T> NO_DISCARD std::shared_ptr<T> cast();
-    /// TODO: add call operators here
 
+    NO_DISCARD Instance call(std::string_view name, const ArgumentList& args);
     NO_DISCARD Instance access(std::string_view name) const;
     NO_DISCARD const Type* getType() const;
 

@@ -11,3 +11,5 @@ NO_DISCARD std::vector<const Type*> ArgumentList::asTypes() const
     }
     return out;
 }
+
+NO_DISCARD Instance* ArgumentList::get(size_t i) const { return this->values[i]; }

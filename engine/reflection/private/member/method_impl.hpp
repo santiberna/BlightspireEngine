@@ -4,6 +4,7 @@
 #include <instance/instance.hpp>
 #include <stdexcept>
 #include <type/store.hpp>
+#include <utility/traits.hpp>
 
 // Qualifiers can only be void of const void
 template <typename Ret, typename Class, typename Qualifiers, typename... Args>
@@ -35,7 +36,7 @@ MethodImpl<Ret, Class, Qualifiers, Args...>::MethodImpl(TypeStore& type_store, C
     : Method(type_store)
 {
     this->callable = ptr;
-    this->parameters = ParameterList { { type_store.get<Args>()... } };
+    this->parameters = ParameterList { type_store.get<Args>()... };
 }
 
 template <typename Ret, typename Class, typename Qualifiers, typename... Args>
@@ -69,5 +70,5 @@ template <std::size_t... Is>
 Ret MethodImpl<Ret, Class, Qualifiers, Args...>::invokeHelper(
     Class& obj, const ArgumentList& args, MAYBE_UNUSED std::index_sequence<Is...> sequence) const
 {
-    return (obj.*callable)(*(*args.values[Is]).cast<Args>()...);
+    return (obj.*callable)(*(*args.get(Is)).cast<BareType<Args>>()...);
 }

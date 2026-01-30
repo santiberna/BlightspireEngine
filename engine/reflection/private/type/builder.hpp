@@ -6,19 +6,24 @@
 
 template <typename T> class TypeBuilder
 {
+    static_assert(std::is_same_v<T, std::remove_cvref_t<T>>,
+        "Types used for reflection must not have cv-qualifiers or be refs.");
+
 public:
     TypeBuilder(TypeStore& type_store);
-    NON_MOVABLE(TypeBuilder);
-    NON_COPYABLE(TypeBuilder);
     ~TypeBuilder() = default;
 
-    template <typename U> TypeBuilder& addField(Field::MemberPointer<T, U> ptr);
+    NON_MOVABLE(TypeBuilder);
+    NON_COPYABLE(TypeBuilder);
+
+    template <typename U>
+    TypeBuilder& addField(std::string_view name, Field::MemberPointer<T, U> ptr);
 
     template <typename Ret, typename... Args>
-    TypeBuilder& addMethod(Method::MemberPointer<T, Ret, Args...> ptr);
+    TypeBuilder& addMethod(std::string_view name, Method::MemberPointer<T, Ret, Args...> ptr);
 
     template <typename Ret, typename... Args>
-    TypeBuilder& addConstMethod(Method::ConstMemberPointer<T, Ret, Args...> ptr);
+    TypeBuilder& addMethod(std::string_view name, Method::ConstMemberPointer<T, Ret, Args...> ptr);
 
     TypeBuilder& addConstant(std::string_view name, uint64_t value);
 

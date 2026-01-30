@@ -1,35 +1,35 @@
 #pragma once
 #include <common.hpp>
 
+#include <memory>
+#include <string_view>
+
 class Type;
+
+class VoidInstanceType
+{
+};
+constexpr VoidInstanceType VOID_INSTANCE = {};
 
 class Instance
 {
 public:
-    Instance() = default;
+    Instance(VoidInstanceType);
+    bool operator==(VoidInstanceType) const;
 
-    /// Instance from raw parts (unsafe)
-    Instance(void* ptr, const Type* type)
-        : ptr(ptr)
-        , type(type) { };
+    template <typename T> NO_DISCARD bool is() const;
+    template <typename T> NO_DISCARD std::shared_ptr<const T> cast() const;
+    template <typename T> NO_DISCARD std::shared_ptr<T> cast();
+    /// TODO: add call operators here
 
-    template <typename T> Instance(const Type* type_store, T val);
-
-    NON_COPYABLE(Instance);
-    Instance(Instance&&) noexcept;
-    Instance& operator=(Instance&&) noexcept;
-    ~Instance();
-
-    template <typename T> const T* cast() const;
-
-    template <typename T> T* cast();
-
-    NO_DISCARD bool isValid() const;
+    NO_DISCARD Instance access(std::string_view name) const;
     NO_DISCARD const Type* getType() const;
-    NO_DISCARD const void* getAddress() const;
 
 private:
-    void* ptr {};
+    friend class TypeStore; // For access to private constructor
+    Instance(std::shared_ptr<void> value, const Type* type);
+
+    std::shared_ptr<void> value {};
     const Type* type {};
 };
 

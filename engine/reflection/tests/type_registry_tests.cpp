@@ -15,9 +15,9 @@ TEST(TypeTests, MemberMethod)
 
     builder.addConstructor<>()
         .addConstructor<int>()
-        .addConstMethod(&TestType::is_zero)
-        .addMethod(&TestType::set)
-        .addField(&TestType::a)
+        .addMethod("is_zero", &TestType::is_zero)
+        .addMethod("set", &TestType::set)
+        .addField("a", &TestType::a)
         .addConstant("Constant", 42)
         .addConstant("Constant2", 69);
 
@@ -25,11 +25,12 @@ TEST(TypeTests, MemberMethod)
     EXPECT_EQ(type->getConstant("Constant"), 42);
     EXPECT_EQ(type->getConstant("Constant2"), 69);
 
-    Instance params = store.makeInstance(0);
+    Instance params = store.makeInstance<int>(0);
     auto instance = type->construct({ { &params } });
 
     ASSERT_EQ(instance.getType(), store.get<TestType>());
+    ASSERT_FALSE(instance.is<int>());
 
-    auto* failed_cast = instance.cast<int>();
-    ASSERT_TRUE(failed_cast == nullptr);
+    auto set_result = instance.access("a").cast<int>();
+    *set_result = 0;
 }

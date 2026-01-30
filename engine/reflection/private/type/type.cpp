@@ -11,8 +11,6 @@
 Type::Type() = default;
 Type::~Type() = default;
 
-const Destructor* Type::getDestructor() const { return destructor.get(); }
-
 std::type_index Type::getIndex() const { return { *this->index }; }
 
 std::optional<uint64_t> Type::getConstant(std::string_view name) const
@@ -24,6 +22,24 @@ std::optional<uint64_t> Type::getConstant(std::string_view name) const
     return std::nullopt;
 }
 
+const Field* Type::getField(std::string_view name) const
+{
+    if (auto it = this->fields.find(std::string(name)); it != this->fields.end())
+    {
+        return &it->second;
+    }
+    return nullptr;
+}
+
+const Method* Type::getMethod(std::string_view name) const
+{
+    if (auto it = this->methods.find(std::string(name)); it != this->methods.end())
+    {
+        return it->second.get();
+    }
+    return nullptr;
+}
+
 Instance Type::construct(const ArgumentList& args) const
 {
     auto params = args.asTypes();
@@ -31,8 +47,7 @@ Instance Type::construct(const ArgumentList& args) const
 
     if (auto it = constructors.find(list); it != constructors.end())
     {
-        assert(owner_store != nullptr);
-        return it->second->invoke(*owner_store, args);
+        return it->second->invoke(args);
     }
-    return {};
+    throw std::runtime_error("Failed to find matching constructor.");
 }

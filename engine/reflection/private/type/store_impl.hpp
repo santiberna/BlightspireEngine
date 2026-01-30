@@ -8,14 +8,19 @@
 #include <instance/instance.hpp>
 #include <type/type.hpp>
 
-template <typename T> Instance TypeStore::makeInstance(T&& val)
+template <typename T, typename... Args> Instance TypeStore::makeInstance(Args&&... args)
 {
-    return Instance(this->get<T>(), std::forward<T>(val));
+    static_assert(std::is_same_v<T, std::remove_cvref_t<T>>,
+        "Types used for reflection must not have cv-qualifiers or be refs.");
+
+    auto value = std::make_shared<T>(std::forward<Args>(args)...);
+    return Instance { value, get<T>() };
 }
 
 template <typename T> Type* TypeStore::get()
 {
-    std::type_index index = typeid(T);
+    // We want const and ref variations of a type to map to the same one
+    std::type_index index = typeid(std::remove_cvref_t<T>);
 
     auto it = type_map.find(index);
     if (it != type_map.end())
@@ -25,10 +30,8 @@ template <typename T> Type* TypeStore::get()
 
     Type type {};
 
-    type.owner_store = this;
     type.index = &typeid(T);
     type.name = std::string(typeid(T).name());
-    type.destructor = std::make_unique<DestructorImpl<T>>();
     type.size = sizeof(T);
 
     // Initialize new_type here;

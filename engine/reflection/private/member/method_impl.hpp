@@ -11,7 +11,8 @@ class MethodImpl : public Method
 {
     // Static assert to validate Qualifiers
     static_assert(std::is_same_v<Qualifiers, void> || std::is_same_v<Qualifiers, const void>,
-        "Qualifiers must be either void (non-const) or const void (const member function)");
+        "Qualifiers must be either void (non-const member function) or const void (const member "
+        "function)");
 
 public:
     // Conditional type based on Qualifiers
@@ -19,29 +20,27 @@ public:
         ConstMemberPointer<Class, Ret, Args...>, MemberPointer<Class, Ret, Args...>>;
 
     MethodImpl(TypeStore& type_store, Callable ptr);
-    NO_DISCARD Instance invoke(
-        TypeStore& type_store, Instance& object, const ArgumentList& parameters) const override;
+    NO_DISCARD Instance invoke(Instance& object, const ArgumentList& parameters) const override;
 
 private:
     template <std::size_t... Is>
     NO_DISCARD Ret invokeHelper(
-        Class* obj, const ArgumentList& args, std::index_sequence<Is...> sequence) const;
+        Class& obj, const ArgumentList& args, std::index_sequence<Is...> sequence) const;
 
     Callable callable {};
 };
 
 template <typename Ret, typename Class, typename Qualifiers, typename... Args>
 MethodImpl<Ret, Class, Qualifiers, Args...>::MethodImpl(TypeStore& type_store, Callable ptr)
-    : Method()
+    : Method(type_store)
 {
-    this->name = "Unimplemented!";
     this->callable = ptr;
     this->parameters = ParameterList { { type_store.get<Args>()... } };
 }
 
 template <typename Ret, typename Class, typename Qualifiers, typename... Args>
 Instance MethodImpl<Ret, Class, Qualifiers, Args...>::invoke(
-    TypeStore& type_store, Instance& object, const ArgumentList& args) const
+    Instance& object, const ArgumentList& args) const
 {
     constexpr auto ARG_SIZE = sizeof...(Args);
     assert(this->parameters.length() == ARG_SIZE);
@@ -52,28 +51,23 @@ Instance MethodImpl<Ret, Class, Qualifiers, Args...>::invoke(
     }
 
     // Get the object as Class*
-    Class* obj = object.cast<Class>();
-    if (obj == nullptr)
-    {
-        throw std::runtime_error("Invalid instance type");
-    }
-
+    std::shared_ptr<Class> obj = object.cast<Class>();
     if constexpr (std::is_void_v<Ret>)
     {
-        invokeHelper(obj, args, std::index_sequence_for<Args...> {});
-        return {};
+        invokeHelper(*obj, args, std::index_sequence_for<Args...> {});
+        return VOID_INSTANCE;
     }
     else
     {
-        Ret result = invokeHelper(obj, args, std::index_sequence_for<Args...> {});
-        return Instance(type_store.get<Ret>(), std::move(result));
+        Ret result = invokeHelper(*obj, args, std::index_sequence_for<Args...> {});
+        return store.makeInstance<Ret>(std::move(result));
     }
 }
 
 template <typename Ret, typename Class, typename Qualifiers, typename... Args>
 template <std::size_t... Is>
 Ret MethodImpl<Ret, Class, Qualifiers, Args...>::invokeHelper(
-    Class* obj, const ArgumentList& args, MAYBE_UNUSED std::index_sequence<Is...> sequence) const
+    Class& obj, const ArgumentList& args, MAYBE_UNUSED std::index_sequence<Is...> sequence) const
 {
-    return (obj->*callable)(*(*args.values[Is]).cast<Args>()...);
+    return (obj.*callable)(*(*args.values[Is]).cast<Args>()...);
 }

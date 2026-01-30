@@ -6,21 +6,23 @@
 
 class Instance;
 class TypeStore;
+
 class Constructor
 {
 public:
-    Constructor() = default;
+    Constructor(TypeStore& store)
+        : store(store)
+    {
+    }
+
     virtual ~Constructor() = default;
     NON_COPYABLE(Constructor);
     NON_MOVABLE(Constructor);
 
-    NO_DISCARD virtual Instance invoke(TypeStore& type_store, const ArgumentList& parameters) const
-        = 0;
-    NO_DISCARD virtual Instance emplace(
-        TypeStore& type_store, void* mem, const ArgumentList& parameters) const
-        = 0;
+    NO_DISCARD virtual Instance invoke(const ArgumentList& parameters) const = 0;
 
 protected:
+    TypeStore& store;
     ParameterList parameters {};
 };
 

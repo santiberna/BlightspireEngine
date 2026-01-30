@@ -14,10 +14,11 @@ public:
     TypeStore() = default;
     ~TypeStore() = default;
 
+    DEFAULT_MOVABLE(TypeStore);
     NON_COPYABLE(TypeStore);
 
     template <typename T> NO_DISCARD Type* get();
-    template <typename T> NO_DISCARD Instance makeInstance(T&& val);
+    template <typename T, typename... Args> NO_DISCARD Instance makeInstance(Args&&... args);
 
 private:
     std::unordered_map<std::type_index, std::unique_ptr<Type>> type_map;

@@ -2,30 +2,23 @@
 #include <instance/instance.hpp>
 
 #include <cassert>
+#include <member/field.hpp>
 #include <stdexcept>
 #include <type/type.hpp>
 
-template <typename T> Instance::Instance(const Type* type, T val)
-{
-    if (type->getIndex() != typeid(T))
-    {
-        throw std::runtime_error("Creating an instance from incorrect type!");
-    }
-
-    this->ptr = new T(std::move(val));
-    this->type = type;
-}
-
-template <typename T> T* Instance::cast()
+template <typename T> std::shared_ptr<T> Instance::cast()
 {
     if (this->type->is<T>())
     {
-        return static_cast<T*>(this->ptr);
+        return std::static_pointer_cast<T>(this->value);
     }
-    return nullptr;
+    throw std::runtime_error("Casting from incorrect type!");
 }
 
-template <typename T> const T* Instance::cast() const
+template <typename T> std::shared_ptr<const T> Instance::cast() const
 {
-    return const_cast<Instance*>(this)->cast<T>();
+    auto* this_mut = const_cast<Instance*>(this);
+    return std::const_pointer_cast<const T>(this_mut->cast<T>());
 }
+
+template <typename T> bool Instance::is() const { return getType()->is<T>(); }

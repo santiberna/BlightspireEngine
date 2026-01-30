@@ -1,39 +1,31 @@
 #pragma once
 #include <constructor/constructor.hpp>
-#include <stdexcept>
 
 #include <instance/instance.hpp>
+#include <stdexcept>
 #include <type/store.hpp>
 
 template <typename Class, typename... Args> class ConstructorImpl : public Constructor
 {
 public:
     ConstructorImpl(TypeStore& type_store);
-    NO_DISCARD Instance invoke(
-        TypeStore& type_store, const ArgumentList& parameters) const override;
-    NO_DISCARD Instance emplace(
-        TypeStore& type_store, void* mem, const ArgumentList& parameters) const override;
+    NO_DISCARD Instance invoke(const ArgumentList& parameters) const override;
 
 private:
     template <std::size_t... Is>
-    NO_DISCARD Instance invokeHelper(TypeStore& type_store, const ArgumentList& args,
-        std::index_sequence<Is...> _sequence) const;
-
-    template <std::size_t... Is>
-    NO_DISCARD Instance emplaceHelper(TypeStore& type_store, void* mem, const ArgumentList& args,
-        std::index_sequence<Is...> _sequence) const;
+    NO_DISCARD Instance invokeHelper(
+        const ArgumentList& args, std::index_sequence<Is...> _sequence) const;
 };
 
 template <typename Class, typename... Args>
 ConstructorImpl<Class, Args...>::ConstructorImpl(TypeStore& type_store)
-    : Constructor()
+    : Constructor(type_store)
 {
     this->parameters = ParameterList { { type_store.get<Args>()... } };
 }
 
 template <typename Class, typename... Args>
-Instance ConstructorImpl<Class, Args...>::invoke(
-    TypeStore& type_store, const ArgumentList& args) const
+Instance ConstructorImpl<Class, Args...>::invoke(const ArgumentList& args) const
 {
     constexpr auto ARG_SIZE = sizeof...(Args);
     assert(this->parameters.length() == ARG_SIZE);
@@ -43,40 +35,13 @@ Instance ConstructorImpl<Class, Args...>::invoke(
         throw std::runtime_error("Parameter type or count mismatch");
     }
 
-    return invokeHelper(type_store, args, std::index_sequence_for<Args...> {});
+    return invokeHelper(args, std::index_sequence_for<Args...> {});
 }
 
 template <typename Class, typename... Args>
 template <std::size_t... Is>
-NO_DISCARD Instance ConstructorImpl<Class, Args...>::invokeHelper(TypeStore& type_store,
+NO_DISCARD Instance ConstructorImpl<Class, Args...>::invokeHelper(
     const ArgumentList& args, MAYBE_UNUSED std::index_sequence<Is...> _sequence) const
 {
-    Class val = Class { *(*args.values[Is]).cast<Args>()... };
-    auto type = type_store.get<Class>();
-    return Instance(type, std::move(val));
-}
-
-template <typename Class, typename... Args>
-Instance ConstructorImpl<Class, Args...>::emplace(
-    TypeStore& type_store, void* mem, const ArgumentList& args) const
-{
-    constexpr auto ARG_SIZE = sizeof...(Args);
-    assert(this->parameters.length() == ARG_SIZE);
-
-    if (!this->parameters.validateArgs(args))
-    {
-        throw std::runtime_error("Parameter type or count mismatch");
-    }
-
-    return emplaceHelper(type_store, mem, args, std::index_sequence_for<Args...> {});
-}
-
-template <typename Class, typename... Args>
-template <std::size_t... Is>
-NO_DISCARD Instance ConstructorImpl<Class, Args...>::emplaceHelper(TypeStore& type_store, void* mem,
-    const ArgumentList& args, MAYBE_UNUSED std::index_sequence<Is...> _sequence) const
-{
-    new (mem) Class { *(*args.values[Is]).cast<Args>()... };
-    auto type = type_store.get<Class>();
-    return Instance(mem, type);
+    return store.makeInstance<Class>(std::forward<Args>(*(*args.values[Is]).cast<Args>())...);
 }

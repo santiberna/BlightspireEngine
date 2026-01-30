@@ -1,41 +1,24 @@
 #include <instance/instance.hpp>
 
-#include <destructor/destructor.hpp>
-#include <type/type.hpp>
+Instance::Instance(MAYBE_UNUSED VoidInstanceType _unused) { }
 
-#include <cassert>
-#include <utility>
+bool Instance::operator==(MAYBE_UNUSED VoidInstanceType _unused) const { return value == nullptr; }
 
-Instance::Instance(Instance&& other) noexcept
+Instance::Instance(std::shared_ptr<void> value, const Type* type)
+    : value(std::move(value))
+    , type(type)
 {
-    std::swap(other.ptr, this->ptr);
-    std::swap(other.type, this->type);
-}
-
-Instance& Instance::operator=(Instance&& other) noexcept
-{
-    std::swap(other.ptr, this->ptr);
-    std::swap(other.type, this->type);
-    return *this;
-}
-
-Instance::~Instance()
-{
-    // Assert that Instance has a valid state
-    assert((this->ptr == nullptr) == (this->type == nullptr));
-    if (this->ptr != nullptr && this->type != nullptr)
-    {
-        this->type->getDestructor()->invokeDelete(this->ptr);
-    }
-}
-
-bool Instance::isValid() const
-{
-    // Assert that Instance has a valid state
-    assert((this->ptr == nullptr) == (this->type == nullptr));
-    return ptr != nullptr;
 }
 
 const Type* Instance::getType() const { return this->type; }
 
-const void* Instance::getAddress() const { return this->ptr; }
+Instance Instance::access(std::string_view name) const
+{
+    if (const auto* field = type->getField(name))
+    {
+        auto* ptr = field->apply_raw_offset(value.get());
+        auto aliased = std::shared_ptr<void>(value, ptr);
+        return Instance { aliased, field->getType() };
+    }
+    throw std::runtime_error("No matching field name found");
+}

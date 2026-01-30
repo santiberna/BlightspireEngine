@@ -8,7 +8,6 @@
 #include <string_view>
 #include <typeindex>
 #include <unordered_map>
-#include <vector>
 
 #include <utility/argument_list.hpp>
 #include <utility/parameter_list.hpp>
@@ -30,31 +29,35 @@ public:
     ~Type();
 
     NO_DISCARD Instance construct(const ArgumentList& args) const;
+
+    NO_DISCARD const Field* getField(std::string_view name) const;
+    NO_DISCARD const Method* getMethod(std::string_view name) const;
     NO_DISCARD std::optional<uint64_t> getConstant(std::string_view name) const;
-    NO_DISCARD const Destructor* getDestructor() const;
+
     NO_DISCARD std::type_index getIndex() const;
 
 private:
     Type();
 
-    // Always initialized
-    TypeStore* owner_store {};
-
     std::string name {};
     size_t size {};
-    const type_info* index {};
-    std::unique_ptr<Destructor> destructor {};
+    const type_info* index {}; // Make into type_index
 
     // Factory set
     std::optional<std::string> alias {};
-    std::vector<Field> fields {};
-    std::vector<std::unique_ptr<Method>> methods {};
 
-    std::unordered_map<ParameterList, std::unique_ptr<Constructor>> constructors {};
     std::unordered_map<std::string, uint64_t> constants {};
+    std::unordered_map<std::string, Field> fields {};
+    std::unordered_map<std::string, std::unique_ptr<Method>> methods {};
+    std::unordered_map<ParameterList, std::unique_ptr<Constructor>> constructors {};
 
     friend TypeStore;
     template <typename T> friend class TypeBuilder;
 };
 
-template <typename T> bool Type::is() const { return this->getIndex() == typeid(T); }
+template <typename T> bool Type::is() const
+{
+    static_assert(std::is_same_v<T, std::remove_cvref_t<T>>,
+        "Types used for reflection must not have cv-qualifiers or be refs.");
+    return this->getIndex() == typeid(T);
+}

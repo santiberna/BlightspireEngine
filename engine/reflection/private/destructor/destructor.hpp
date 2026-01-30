@@ -1,6 +1,7 @@
 #pragma once
 #include <common.hpp>
 
+/// TODO: currently unused, possibly useful for "fake" custom types.
 class Destructor
 {
 public:
@@ -10,7 +11,5 @@ public:
     NON_COPYABLE(Destructor);
     NON_MOVABLE(Destructor);
 
-    virtual void invokeDelete(void* mem) const = 0;
+    virtual void operator()(void* mem) const = 0;
 };
-
-#include <destructor/destructor_impl.hpp>

@@ -1,27 +1,25 @@
 #pragma once
 
 #include <common.hpp>
+#include <instance/instance_ref.hpp>
 #include <vector>
 
 class Type;
-class Instance;
+class InstanceRef;
 
 class ArgumentList
 {
 public:
-    ArgumentList(std::initializer_list<Instance*> init)
-        : values(init)
-    {
-    }
+    ArgumentList() = default;
 
-    explicit ArgumentList(std::vector<Instance*> init)
-        : values(std::move(init))
+    ArgumentList(std::vector<InstanceRef> values)
+        : values(std::move(values))
     {
     }
 
     NO_DISCARD std::vector<const Type*> asTypes() const;
-    NO_DISCARD Instance* get(size_t i) const;
+    NO_DISCARD InstanceRef get(size_t i) const;
 
 private:
-    std::vector<Instance*> values;
+    std::vector<InstanceRef> values;
 };

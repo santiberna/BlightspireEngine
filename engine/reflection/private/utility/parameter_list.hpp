@@ -11,13 +11,8 @@ class ParameterList
 public:
     ParameterList() = default;
 
-    ParameterList(std::initializer_list<const Type*> init)
-        : types(init)
-    {
-    }
-
-    explicit ParameterList(std::vector<const Type*> init)
-        : types(std::move(init))
+    ParameterList(std::vector<const Type*> types)
+        : types(std::move(types))
     {
     }
 

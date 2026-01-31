@@ -2,11 +2,11 @@
 #include <common.hpp>
 
 #include <string_view>
-#include <utility/argument_list.hpp>
 
 class Type;
 class Instance;
 class TypeStore;
+class ArgumentList;
 
 class InstanceRef
 {

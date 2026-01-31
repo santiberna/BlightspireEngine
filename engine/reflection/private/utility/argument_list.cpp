@@ -7,9 +7,9 @@ NO_DISCARD std::vector<const Type*> ArgumentList::asTypes() const
     out.reserve(values.size());
     for (const auto& i : values)
     {
-        out.emplace_back(i->getType());
+        out.emplace_back(i.getType());
     }
     return out;
 }
 
-NO_DISCARD Instance* ArgumentList::get(size_t i) const { return this->values[i]; }
+NO_DISCARD InstanceRef ArgumentList::get(size_t i) const { return this->values[i]; }

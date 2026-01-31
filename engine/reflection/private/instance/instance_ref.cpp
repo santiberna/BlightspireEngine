@@ -4,6 +4,8 @@
 #include <member/method.hpp>
 #include <stdexcept>
 #include <type/type.hpp>
+#include <utility/argument_list.hpp>
+
 
 const Type* InstanceRef::getType() const { return this->type; }
 

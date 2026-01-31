@@ -22,7 +22,7 @@ template <typename Class, typename... Args>
 ConstructorImpl<Class, Args...>::ConstructorImpl(TypeStore& type_store)
     : Constructor(type_store)
 {
-    this->parameters = ParameterList { type_store.get<Args>()... };
+    this->parameters = ParameterList { { type_store.get<Args>()... } };
 }
 
 template <typename Class, typename... Args>
@@ -44,6 +44,5 @@ template <std::size_t... Is>
 NO_DISCARD Instance ConstructorImpl<Class, Args...>::invokeHelper(
     const ArgumentList& args, MAYBE_UNUSED std::index_sequence<Is...> _sequence) const
 {
-    return store.makeInstance<Class>(
-        std::forward<Args>(*(*args.get(Is)).cast<BareType<Args>>())...);
+    return store.makeInstance<Class>(std::forward<Args>(args.get(Is).cast<BareType<Args>>())...);
 }

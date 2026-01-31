@@ -1,4 +1,5 @@
 #include <gtest/gtest.h>
+#include <instance/instance_ref.hpp>
 #include <type/builder.hpp>
 
 struct TestType
@@ -34,8 +35,8 @@ TEST(TypeTests, MemberMethod)
     ASSERT_EQ(instance.getType(), store.get<TestType>());
     ASSERT_FALSE(instance.is<int>());
 
-    auto set_result = instance.access("a").cast<int>();
-    *set_result = 0;
+    auto& set_result = instance.access("a").cast<int>();
+    set_result = 0;
 
     auto ret = instance.call("is_zero", {});
     ASSERT_TRUE(ret.is<bool>());

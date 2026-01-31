@@ -25,5 +25,3 @@ protected:
     TypeStore& store;
     ParameterList parameters {};
 };
-
-#include <constructor/constructor_impl.hpp>

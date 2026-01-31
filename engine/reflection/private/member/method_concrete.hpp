@@ -1,7 +1,7 @@
 #pragma once
 #include <member/method.hpp>
 
-#include <instance/instance.hpp>
+#include <instance/instance_ref.hpp>
 #include <stdexcept>
 #include <type/store.hpp>
 #include <utility/traits.hpp>
@@ -21,7 +21,7 @@ public:
         ConstMemberPointer<Class, Ret, Args...>, MemberPointer<Class, Ret, Args...>>;
 
     MethodImpl(TypeStore& type_store, Callable ptr);
-    NO_DISCARD Instance invoke(Instance& object, const ArgumentList& parameters) const override;
+    NO_DISCARD Instance invoke(InstanceRef object, const ArgumentList& parameters) const override;
 
 private:
     template <std::size_t... Is>
@@ -41,7 +41,7 @@ MethodImpl<Ret, Class, Qualifiers, Args...>::MethodImpl(TypeStore& type_store, C
 
 template <typename Ret, typename Class, typename Qualifiers, typename... Args>
 Instance MethodImpl<Ret, Class, Qualifiers, Args...>::invoke(
-    Instance& object, const ArgumentList& args) const
+    InstanceRef object, const ArgumentList& args) const
 {
     constexpr auto ARG_SIZE = sizeof...(Args);
     assert(this->parameters.length() == ARG_SIZE);
@@ -52,15 +52,15 @@ Instance MethodImpl<Ret, Class, Qualifiers, Args...>::invoke(
     }
 
     // Get the object as Class*
-    std::shared_ptr<Class> obj = object.cast<Class>();
+    Class& obj = object.cast<Class>();
     if constexpr (std::is_void_v<Ret>)
     {
-        invokeHelper(*obj, args, std::index_sequence_for<Args...> {});
+        invokeHelper(obj, args, std::index_sequence_for<Args...> {});
         return VOID_INSTANCE;
     }
     else
     {
-        Ret result = invokeHelper(*obj, args, std::index_sequence_for<Args...> {});
+        Ret result = invokeHelper(obj, args, std::index_sequence_for<Args...> {});
         return store.makeInstance<Ret>(std::move(result));
     }
 }

@@ -1,4 +1,6 @@
 #include <instance/instance.hpp>
+
+#include <instance/instance_ref.hpp>
 #include <member/method.hpp>
 
 Instance::Instance(MAYBE_UNUSED VoidInstanceType _unused) { }
@@ -11,24 +13,13 @@ Instance::Instance(std::shared_ptr<void> value, const Type* type)
 {
 }
 
-NO_DISCARD Instance Instance::call(std::string_view name, const ArgumentList& args)
+InstanceRef Instance::asRef() const { return { this->value.get(), this->type }; }
+
+Instance Instance::call(std::string_view name, const ArgumentList& args) const
 {
-    if (const auto* method = type->getMethod(name))
-    {
-        return method->invoke(*this, args);
-    }
-    throw std::runtime_error("No matching method name found");
+    return this->asRef().call(name, args);
 }
 
 const Type* Instance::getType() const { return this->type; }
 
-Instance Instance::access(std::string_view name) const
-{
-    if (const auto* field = type->getField(name))
-    {
-        auto* ptr = field->rawAccess(value.get());
-        auto aliased = std::shared_ptr<void>(value, ptr);
-        return Instance { aliased, field->getType() };
-    }
-    throw std::runtime_error("No matching field name found");
-}
+InstanceRef Instance::access(std::string_view name) const { return this->asRef().access(name); }

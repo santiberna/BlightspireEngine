@@ -5,6 +5,7 @@
 #include <utility/parameter_list.hpp>
 
 class Instance;
+class InstanceRef;
 class TypeStore;
 
 /// TODO: const methods and methods should have a different base
@@ -27,11 +28,10 @@ public:
     template <typename Class, typename Ret, typename... Args>
     using ConstMemberPointer = Ret (Class::*)(Args...) const;
 
-    NO_DISCARD virtual Instance invoke(Instance& object, const ArgumentList& parameters) const = 0;
+    NO_DISCARD virtual Instance invoke(InstanceRef object, const ArgumentList& parameters) const
+        = 0;
 
 protected:
     TypeStore& store;
     ParameterList parameters {};
 };
-
-#include <member/method_impl.hpp>

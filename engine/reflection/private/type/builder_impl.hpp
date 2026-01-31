@@ -1,6 +1,9 @@
 #pragma once
 #include <type/builder.hpp>
 
+#include <constructor/constructor_concrete.hpp>
+#include <member/method_concrete.hpp>
+
 template <typename T>
 TypeBuilder<T>::TypeBuilder(TypeStore& type_store)
     : type_store(type_store)

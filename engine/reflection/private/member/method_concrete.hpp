@@ -1,9 +1,9 @@
 #pragma once
 #include <member/method.hpp>
 
+#include <factory/reflect_factory.hpp>
 #include <instance/instance_ref.hpp>
 #include <stdexcept>
-#include <type/store.hpp>
 #include <utility/traits.hpp>
 
 // Qualifiers can only be void of const void

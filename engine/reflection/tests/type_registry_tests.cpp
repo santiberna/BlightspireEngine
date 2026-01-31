@@ -29,10 +29,7 @@ TEST(TypeTests, MemberMethod)
     EXPECT_EQ(type->getConstant("Constant"), 42);
     EXPECT_EQ(type->getConstant("Constant2"), 69);
 
-    Instance params = store.makeInstance<int>(0);
-    ArgumentList args = { { params.asRef() } };
-
-    auto instance = type->construct(args);
+    auto instance = type->construct(store.makeArgs(0));
 
     ASSERT_EQ(instance.getType(), store.get<TestType>());
     ASSERT_FALSE(instance.is<int>());
@@ -44,9 +41,7 @@ TEST(TypeTests, MemberMethod)
     ASSERT_TRUE(ret.is<bool>());
     ASSERT_TRUE(*ret.cast<bool>());
 
-    auto test_in = store.makeInstance<int>(0);
-    ArgumentList args2 = { { test_in.asRef() } };
-
-    (void)instance.call("input", args2);
-    ASSERT_TRUE(*test_in.cast<int>() == 10);
+    int value = 0;
+    (void)instance.call("input", store.makeArgs(value));
+    ASSERT_TRUE(value == 10);
 }

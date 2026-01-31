@@ -8,10 +8,9 @@
 #include <string_view>
 #include <typeindex>
 #include <unordered_map>
-
-#include <utility/argument_list.hpp>
 #include <utility/parameter_list.hpp>
 
+class ArgumentList;
 class Constructor;
 class TypeStore;
 class Instance;

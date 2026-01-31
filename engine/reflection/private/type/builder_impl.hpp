@@ -7,7 +7,7 @@
 template <typename T>
 TypeBuilder<T>::TypeBuilder(TypeStore& type_store)
     : type_store(type_store)
-    , for_type(type_store.get<T>())
+    , for_type(type_store.get_mut<T>())
 {
 }
 

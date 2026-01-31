@@ -1,0 +1,36 @@
+#pragma once
+#include <common.hpp>
+
+#include <memory>
+#include <typeindex>
+#include <unordered_map>
+
+#include <utility/argument_list.hpp>
+#include <utility/parameter_list.hpp>
+
+class Type;
+class Instance;
+
+class TypeStore
+{
+public:
+    TypeStore() = default;
+    ~TypeStore() = default;
+
+    DEFAULT_MOVABLE(TypeStore);
+    NON_COPYABLE(TypeStore);
+
+    template <typename T> NO_DISCARD const Type* get();
+    template <typename T, typename... Args> NO_DISCARD Instance makeInstance(Args&&... args);
+    template <typename T> NO_DISCARD InstanceRef makeRef(T&& value);
+    template <typename... Args> NO_DISCARD ParameterList asParamaters();
+    template <typename... Args> NO_DISCARD ArgumentList makeArgs(Args&&... args);
+
+private:
+    template <typename T> friend class TypeBuilder;
+    template <typename T> NO_DISCARD Type* get_mut() { return const_cast<Type*>(this->get<T>()); };
+
+    std::unordered_map<std::type_index, std::unique_ptr<Type>> type_map;
+};
+
+#include <factory/reflect_factory_impl.hpp>

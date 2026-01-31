@@ -1,8 +1,5 @@
 #pragma once
-
-#include <utility>
-
-#include <type/store.hpp>
+#include <factory/reflect_factory.hpp>
 
 #include <destructor/destructor.hpp>
 #include <instance/instance.hpp>
@@ -17,7 +14,7 @@ template <typename T, typename... Args> Instance TypeStore::makeInstance(Args&&.
     return Instance { value, get<T>() };
 }
 
-template <typename T> Type* TypeStore::get()
+template <typename T> const Type* TypeStore::get()
 {
     // We want const and ref variations of a type to map to the same one
     std::type_index index = typeid(std::remove_cvref_t<T>);
@@ -39,4 +36,19 @@ template <typename T> Type* TypeStore::get()
     auto unique = std::make_unique<Type>(std::move(type));
     auto [inserted_it, success] = type_map.emplace(index, std::move(unique));
     return inserted_it->second.get();
+}
+
+template <typename... Args> NO_DISCARD ParameterList TypeStore::asParamaters()
+{
+    return { { this->get<Args>()... } };
+}
+
+template <typename T> NO_DISCARD InstanceRef TypeStore::makeRef(T&& value)
+{
+    return InstanceRef { std::addressof(value), get<T>() };
+}
+
+template <typename... Args> NO_DISCARD ArgumentList TypeStore::makeArgs(Args&&... args)
+{
+    return ArgumentList { { this->makeRef(std::forward<Args>(args))... } };
 }

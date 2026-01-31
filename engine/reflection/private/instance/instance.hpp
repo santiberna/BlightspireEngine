@@ -24,6 +24,7 @@ public:
 
     NO_DISCARD Instance call(std::string_view name, const ArgumentList& args);
     NO_DISCARD Instance access(std::string_view name) const;
+
     NO_DISCARD const Type* getType() const;
 
 private:

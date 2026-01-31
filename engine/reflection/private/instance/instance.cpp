@@ -26,7 +26,7 @@ Instance Instance::access(std::string_view name) const
 {
     if (const auto* field = type->getField(name))
     {
-        auto* ptr = field->apply_raw_offset(value.get());
+        auto* ptr = field->rawAccess(value.get());
         auto aliased = std::shared_ptr<void>(value, ptr);
         return Instance { aliased, field->getType() };
     }

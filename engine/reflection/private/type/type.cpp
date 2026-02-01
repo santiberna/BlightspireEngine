@@ -16,6 +16,16 @@ Type::~Type() = default;
 
 std::type_index Type::getIndex() const { return { *this->index }; }
 
+bool Type::hasField(std::string_view name) const
+{
+    return this->fields.contains(std::string(name));
+}
+
+bool Type::hasMethod(std::string_view name) const
+{
+    return this->methods.contains(std::string(name));
+}
+
 std::optional<uint64_t> Type::getConstant(std::string_view name) const
 {
     if (auto it = this->constants.find(std::string(name)); it != this->constants.end())

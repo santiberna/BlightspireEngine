@@ -7,7 +7,6 @@
 #include <utility/parameter_list.hpp>
 #include <value/value.hpp>
 
-
 using namespace reflect;
 using namespace reflect::detail;
 
@@ -16,19 +15,13 @@ Type::~Type() = default;
 
 std::type_index Type::getIndex() const { return { *this->index }; }
 
-bool Type::hasField(std::string_view name) const
-{
-    return this->fields.contains(std::string(name));
-}
+bool Type::hasField(std::string_view name) const { return this->fields.contains(name); }
 
-bool Type::hasMethod(std::string_view name) const
-{
-    return this->methods.contains(std::string(name));
-}
+bool Type::hasMethod(std::string_view name) const { return this->methods.contains(name); }
 
 std::optional<uint64_t> Type::getConstant(std::string_view name) const
 {
-    if (auto it = this->constants.find(std::string(name)); it != this->constants.end())
+    if (auto it = this->constants.find(name); it != this->constants.end())
     {
         return it->second;
     }
@@ -37,7 +30,7 @@ std::optional<uint64_t> Type::getConstant(std::string_view name) const
 
 const Field* Type::getField(std::string_view name) const
 {
-    if (auto it = this->fields.find(std::string(name)); it != this->fields.end())
+    if (auto it = this->fields.find(name); it != this->fields.end())
     {
         return it->second.get();
     }
@@ -46,7 +39,7 @@ const Field* Type::getField(std::string_view name) const
 
 const Method* Type::getMethod(std::string_view name) const
 {
-    if (auto it = this->methods.find(std::string(name)); it != this->methods.end())
+    if (auto it = this->methods.find(name); it != this->methods.end())
     {
         return it->second.get();
     }

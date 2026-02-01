@@ -8,10 +8,10 @@
 #include <typeindex>
 #include <unordered_map>
 #include <utility/parameter_list.hpp>
-
-
+#include <utility/string_hashmap.hpp>
 namespace reflect
 {
+
 class Type
 {
 public:
@@ -40,9 +40,9 @@ private:
     // Factory set
     std::optional<std::string> alias {};
 
-    std::unordered_map<std::string, uint64_t> constants {};
-    std::unordered_map<std::string, std::unique_ptr<detail::Field>> fields {};
-    std::unordered_map<std::string, std::unique_ptr<detail::Method>> methods {};
+    detail::StringHashmap<uint64_t> constants {};
+    detail::StringHashmap<std::unique_ptr<detail::Field>> fields {};
+    detail::StringHashmap<std::unique_ptr<detail::Method>> methods {};
     std::unordered_map<ParameterList, std::unique_ptr<detail::Constructor>> constructors {};
 
     friend Value;

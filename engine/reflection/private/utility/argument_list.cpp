@@ -2,7 +2,6 @@
 #include <value/value.hpp>
 
 using namespace reflect;
-using namespace reflect::detail;
 
 NO_DISCARD std::vector<const Type*> ArgumentList::asTypes() const
 {

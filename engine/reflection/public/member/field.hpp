@@ -3,7 +3,7 @@
 #include <cstddef>
 #include <reflect_fwd.hpp>
 
-namespace reflect::detail
+namespace reflect
 {
 class Field
 {

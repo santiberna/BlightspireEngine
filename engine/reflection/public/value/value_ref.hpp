@@ -19,7 +19,7 @@ public:
     NO_DISCARD const Type* getType() const;
 
 private:
-    friend detail::ReflectFactory;
+    friend ReflectFactory;
     friend Value;
 
     ValueRef(void* value, const Type* type);

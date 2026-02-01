@@ -8,16 +8,11 @@
 #include <value/value.hpp>
 
 using namespace reflect;
-using namespace reflect::detail;
 
 Type::Type() = default;
 Type::~Type() = default;
 
 std::type_index Type::getIndex() const { return { *this->index }; }
-
-bool Type::hasField(std::string_view name) const { return this->fields.contains(name); }
-
-bool Type::hasMethod(std::string_view name) const { return this->methods.contains(name); }
 
 std::optional<uint64_t> Type::getConstant(std::string_view name) const
 {

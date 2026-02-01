@@ -1,20 +1,16 @@
 #pragma once
 #include <common.hpp>
 #include <memory>
+#include <reflect_fwd.hpp>
 #include <string_view>
 #include <utility/argument_list.hpp>
 
 namespace reflect
 {
-
-class Type;
-class ValueRef;
-class VoidValueType;
-
-namespace detail
+class VoidValueType
 {
-    class ReflectFactory;
-}
+};
+constexpr VoidValueType VOID_INSTANCE = {};
 
 class Value
 {
@@ -33,17 +29,12 @@ public:
     NO_DISCARD const Type* getType() const;
 
 private:
-    friend detail::ReflectFactory; // For access to private constructor
+    friend ReflectFactory; // For access to private constructor
     Value(std::shared_ptr<void> value, const Type* type);
 
     std::shared_ptr<void> value {};
     const Type* type {};
 };
-
-class VoidValueType
-{
-};
-constexpr VoidValueType VOID_INSTANCE = {};
 
 }
 

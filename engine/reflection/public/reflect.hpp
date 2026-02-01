@@ -6,7 +6,6 @@
 
 namespace reflect
 {
-
 namespace detail
 {
     extern ReflectFactory global_factory;

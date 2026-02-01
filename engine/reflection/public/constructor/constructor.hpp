@@ -4,7 +4,7 @@
 #include <utility/argument_list.hpp>
 #include <utility/parameter_list.hpp>
 
-namespace reflect::detail
+namespace reflect
 {
 class Constructor
 {

@@ -3,9 +3,8 @@
 #include <member/field.hpp>
 #include <value/value.hpp>
 
-
 template <typename Class, typename Member>
-reflect::detail::Field::Field(ReflectFactory& type_store, Member Class::* mem_ptr)
+reflect::Field::Field(ReflectFactory& type_store, Member Class::* mem_ptr)
 {
     this->type = type_store.get<Member>();
 

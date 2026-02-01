@@ -5,7 +5,7 @@
 #include <utility/traits.hpp>
 #include <value/value.hpp>
 
-namespace reflect::detail
+namespace reflect
 {
 
 template <typename Class, typename... Args> class ConstructorImpl : public Constructor

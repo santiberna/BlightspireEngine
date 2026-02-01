@@ -3,7 +3,7 @@
 #include <type/type.hpp>
 #include <value/value.hpp>
 
-namespace reflect::detail
+namespace reflect
 {
 
 template <typename T, typename... Args> Value ReflectFactory::makeValue(Args&&... args)

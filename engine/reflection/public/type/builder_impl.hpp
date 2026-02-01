@@ -3,12 +3,11 @@
 #include <member/method_concrete.hpp>
 #include <type/builder.hpp>
 
-
 namespace reflect
 {
 
 template <typename T>
-TypeBuilder<T>::TypeBuilder(detail::ReflectFactory& type_store)
+TypeBuilder<T>::TypeBuilder(ReflectFactory& type_store)
     : type_store(type_store)
     , for_type(type_store.getMut<T>())
 {
@@ -16,10 +15,9 @@ TypeBuilder<T>::TypeBuilder(detail::ReflectFactory& type_store)
 
 template <typename T>
 template <typename U>
-TypeBuilder<T>& TypeBuilder<T>::addField(
-    std::string_view name, detail::Field::MemberPointer<T, U> ptr)
+TypeBuilder<T>& TypeBuilder<T>::addField(std::string_view name, Field::MemberPointer<T, U> ptr)
 {
-    auto field = std::make_unique<detail::Field>(type_store, ptr);
+    auto field = std::make_unique<Field>(type_store, ptr);
     auto [ret, ok] = for_type->fields.emplace(std::string(name), std::move(field));
     assert(ok && "Adding field with the same name! Check your type definition!");
     return *this;
@@ -28,9 +26,9 @@ TypeBuilder<T>& TypeBuilder<T>::addField(
 template <typename T>
 template <typename Ret, typename... Args>
 TypeBuilder<T>& TypeBuilder<T>::addMethod(
-    std::string_view name, detail::Method::MemberPointer<T, Ret, Args...> ptr)
+    std::string_view name, Method::MemberPointer<T, Ret, Args...> ptr)
 {
-    using Impl = detail::MethodImpl<Ret, T, void, Args...>;
+    using Impl = MethodImpl<Ret, T, void, Args...>;
     auto method = std::make_unique<Impl>(type_store, ptr);
     auto [ret, ok] = for_type->methods.emplace(std::string(name), std::move(method));
     assert(ok && "Adding field with the same name! Check your type definition!");
@@ -40,9 +38,9 @@ TypeBuilder<T>& TypeBuilder<T>::addMethod(
 template <typename T>
 template <typename Ret, typename... Args>
 TypeBuilder<T>& TypeBuilder<T>::addMethod(
-    std::string_view name, detail::Method::ConstMemberPointer<T, Ret, Args...> ptr)
+    std::string_view name, Method::ConstMemberPointer<T, Ret, Args...> ptr)
 {
-    using Impl = detail::MethodImpl<Ret, T, const void, Args...>;
+    using Impl = MethodImpl<Ret, T, const void, Args...>;
     auto method = std::make_unique<Impl>(type_store, ptr);
     auto [ret, ok] = for_type->methods.emplace(std::string(name), std::move(method));
     assert(ok && "Adding field with the same name! Check your type definition!");
@@ -59,7 +57,7 @@ TypeBuilder<T>& TypeBuilder<T>::addConstant(std::string_view name, uint64_t valu
 
 template <typename T> template <typename... Args> TypeBuilder<T>& TypeBuilder<T>::addConstructor()
 {
-    using Impl = detail::ConstructorImpl<T, Args...>;
+    using Impl = ConstructorImpl<T, Args...>;
 
     auto constructor = std::make_unique<Impl>(type_store);
     auto params = ParameterList { { type_store.get<Args>()... } };

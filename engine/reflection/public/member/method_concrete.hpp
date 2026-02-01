@@ -5,8 +5,7 @@
 #include <utility/traits.hpp>
 #include <value/value_ref.hpp>
 
-
-namespace reflect::detail
+namespace reflect
 {
 
 // Qualifiers can only be void of const void

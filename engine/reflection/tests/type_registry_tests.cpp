@@ -13,7 +13,7 @@ struct TestType
 
 TEST(TypeTests, MemberMethod)
 {
-    auto store = TypeStore {};
+    auto store = ReflectFactory {};
     TypeBuilder builder = TypeBuilder<TestType>(store);
 
     builder.addConstructor<>()

@@ -6,7 +6,6 @@
 #include <utility/traits.hpp>
 #include <value/value_ref.hpp>
 
-
 // Qualifiers can only be void of const void
 template <typename Ret, typename Class, typename Qualifiers, typename... Args>
 class MethodImpl : public Method
@@ -21,7 +20,7 @@ public:
     using Callable = std::conditional_t<std::is_same_v<Qualifiers, const void>,
         ConstMemberPointer<Class, Ret, Args...>, MemberPointer<Class, Ret, Args...>>;
 
-    MethodImpl(TypeStore& type_store, Callable ptr);
+    MethodImpl(ReflectFactory& type_store, Callable ptr);
     NO_DISCARD Value invoke(ValueRef object, const ArgumentList& parameters) const override;
 
 private:
@@ -33,7 +32,7 @@ private:
 };
 
 template <typename Ret, typename Class, typename Qualifiers, typename... Args>
-MethodImpl<Ret, Class, Qualifiers, Args...>::MethodImpl(TypeStore& type_store, Callable ptr)
+MethodImpl<Ret, Class, Qualifiers, Args...>::MethodImpl(ReflectFactory& type_store, Callable ptr)
     : Method(type_store)
 {
     this->callable = ptr;

@@ -6,14 +6,14 @@
 
 class Value;
 class ValueRef;
-class TypeStore;
+class ReflectFactory;
 
 /// TODO: const methods and methods should have a different base
 // So they can be stored separately and make use of const in Value
 class Method
 {
 public:
-    Method(TypeStore& store)
+    Method(ReflectFactory& store)
         : store(store)
     {
     }
@@ -31,6 +31,6 @@ public:
     NO_DISCARD virtual Value invoke(ValueRef object, const ArgumentList& parameters) const = 0;
 
 protected:
-    TypeStore& store;
+    ReflectFactory& store;
     ParameterList parameters {};
 };

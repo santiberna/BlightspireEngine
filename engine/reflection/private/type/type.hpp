@@ -12,7 +12,7 @@
 
 class ArgumentList;
 class Constructor;
-class TypeStore;
+class ReflectFactory;
 class Value;
 class Destructor;
 class Field;
@@ -50,7 +50,7 @@ private:
     std::unordered_map<std::string, std::unique_ptr<Method>> methods {};
     std::unordered_map<ParameterList, std::unique_ptr<Constructor>> constructors {};
 
-    friend TypeStore;
+    friend ReflectFactory;
     template <typename T> friend class TypeBuilder;
 };
 

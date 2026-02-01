@@ -5,7 +5,7 @@
 #include <member/method_concrete.hpp>
 
 template <typename T>
-TypeBuilder<T>::TypeBuilder(TypeStore& type_store)
+TypeBuilder<T>::TypeBuilder(ReflectFactory& type_store)
     : type_store(type_store)
     , for_type(type_store.get_mut<T>())
 {

@@ -3,7 +3,7 @@
 
 #include <cstddef>
 
-class TypeStore;
+class ReflectFactory;
 class Value;
 class Type;
 
@@ -13,7 +13,7 @@ class Field
 public:
     template <typename Class, typename Member> using MemberPointer = Member Class::*;
     template <typename Class, typename Member>
-    Field(TypeStore& type_store, MemberPointer<Class, Member> mem_ptr);
+    Field(ReflectFactory& type_store, MemberPointer<Class, Member> mem_ptr);
 
     ~Field() = default;
     DEFAULT_MOVABLE(Field);

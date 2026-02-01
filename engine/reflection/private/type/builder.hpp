@@ -10,7 +10,7 @@ template <typename T> class TypeBuilder
         "Types used for reflection must not have cv-qualifiers or be refs.");
 
 public:
-    TypeBuilder(TypeStore& type_store);
+    TypeBuilder(ReflectFactory& type_store);
     ~TypeBuilder() = default;
 
     NON_MOVABLE(TypeBuilder);
@@ -30,7 +30,7 @@ public:
     template <typename... Args> TypeBuilder& addConstructor();
 
 private:
-    TypeStore& type_store;
+    ReflectFactory& type_store;
     Type* for_type {};
 };
 

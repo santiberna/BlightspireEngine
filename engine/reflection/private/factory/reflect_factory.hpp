@@ -11,14 +11,14 @@
 class Type;
 class Value;
 
-class TypeStore
+class ReflectFactory
 {
 public:
-    TypeStore() = default;
-    ~TypeStore() = default;
+    ReflectFactory() = default;
+    ~ReflectFactory() = default;
 
-    DEFAULT_MOVABLE(TypeStore);
-    NON_COPYABLE(TypeStore);
+    DEFAULT_MOVABLE(ReflectFactory);
+    NON_COPYABLE(ReflectFactory);
 
     template <typename T> NO_DISCARD const Type* get();
     template <typename T, typename... Args> NO_DISCARD Value makeValue(Args&&... args);

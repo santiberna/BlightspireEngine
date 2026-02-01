@@ -26,7 +26,7 @@ public:
     NO_DISCARD const Type* getType() const;
 
 private:
-    friend class TypeStore; // For access to private constructor
+    friend class ReflectFactory; // For access to private constructor
     Value(std::shared_ptr<void> value, const Type* type);
 
     std::shared_ptr<void> value {};

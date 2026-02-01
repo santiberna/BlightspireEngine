@@ -5,7 +5,7 @@
 
 class Type;
 class Value;
-class TypeStore;
+class ReflectFactory;
 class ArgumentList;
 
 class ValueRef
@@ -21,7 +21,7 @@ public:
     NO_DISCARD const Type* getType() const;
 
 private:
-    friend TypeStore;
+    friend ReflectFactory;
     friend Value;
 
     ValueRef(void* value, const Type* type);

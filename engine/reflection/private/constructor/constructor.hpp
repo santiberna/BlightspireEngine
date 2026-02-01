@@ -5,12 +5,12 @@
 #include <utility/parameter_list.hpp>
 
 class Value;
-class TypeStore;
+class ReflectFactory;
 
 class Constructor
 {
 public:
-    Constructor(TypeStore& store)
+    Constructor(ReflectFactory& store)
         : store(store)
     {
     }
@@ -22,6 +22,6 @@ public:
     NO_DISCARD virtual Value invoke(const ArgumentList& parameters) const = 0;
 
 protected:
-    TypeStore& store;
+    ReflectFactory& store;
     ParameterList parameters {};
 };

@@ -6,11 +6,10 @@
 #include <utility/traits.hpp>
 #include <value/value.hpp>
 
-
 template <typename Class, typename... Args> class ConstructorImpl : public Constructor
 {
 public:
-    ConstructorImpl(TypeStore& type_store);
+    ConstructorImpl(ReflectFactory& type_store);
     NO_DISCARD Value invoke(const ArgumentList& parameters) const override;
 
 private:
@@ -20,7 +19,7 @@ private:
 };
 
 template <typename Class, typename... Args>
-ConstructorImpl<Class, Args...>::ConstructorImpl(TypeStore& type_store)
+ConstructorImpl<Class, Args...>::ConstructorImpl(ReflectFactory& type_store)
     : Constructor(type_store)
 {
     this->parameters = ParameterList { { type_store.get<Args>()... } };

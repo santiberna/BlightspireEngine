@@ -2,11 +2,12 @@
 
 #include <cassert>
 #include <constructor/constructor.hpp>
-#include <instance/instance.hpp>
 #include <member/field.hpp>
 #include <member/method.hpp>
 #include <utility/argument_list.hpp>
 #include <utility/parameter_list.hpp>
+#include <value/value.hpp>
+
 
 Type::Type() = default;
 Type::~Type() = default;
@@ -40,7 +41,7 @@ const Method* Type::getMethod(std::string_view name) const
     return nullptr;
 }
 
-Instance Type::construct(const ArgumentList& args) const
+Value Type::construct(const ArgumentList& args) const
 {
     auto params = args.asTypes();
     auto list = ParameterList(params);

@@ -13,7 +13,7 @@
 class ArgumentList;
 class Constructor;
 class TypeStore;
-class Instance;
+class Value;
 class Destructor;
 class Field;
 class Method;
@@ -27,7 +27,7 @@ public:
     DEFAULT_MOVABLE(Type);
     ~Type();
 
-    NO_DISCARD Instance construct(const ArgumentList& args) const;
+    NO_DISCARD Value construct(const ArgumentList& args) const;
 
     NO_DISCARD const Field* getField(std::string_view name) const;
     NO_DISCARD const Method* getMethod(std::string_view name) const;

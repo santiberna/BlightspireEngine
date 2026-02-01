@@ -2,20 +2,20 @@
 #include <constructor/constructor.hpp>
 
 #include <factory/reflect_factory.hpp>
-#include <instance/instance.hpp>
 #include <stdexcept>
 #include <utility/traits.hpp>
+#include <value/value.hpp>
 
 
 template <typename Class, typename... Args> class ConstructorImpl : public Constructor
 {
 public:
     ConstructorImpl(TypeStore& type_store);
-    NO_DISCARD Instance invoke(const ArgumentList& parameters) const override;
+    NO_DISCARD Value invoke(const ArgumentList& parameters) const override;
 
 private:
     template <std::size_t... Is>
-    NO_DISCARD Instance invokeHelper(
+    NO_DISCARD Value invokeHelper(
         const ArgumentList& args, std::index_sequence<Is...> _sequence) const;
 };
 
@@ -27,7 +27,7 @@ ConstructorImpl<Class, Args...>::ConstructorImpl(TypeStore& type_store)
 }
 
 template <typename Class, typename... Args>
-Instance ConstructorImpl<Class, Args...>::invoke(const ArgumentList& args) const
+Value ConstructorImpl<Class, Args...>::invoke(const ArgumentList& args) const
 {
     constexpr auto ARG_SIZE = sizeof...(Args);
     assert(this->parameters.length() == ARG_SIZE);
@@ -42,8 +42,8 @@ Instance ConstructorImpl<Class, Args...>::invoke(const ArgumentList& args) const
 
 template <typename Class, typename... Args>
 template <std::size_t... Is>
-NO_DISCARD Instance ConstructorImpl<Class, Args...>::invokeHelper(
+NO_DISCARD Value ConstructorImpl<Class, Args...>::invokeHelper(
     const ArgumentList& args, MAYBE_UNUSED std::index_sequence<Is...> _sequence) const
 {
-    return store.makeInstance<Class>(std::forward<Args>(args.get(Is).cast<BareType<Args>>())...);
+    return store.makeValue<Class>(std::forward<Args>(args.get(Is).cast<BareType<Args>>())...);
 }

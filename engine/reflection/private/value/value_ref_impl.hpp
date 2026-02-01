@@ -1,11 +1,11 @@
 #pragma once
-#include <instance/instance_ref.hpp>
+#include <value/value_ref.hpp>
 
 #include <stdexcept>
 #include <type/type.hpp>
 #include <utility/traits.hpp>
 
-template <typename T> const T& InstanceRef::cast() const
+template <typename T> const T& ValueRef::cast() const
 {
     static_assert(std::is_same_v<T, BareType<T>>,
         "Types used for reflection must not have cv-qualifiers or be refs.");
@@ -17,10 +17,10 @@ template <typename T> const T& InstanceRef::cast() const
     throw std::runtime_error("Casting from incorrect type!");
 }
 
-template <typename T> T& InstanceRef::cast()
+template <typename T> T& ValueRef::cast()
 {
     const auto* self = this;
     return const_cast<T&>(self->cast<T>());
 }
 
-template <typename T> bool InstanceRef::is() const { return getType()->is<T>(); }
+template <typename T> bool ValueRef::is() const { return getType()->is<T>(); }

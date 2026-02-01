@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
-#include <instance/instance_ref.hpp>
 #include <type/builder.hpp>
+#include <value/value_ref.hpp>
 
 struct TestType
 {
@@ -29,19 +29,19 @@ TEST(TypeTests, MemberMethod)
     EXPECT_EQ(type->getConstant("Constant"), 42);
     EXPECT_EQ(type->getConstant("Constant2"), 69);
 
-    auto instance = type->construct(store.makeArgs(0));
+    auto value = type->construct(store.makeArgs(0));
 
-    ASSERT_EQ(instance.getType(), store.get<TestType>());
-    ASSERT_FALSE(instance.is<int>());
+    ASSERT_EQ(value.getType(), store.get<TestType>());
+    ASSERT_FALSE(value.is<int>());
 
-    auto& set_result = instance.access("a").cast<int>();
+    auto& set_result = value.access("a").cast<int>();
     set_result = 0;
 
-    auto ret = instance.call("is_zero", {});
+    auto ret = value.call("is_zero", {});
     ASSERT_TRUE(ret.is<bool>());
     ASSERT_TRUE(*ret.cast<bool>());
 
-    int value = 0;
-    (void)instance.call("input", store.makeArgs(value));
-    ASSERT_TRUE(value == 10);
+    int test = 0;
+    (void)value.call("input", store.makeArgs(test));
+    ASSERT_TRUE(test == 10);
 }

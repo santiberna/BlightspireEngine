@@ -4,12 +4,12 @@
 #include <utility/argument_list.hpp>
 #include <utility/parameter_list.hpp>
 
-class Instance;
-class InstanceRef;
+class Value;
+class ValueRef;
 class TypeStore;
 
 /// TODO: const methods and methods should have a different base
-// So they can be stored separately and make use of const in Instance
+// So they can be stored separately and make use of const in Value
 class Method
 {
 public:
@@ -28,8 +28,7 @@ public:
     template <typename Class, typename Ret, typename... Args>
     using ConstMemberPointer = Ret (Class::*)(Args...) const;
 
-    NO_DISCARD virtual Instance invoke(InstanceRef object, const ArgumentList& parameters) const
-        = 0;
+    NO_DISCARD virtual Value invoke(ValueRef object, const ArgumentList& parameters) const = 0;
 
 protected:
     TypeStore& store;

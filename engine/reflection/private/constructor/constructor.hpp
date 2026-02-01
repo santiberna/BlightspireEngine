@@ -4,7 +4,7 @@
 #include <utility/argument_list.hpp>
 #include <utility/parameter_list.hpp>
 
-class Instance;
+class Value;
 class TypeStore;
 
 class Constructor
@@ -19,7 +19,7 @@ public:
     NON_COPYABLE(Constructor);
     NON_MOVABLE(Constructor);
 
-    NO_DISCARD virtual Instance invoke(const ArgumentList& parameters) const = 0;
+    NO_DISCARD virtual Value invoke(const ArgumentList& parameters) const = 0;
 
 protected:
     TypeStore& store;

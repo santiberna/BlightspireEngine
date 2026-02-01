@@ -1,21 +1,21 @@
-#include <instance/instance_ref.hpp>
+#include <value/value_ref.hpp>
 
-#include <instance/instance.hpp>
 #include <member/method.hpp>
 #include <stdexcept>
 #include <type/type.hpp>
 #include <utility/argument_list.hpp>
+#include <value/value.hpp>
 
 
-const Type* InstanceRef::getType() const { return this->type; }
+const Type* ValueRef::getType() const { return this->type; }
 
-InstanceRef::InstanceRef(void* value, const Type* type)
+ValueRef::ValueRef(void* value, const Type* type)
     : value(value)
     , type(type)
 {
 }
 
-NO_DISCARD Instance InstanceRef::call(std::string_view name, const ArgumentList& args)
+NO_DISCARD Value ValueRef::call(std::string_view name, const ArgumentList& args)
 {
     if (const auto* method = type->getMethod(name))
     {
@@ -24,7 +24,7 @@ NO_DISCARD Instance InstanceRef::call(std::string_view name, const ArgumentList&
     throw std::runtime_error("No matching method name found");
 }
 
-InstanceRef InstanceRef::access(std::string_view name) const
+ValueRef ValueRef::access(std::string_view name) const
 {
     if (const auto* field = type->getField(name))
     {

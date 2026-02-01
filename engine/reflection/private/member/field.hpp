@@ -4,7 +4,7 @@
 #include <cstddef>
 
 class TypeStore;
-class Instance;
+class Value;
 class Type;
 
 /// TODO: rework this class, apparently we only need offset here.

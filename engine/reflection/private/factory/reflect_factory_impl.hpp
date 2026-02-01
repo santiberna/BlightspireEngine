@@ -2,16 +2,17 @@
 #include <factory/reflect_factory.hpp>
 
 #include <destructor/destructor.hpp>
-#include <instance/instance.hpp>
 #include <type/type.hpp>
+#include <value/value.hpp>
 
-template <typename T, typename... Args> Instance TypeStore::makeInstance(Args&&... args)
+
+template <typename T, typename... Args> Value TypeStore::makeValue(Args&&... args)
 {
     static_assert(std::is_same_v<T, std::remove_cvref_t<T>>,
         "Types used for reflection must not have cv-qualifiers or be refs.");
 
     auto value = std::make_shared<T>(std::forward<Args>(args)...);
-    return Instance { value, get<T>() };
+    return Value { value, get<T>() };
 }
 
 template <typename T> const Type* TypeStore::get()
@@ -43,9 +44,9 @@ template <typename... Args> NO_DISCARD ParameterList TypeStore::asParamaters()
     return { { this->get<Args>()... } };
 }
 
-template <typename T> NO_DISCARD InstanceRef TypeStore::makeRef(T&& value)
+template <typename T> NO_DISCARD ValueRef TypeStore::makeRef(T&& value)
 {
-    return InstanceRef { std::addressof(value), get<T>() };
+    return ValueRef { std::addressof(value), get<T>() };
 }
 
 template <typename... Args> NO_DISCARD ArgumentList TypeStore::makeArgs(Args&&... args)

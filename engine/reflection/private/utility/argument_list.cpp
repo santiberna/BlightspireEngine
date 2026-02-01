@@ -1,5 +1,6 @@
-#include <instance/instance.hpp>
 #include <utility/argument_list.hpp>
+#include <value/value.hpp>
+
 
 NO_DISCARD std::vector<const Type*> ArgumentList::asTypes() const
 {
@@ -12,4 +13,4 @@ NO_DISCARD std::vector<const Type*> ArgumentList::asTypes() const
     return out;
 }
 
-NO_DISCARD InstanceRef ArgumentList::get(size_t i) const { return this->values[i]; }
+NO_DISCARD ValueRef ArgumentList::get(size_t i) const { return this->values[i]; }

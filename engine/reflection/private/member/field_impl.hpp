@@ -2,7 +2,7 @@
 #include <member/field.hpp>
 
 #include <factory/reflect_factory.hpp>
-#include <instance/instance.hpp>
+#include <value/value.hpp>
 
 template <typename Class, typename Member>
 Field::Field(TypeStore& type_store, Member Class::* mem_ptr)

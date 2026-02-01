@@ -2,9 +2,10 @@
 #include <member/method.hpp>
 
 #include <factory/reflect_factory.hpp>
-#include <instance/instance_ref.hpp>
 #include <stdexcept>
 #include <utility/traits.hpp>
+#include <value/value_ref.hpp>
+
 
 // Qualifiers can only be void of const void
 template <typename Ret, typename Class, typename Qualifiers, typename... Args>
@@ -21,7 +22,7 @@ public:
         ConstMemberPointer<Class, Ret, Args...>, MemberPointer<Class, Ret, Args...>>;
 
     MethodImpl(TypeStore& type_store, Callable ptr);
-    NO_DISCARD Instance invoke(InstanceRef object, const ArgumentList& parameters) const override;
+    NO_DISCARD Value invoke(ValueRef object, const ArgumentList& parameters) const override;
 
 private:
     template <std::size_t... Is>
@@ -40,8 +41,8 @@ MethodImpl<Ret, Class, Qualifiers, Args...>::MethodImpl(TypeStore& type_store, C
 }
 
 template <typename Ret, typename Class, typename Qualifiers, typename... Args>
-Instance MethodImpl<Ret, Class, Qualifiers, Args...>::invoke(
-    InstanceRef object, const ArgumentList& args) const
+Value MethodImpl<Ret, Class, Qualifiers, Args...>::invoke(
+    ValueRef object, const ArgumentList& args) const
 {
     constexpr auto ARG_SIZE = sizeof...(Args);
     assert(this->parameters.length() == ARG_SIZE);
@@ -61,7 +62,7 @@ Instance MethodImpl<Ret, Class, Qualifiers, Args...>::invoke(
     else
     {
         Ret result = invokeHelper(obj, args, std::index_sequence_for<Args...> {});
-        return store.makeInstance<Ret>(std::move(result));
+        return store.makeValue<Ret>(std::move(result));
     }
 }
 

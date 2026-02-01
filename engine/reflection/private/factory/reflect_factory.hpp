@@ -9,7 +9,7 @@
 #include <utility/parameter_list.hpp>
 
 class Type;
-class Instance;
+class Value;
 
 class TypeStore
 {
@@ -21,8 +21,8 @@ public:
     NON_COPYABLE(TypeStore);
 
     template <typename T> NO_DISCARD const Type* get();
-    template <typename T, typename... Args> NO_DISCARD Instance makeInstance(Args&&... args);
-    template <typename T> NO_DISCARD InstanceRef makeRef(T&& value);
+    template <typename T, typename... Args> NO_DISCARD Value makeValue(Args&&... args);
+    template <typename T> NO_DISCARD ValueRef makeRef(T&& value);
     template <typename... Args> NO_DISCARD ParameterList asParamaters();
     template <typename... Args> NO_DISCARD ArgumentList makeArgs(Args&&... args);
 

@@ -1,25 +1,25 @@
 #pragma once
 
 #include <common.hpp>
-#include <instance/instance_ref.hpp>
+#include <value/value_ref.hpp>
 #include <vector>
 
 class Type;
-class InstanceRef;
+class ValueRef;
 
 class ArgumentList
 {
 public:
     ArgumentList() = default;
 
-    ArgumentList(std::vector<InstanceRef> values)
+    ArgumentList(std::vector<ValueRef> values)
         : values(std::move(values))
     {
     }
 
     NO_DISCARD std::vector<const Type*> asTypes() const;
-    NO_DISCARD InstanceRef get(size_t i) const;
+    NO_DISCARD ValueRef get(size_t i) const;
 
 private:
-    std::vector<InstanceRef> values;
+    std::vector<ValueRef> values;
 };

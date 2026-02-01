@@ -13,6 +13,7 @@
 namespace reflect
 {
 class Value;
+class ValueRef;
 class ArgumentList;
 namespace detail
 {
@@ -57,6 +58,7 @@ private:
     std::unordered_map<ParameterList, std::unique_ptr<detail::Constructor>> constructors {};
 
     friend Value;
+    friend ValueRef;
     friend detail::ReflectFactory;
     template <typename T> friend class TypeBuilder;
 };

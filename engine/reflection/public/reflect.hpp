@@ -12,10 +12,7 @@ namespace detail
     extern ReflectFactory global_factory;
 }
 
-template <typename T> TypeBuilder<T> makeBuilder()
-{
-    return TypeBuilder<T>(detail::global_factory);
-}
+template <typename T> TypeBuilder<T> newType() { return TypeBuilder<T>(detail::global_factory); }
 
 template <typename T> const Type* getType() { return detail::global_factory.get<T>(); }
 
@@ -35,10 +32,3 @@ template <typename... Args> ArgumentList makeArgumentList(Args&&... args)
 }
 
 }
-
-#define NEW_TYPE(T) TypeBuilder<T>(reflect::detail::global_factory)
-#define ADD_CONSTRUCTOR(ARGS) .addConstructor<ARGS>()
-#define ADD_FIELD(FIELD) .addField(NAMEOF(FIELD), FIELD)
-#define ADD_METHOD(METHOD) .addMethod(NAMEOF(METHOD), METHOD)
-#define ADD_CONSTANT(VALUE) .addConstant(NAMEOF(VALUE), VALUE)
-#define END

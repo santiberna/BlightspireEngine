@@ -8,7 +8,6 @@
 #include <utility/parameter_list.hpp>
 #include <value/value.hpp>
 
-
 Type::Type() = default;
 Type::~Type() = default;
 
@@ -27,7 +26,7 @@ const Field* Type::getField(std::string_view name) const
 {
     if (auto it = this->fields.find(std::string(name)); it != this->fields.end())
     {
-        return &it->second;
+        return it->second.get();
     }
     return nullptr;
 }

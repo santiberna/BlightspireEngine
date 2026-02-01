@@ -46,7 +46,7 @@ private:
     std::optional<std::string> alias {};
 
     std::unordered_map<std::string, uint64_t> constants {};
-    std::unordered_map<std::string, Field> fields {};
+    std::unordered_map<std::string, std::unique_ptr<Field>> fields {};
     std::unordered_map<std::string, std::unique_ptr<Method>> methods {};
     std::unordered_map<ParameterList, std::unique_ptr<Constructor>> constructors {};
 

@@ -1,7 +1,6 @@
 #pragma once
 #include <factory/reflect_factory.hpp>
 
-#include <destructor/destructor.hpp>
 #include <type/type.hpp>
 #include <value/value.hpp>
 

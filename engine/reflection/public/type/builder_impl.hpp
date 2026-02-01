@@ -15,7 +15,7 @@ template <typename T>
 template <typename U>
 TypeBuilder<T>& TypeBuilder<T>::addField(std::string_view name, Field::MemberPointer<T, U> ptr)
 {
-    auto field = Field(type_store, ptr);
+    auto field = std::make_unique<Field>(type_store, ptr);
     auto [ret, ok] = for_type->fields.emplace(std::string(name), std::move(field));
     assert(ok && "Adding field with the same name! Check your type definition!");
     return *this;

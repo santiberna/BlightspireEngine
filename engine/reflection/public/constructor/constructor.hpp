@@ -1,34 +1,28 @@
 #pragma once
 #include <common.hpp>
 
+#include <reflect_fwd.hpp>
 #include <utility/argument_list.hpp>
 #include <utility/parameter_list.hpp>
 
-namespace reflect
+namespace reflect::detail
 {
-class Value;
-
-namespace detail
+class Constructor
 {
-    class ReflectFactory;
-
-    class Constructor
+public:
+    Constructor(ReflectFactory& store)
+        : store(store)
     {
-    public:
-        Constructor(ReflectFactory& store)
-            : store(store)
-        {
-        }
+    }
 
-        virtual ~Constructor() = default;
-        NON_COPYABLE(Constructor);
-        NON_MOVABLE(Constructor);
+    virtual ~Constructor() = default;
+    NON_COPYABLE(Constructor);
+    NON_MOVABLE(Constructor);
 
-        NO_DISCARD virtual Value invoke(const ArgumentList& parameters) const = 0;
+    NO_DISCARD virtual Value invoke(const ArgumentList& parameters) const = 0;
 
-    protected:
-        ReflectFactory& store;
-        ParameterList parameters {};
-    };
-}
+protected:
+    ReflectFactory& store;
+    ParameterList parameters {};
+};
 }

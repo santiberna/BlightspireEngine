@@ -4,38 +4,30 @@
 #include <utility/argument_list.hpp>
 #include <utility/parameter_list.hpp>
 
-namespace reflect
+namespace reflect::detail
 {
-class Value;
-class ValueRef;
-
-namespace detail
+class Method
 {
-    class ReflectFactory;
-
-    class Method
+public:
+    Method(ReflectFactory& store)
+        : store(store)
     {
-    public:
-        Method(ReflectFactory& store)
-            : store(store)
-        {
-        }
+    }
 
-        virtual ~Method() = default;
-        NON_COPYABLE(Method);
-        NON_MOVABLE(Method);
+    virtual ~Method() = default;
+    NON_COPYABLE(Method);
+    NON_MOVABLE(Method);
 
-        template <typename Class, typename Ret, typename... Args>
-        using MemberPointer = Ret (Class::*)(Args...);
+    template <typename Class, typename Ret, typename... Args>
+    using MemberPointer = Ret (Class::*)(Args...);
 
-        template <typename Class, typename Ret, typename... Args>
-        using ConstMemberPointer = Ret (Class::*)(Args...) const;
+    template <typename Class, typename Ret, typename... Args>
+    using ConstMemberPointer = Ret (Class::*)(Args...) const;
 
-        NO_DISCARD virtual Value invoke(ValueRef object, const ArgumentList& parameters) const = 0;
+    NO_DISCARD virtual Value invoke(ValueRef object, const ArgumentList& parameters) const = 0;
 
-    protected:
-        ReflectFactory& store;
-        ParameterList parameters {};
-    };
-}
+protected:
+    ReflectFactory& store;
+    ParameterList parameters {};
+};
 }

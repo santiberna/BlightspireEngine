@@ -1,13 +1,12 @@
 #pragma once
 
 #include <common.hpp>
+#include <reflect_fwd.hpp>
 #include <value/value_ref.hpp>
 #include <vector>
 
 namespace reflect
 {
-
-class Type;
 
 class ArgumentList
 {
@@ -25,5 +24,4 @@ public:
 private:
     std::vector<ValueRef> values;
 };
-
 }

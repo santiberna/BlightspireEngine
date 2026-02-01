@@ -8,22 +8,12 @@
 #include <string_view>
 #include <typeindex>
 #include <unordered_map>
+
+#include <reflect_fwd.hpp>
 #include <utility/parameter_list.hpp>
 
 namespace reflect
 {
-class Value;
-class ValueRef;
-class ArgumentList;
-namespace detail
-{
-    class Constructor;
-    class ReflectFactory;
-    class Destructor;
-    class Field;
-    class Method;
-}
-
 class Type
 {
 public:

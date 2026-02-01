@@ -3,12 +3,10 @@
 #include <common.hpp>
 #include <vector>
 
+#include <reflect_fwd.hpp>
+
 namespace reflect
 {
-
-class Type;
-class ArgumentList;
-
 class ParameterList
 {
 public:

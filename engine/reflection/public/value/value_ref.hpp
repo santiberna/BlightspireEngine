@@ -1,19 +1,11 @@
 #pragma once
 #include <common.hpp>
 
+#include <reflect_fwd.hpp>
 #include <string_view>
 
 namespace reflect
 {
-
-class Type;
-class Value;
-class ArgumentList;
-
-namespace detail
-{
-    class ReflectFactory;
-}
 
 class ValueRef
 {

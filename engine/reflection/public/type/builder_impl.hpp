@@ -1,8 +1,8 @@
 #pragma once
-#include <type/builder.hpp>
-
 #include <constructor/constructor_concrete.hpp>
 #include <member/method_concrete.hpp>
+#include <type/builder.hpp>
+
 
 namespace reflect
 {

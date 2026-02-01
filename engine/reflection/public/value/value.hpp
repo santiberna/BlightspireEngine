@@ -1,6 +1,5 @@
 #pragma once
 #include <common.hpp>
-
 #include <memory>
 #include <string_view>
 #include <utility/argument_list.hpp>

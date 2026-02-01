@@ -1,8 +1,8 @@
 #pragma once
-#include <member/field.hpp>
-
 #include <factory/reflect_factory.hpp>
+#include <member/field.hpp>
 #include <value/value.hpp>
+
 
 template <typename Class, typename Member>
 reflect::detail::Field::Field(ReflectFactory& type_store, Member Class::* mem_ptr)

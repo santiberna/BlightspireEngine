@@ -1,9 +1,8 @@
 #pragma once
-
 #include <common.hpp>
+#include <reflect_fwd.hpp>
 #include <vector>
 
-#include <reflect_fwd.hpp>
 
 namespace reflect
 {

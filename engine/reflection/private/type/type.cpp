@@ -1,12 +1,12 @@
-#include <type/type.hpp>
-
 #include <cassert>
 #include <constructor/constructor.hpp>
 #include <member/field.hpp>
 #include <member/method.hpp>
+#include <type/type.hpp>
 #include <utility/argument_list.hpp>
 #include <utility/parameter_list.hpp>
 #include <value/value.hpp>
+
 
 using namespace reflect;
 using namespace reflect::detail;

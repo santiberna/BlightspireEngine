@@ -1,6 +1,5 @@
-#include <value/value.hpp>
-
 #include <member/method.hpp>
+#include <value/value.hpp>
 #include <value/value_ref.hpp>
 
 using namespace reflect;

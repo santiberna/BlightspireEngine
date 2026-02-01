@@ -1,5 +1,4 @@
 #pragma once
-
 #include <constructor/constructor.hpp>
 #include <member/field.hpp>
 #include <member/method.hpp>

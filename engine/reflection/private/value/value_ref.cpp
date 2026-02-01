@@ -1,10 +1,9 @@
-#include <value/value_ref.hpp>
-
 #include <member/method.hpp>
 #include <stdexcept>
 #include <type/type.hpp>
 #include <utility/argument_list.hpp>
 #include <value/value.hpp>
+#include <value/value_ref.hpp>
 
 using namespace reflect;
 using namespace reflect::detail;

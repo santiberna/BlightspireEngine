@@ -1,6 +1,5 @@
 #pragma once
 #include <common.hpp>
-
 #include <utility/argument_list.hpp>
 #include <utility/parameter_list.hpp>
 

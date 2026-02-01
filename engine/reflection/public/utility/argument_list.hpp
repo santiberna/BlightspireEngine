@@ -1,5 +1,4 @@
 #pragma once
-
 #include <common.hpp>
 #include <reflect_fwd.hpp>
 #include <value/value_ref.hpp>

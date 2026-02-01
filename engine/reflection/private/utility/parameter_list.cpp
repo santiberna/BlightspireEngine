@@ -12,11 +12,14 @@ NO_DISCARD bool ParameterList::validateArgs(const ArgumentList& args) const
 
 std::size_t std::hash<ParameterList>::operator()(const ParameterList& params) const noexcept
 {
+    constexpr size_t FLAT_ADD = 0x9e3779b9;
+    constexpr size_t RSHIFT = 2;
+    constexpr size_t LFSHIFT = 6;
     std::size_t hash = 0;
     for (const auto* type : params.types)
     {
         // Combine hashes
-        hash ^= std::hash<const Type*> {}(type) + 0x9e3779b9 + (hash << 6) + (hash >> 2);
+        hash ^= std::hash<const Type*> {}(type) + FLAT_ADD + (hash << LFSHIFT) + (hash >> RSHIFT);
     }
     return hash;
 }

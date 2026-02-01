@@ -1,6 +1,5 @@
 #pragma once
 #include <constructor/constructor.hpp>
-
 #include <factory/reflect_factory.hpp>
 #include <stdexcept>
 #include <utility/traits.hpp>

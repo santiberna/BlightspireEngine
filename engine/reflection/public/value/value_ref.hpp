@@ -1,6 +1,5 @@
 #pragma once
 #include <common.hpp>
-
 #include <reflect_fwd.hpp>
 #include <string_view>
 

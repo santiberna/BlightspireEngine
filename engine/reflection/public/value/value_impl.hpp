@@ -1,11 +1,11 @@
 #pragma once
-#include <value/value.hpp>
-
 #include <cassert>
 #include <member/field.hpp>
 #include <stdexcept>
 #include <type/type.hpp>
 #include <utility/traits.hpp>
+#include <value/value.hpp>
+
 
 template <typename T> std::shared_ptr<const T> reflect::Value::cast() const
 {

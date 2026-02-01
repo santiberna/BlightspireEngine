@@ -200,6 +200,10 @@ target_include_directories(ImGui
 # Steamworks API
 add_subdirectory(steamworks)
 
+# nameof library
+add_library(nameof INTERFACE)
+target_include_directories(nameof INTERFACE "nameof/include")
+
 # (Packaging) PhysFS
 FetchContent_Declare(
         PhysFS

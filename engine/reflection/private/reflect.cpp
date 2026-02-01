@@ -1,3 +1,3 @@
 #include <reflect.hpp>
 
-ReflectFactory global_factory = {};
+ReflectFactory reflect::detail::global_factory = {};

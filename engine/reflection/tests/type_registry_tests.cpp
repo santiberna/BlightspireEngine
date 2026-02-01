@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include <reflect.hpp>
+#include <reflect_macros.hpp>
 
 struct TestType
 {
@@ -7,25 +7,25 @@ struct TestType
     bool isZero() const { return !(bool)(a); }
     void set(int b) { a = b; }
 
+    constexpr static uint64_t FLAGS = 0;
     void input(int& a) { a = 10; }
 };
 
+STATIC_BLOCK
+{
+    NEW_TYPE(TestType)
+    ADD_CONSTRUCTOR(int)
+    ADD_METHOD(&TestType::isZero)
+    ADD_METHOD(&TestType::input)
+    ADD_METHOD(&TestType::set)
+    ADD_FIELD(&TestType::a)
+    ADD_CONSTANT(TestType::FLAGS);
+}
+
 TEST(TypeTests, MemberMethod)
 {
-    TypeBuilder builder = reflect::makeBuilder<TestType>();
-
-    builder.addConstructor<>()
-        .addConstructor<int>()
-        .addMethod("is_zero", &TestType::isZero)
-        .addMethod("set", &TestType::set)
-        .addMethod("input", &TestType::input)
-        .addField("a", &TestType::a)
-        .addConstant("Constant", 42)
-        .addConstant("Constant2", 69);
-
     const auto* type = reflect::getType<TestType>();
-    EXPECT_EQ(type->getConstant("Constant"), 42);
-    EXPECT_EQ(type->getConstant("Constant2"), 69);
+    EXPECT_EQ(type->getConstant("FLAGS"), 0);
 
     auto value = type->construct(reflect::makeArgumentList(0));
 
@@ -35,7 +35,7 @@ TEST(TypeTests, MemberMethod)
     auto& set_result = value.access("a").cast<int>();
     set_result = 0;
 
-    auto ret = value.call("is_zero", {});
+    auto ret = value.call("isZero", {});
     ASSERT_TRUE(ret.is<bool>());
     ASSERT_TRUE(*ret.cast<bool>());
 

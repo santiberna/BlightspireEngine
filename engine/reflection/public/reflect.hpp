@@ -1,4 +1,7 @@
+#pragma once
+
 #include <factory/reflect_factory.hpp>
+#include <nameof.hpp>
 #include <type/builder.hpp>
 
 namespace reflect
@@ -33,5 +36,9 @@ template <typename... Args> ArgumentList makeArgumentList(Args&&... args)
 
 }
 
-// #define NEW_TYPE(T) TypeBuilder<T>(reflect::detail::global_factory)
-// #define ADD_FIELD(field) .addField(field)
+#define NEW_TYPE(T) TypeBuilder<T>(reflect::detail::global_factory)
+#define ADD_CONSTRUCTOR(ARGS) .addConstructor<ARGS>()
+#define ADD_FIELD(FIELD) .addField(NAMEOF(FIELD), FIELD)
+#define ADD_METHOD(METHOD) .addMethod(NAMEOF(METHOD), METHOD)
+#define ADD_CONSTANT(VALUE) .addConstant(NAMEOF(VALUE), VALUE)
+#define END

@@ -1,6 +1,5 @@
 #include <gtest/gtest.h>
-#include <type/builder.hpp>
-#include <value/value_ref.hpp>
+#include <reflect.hpp>
 
 struct TestType
 {
@@ -13,8 +12,7 @@ struct TestType
 
 TEST(TypeTests, MemberMethod)
 {
-    auto store = ReflectFactory {};
-    TypeBuilder builder = TypeBuilder<TestType>(store);
+    TypeBuilder builder = reflect::makeBuilder<TestType>();
 
     builder.addConstructor<>()
         .addConstructor<int>()
@@ -25,13 +23,13 @@ TEST(TypeTests, MemberMethod)
         .addConstant("Constant", 42)
         .addConstant("Constant2", 69);
 
-    auto* type = store.get<TestType>();
+    const auto* type = reflect::getType<TestType>();
     EXPECT_EQ(type->getConstant("Constant"), 42);
     EXPECT_EQ(type->getConstant("Constant2"), 69);
 
-    auto value = type->construct(store.makeArgs(0));
+    auto value = type->construct(reflect::makeArgumentList(0));
 
-    ASSERT_EQ(value.getType(), store.get<TestType>());
+    ASSERT_EQ(value.getType(), reflect::getType<TestType>());
     ASSERT_FALSE(value.is<int>());
 
     auto& set_result = value.access("a").cast<int>();
@@ -42,6 +40,6 @@ TEST(TypeTests, MemberMethod)
     ASSERT_TRUE(*ret.cast<bool>());
 
     int test = 0;
-    (void)value.call("input", store.makeArgs(test));
+    (void)value.call("input", reflect::makeArgumentList(test));
     ASSERT_TRUE(test == 10);
 }

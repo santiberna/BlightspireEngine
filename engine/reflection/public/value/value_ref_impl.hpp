@@ -5,9 +5,12 @@
 #include <type/type.hpp>
 #include <utility/traits.hpp>
 
+namespace reflect
+{
+
 template <typename T> const T& ValueRef::cast() const
 {
-    static_assert(std::is_same_v<T, BareType<T>>,
+    static_assert(std::is_same_v<T, detail::BareType<T>>,
         "Types used for reflection must not have cv-qualifiers or be refs.");
 
     if (this->type->is<T>())
@@ -24,3 +27,5 @@ template <typename T> T& ValueRef::cast()
 }
 
 template <typename T> bool ValueRef::is() const { return getType()->is<T>(); }
+
+}

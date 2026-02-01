@@ -2,7 +2,7 @@
 
 #include <reflect.hpp>
 
-#define NEW_TYPE(T) TypeBuilder<T>(reflect::detail::global_factory)
+#define NEW_TYPE(T) reflect::TypeBuilder<T>(reflect::detail::global_factory)
 #define ADD_CONSTRUCTOR(ARGS) .addConstructor<ARGS>()
 #define ADD_FIELD(FIELD) .addField(NAMEOF(FIELD), FIELD)
 #define ADD_METHOD(METHOD) .addMethod(NAMEOF(METHOD), METHOD)

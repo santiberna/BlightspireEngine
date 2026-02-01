@@ -4,8 +4,10 @@
 #include <value/value_ref.hpp>
 #include <vector>
 
+namespace reflect
+{
+
 class Type;
-class ValueRef;
 
 class ArgumentList
 {
@@ -23,3 +25,5 @@ public:
 private:
     std::vector<ValueRef> values;
 };
+
+}

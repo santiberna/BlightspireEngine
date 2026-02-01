@@ -4,24 +4,31 @@
 #include <utility/argument_list.hpp>
 #include <utility/parameter_list.hpp>
 
-class Value;
-class ReflectFactory;
-
-class Constructor
+namespace reflect
 {
-public:
-    Constructor(ReflectFactory& store)
-        : store(store)
+class Value;
+
+namespace detail
+{
+    class ReflectFactory;
+
+    class Constructor
     {
-    }
+    public:
+        Constructor(ReflectFactory& store)
+            : store(store)
+        {
+        }
 
-    virtual ~Constructor() = default;
-    NON_COPYABLE(Constructor);
-    NON_MOVABLE(Constructor);
+        virtual ~Constructor() = default;
+        NON_COPYABLE(Constructor);
+        NON_MOVABLE(Constructor);
 
-    NO_DISCARD virtual Value invoke(const ArgumentList& parameters) const = 0;
+        NO_DISCARD virtual Value invoke(const ArgumentList& parameters) const = 0;
 
-protected:
-    ReflectFactory& store;
-    ParameterList parameters {};
-};
+    protected:
+        ReflectFactory& store;
+        ParameterList parameters {};
+    };
+}
+}

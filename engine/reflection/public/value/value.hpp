@@ -5,9 +5,17 @@
 #include <string_view>
 #include <utility/argument_list.hpp>
 
+namespace reflect
+{
+
 class Type;
 class ValueRef;
 class VoidValueType;
+
+namespace detail
+{
+    class ReflectFactory;
+}
 
 class Value
 {
@@ -26,7 +34,7 @@ public:
     NO_DISCARD const Type* getType() const;
 
 private:
-    friend class ReflectFactory; // For access to private constructor
+    friend detail::ReflectFactory; // For access to private constructor
     Value(std::shared_ptr<void> value, const Type* type);
 
     std::shared_ptr<void> value {};
@@ -37,5 +45,7 @@ class VoidValueType
 {
 };
 constexpr VoidValueType VOID_INSTANCE = {};
+
+}
 
 #include <value/value_impl.hpp>

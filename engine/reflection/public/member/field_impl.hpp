@@ -5,7 +5,7 @@
 #include <value/value.hpp>
 
 template <typename Class, typename Member>
-Field::Field(ReflectFactory& type_store, Member Class::* mem_ptr)
+reflect::detail::Field::Field(ReflectFactory& type_store, Member Class::* mem_ptr)
 {
     this->type = type_store.get<Member>();
 

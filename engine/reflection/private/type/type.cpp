@@ -8,6 +8,9 @@
 #include <utility/parameter_list.hpp>
 #include <value/value.hpp>
 
+using namespace reflect;
+using namespace reflect::detail;
+
 Type::Type() = default;
 Type::~Type() = default;
 

@@ -4,6 +4,9 @@
 #include <type/type.hpp>
 #include <value/value.hpp>
 
+namespace reflect::detail
+{
+
 template <typename T, typename... Args> Value ReflectFactory::makeValue(Args&&... args)
 {
     static_assert(std::is_same_v<T, std::remove_cvref_t<T>>,
@@ -61,4 +64,6 @@ template <typename T> NO_DISCARD ValueRef ReflectFactory::makeRef(T&& value)
 template <typename... Args> NO_DISCARD ArgumentList ReflectFactory::makeArgs(Args&&... args)
 {
     return ArgumentList { { this->makeRef(std::forward<Args>(args))... } };
+}
+
 }

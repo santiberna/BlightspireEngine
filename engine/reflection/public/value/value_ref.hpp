@@ -3,10 +3,17 @@
 
 #include <string_view>
 
+namespace reflect
+{
+
 class Type;
 class Value;
-class ReflectFactory;
 class ArgumentList;
+
+namespace detail
+{
+    class ReflectFactory;
+}
 
 class ValueRef
 {
@@ -21,7 +28,7 @@ public:
     NO_DISCARD const Type* getType() const;
 
 private:
-    friend ReflectFactory;
+    friend detail::ReflectFactory;
     friend Value;
 
     ValueRef(void* value, const Type* type);
@@ -29,5 +36,7 @@ private:
     void* value {};
     const Type* type;
 };
+
+}
 
 #include <value/value_ref_impl.hpp>

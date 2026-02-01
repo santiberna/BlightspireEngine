@@ -8,29 +8,38 @@
 #include <utility/argument_list.hpp>
 #include <utility/parameter_list.hpp>
 
+namespace reflect
+{
 class Type;
 class Value;
 
-class ReflectFactory
+namespace detail
 {
-public:
-    ReflectFactory() = default;
-    ~ReflectFactory() = default;
+    class ReflectFactory
+    {
+    public:
+        ReflectFactory() = default;
+        ~ReflectFactory() = default;
 
-    DEFAULT_MOVABLE(ReflectFactory);
-    NON_COPYABLE(ReflectFactory);
+        DEFAULT_MOVABLE(ReflectFactory);
+        NON_COPYABLE(ReflectFactory);
 
-    template <typename T> NO_DISCARD const Type* get();
-    template <typename T, typename... Args> NO_DISCARD Value makeValue(Args&&... args);
-    template <typename T> NO_DISCARD ValueRef makeRef(T&& value);
-    template <typename... Args> NO_DISCARD ParameterList asParamaters();
-    template <typename... Args> NO_DISCARD ArgumentList makeArgs(Args&&... args);
+        template <typename T> NO_DISCARD const Type* get();
+        template <typename T, typename... Args> NO_DISCARD Value makeValue(Args&&... args);
+        template <typename T> NO_DISCARD ValueRef makeRef(T&& value);
+        template <typename... Args> NO_DISCARD ParameterList asParamaters();
+        template <typename... Args> NO_DISCARD ArgumentList makeArgs(Args&&... args);
 
-private:
-    template <typename T> friend class TypeBuilder;
-    template <typename T> NO_DISCARD Type* get_mut() { return const_cast<Type*>(this->get<T>()); };
+    private:
+        template <typename T> friend class ::reflect::TypeBuilder;
+        template <typename T> NO_DISCARD Type* getMut()
+        {
+            return const_cast<Type*>(this->get<T>());
+        };
 
-    std::unordered_map<std::type_index, std::unique_ptr<Type>> type_map;
-};
+        std::unordered_map<std::type_index, std::unique_ptr<Type>> type_map;
+    };
+}
+}
 
 #include <factory/reflect_factory_impl.hpp>

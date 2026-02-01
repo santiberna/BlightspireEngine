@@ -6,6 +6,9 @@
 #include <utility/traits.hpp>
 #include <value/value.hpp>
 
+namespace reflect::detail
+{
+
 template <typename Class, typename... Args> class ConstructorImpl : public Constructor
 {
 public:
@@ -45,4 +48,6 @@ NO_DISCARD Value ConstructorImpl<Class, Args...>::invokeHelper(
     const ArgumentList& args, MAYBE_UNUSED std::index_sequence<Is...> _sequence) const
 {
     return store.makeValue<Class>(std::forward<Args>(args.get(Is).cast<BareType<Args>>())...);
+}
+
 }

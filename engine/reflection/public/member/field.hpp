@@ -3,27 +3,34 @@
 
 #include <cstddef>
 
-class ReflectFactory;
+namespace reflect
+{
 class Value;
 class Type;
 
-class Field
+namespace detail
 {
-public:
-    template <typename Class, typename Member> using MemberPointer = Member Class::*;
-    template <typename Class, typename Member>
-    Field(ReflectFactory& type_store, MemberPointer<Class, Member> mem_ptr);
-    ~Field();
+    class ReflectFactory;
 
-    NON_MOVABLE(Field);
-    NON_COPYABLE(Field);
+    class Field
+    {
+    public:
+        template <typename Class, typename Member> using MemberPointer = Member Class::*;
+        template <typename Class, typename Member>
+        Field(ReflectFactory& type_store, MemberPointer<Class, Member> mem_ptr);
+        ~Field();
 
-    NO_DISCARD void* rawAccess(void* ptr) const;
-    NO_DISCARD const Type* getType() const;
+        NON_MOVABLE(Field);
+        NON_COPYABLE(Field);
 
-private:
-    size_t offset {};
-    const Type* type {};
-};
+        NO_DISCARD void* rawAccess(void* ptr) const;
+        NO_DISCARD const Type* getType() const;
+
+    private:
+        size_t offset {};
+        const Type* type {};
+    };
+}
+}
 
 #include <member/field_impl.hpp>

@@ -3,6 +3,9 @@
 #include <common.hpp>
 #include <vector>
 
+namespace reflect
+{
+
 class Type;
 class ArgumentList;
 
@@ -26,7 +29,13 @@ private:
 };
 
 // Specialize std::hash for ParameterList
-template <> struct std::hash<ParameterList>
+
+}
+
+namespace std
 {
-    std::size_t operator()(const ParameterList& params) const noexcept;
+template <> struct hash<reflect::ParameterList>
+{
+    std::size_t operator()(const reflect::ParameterList& params) const noexcept;
 };
+}

@@ -46,7 +46,8 @@ template <std::size_t... Is>
 NO_DISCARD Value ConstructorImpl<Class, Args...>::invokeHelper(
     const ArgumentList& args, MAYBE_UNUSED std::index_sequence<Is...> _sequence) const
 {
-    return store.makeValue<Class>(std::forward<Args>(args.get(Is).cast<BareType<Args>>())...);
+    return store.makeValue<Class>(
+        std::forward<Args>(args.get(Is).cast<detail::BareType<Args>>())...);
 }
 
 }

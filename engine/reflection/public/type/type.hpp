@@ -40,9 +40,9 @@ private:
     // Factory set
     std::optional<std::string> alias {};
 
-    StringHashmap<uint64_t> constants {};
-    StringHashmap<std::unique_ptr<Field>> fields {};
-    StringHashmap<std::unique_ptr<Method>> methods {};
+    detail::StringHashmap<uint64_t> constants {};
+    detail::StringHashmap<std::unique_ptr<Field>> fields {};
+    detail::StringHashmap<std::unique_ptr<Method>> methods {};
     std::unordered_map<ParameterList, std::unique_ptr<Constructor>> constructors {};
 
     friend ReflectFactory;

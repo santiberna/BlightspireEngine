@@ -46,11 +46,11 @@ template <typename... Args> NO_DISCARD ParameterList ReflectFactory::asParamater
 
 template <typename T> NO_DISCARD ValueRef ReflectFactory::makeRef(T&& value)
 {
-    if constexpr (std::is_same_v<BareType<T>, ValueRef>)
+    if constexpr (std::is_same_v<detail::BareType<T>, ValueRef>)
     {
         return value;
     }
-    else if constexpr (std::is_same_v<BareType<T>, Value>)
+    else if constexpr (std::is_same_v<detail::BareType<T>, Value>)
     {
         return value.asRef();
     }

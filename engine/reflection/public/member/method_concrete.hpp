@@ -72,7 +72,7 @@ template <std::size_t... Is>
 Ret MethodImpl<Ret, Class, Qualifiers, Args...>::invokeHelper(
     Class& obj, const ArgumentList& args, MAYBE_UNUSED std::index_sequence<Is...> sequence) const
 {
-    return (obj.*callable)(args.get(Is).cast<BareType<Args>>()...);
+    return (obj.*callable)(args.get(Is).cast<detail::BareType<Args>>()...);
 }
 
 }

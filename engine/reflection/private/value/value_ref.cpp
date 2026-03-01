@@ -5,7 +5,7 @@
 #include <value/value.hpp>
 #include <value/value_ref.hpp>
 
-using namespace reflect;
+using namespace reflection;
 
 const Type* ValueRef::getType() const { return this->type; }
 

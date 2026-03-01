@@ -3,7 +3,7 @@
 #include <member/method_concrete.hpp>
 #include <type/builder.hpp>
 
-namespace reflect
+namespace reflection
 {
 
 template <typename T>

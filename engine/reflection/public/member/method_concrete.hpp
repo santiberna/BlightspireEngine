@@ -1,11 +1,11 @@
 #pragma once
-#include <factory/reflect_factory.hpp>
+#include <factory/reflection_factory.hpp>
 #include <member/method.hpp>
 #include <stdexcept>
 #include <utility/traits.hpp>
 #include <value/value_ref.hpp>
 
-namespace reflect
+namespace reflection
 {
 
 // Qualifiers can only be void of const void

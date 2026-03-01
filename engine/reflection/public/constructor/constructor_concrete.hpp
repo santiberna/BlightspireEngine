@@ -1,11 +1,11 @@
 #pragma once
 #include <constructor/constructor.hpp>
-#include <factory/reflect_factory.hpp>
+#include <factory/reflection_factory.hpp>
 #include <stdexcept>
 #include <utility/traits.hpp>
 #include <value/value.hpp>
 
-namespace reflect
+namespace reflection
 {
 
 template <typename Class, typename... Args> class ConstructorImpl : public Constructor

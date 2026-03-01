@@ -1,10 +1,10 @@
 #pragma once
 
-#include <factory/reflect_factory.hpp>
+#include <factory/reflection_factory.hpp>
 #include <nameof.hpp>
 #include <type/builder.hpp>
 
-namespace reflect
+namespace reflection
 {
 namespace detail
 {

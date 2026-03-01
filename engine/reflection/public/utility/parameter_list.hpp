@@ -1,10 +1,9 @@
 #pragma once
 #include <common.hpp>
-#include <reflect_fwd.hpp>
+#include <reflection_fwd.hpp>
 #include <vector>
 
-
-namespace reflect
+namespace reflection
 {
 class ParameterList
 {
@@ -31,8 +30,8 @@ private:
 
 namespace std
 {
-template <> struct hash<reflect::ParameterList>
+template <> struct hash<reflection::ParameterList>
 {
-    std::size_t operator()(const reflect::ParameterList& params) const noexcept;
+    std::size_t operator()(const reflection::ParameterList& params) const noexcept;
 };
 }

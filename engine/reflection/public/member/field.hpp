@@ -1,9 +1,9 @@
 #pragma once
 #include <common.hpp>
 #include <cstddef>
-#include <reflect_fwd.hpp>
+#include <reflection_fwd.hpp>
 
-namespace reflect
+namespace reflection
 {
 class Field
 {

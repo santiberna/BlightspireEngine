@@ -7,7 +7,7 @@
 #include <utility/parameter_list.hpp>
 #include <value/value.hpp>
 
-using namespace reflect;
+using namespace reflection;
 
 Type::Type() = default;
 Type::~Type() = default;

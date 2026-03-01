@@ -2,13 +2,13 @@
 #include <common.hpp>
 #include <memory>
 #include <optional>
-#include <reflect_fwd.hpp>
+#include <reflection_fwd.hpp>
 #include <string>
 #include <string_view>
 #include <typeindex>
 #include <utility/parameter_list.hpp>
 #include <utility/string_hashmap.hpp>
-namespace reflect
+namespace reflection
 {
 
 class Type
@@ -52,7 +52,7 @@ private:
 template <typename T> bool Type::is() const
 {
     static_assert(std::is_same_v<T, std::remove_cvref_t<T>>,
-        "Types used for reflection must not have cv-qualifiers or be refs.");
+        "Types used for reflectionion must not have cv-qualifiers or be refs.");
     return this->getIndex() == typeid(T);
 }
 

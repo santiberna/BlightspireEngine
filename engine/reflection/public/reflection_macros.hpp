@@ -1,8 +1,8 @@
 #pragma once
 
-#include <reflect.hpp>
+#include <reflection.hpp>
 
-#define NEW_TYPE(TYPE) reflect::TypeBuilder<TYPE>(reflect::detail::global_factory)
+#define NEW_TYPE(TYPE) reflection::TypeBuilder<TYPE>(reflection::detail::global_factory)
 #define ADD_CONSTRUCTOR(ARGS) .addConstructor<ARGS>()
 #define ADD_FIELD(FIELD) .addField(NAMEOF(FIELD), FIELD)
 #define ADD_METHOD(METHOD) .addMethod(NAMEOF(METHOD), METHOD)
@@ -27,7 +27,7 @@
 #define STATIC_BLOCK DETAIL_STATIC_BLOCK_IMPL(__COUNTER__)
 
 #define REFLECT_TYPE(TYPE)                                                                         \
-    namespace reflect::detail                                                                      \
+    namespace reflection::detail                                                                   \
     {                                                                                              \
     template <> struct IsReflected<Type> : public std::true_type                                   \
     {                                                                                              \

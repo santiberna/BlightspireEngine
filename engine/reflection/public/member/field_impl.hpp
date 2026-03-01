@@ -1,10 +1,10 @@
 #pragma once
-#include <factory/reflect_factory.hpp>
+#include <factory/reflection_factory.hpp>
 #include <member/field.hpp>
 #include <value/value.hpp>
 
 template <typename Class, typename Member>
-reflect::Field::Field(ReflectFactory& type_store, Member Class::* mem_ptr)
+reflection::Field::Field(ReflectFactory& type_store, Member Class::* mem_ptr)
 {
     this->type = type_store.get<Member>();
 

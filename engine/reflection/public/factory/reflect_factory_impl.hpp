@@ -1,15 +1,15 @@
 #pragma once
-#include <factory/reflect_factory.hpp>
+#include <factory/reflection_factory.hpp>
 #include <type/type.hpp>
 #include <value/value.hpp>
 
-namespace reflect
+namespace reflection
 {
 
 template <typename T, typename... Args> Value ReflectFactory::makeValue(Args&&... args)
 {
     static_assert(std::is_same_v<T, std::remove_cvref_t<T>>,
-        "Types used for reflection must not have cv-qualifiers or be refs.");
+        "Types used for reflectionion must not have cv-qualifiers or be refs.");
 
     auto value = std::make_shared<T>(std::forward<Args>(args)...);
     return Value { value, get<T>() };

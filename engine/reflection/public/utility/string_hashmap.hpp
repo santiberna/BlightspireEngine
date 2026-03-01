@@ -2,7 +2,7 @@
 #include <string>
 #include <unordered_map>
 
-namespace reflect::detail
+namespace reflection::detail
 {
 
 struct HeterogenousStringHash

@@ -3,13 +3,13 @@
 #include <member/field.hpp>
 #include <member/method.hpp>
 
-namespace reflect
+namespace reflection
 {
 
 template <typename T> class TypeBuilder
 {
     static_assert(std::is_same_v<T, std::remove_cvref_t<T>>,
-        "Types used for reflection must not have cv-qualifiers or be refs.");
+        "Types used for reflectionion must not have cv-qualifiers or be refs.");
 
 public:
     TypeBuilder(ReflectFactory& type_store);

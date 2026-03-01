@@ -1,10 +1,10 @@
 #pragma once
 #include <common.hpp>
-#include <reflect_fwd.hpp>
+#include <reflection_fwd.hpp>
 #include <value/value_ref.hpp>
 #include <vector>
 
-namespace reflect
+namespace reflection
 {
 
 class ArgumentList

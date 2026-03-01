@@ -1,4 +1,4 @@
-namespace reflect
+namespace reflection
 {
 class Value;
 class ValueRef;

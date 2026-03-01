@@ -2,7 +2,7 @@
 #include <value/value.hpp>
 #include <value/value_ref.hpp>
 
-using namespace reflect;
+using namespace reflection;
 
 Value::Value(MAYBE_UNUSED VoidValueType _unused) { }
 

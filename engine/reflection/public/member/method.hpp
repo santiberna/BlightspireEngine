@@ -3,7 +3,7 @@
 #include <utility/argument_list.hpp>
 #include <utility/parameter_list.hpp>
 
-namespace reflect
+namespace reflection
 {
 class Method
 {

@@ -1,13 +1,13 @@
 #pragma once
 #include <common.hpp>
 #include <memory>
-#include <reflect_fwd.hpp>
+#include <reflection_fwd.hpp>
 #include <typeindex>
 #include <unordered_map>
 #include <utility/argument_list.hpp>
 #include <utility/parameter_list.hpp>
 
-namespace reflect
+namespace reflection
 {
 class ReflectFactory
 {
@@ -25,11 +25,11 @@ public:
     template <typename... Args> NO_DISCARD ArgumentList makeArgs(Args&&... args);
 
 private:
-    template <typename T> friend class ::reflect::TypeBuilder;
+    template <typename T> friend class ::reflection::TypeBuilder;
     template <typename T> NO_DISCARD Type* getMut() { return const_cast<Type*>(this->get<T>()); };
 
     std::unordered_map<std::type_index, std::unique_ptr<Type>> type_map;
 };
 }
 
-#include <factory/reflect_factory_impl.hpp>
+#include <factory/reflection_factory_impl.hpp>

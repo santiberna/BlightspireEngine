@@ -1,6 +1,6 @@
 #include <member/field.hpp>
 
-using namespace reflect;
+using namespace reflection;
 
 Field::~Field() { };
 void* Field::rawAccess(void* ptr) const { return (std::byte*)ptr + offset; };

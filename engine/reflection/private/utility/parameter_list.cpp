@@ -1,7 +1,7 @@
 #include <utility/argument_list.hpp>
 #include <utility/parameter_list.hpp>
 
-using namespace reflect;
+using namespace reflection;
 
 NO_DISCARD bool ParameterList::validateArgs(const ArgumentList& args) const
 {

@@ -1,9 +1,9 @@
 #pragma once
 #include <common.hpp>
-#include <reflect_fwd.hpp>
+#include <reflection_fwd.hpp>
 #include <string_view>
 
-namespace reflect
+namespace reflection
 {
 
 class ValueRef

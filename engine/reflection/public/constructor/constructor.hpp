@@ -1,10 +1,10 @@
 #pragma once
 #include <common.hpp>
-#include <reflect_fwd.hpp>
+#include <reflection_fwd.hpp>
 #include <utility/argument_list.hpp>
 #include <utility/parameter_list.hpp>
 
-namespace reflect
+namespace reflection
 {
 class Constructor
 {

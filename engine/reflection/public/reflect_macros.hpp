@@ -2,7 +2,7 @@
 
 #include <reflect.hpp>
 
-#define NEW_TYPE(T) reflect::TypeBuilder<T>(reflect::detail::global_factory)
+#define NEW_TYPE(TYPE) reflect::TypeBuilder<TYPE>(reflect::detail::global_factory)
 #define ADD_CONSTRUCTOR(ARGS) .addConstructor<ARGS>()
 #define ADD_FIELD(FIELD) .addField(NAMEOF(FIELD), FIELD)
 #define ADD_METHOD(METHOD) .addMethod(NAMEOF(METHOD), METHOD)
@@ -12,8 +12,6 @@
 #define DETAIL_CONCAT_IMPL(x, y) x##y
 #define DETAIL_CONCAT(x, y) DETAIL_CONCAT_IMPL(x, y)
 
-/// Macro for creating a static initialization block
-/// Code in the scope afterwards will run before main()
 #define DETAIL_STATIC_BLOCK_IMPL(id)                                                               \
     namespace                                                                                      \
     {                                                                                              \
@@ -24,4 +22,15 @@
     }                                                                                              \
     DETAIL_CONCAT(_StaticInitializer, id)::DETAIL_CONCAT(_StaticInitializer, id)()
 
+/// Macro for creating a static initialization block
+/// Code in the scope will run before main()
 #define STATIC_BLOCK DETAIL_STATIC_BLOCK_IMPL(__COUNTER__)
+
+#define REFLECT_TYPE(TYPE)                                                                         \
+    namespace reflect::detail                                                                      \
+    {                                                                                              \
+    template <> struct IsReflected<Type> : public std::true_type                                   \
+    {                                                                                              \
+    };                                                                                             \
+    }                                                                                              \
+    STATIC_BLOCK

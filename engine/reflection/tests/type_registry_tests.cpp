@@ -11,7 +11,7 @@ struct TestType
     void input(int& a) { a = 10; }
 };
 
-STATIC_BLOCK
+REFLECT_TYPE(TestType)
 {
     NEW_TYPE(TestType)
     ADD_CONSTRUCTOR(int)

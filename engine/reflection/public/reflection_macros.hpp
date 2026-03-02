@@ -25,12 +25,3 @@
 /// Macro for creating a static initialization block
 /// Code in the scope will run before main()
 #define STATIC_BLOCK DETAIL_STATIC_BLOCK_IMPL(__COUNTER__)
-
-#define REFLECT_TYPE(TYPE)                                                                         \
-    namespace reflection::detail                                                                   \
-    {                                                                                              \
-    template <> struct IsReflected<Type> : public std::true_type                                   \
-    {                                                                                              \
-    };                                                                                             \
-    }                                                                                              \
-    STATIC_BLOCK

@@ -1,6 +1,6 @@
 #include "input_bindings_visualization_cache.hpp"
-#include "resource_management/image_resource_manager.hpp"
 #include "graphics_resources.hpp"
+#include "resource_management/image_resource_manager.hpp"
 
 InputBindingsVisualizationCache::InputBindingsVisualizationCache(const ActionManager& actionManager, GraphicsContext& graphicsContext)
     : _actionManager(actionManager)

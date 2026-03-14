@@ -1,7 +1,7 @@
 #pragma once
 
-#include "input/action_manager.hpp"
 #include "graphics_context.hpp"
+#include "input/action_manager.hpp"
 
 struct GPUImage;
 

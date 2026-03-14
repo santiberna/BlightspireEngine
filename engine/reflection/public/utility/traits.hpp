@@ -3,5 +3,6 @@
 
 namespace reflection::detail
 {
-template <typename T> using BareType = std::remove_cvref_t<T>;
+template <typename T>
+using BareType = std::remove_cvref_t<T>;
 }

@@ -6,7 +6,8 @@
 namespace reflection
 {
 
-template <typename T, typename... Args> Value ReflectFactory::makeValue(Args&&... args)
+template <typename T, typename... Args>
+Value ReflectFactory::makeValue(Args&&... args)
 {
     static_assert(std::is_same_v<T, std::remove_cvref_t<T>>,
         "Types used for reflectionion must not have cv-qualifiers or be refs.");
@@ -15,7 +16,8 @@ template <typename T, typename... Args> Value ReflectFactory::makeValue(Args&&..
     return Value { value, get<T>() };
 }
 
-template <typename T> const Type* ReflectFactory::get()
+template <typename T>
+const Type* ReflectFactory::get()
 {
     // We want const and ref variations of a type to map to the same one
     std::type_index index = typeid(std::remove_cvref_t<T>);
@@ -39,12 +41,14 @@ template <typename T> const Type* ReflectFactory::get()
     return inserted_it->second.get();
 }
 
-template <typename... Args> NO_DISCARD ParameterList ReflectFactory::asParamaters()
+template <typename... Args>
+NO_DISCARD ParameterList ReflectFactory::asParamaters()
 {
     return { { this->get<Args>()... } };
 }
 
-template <typename T> NO_DISCARD ValueRef ReflectFactory::makeRef(T&& value)
+template <typename T>
+NO_DISCARD ValueRef ReflectFactory::makeRef(T&& value)
 {
     if constexpr (std::is_same_v<detail::BareType<T>, ValueRef>)
     {
@@ -60,7 +64,8 @@ template <typename T> NO_DISCARD ValueRef ReflectFactory::makeRef(T&& value)
     }
 }
 
-template <typename... Args> NO_DISCARD ArgumentList ReflectFactory::makeArgs(Args&&... args)
+template <typename... Args>
+NO_DISCARD ArgumentList ReflectFactory::makeArgs(Args&&... args)
 {
     return ArgumentList { { this->makeRef(std::forward<Args>(args))... } };
 }

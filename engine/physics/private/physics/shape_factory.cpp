@@ -8,7 +8,6 @@
 #include <Jolt/Physics/Collision/Shape/SphereShape.h>
 #include <spdlog/spdlog.h>
 
-
 JPH::ShapeRefC ShapeFactory::MakeBoxShape(const glm::vec3& size)
 {
     return new JPH::BoxShape(ToJoltVec3(size * 0.5f));

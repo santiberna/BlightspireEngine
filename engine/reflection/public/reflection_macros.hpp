@@ -12,14 +12,14 @@
 #define DETAIL_CONCAT_IMPL(x, y) x##y
 #define DETAIL_CONCAT(x, y) DETAIL_CONCAT_IMPL(x, y)
 
-#define DETAIL_STATIC_BLOCK_IMPL(id)                                                               \
-    namespace                                                                                      \
-    {                                                                                              \
-    struct DETAIL_CONCAT(_StaticInitializer, id)                                                   \
-    {                                                                                              \
-        DETAIL_CONCAT(_StaticInitializer, id)();                                                   \
-    } DETAIL_CONCAT(_static_init_instance, id) = {};                                               \
-    }                                                                                              \
+#define DETAIL_STATIC_BLOCK_IMPL(id)                 \
+    namespace                                        \
+    {                                                \
+    struct DETAIL_CONCAT(_StaticInitializer, id)     \
+    {                                                \
+        DETAIL_CONCAT(_StaticInitializer, id)();     \
+    } DETAIL_CONCAT(_static_init_instance, id) = {}; \
+    }                                                \
     DETAIL_CONCAT(_StaticInitializer, id)::DETAIL_CONCAT(_StaticInitializer, id)()
 
 /// Macro for creating a static initialization block

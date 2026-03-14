@@ -12,7 +12,6 @@
 #include "wren_entity.hpp"
 #include "wren_tracy_zone.hpp"
 
-
 namespace bindings
 {
 void SetLifetimePaused(WrenComponent<LifetimeComponent>& self, bool paused)

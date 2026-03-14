@@ -1,7 +1,7 @@
 ﻿#include "steam_stats.hpp"
 
-#include <spdlog/spdlog.h>
 #include <magic_enum.hpp>
+#include <spdlog/spdlog.h>
 
 SteamStatManager::SteamStatManager(std::span<Stat> stats)
     : _appID(0)

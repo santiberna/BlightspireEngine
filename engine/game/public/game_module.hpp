@@ -7,7 +7,6 @@
 #include "scene/model_loader.hpp"
 #include "ui/ui_menus.hpp"
 
-
 #include "achievements.hpp"
 #include "steam_stats.hpp"
 #include <stack>

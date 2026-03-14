@@ -6,7 +6,8 @@
 namespace reflection
 {
 
-template <typename T> class TypeBuilder
+template <typename T>
+class TypeBuilder
 {
     static_assert(std::is_same_v<T, std::remove_cvref_t<T>>,
         "Types used for reflectionion must not have cv-qualifiers or be refs.");
@@ -29,7 +30,8 @@ public:
 
     TypeBuilder& addConstant(std::string_view name, uint64_t value);
 
-    template <typename... Args> TypeBuilder& addConstructor();
+    template <typename... Args>
+    TypeBuilder& addConstructor();
 
 private:
     ReflectFactory& type_store;

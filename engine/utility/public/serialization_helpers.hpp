@@ -8,8 +8,8 @@
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
-#include <visit_struct/visit_struct.hpp>
 #include <spdlog/spdlog.h>
+#include <visit_struct/visit_struct.hpp>
 
 #define CLASS_SERIALIZE(Type)                                                 \
     template <class Archive>                                                  \

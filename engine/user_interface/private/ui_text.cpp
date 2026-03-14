@@ -38,7 +38,7 @@ void UITextElement::SubmitDrawInfo(std::vector<QuadDrawInfo>& drawList) const
         elementTranslation.x -= (_horizontalTextSize / 2.0f) * elementScale;
     }
 
-    if(anchorPoint == AnchorPoint::eBottomRight || anchorPoint == AnchorPoint::eTopRight)
+    if (anchorPoint == AnchorPoint::eBottomRight || anchorPoint == AnchorPoint::eTopRight)
     {
         elementTranslation.x -= _horizontalTextSize * elementScale;
     }
@@ -60,7 +60,6 @@ void UITextElement::SubmitDrawInfo(std::vector<QuadDrawInfo>& drawList) const
 
         glm::vec3 localTranslation = glm::vec3(elementTranslation + localOffset + glm::vec2(leftBearing, topBearing), 0.0f);
         glm::vec3 localScale = glm::vec3(glm::vec2(fontChar.size) * elementScale, 0.0f);
-
 
         info.matrix = glm::scale(glm::translate(GetPreTransformationMatrix(), localTranslation), localScale);
         info.textureIndex = _font->fontAtlas.Index();

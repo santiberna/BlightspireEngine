@@ -14,7 +14,8 @@ namespace reflection
 class Type
 {
 public:
-    template <typename T> NO_DISCARD bool is() const;
+    template <typename T>
+    NO_DISCARD bool is() const;
 
     NON_COPYABLE(Type);
     DEFAULT_MOVABLE(Type);
@@ -46,10 +47,12 @@ private:
     std::unordered_map<ParameterList, std::unique_ptr<Constructor>> constructors {};
 
     friend ReflectFactory;
-    template <typename T> friend class TypeBuilder;
+    template <typename T>
+    friend class TypeBuilder;
 };
 
-template <typename T> bool Type::is() const
+template <typename T>
+bool Type::is() const
 {
     static_assert(std::is_same_v<T, std::remove_cvref_t<T>>,
         "Types used for reflectionion must not have cv-qualifiers or be refs.");

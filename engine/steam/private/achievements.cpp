@@ -1,7 +1,7 @@
 ﻿#include "achievements.hpp"
 
-#include <spdlog/spdlog.h>
 #include <magic_enum.hpp>
+#include <spdlog/spdlog.h>
 
 SteamAchievementManager::SteamAchievementManager(std::span<Achievement> achievements)
     : _appID(0)

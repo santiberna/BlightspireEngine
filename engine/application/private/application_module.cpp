@@ -13,7 +13,6 @@
 #define SDL_DISABLE_ANALYZE_MACROS
 
 #include <SDL3/SDL.h>
-#include <SDL3/SDL_vulkan.h>
 #include <file_io.hpp>
 #include <imgui_sdl_include.hpp>
 #include <stb_image.h>
@@ -73,22 +72,6 @@ ModuleTickOrder ApplicationModule::Init(Engine& engine)
     {
         spdlog::warn("Unable to load window icon!");
     }
-
-    uint32_t sdlExtensionsCount = 0;
-    _vulkanInitInfo.extensions = SDL_Vulkan_GetInstanceExtensions(&sdlExtensionsCount);
-    _vulkanInitInfo.extensionCount = sdlExtensionsCount;
-
-    _vulkanInitInfo.width = screenSize.x;
-    _vulkanInitInfo.height = screenSize.y;
-    _vulkanInitInfo.retrieveSurface = [this](vk::Instance instance)
-    {
-        VkSurfaceKHR surface {};
-        if (!SDL_Vulkan_CreateSurface(_window, instance, nullptr, &surface))
-        {
-            spdlog::error("Failed creating SDL vk::Surface: {}", SDL_GetError());
-        }
-        return vk::SurfaceKHR(surface);
-    };
 
     const SteamModule& steam = engine.GetModule<SteamModule>();
     if (steam.InputAvailable())

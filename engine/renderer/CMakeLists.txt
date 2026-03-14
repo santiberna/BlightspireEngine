@@ -1,16 +1,19 @@
 module_declare(STATIC)
 
 target_link_libraries(renderer
-        PUBLIC core
-        PUBLIC application
-        PUBLIC particles
-        PUBLIC ecs
-        PUBLIC user_interface
-        PUBLIC settings
-        PUBLIC physics
+    PUBLIC 
+        core
+        application
+        particles
+        ecs
+        user_interface
+        settings
+        physics
+        VulkanAPI
+        spirv-reflect-static
 
-        PUBLIC VulkanAPI
-        PUBLIC spirv-reflect-static
+    PRIVATE
+        SDL3::SDL3-static
 )
 
 source_exclude_unity("private/lib/vma_impl.cpp")

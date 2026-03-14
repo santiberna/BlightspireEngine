@@ -1,5 +1,6 @@
 #pragma once
 
+#include <glm/vec2.hpp>
 #include <memory>
 #include <optional>
 #include <vma_include.hpp>
@@ -20,6 +21,12 @@ struct QueueFamilyIndices
     }
 
     static QueueFamilyIndices FindQueueFamilies(vk::PhysicalDevice device, vk::SurfaceKHR surface);
+};
+
+struct VulkanInitInfo
+{
+    glm::uvec2 window_size {};
+    struct SDL_Window* window_handle = nullptr;
 };
 
 constexpr bool ENABLE_VALIDATION_LAYERS =
@@ -104,10 +111,10 @@ private:
 
     bool ExtensionsSupported(const vk::PhysicalDevice& device);
     bool CheckValidationLayerSupport();
-    std::vector<const char*> GetRequiredExtensions(const VulkanInitInfo& initInfo);
+    std::vector<const char*> GetRequiredExtensions();
     void SetupDebugMessenger();
 
-    void CreateInstance(const VulkanInitInfo& initInfo);
+    void CreateInstance();
     void CreateDevice();
     void CreateCommandPool();
     void CreateDescriptorPool();

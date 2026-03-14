@@ -3,22 +3,33 @@
 #include <map>
 #include <set>
 
-#include "application_module.hpp"
 #include "pipeline_builder.hpp"
 #include "swap_chain.hpp"
 #include "vulkan_helper.hpp"
 #include "vulkan_validation.hpp"
 #include <log_setup.hpp>
 
+#include <SDL3/SDL_vulkan.h>
+
 VulkanContext::VulkanContext(const VulkanInitInfo& initInfo)
 {
     _validationEnabled = CheckValidationLayerSupport() && ENABLE_VALIDATION_LAYERS;
     spdlog::info("Validation layers enabled: {}", _validationEnabled ? "TRUE" : "FALSE");
 
-    CreateInstance(initInfo);
-    _dldi = bb::VulkanDispatchLoader { _instance, vkGetInstanceProcAddr, _device, vkGetDeviceProcAddr };
+    CreateInstance();
+    _dldi = bb::VulkanDispatchLoader { _instance, vkGetInstanceProcAddr, _device,
+        vkGetDeviceProcAddr };
     SetupDebugMessenger();
-    _surface = initInfo.retrieveSurface(_instance);
+
+    SDL_Window* window = reinterpret_cast<SDL_Window*>(initInfo.window_handle);
+    VkSurfaceKHR window_surface = nullptr;
+
+    if (!SDL_Vulkan_CreateSurface(window, _instance, nullptr, &window_surface))
+    {
+        spdlog::error("Failed creating SDL vk::Surface: {}", SDL_GetError());
+    }
+
+    _surface = window_surface;
 
     PickPhysicalDevice();
     CreateDevice();
@@ -71,7 +82,7 @@ VulkanContext::~VulkanContext()
     _instance.destroy();
 }
 
-void VulkanContext::CreateInstance(const VulkanInitInfo& initInfo)
+void VulkanContext::CreateInstance()
 {
     vk::ApplicationInfo appInfo {
         .pApplicationName = "Bubonic Brotherhood Game",
@@ -84,7 +95,7 @@ void VulkanContext::CreateInstance(const VulkanInitInfo& initInfo)
     vk::StructureChain<vk::InstanceCreateInfo, vk::DebugUtilsMessengerCreateInfoEXT>
         structureChain;
 
-    auto extensions = GetRequiredExtensions(initInfo);
+    auto extensions = GetRequiredExtensions();
 
     structureChain.assign({
         .flags = vk::InstanceCreateFlags {},
@@ -200,16 +211,19 @@ bool VulkanContext::CheckValidationLayerSupport()
     bool result = std::all_of(_validationLayers.begin(), _validationLayers.end(), [&availableLayers](const auto& layerName)
         {
         const auto it = std::find_if(availableLayers.begin(), availableLayers.end(), [&layerName](const auto &layer)
-        { return strcmp(layerName, layer.layerName) == 0; });
+                { return strcmp(layerName, layer.layerName) == 0; });
 
         return it != availableLayers.end(); });
 
     return result;
 }
 
-std::vector<const char*> VulkanContext::GetRequiredExtensions(const VulkanInitInfo& initInfo)
+std::vector<const char*> VulkanContext::GetRequiredExtensions()
 {
-    std::vector<const char*> extensions(initInfo.extensions, initInfo.extensions + initInfo.extensionCount);
+    uint32_t sdl_extensions_count = 0;
+    const char* const* extension_array = SDL_Vulkan_GetInstanceExtensions(&sdl_extensions_count);
+
+    std::vector<const char*> extensions(extension_array, extension_array + sdl_extensions_count);
     if (_validationEnabled)
         extensions.emplace_back(vk::EXTDebugUtilsExtensionName);
 

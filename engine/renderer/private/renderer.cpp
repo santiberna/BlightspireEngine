@@ -62,8 +62,7 @@ Renderer::Renderer(ApplicationModule& application, Viewport& viewport, const std
 
     {
         ZoneScopedN("Swapchain creation");
-        auto vulkanInfo = application.GetVulkanInfo();
-        _swapChain = std::make_unique<SwapChain>(_context, glm::uvec2 { vulkanInfo.width, vulkanInfo.height });
+        _swapChain = std::make_unique<SwapChain>(_context, application.DisplaySize());
         _renderFinishedSemaphores.resize(_swapChain->GetImageCount());
     }
 

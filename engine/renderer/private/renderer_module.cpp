@@ -22,9 +22,15 @@ RendererModule::RendererModule()
 ModuleTickOrder RendererModule::Init(Engine& engine)
 {
     auto& ecs = engine.GetModule<ECSModule>();
+    auto& app = engine.GetModule<ApplicationModule>();
 
-    _context = std::make_shared<GraphicsContext>(engine.GetModule<ApplicationModule>().GetVulkanInfo());
-    _renderer = std::make_shared<Renderer>(engine.GetModule<ApplicationModule>(), engine.GetModule<UIModule>().GetViewport(), _context, ecs);
+    VulkanInitInfo init_info {};
+    init_info.window_size = app.DisplaySize();
+    init_info.window_handle = app.GetWindowHandle();
+
+    _context = std::make_shared<GraphicsContext>(init_info);
+    _renderer = std::make_shared<Renderer>(engine.GetModule<ApplicationModule>(),
+        engine.GetModule<UIModule>().GetViewport(), _context, ecs);
 
     ecs.AddSystem<AnimationSystem>();
 

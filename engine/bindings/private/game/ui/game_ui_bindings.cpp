@@ -1,13 +1,13 @@
 #include "game/ui/game_ui_bindings.hpp"
 #include "game_module.hpp"
+#include "graphics_context.hpp"
+#include "input_bindings_visualization_cache.hpp"
+#include "renderer_module.hpp"
 #include "ui/ui_menus.hpp"
 #include "ui_image.hpp"
 #include "ui_progress_bar.hpp"
 #include "ui_text.hpp"
-#include "renderer_module.hpp"
-#include "graphics_context.hpp"
 #include "wren_engine.hpp"
-#include "input_bindings_visualization_cache.hpp"
 
 namespace bindings
 {
@@ -109,20 +109,20 @@ void UpdateDashCharges(HUD& self, int charges)
     }
 }
 
-void SetDirectionalIndicatorRotationAndOpacity(HUD& self, uint8_t index, float angle,float opacity)
+void SetDirectionalIndicatorRotationAndOpacity(HUD& self, uint8_t index, float angle, float opacity)
 {
-    index = index %  HUD::DIRECTIONAL_INDICATOR_COUNT;
+    index = index % HUD::DIRECTIONAL_INDICATOR_COUNT;
 
-    if(auto locked = self.directionalIndicators[index].lock(); locked != nullptr)
+    if (auto locked = self.directionalIndicators[index].lock(); locked != nullptr)
     {
         glm::mat4 matrix = glm::mat4(1);
-        glm::vec3 translation = glm::vec3(locked->GetAbsoluteLocation() + locked->GetAbsoluteScale()/2.0f,0);
+        glm::vec3 translation = glm::vec3(locked->GetAbsoluteLocation() + locked->GetAbsoluteScale() / 2.0f, 0);
         matrix = glm::translate(matrix, translation);
-        matrix = glm::rotate(matrix, angle, glm::vec3(0,0,1));
-        matrix = glm::translate(matrix, -translation - glm::vec3(0,200,0) );
+        matrix = glm::rotate(matrix, angle, glm::vec3(0, 0, 1));
+        matrix = glm::translate(matrix, -translation - glm::vec3(0, 200, 0));
         locked->SetPreTransformationMatrix(matrix);
 
-        locked->display_color = glm::vec4(1,1,1,opacity);
+        locked->display_color = glm::vec4(1, 1, 1, opacity);
     }
 }
 

@@ -5,7 +5,6 @@
 #include <magic_enum.hpp>
 #include <spdlog/spdlog.h>
 
-
 SDLActionManager::SDLActionManager(const SDLInputDeviceManager& sdlInputDeviceManager)
     : ActionManager(sdlInputDeviceManager)
     , _sdlInputDeviceManager(sdlInputDeviceManager)

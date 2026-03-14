@@ -6,7 +6,8 @@
 #include <utility/traits.hpp>
 #include <value/value.hpp>
 
-template <typename T> std::shared_ptr<const T> reflection::Value::cast() const
+template <typename T>
+std::shared_ptr<const T> reflection::Value::cast() const
 {
     static_assert(std::is_same_v<T, detail::BareType<T>>,
         "Types used for reflectionion must not have cv-qualifiers or be refs.");
@@ -18,10 +19,12 @@ template <typename T> std::shared_ptr<const T> reflection::Value::cast() const
     throw std::runtime_error("Casting from incorrect type!");
 }
 
-template <typename T> std::shared_ptr<T> reflection::Value::cast()
+template <typename T>
+std::shared_ptr<T> reflection::Value::cast()
 {
     const auto* self = this;
     return std::const_pointer_cast<T>(self->cast<T>());
 }
 
-template <typename T> bool reflection::Value::is() const { return getType()->is<T>(); }
+template <typename T>
+bool reflection::Value::is() const { return getType()->is<T>(); }

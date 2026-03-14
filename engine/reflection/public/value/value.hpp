@@ -18,9 +18,12 @@ public:
     Value(VoidValueType);
     bool operator==(VoidValueType) const;
 
-    template <typename T> NO_DISCARD bool is() const;
-    template <typename T> NO_DISCARD std::shared_ptr<const T> cast() const;
-    template <typename T> NO_DISCARD std::shared_ptr<T> cast();
+    template <typename T>
+    NO_DISCARD bool is() const;
+    template <typename T>
+    NO_DISCARD std::shared_ptr<const T> cast() const;
+    template <typename T>
+    NO_DISCARD std::shared_ptr<T> cast();
 
     NO_DISCARD Value call(std::string_view name, const ArgumentList& args) const;
     NO_DISCARD ValueRef asRef() const;

@@ -99,7 +99,7 @@ void RelationshipHelpers::OnDestroyRelationship(entt::registry& reg, entt::entit
         prev.next = relationship.next;
     }
 
-    if (relationship.next != entt::null  && reg.all_of<RelationshipComponent>(relationship.next))
+    if (relationship.next != entt::null && reg.all_of<RelationshipComponent>(relationship.next))
     {
         RelationshipComponent& next = reg.get<RelationshipComponent>(relationship.next);
 

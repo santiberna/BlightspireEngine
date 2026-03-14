@@ -30,7 +30,8 @@ private:
 
 namespace std
 {
-template <> struct hash<reflection::ParameterList>
+template <>
+struct hash<reflection::ParameterList>
 {
     std::size_t operator()(const reflection::ParameterList& params) const noexcept;
 };

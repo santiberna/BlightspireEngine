@@ -86,4 +86,3 @@ private:
      */
     std::vector<std::shared_ptr<UIElement>> _baseElements;
 };
-

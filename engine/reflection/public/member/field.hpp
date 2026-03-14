@@ -8,7 +8,8 @@ namespace reflection
 class Field
 {
 public:
-    template <typename Class, typename Member> using MemberPointer = Member Class::*;
+    template <typename Class, typename Member>
+    using MemberPointer = Member Class::*;
     template <typename Class, typename Member>
     Field(ReflectFactory& type_store, MemberPointer<Class, Member> mem_ptr);
     ~Field();

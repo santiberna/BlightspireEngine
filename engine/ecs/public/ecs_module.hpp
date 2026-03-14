@@ -9,7 +9,6 @@
 #include <entt/entity/registry.hpp>
 #include <spdlog/spdlog.h>
 
-
 struct DeleteTag
 {
 };

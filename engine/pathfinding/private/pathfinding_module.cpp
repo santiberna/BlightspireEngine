@@ -319,7 +319,6 @@ float PathfindingModule::DirectedHeuristic(glm::vec3 startPos, glm::vec3 endPos,
     return powf((1.0f - dot), 3.0f) * towardsEndLength;
 }
 
-
 ComputedPath PathfindingModule::ReconstructPath(const uint32_t finalTriangleIndex, std::unordered_map<uint32_t, TriangleNode>& nodes)
 {
     ComputedPath path = {};

@@ -55,7 +55,9 @@ TypeBuilder<T>& TypeBuilder<T>::addConstant(std::string_view name, uint64_t valu
     return *this;
 }
 
-template <typename T> template <typename... Args> TypeBuilder<T>& TypeBuilder<T>::addConstructor()
+template <typename T>
+template <typename... Args>
+TypeBuilder<T>& TypeBuilder<T>::addConstructor()
 {
     using Impl = ConstructorImpl<T, Args...>;
 

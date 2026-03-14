@@ -9,7 +9,6 @@
 #include "common.hpp"
 #include <cassert>
 
-
 template <typename T>
 struct ResourceHandle;
 

@@ -31,7 +31,6 @@ void UIProgressBar::SubmitDrawInfo(std::vector<QuadDrawInfo>& drawList) const
         case BarStyle::FillDirection::eFromBottom:
         {
 
-            
             matrixFull = glm::translate(matrixFull, glm::vec3(GetAbsoluteLocation() + glm::vec2(0, GetAbsoluteScale().y * (1 - _fractionFilled)), 0));
             matrixFull = glm::scale(matrixFull, glm::vec3(GetAbsoluteScale().x, GetAbsoluteScale().y * _fractionFilled, 0));
 

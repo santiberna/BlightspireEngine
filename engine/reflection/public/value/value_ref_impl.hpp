@@ -7,7 +7,8 @@
 namespace reflection
 {
 
-template <typename T> const T& ValueRef::cast() const
+template <typename T>
+const T& ValueRef::cast() const
 {
     static_assert(std::is_same_v<T, detail::BareType<T>>,
         "Types used for reflectionion must not have cv-qualifiers or be refs.");
@@ -19,12 +20,14 @@ template <typename T> const T& ValueRef::cast() const
     throw std::runtime_error("Casting from incorrect type!");
 }
 
-template <typename T> T& ValueRef::cast()
+template <typename T>
+T& ValueRef::cast()
 {
     const auto* self = this;
     return const_cast<T&>(self->cast<T>());
 }
 
-template <typename T> bool ValueRef::is() const { return getType()->is<T>(); }
+template <typename T>
+bool ValueRef::is() const { return getType()->is<T>(); }
 
 }

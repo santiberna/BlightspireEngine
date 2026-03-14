@@ -92,7 +92,7 @@ void UISlider::SubmitDrawInfo(std::vector<QuadDrawInfo>& drawList) const
         };
 
         QuadDrawInfo info {
-            .matrix = makeMat(GetPreTransformationMatrix(),GetAbsoluteLocation(), GetAbsoluteScale()),
+            .matrix = makeMat(GetPreTransformationMatrix(), GetAbsoluteLocation(), GetAbsoluteScale()),
             .color = selected ? SELECTED : NORMAL,
             .textureIndex = style.empty.Index()
         };
@@ -102,7 +102,7 @@ void UISlider::SubmitDrawInfo(std::vector<QuadDrawInfo>& drawList) const
         glm::vec2 fullStart = GetAbsoluteLocation() + glm::vec2(style.margin, 0.0f);
 
         QuadDrawInfo fullInfo {
-            .matrix = makeMat(GetPreTransformationMatrix(),fullStart, fullScale),
+            .matrix = makeMat(GetPreTransformationMatrix(), fullStart, fullScale),
             .color = selected ? SELECTED : NORMAL,
             .textureIndex = style.filled.Index()
         };
@@ -112,7 +112,7 @@ void UISlider::SubmitDrawInfo(std::vector<QuadDrawInfo>& drawList) const
         knobPos.y += GetAbsoluteScale().y * 0.5f - style.knobSize.y * 0.5f;
 
         QuadDrawInfo knobInfo {
-            .matrix = makeMat(GetPreTransformationMatrix(),knobPos, style.knobSize),
+            .matrix = makeMat(GetPreTransformationMatrix(), knobPos, style.knobSize),
             .color = selected ? SELECTED : NORMAL,
             .textureIndex = style.knob.Index()
         };

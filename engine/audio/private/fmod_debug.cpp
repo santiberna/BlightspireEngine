@@ -5,7 +5,6 @@
 #include <iostream>
 #include <spdlog/spdlog.h>
 
-
 void FMOD_CHECKRESULT_fn(FMOD_RESULT result, MAYBE_UNUSED const char* file, int line)
 {
     if (result != FMOD_OK)

@@ -6,7 +6,6 @@
 #include <spdlog/spdlog.h>
 #include <stb_image.h>
 
-
 CPUImage& CPUImage::FromPNG(std::string_view path)
 {
     int width;

@@ -8,7 +8,8 @@
 namespace reflection
 {
 
-template <typename Class, typename... Args> class ConstructorImpl : public Constructor
+template <typename Class, typename... Args>
+class ConstructorImpl : public Constructor
 {
 public:
     ConstructorImpl(ReflectFactory& type_store);

@@ -21,7 +21,7 @@ class BasicTaskImpl : public CallableInterface
 {
 public:
     BasicTaskImpl(std::packaged_task<Ret()>&& task)
-        : _task(std::move(task)) {};
+        : _task(std::move(task)) { };
     virtual ~BasicTaskImpl() = default;
 
     void Call() override { _task(); };

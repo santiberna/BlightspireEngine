@@ -11,8 +11,8 @@ class TestModule : public ModuleInterface
         return ModuleTickOrder::eFirst;
     };
 
-    void Tick(MAYBE_UNUSED Engine& engine) override {};
-    void Shutdown(MAYBE_UNUSED Engine& engine) override {};
+    void Tick(MAYBE_UNUSED Engine& engine) override { };
+    void Shutdown(MAYBE_UNUSED Engine& engine) override { };
     std::string_view GetName() override { return "Test Module"; }
 };
 
@@ -24,8 +24,8 @@ class DependentModule : public ModuleInterface
         return ModuleTickOrder::eFirst;
     };
 
-    void Tick(MAYBE_UNUSED Engine& engine) override {};
-    void Shutdown(MAYBE_UNUSED Engine& engine) override {};
+    void Tick(MAYBE_UNUSED Engine& engine) override { };
+    void Shutdown(MAYBE_UNUSED Engine& engine) override { };
     std::string_view GetName() override { return "Dependent Module"; }
 };
 
@@ -63,7 +63,7 @@ class SelfDestructModuleFirst : public ModuleInterface
         engine.SetExit(-1);
     };
 
-    void Shutdown(MAYBE_UNUSED Engine& engine) override {};
+    void Shutdown(MAYBE_UNUSED Engine& engine) override { };
     std::string_view GetName() override { return "SelfDestructFirst Module"; }
 };
 
@@ -79,7 +79,7 @@ class SelfDestructModuleLast : public ModuleInterface
         engine.SetExit(-2);
     };
 
-    void Shutdown(MAYBE_UNUSED Engine& engine) override {};
+    void Shutdown(MAYBE_UNUSED Engine& engine) override { };
 
     std::string_view GetName() override { return "SelfDestructLast Module"; }
 };
@@ -91,7 +91,7 @@ class SetAtFreeModule : public ModuleInterface
         return ModuleTickOrder::eFirst;
     }
 
-    void Tick(MAYBE_UNUSED Engine& engine) override {};
+    void Tick(MAYBE_UNUSED Engine& engine) override { };
 
     void Shutdown(MAYBE_UNUSED Engine& engine) override
     {
@@ -111,7 +111,7 @@ class SetAtFreeModule2 : public ModuleInterface
         return ModuleTickOrder::eFirst;
     }
 
-    void Tick(MAYBE_UNUSED Engine& engine) override {};
+    void Tick(MAYBE_UNUSED Engine& engine) override { };
 
     void Shutdown(MAYBE_UNUSED Engine& engine) override
     {

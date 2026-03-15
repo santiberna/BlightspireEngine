@@ -2,6 +2,7 @@
 #include "common.hpp"
 #include "module_interface.hpp"
 
+#include <string>
 #include <typeindex>
 #include <unordered_map>
 #include <vector>
@@ -24,33 +25,34 @@ public:
     Module& GetModule();
 
     template <typename Module>
-    Module* GetModuleSafe();
+    Module* TryGetModule();
 
-    void SetExit(int exit_code);
+    void RequestShutdown(int exit_code);
 
 protected:
-    struct ModulePriorityPair
+    struct ModuleEntry
     {
-        ModuleInterface* module;
-        ModuleTickOrder priority;
+        ModuleInterface* module {};
+        ModuleTickOrder ordering {};
+        std::string name {};
     };
 
     int _exitCode = 0;
     bool _exitRequested = false;
-    std::vector<ModulePriorityPair> _tickOrder {};
+    std::vector<ModuleEntry*> _tickOrder {};
 
     // Cleans up all modules
     void Reset();
 
 private:
-    ModuleInterface* GetModuleUntyped(std::type_index type) const;
+    [[nodiscard]] ModuleInterface* GetModuleUntyped(std::type_index type) const;
     void AddModuleToTickList(ModuleInterface* module, ModuleTickOrder priority);
-    void RegisterNewModule(std::type_index moduleType, ModuleInterface* module);
+    void RegisterNewModule(std::type_index module_type, ModuleInterface* module);
 
     // Raw pointers are used because deallocation order of modules is important
 
-    std::unordered_map<std::type_index, ModuleInterface*> _modules {};
-    std::vector<ModuleInterface*> _initOrder {};
+    std::unordered_map<std::type_index, ModuleEntry> _modules {};
+    std::vector<ModuleEntry*> _initOrder {};
 };
 
 template <typename Module>
@@ -63,19 +65,20 @@ inline Engine& Engine::AddModule()
 template <typename Module>
 inline Module& Engine::GetModule()
 {
-    if (auto modulePtr = GetModuleSafe<Module>())
+    if (auto modulePtr = TryGetModule<Module>())
     {
         return static_cast<Module&>(*modulePtr);
     }
 
     auto type = std::type_index(typeid(Module));
-    auto* newModule = new Module();
+    auto* new_module = new Module();
 
-    RegisterNewModule(type, newModule);
-    return *newModule;
+    RegisterNewModule(type, new_module);
+    return *new_module;
 }
+
 template <typename Module>
-Module* Engine::GetModuleSafe()
+Module* Engine::TryGetModule()
 {
     return static_cast<Module*>(GetModuleUntyped(std::type_index(typeid(Module))));
 }

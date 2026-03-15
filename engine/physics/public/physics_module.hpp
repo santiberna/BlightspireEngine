@@ -31,7 +31,6 @@ class PhysicsModule final : public ModuleInterface
     ModuleTickOrder Init(Engine& engine) final;
     void Shutdown(Engine& engine) final;
     void Tick(Engine& engine) final;
-    std::string_view GetName() override { return "Physics Module"; }
 
 public:
     PhysicsModule();

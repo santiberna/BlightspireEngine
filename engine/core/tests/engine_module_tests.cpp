@@ -13,7 +13,6 @@ class TestModule : public ModuleInterface
 
     void Tick(MAYBE_UNUSED Engine& engine) override { };
     void Shutdown(MAYBE_UNUSED Engine& engine) override { };
-    std::string_view GetName() override { return "Test Module"; }
 };
 
 class DependentModule : public ModuleInterface
@@ -26,7 +25,6 @@ class DependentModule : public ModuleInterface
 
     void Tick(MAYBE_UNUSED Engine& engine) override { };
     void Shutdown(MAYBE_UNUSED Engine& engine) override { };
-    std::string_view GetName() override { return "Dependent Module"; }
 };
 
 class CheckUpdateModule : public ModuleInterface
@@ -45,8 +43,6 @@ class CheckUpdateModule : public ModuleInterface
 
     };
 
-    std::string_view GetName() override { return "CheckUpdate Module"; }
-
 public:
     bool _has_updated = false;
 };
@@ -60,11 +56,10 @@ class SelfDestructModuleFirst : public ModuleInterface
 
     void Tick(Engine& engine) override
     {
-        engine.SetExit(-1);
+        engine.RequestShutdown(-1);
     };
 
     void Shutdown(MAYBE_UNUSED Engine& engine) override { };
-    std::string_view GetName() override { return "SelfDestructFirst Module"; }
 };
 
 class SelfDestructModuleLast : public ModuleInterface
@@ -76,12 +71,10 @@ class SelfDestructModuleLast : public ModuleInterface
 
     void Tick(Engine& engine) override
     {
-        engine.SetExit(-2);
+        engine.RequestShutdown(-2);
     };
 
     void Shutdown(MAYBE_UNUSED Engine& engine) override { };
-
-    std::string_view GetName() override { return "SelfDestructLast Module"; }
 };
 
 class SetAtFreeModule : public ModuleInterface
@@ -97,8 +90,6 @@ class SetAtFreeModule : public ModuleInterface
     {
         *target = 1;
     };
-
-    std::string_view GetName() override { return "SetAtFree Module"; }
 
 public:
     uint32_t* target = nullptr;
@@ -118,8 +109,6 @@ class SetAtFreeModule2 : public ModuleInterface
         *target = 2;
     };
 
-    std::string_view GetName() override { return "SetAtFree2 Module"; }
-
 public:
     uint32_t* target = nullptr;
 };
@@ -131,7 +120,7 @@ TEST(EngineModuleTests, ModuleGetter)
     MainEngine e {};
     e.AddModule<TestModules::TestModule>();
 
-    EXPECT_NE(e.GetModuleSafe<TestModules::TestModule>(), nullptr)
+    EXPECT_NE(e.TryGetModule<TestModules::TestModule>(), nullptr)
         << "Test Module was not added successfully";
 }
 
@@ -140,7 +129,7 @@ TEST(EngineModuleTests, ModuleDependency)
     MainEngine e {};
     e.AddModule<TestModules::DependentModule>();
 
-    EXPECT_NE(e.GetModuleSafe<TestModules::TestModule>(), nullptr)
+    EXPECT_NE(e.TryGetModule<TestModules::TestModule>(), nullptr)
         << "Test Module was not added, even if it was a dependency of DependantModule";
 }
 

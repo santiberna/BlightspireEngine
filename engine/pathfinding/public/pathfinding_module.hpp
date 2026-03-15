@@ -83,7 +83,6 @@ class PathfindingModule : public ModuleInterface
     ModuleTickOrder Init(Engine& engine) final;
     void Shutdown(Engine& engine) final;
     void Tick(Engine& engine) final;
-    std::string_view GetName() final { return "Pathfinding"; };
 
 public:
     PathfindingModule();

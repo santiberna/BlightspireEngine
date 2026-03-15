@@ -75,7 +75,7 @@ void PreloadModel(WrenEngine& engine, const std::string& path)
 
 void SetExit(WrenEngine& engine, int code)
 {
-    engine.instance->SetExit(code);
+    engine.instance->RequestShutdown(code);
 }
 
 void SpawnDecal(WrenEngine& engine, glm::vec3 normal, glm::vec3 position, glm::vec2 size, std::string albedoName)

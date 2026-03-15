@@ -9,6 +9,6 @@ if (WARNINGS_AS_ERRORS)
 endif ()
 
 # Define if it's the distribution config
-if ("${CMAKE_PRESET_NAME}" STREQUAL "Win64-Distribution" OR "${CMAKE_PRESET_NAME}" STREQUAL "WSL-Distribution")
-    target_compile_definitions(CompilerFlags INTERFACE DISTRIBUTION)
+if (DEVELOPER_BUILD)
+    target_compile_definitions(CompilerFlags INTERFACE BB_DEVELOPMENT)
 endif ()

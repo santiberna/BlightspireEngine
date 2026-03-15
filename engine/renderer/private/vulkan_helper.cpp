@@ -359,39 +359,55 @@ void util::CopyImageToImage(vk::CommandBuffer commandBuffer, vk::Image srcImage,
 
 void util::BeginQueueLabel(vk::Queue queue, std::string_view label, glm::vec3 color, const bb::VulkanDispatchLoader& dldi)
 {
-#if BB_DEVELOPMENT == true
+#if BB_DEVELOPMENT
     vk::DebugUtilsLabelEXT labelExt {};
     memcpy(labelExt.color.data(), &color.r, sizeof(glm::vec3));
     labelExt.color[3] = 1.0f;
     labelExt.pLabelName = label.data();
 
     queue.beginDebugUtilsLabelEXT(&labelExt, dldi);
+#else
+    (void)queue;
+    (void)label;
+    (void)color;
+    (void)dldi;
 #endif
 }
 
 void util::EndQueueLabel(vk::Queue queue, const bb::VulkanDispatchLoader& dldi)
 {
-#if BB_DEVELOPMENT == true
+#if BB_DEVELOPMENT
     queue.endDebugUtilsLabelEXT(dldi);
+#else
+    (void)queue;
+    (void)dldi;
 #endif
 }
 
 void util::BeginLabel(vk::CommandBuffer commandBuffer, std::string_view label, glm::vec3 color, const bb::VulkanDispatchLoader& dldi)
 {
-#if BB_DEVELOPMENT == true
+#if BB_DEVELOPMENT
     vk::DebugUtilsLabelEXT labelExt {};
     memcpy(labelExt.color.data(), &color.r, sizeof(glm::vec3));
     labelExt.color[3] = 1.0f;
     labelExt.pLabelName = label.data();
 
     commandBuffer.beginDebugUtilsLabelEXT(&labelExt, dldi);
+#else
+    (void)commandBuffer;
+    (void)label;
+    (void)color;
+    (void)dldi;
 #endif
 }
 
 void util::EndLabel(vk::CommandBuffer commandBuffer, const bb::VulkanDispatchLoader& dldi)
 {
-#if BB_DEVELOPMENT == true
+#if BB_DEVELOPMENT
     commandBuffer.endDebugUtilsLabelEXT(dldi);
+#else
+    (void)commandBuffer;
+    (void)dldi;
 #endif
 }
 

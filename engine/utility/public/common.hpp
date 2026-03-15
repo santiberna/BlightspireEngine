@@ -17,12 +17,12 @@
 // NOLINTEND
 
 // Development and debug switches
-#undef NDEBUG
-#if defined(DISTRIBUTION)
-#define NDEBUG
-#define BB_DEVELOPMENT false
+#if defined(BB_DEVELOPMENT)
+#undef BB_DEVELOPMENT
+#define BB_DEVELOPMENT 1
 #else
-#define BB_DEVELOPMENT true
+#undef BB_DEVELOPMENT
+#define BB_DEVELOPMENT 0
 #endif
 
 // Platform switches
@@ -36,3 +36,14 @@
 #else
 #error "Unsupported platform"
 #endif
+
+// Assert
+// #if defined(BB_DEVELOPMENT)
+// namespace bb
+// {
+// void assertImpl(bool condition);
+// }
+// #define BB_ASSERT(condition) bb::assertImpl(condition)
+// #else
+// #define BB_ASSERT(condition)
+// #endif

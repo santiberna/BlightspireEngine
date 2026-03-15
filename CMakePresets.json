@@ -56,7 +56,8 @@
       "name": "Win64-Distribution",
       "inherits": "default",
       "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Release"
+        "CMAKE_BUILD_TYPE": "Release",
+        "DEVELOPER_BUILD": false
       }
     },
     {
@@ -95,7 +96,8 @@
       "name": "WSL-Distribution",
       "inherits": "WSL",
       "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Release"
+        "CMAKE_BUILD_TYPE": "Release",
+        "DEVELOPER_BUILD": false
       }
     }
   ],

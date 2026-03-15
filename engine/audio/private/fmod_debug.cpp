@@ -14,7 +14,7 @@ void FMOD_CHECKRESULT_fn(FMOD_RESULT result, [[maybe_unused]] const char* file, 
     }
 }
 
-#if BB_DEVELOPMENT == true
+#if BB_DEVELOPMENT
 FMOD_RESULT DebugCallback(FMOD_DEBUG_FLAGS flags, [[maybe_unused]] const char* file, int line, const char* func, const char* message)
 {
     // We use std::cout instead of using spdlog because otherwise it crashes 💀 (some threading issue with fmod)
@@ -40,7 +40,7 @@ FMOD_RESULT DebugCallback(FMOD_DEBUG_FLAGS flags, [[maybe_unused]] const char* f
 
 void StartFMODDebugLogger()
 {
-#if BB_DEVELOPMENT == true
+#if BB_DEVELOPMENT
     // Use FMOD_DEBUG_LEVEL_MEMORY if you want to debug memory issues related to fmod
     FMOD_RESULT result = FMOD_Debug_Initialize(FMOD_DEBUG_LEVEL_WARNING, FMOD_DEBUG_MODE_CALLBACK, &DebugCallback, nullptr);
 

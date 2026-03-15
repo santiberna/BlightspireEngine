@@ -5,7 +5,7 @@
 #include <iostream>
 #include <spdlog/spdlog.h>
 
-void FMOD_CHECKRESULT_fn(FMOD_RESULT result, MAYBE_UNUSED const char* file, int line)
+void FMOD_CHECKRESULT_fn(FMOD_RESULT result, [[maybe_unused]] const char* file, int line)
 {
     if (result != FMOD_OK)
     {
@@ -15,7 +15,7 @@ void FMOD_CHECKRESULT_fn(FMOD_RESULT result, MAYBE_UNUSED const char* file, int 
 }
 
 #if not defined(NDEBUG)
-FMOD_RESULT DebugCallback(FMOD_DEBUG_FLAGS flags, MAYBE_UNUSED const char* file, int line, const char* func, const char* message)
+FMOD_RESULT DebugCallback(FMOD_DEBUG_FLAGS flags, [[maybe_unused]] const char* file, int line, const char* func, const char* message)
 {
     // We use std::cout instead of using spdlog because otherwise it crashes 💀 (some threading issue with fmod)
     switch (flags)

@@ -19,21 +19,21 @@ public:
     NON_COPYABLE(ReflectFactory);
 
     template <typename T>
-    NO_DISCARD const Type* get();
+    [[nodiscard]] const Type* get();
     template <typename T, typename... Args>
-    NO_DISCARD Value makeValue(Args&&... args);
+    [[nodiscard]] Value makeValue(Args&&... args);
     template <typename T>
-    NO_DISCARD ValueRef makeRef(T&& value);
+    [[nodiscard]] ValueRef makeRef(T&& value);
     template <typename... Args>
-    NO_DISCARD ParameterList asParamaters();
+    [[nodiscard]] ParameterList asParamaters();
     template <typename... Args>
-    NO_DISCARD ArgumentList makeArgs(Args&&... args);
+    [[nodiscard]] ArgumentList makeArgs(Args&&... args);
 
 private:
     template <typename T>
     friend class ::reflection::TypeBuilder;
     template <typename T>
-    NO_DISCARD Type* getMut() { return const_cast<Type*>(this->get<T>()); };
+    [[nodiscard]] Type* getMut() { return const_cast<Type*>(this->get<T>()); };
 
     std::unordered_map<std::type_index, std::unique_ptr<Type>> type_map;
 };

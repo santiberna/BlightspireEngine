@@ -3,7 +3,7 @@
 
 using namespace reflection;
 
-NO_DISCARD bool ParameterList::validateArgs(const ArgumentList& args) const
+[[nodiscard]] bool ParameterList::validateArgs(const ArgumentList& args) const
 {
     auto as_types = args.asTypes();
     return this->types == as_types;

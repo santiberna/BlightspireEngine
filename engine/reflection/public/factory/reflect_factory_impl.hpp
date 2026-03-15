@@ -42,13 +42,13 @@ const Type* ReflectFactory::get()
 }
 
 template <typename... Args>
-NO_DISCARD ParameterList ReflectFactory::asParamaters()
+[[nodiscard]] ParameterList ReflectFactory::asParamaters()
 {
     return { { this->get<Args>()... } };
 }
 
 template <typename T>
-NO_DISCARD ValueRef ReflectFactory::makeRef(T&& value)
+[[nodiscard]] ValueRef ReflectFactory::makeRef(T&& value)
 {
     if constexpr (std::is_same_v<detail::BareType<T>, ValueRef>)
     {
@@ -65,7 +65,7 @@ NO_DISCARD ValueRef ReflectFactory::makeRef(T&& value)
 }
 
 template <typename... Args>
-NO_DISCARD ArgumentList ReflectFactory::makeArgs(Args&&... args)
+[[nodiscard]] ArgumentList ReflectFactory::makeArgs(Args&&... args)
 {
     return ArgumentList { { this->makeRef(std::forward<Args>(args))... } };
 }

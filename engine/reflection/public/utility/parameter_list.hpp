@@ -15,8 +15,8 @@ public:
     {
     }
 
-    NO_DISCARD size_t length() const { return types.size(); }
-    NO_DISCARD bool validateArgs(const ArgumentList& args) const;
+    [[nodiscard]] size_t length() const { return types.size(); }
+    [[nodiscard]] bool validateArgs(const ArgumentList& args) const;
     bool operator==(const ParameterList& other) const { return types == other.types; }
 
 private:

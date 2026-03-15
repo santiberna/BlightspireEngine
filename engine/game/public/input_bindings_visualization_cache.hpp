@@ -17,11 +17,11 @@ class InputBindingsVisualizationCache
 public:
     InputBindingsVisualizationCache(const ActionManager& actionManager, GraphicsContext& graphicsContext);
 
-    NO_DISCARD std::vector<CachedBindingOriginVisual> GetDigital(std::string_view actionName);
-    NO_DISCARD std::vector<CachedBindingOriginVisual> GetAnalog(std::string_view actionName);
+    [[nodiscard]] std::vector<CachedBindingOriginVisual> GetDigital(std::string_view actionName);
+    [[nodiscard]] std::vector<CachedBindingOriginVisual> GetAnalog(std::string_view actionName);
 
 private:
-    NO_DISCARD ResourceHandle<GPUImage> GetGlyph(const std::string& path);
+    [[nodiscard]] ResourceHandle<GPUImage> GetGlyph(const std::string& path);
 
     const ActionManager& _actionManager;
     GraphicsContext& _graphicsContext;

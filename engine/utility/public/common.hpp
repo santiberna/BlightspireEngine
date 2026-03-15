@@ -18,9 +18,6 @@
 
 // Attribute macros
 
-#define MAYBE_UNUSED [[maybe_unused]]
-#define NO_DISCARD [[nodiscard]]
-
 // System Macro definitions
 
 #ifdef _WIN32

@@ -26,4 +26,4 @@ enum class UINavigationDirection : uint8_t
     eBackward
 };
 
-NO_DISCARD std::weak_ptr<UIElement> GetUINavigationTarget(const UINavigationTargets& navigationTargets, UINavigationDirection direction);
+[[nodiscard]] std::weak_ptr<UIElement> GetUINavigationTarget(const UINavigationTargets& navigationTargets, UINavigationDirection direction);

@@ -82,14 +82,14 @@ int Main()
 
 #if defined(_WIN32) && defined(DISTRIBUTION)
 
-int APIENTRY WinMain(MAYBE_UNUSED HINSTANCE hInstance, MAYBE_UNUSED HINSTANCE hPrevInstance, MAYBE_UNUSED LPSTR lpCmdLine, MAYBE_UNUSED int nShowCmd)
+int APIENTRY WinMain([[maybe_unused]] HINSTANCE hInstance, [[maybe_unused]] HINSTANCE hPrevInstance, [[maybe_unused]] LPSTR lpCmdLine, [[maybe_unused]] int nShowCmd)
 {
     return Main();
 }
 
 #else
 
-int main(MAYBE_UNUSED int argc, MAYBE_UNUSED char* argv[])
+int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
 {
     return Main();
 }

@@ -15,7 +15,7 @@ ValueRef::ValueRef(void* value, const Type* type)
 {
 }
 
-NO_DISCARD Value ValueRef::call(std::string_view name, const ArgumentList& args)
+[[nodiscard]] Value ValueRef::call(std::string_view name, const ArgumentList& args)
 {
     if (const auto* method = type->getMethod(name))
     {

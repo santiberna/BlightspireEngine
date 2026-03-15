@@ -34,7 +34,7 @@ SSAOPass::SSAOPass(const std::shared_ptr<GraphicsContext>& context, const Settin
     CreatePipeline();
 }
 
-void SSAOPass::RecordCommands(vk::CommandBuffer commandBuffer, uint32_t currentFrame, MAYBE_UNUSED const RenderSceneDescription& scene)
+void SSAOPass::RecordCommands(vk::CommandBuffer commandBuffer, uint32_t currentFrame, [[maybe_unused]] const RenderSceneDescription& scene)
 {
     TracyVkZone(scene.tracyContext, commandBuffer, "SSAO Pass");
 

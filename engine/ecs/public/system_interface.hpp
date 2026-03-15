@@ -14,8 +14,8 @@ public:
     NON_MOVABLE(SystemInterface);
     NON_COPYABLE(SystemInterface);
 
-    virtual void Update(MAYBE_UNUSED ECSModule& ecs, MAYBE_UNUSED float dt) { };
-    virtual void Render(MAYBE_UNUSED const ECSModule& ecs) const { };
+    virtual void Update([[maybe_unused]] ECSModule& ecs, [[maybe_unused]] float dt) { };
+    virtual void Render([[maybe_unused]] const ECSModule& ecs) const { };
     virtual void Inspect() { };
     virtual std::string_view GetName() = 0;
 };

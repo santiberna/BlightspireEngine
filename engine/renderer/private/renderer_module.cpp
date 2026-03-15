@@ -37,7 +37,7 @@ ModuleTickOrder RendererModule::Init(Engine& engine)
     return ModuleTickOrder::eRender;
 }
 
-void RendererModule::Shutdown(MAYBE_UNUSED Engine& engine)
+void RendererModule::Shutdown([[maybe_unused]] Engine& engine)
 {
     _context->VulkanContext()->Device().waitIdle();
     _renderer.reset();
@@ -48,7 +48,7 @@ void RendererModule::Shutdown(MAYBE_UNUSED Engine& engine)
     _context.reset();
 }
 
-void RendererModule::Tick(MAYBE_UNUSED Engine& engine)
+void RendererModule::Tick([[maybe_unused]] Engine& engine)
 {
     auto dt = engine.GetModule<TimeModule>().GetDeltatime();
     _renderer->Render(dt.count());

@@ -14,13 +14,13 @@ public:
     NON_COPYABLE(AudioSystem);
     NON_MOVABLE(AudioSystem);
 
-    void Update(ECSModule& ecs, MAYBE_UNUSED float dt) override;
-    void Render(MAYBE_UNUSED const ECSModule& ecs) const override { }
+    void Update(ECSModule& ecs, [[maybe_unused]] float dt) override;
+    void Render([[maybe_unused]] const ECSModule& ecs) const override { }
     void Inspect() override;
 
     std::string_view GetName() override { return "AudioSystem"; }
 
 private:
-    MAYBE_UNUSED ECSModule& _ecs;
+    [[maybe_unused]] ECSModule& _ecs;
     AudioModule& _audioModule;
 };

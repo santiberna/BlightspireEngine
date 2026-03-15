@@ -22,7 +22,7 @@ FXAAPass::FXAAPass(const std::shared_ptr<GraphicsContext>& context, const Settin
     CreatePipeline();
 }
 
-void FXAAPass::RecordCommands(vk::CommandBuffer commandBuffer, MAYBE_UNUSED uint32_t currentFrame, MAYBE_UNUSED const RenderSceneDescription& scene)
+void FXAAPass::RecordCommands(vk::CommandBuffer commandBuffer, [[maybe_unused]] uint32_t currentFrame, [[maybe_unused]] const RenderSceneDescription& scene)
 {
     TracyVkZone(scene.tracyContext, commandBuffer, "FXAA Pass");
 

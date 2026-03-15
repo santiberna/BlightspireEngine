@@ -35,4 +35,4 @@ struct UIFont
     FontMetrics metrics;
 };
 
-NO_DISCARD std::shared_ptr<UIFont> LoadFromFile(const std::string& path, uint16_t characterHeight, GraphicsContext& context);
+[[nodiscard]] std::shared_ptr<UIFont> LoadFromFile(const std::string& path, uint16_t characterHeight, GraphicsContext& context);

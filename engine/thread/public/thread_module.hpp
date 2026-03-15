@@ -4,7 +4,7 @@
 
 class ThreadModule : public ModuleInterface
 {
-    ModuleTickOrder Init(MAYBE_UNUSED Engine& engine) override
+    ModuleTickOrder Init([[maybe_unused]] Engine& engine) override
     {
         _threadPool = std::make_unique<ThreadPool>(std::thread::hardware_concurrency());
         _threadPool->Start();
@@ -12,8 +12,8 @@ class ThreadModule : public ModuleInterface
         return ModuleTickOrder::eTick; // Module doesn't tick
     }
 
-    void Tick(MAYBE_UNUSED Engine& engine) override { };
-    void Shutdown(MAYBE_UNUSED Engine& engine) override { };
+    void Tick([[maybe_unused]] Engine& engine) override { };
+    void Shutdown([[maybe_unused]] Engine& engine) override { };
 
     std::unique_ptr<ThreadPool> _threadPool;
 

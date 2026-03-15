@@ -67,7 +67,7 @@ void SteamActionManager::SetActiveActionSet(std::string_view actionSetName)
     }
 }
 
-DigitalActionType SteamActionManager::CheckInput(std::string_view actionName, MAYBE_UNUSED GamepadButton button) const
+DigitalActionType SteamActionManager::CheckInput(std::string_view actionName, [[maybe_unused]] GamepadButton button) const
 {
     DigitalActionType result {};
 
@@ -90,7 +90,7 @@ DigitalActionType SteamActionManager::CheckInput(std::string_view actionName, MA
     return result;
 }
 
-glm::vec2 SteamActionManager::CheckInput(std::string_view actionName, MAYBE_UNUSED GamepadAnalog gamepadAnalog) const
+glm::vec2 SteamActionManager::CheckInput(std::string_view actionName, [[maybe_unused]] GamepadAnalog gamepadAnalog) const
 {
     if (!_inputDeviceManager.IsGamepadAvailable())
     {

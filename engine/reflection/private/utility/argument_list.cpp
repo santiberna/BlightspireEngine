@@ -3,7 +3,7 @@
 
 using namespace reflection;
 
-NO_DISCARD std::vector<const Type*> ArgumentList::asTypes() const
+[[nodiscard]] std::vector<const Type*> ArgumentList::asTypes() const
 {
     std::vector<const Type*> out {};
     out.reserve(values.size());
@@ -14,4 +14,4 @@ NO_DISCARD std::vector<const Type*> ArgumentList::asTypes() const
     return out;
 }
 
-NO_DISCARD ValueRef ArgumentList::get(size_t i) const { return this->values[i]; }
+[[nodiscard]] ValueRef ArgumentList::get(size_t i) const { return this->values[i]; }

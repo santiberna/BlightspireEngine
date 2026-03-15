@@ -60,7 +60,7 @@ public:
 
     // Start an event that should play at least once
     // Store the returned id and later call StopEvent(id), it will not stop otherwise
-    NO_DISCARD EventInstance StartLoopingEvent(std::string_view name);
+    [[nodiscard]] EventInstance StartLoopingEvent(std::string_view name);
 
     // Stops an event that is
     void StopEvent(EventInstance instance);
@@ -103,7 +103,7 @@ public:
 
 private:
     friend class AudioSystem;
-    NO_DISCARD EventInstance StartEvent(std::string_view name, bool isOneShot);
+    [[nodiscard]] EventInstance StartEvent(std::string_view name, bool isOneShot);
 
     // This function is intended to be used bby the audio system only
     void StartEventInstance(EventInstance instance);

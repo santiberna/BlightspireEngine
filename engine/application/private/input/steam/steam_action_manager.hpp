@@ -33,10 +33,10 @@ private:
     SteamControllerState _currentControllerState {};
     SteamControllerState _prevControllerState {};
 
-    NO_DISCARD DigitalActionType CheckInput(std::string_view actionName, MAYBE_UNUSED GamepadButton button) const;
-    NO_DISCARD glm::vec2 CheckInput(std::string_view actionName, MAYBE_UNUSED GamepadAnalog gamepadAnalog) const final;
-    NO_DISCARD std::vector<BindingOriginVisual> GetDigitalActionGamepadOriginVisual(const DigitalAction& action) const final;
-    NO_DISCARD std::vector<BindingOriginVisual> GetAnalogActionGamepadOriginVisual(const AnalogAction& action) const final;
+    [[nodiscard]] DigitalActionType CheckInput(std::string_view actionName, [[maybe_unused]] GamepadButton button) const;
+    [[nodiscard]] glm::vec2 CheckInput(std::string_view actionName, [[maybe_unused]] GamepadAnalog gamepadAnalog) const final;
+    [[nodiscard]] std::vector<BindingOriginVisual> GetDigitalActionGamepadOriginVisual(const DigitalAction& action) const final;
+    [[nodiscard]] std::vector<BindingOriginVisual> GetAnalogActionGamepadOriginVisual(const AnalogAction& action) const final;
     void UpdateSteamControllerInputState();
     void CacheSteamInputHandles();
 };

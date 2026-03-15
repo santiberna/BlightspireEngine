@@ -43,7 +43,7 @@ unsigned long FTStreamRead(FT_Stream ftStream, unsigned long offset, unsigned ch
     }
 }
 
-void FTStreamClose(MAYBE_UNUSED FT_Stream ftStream)
+void FTStreamClose([[maybe_unused]] FT_Stream ftStream)
 {
 }
 

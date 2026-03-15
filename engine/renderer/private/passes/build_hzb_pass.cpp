@@ -33,7 +33,7 @@ BuildHzbPass::~BuildHzbPass()
     vkContext->Device().destroy(_hzbUpdateTemplate);
 }
 
-void BuildHzbPass::RecordCommands(vk::CommandBuffer commandBuffer, MAYBE_UNUSED uint32_t currentFrame, MAYBE_UNUSED const RenderSceneDescription& scene)
+void BuildHzbPass::RecordCommands(vk::CommandBuffer commandBuffer, [[maybe_unused]] uint32_t currentFrame, [[maybe_unused]] const RenderSceneDescription& scene)
 {
     TracyVkZone(scene.tracyContext, commandBuffer, "Build HZB");
 

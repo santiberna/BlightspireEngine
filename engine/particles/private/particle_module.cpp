@@ -25,7 +25,7 @@ ModuleTickOrder ParticleModule::Init(Engine& engine)
     return ModuleTickOrder::ePreRender;
 }
 
-void ParticleModule::Tick(MAYBE_UNUSED Engine& engine)
+void ParticleModule::Tick([[maybe_unused]] Engine& engine)
 {
     const auto emitterView = _ecs->GetRegistry().view<ParticleEmitterComponent, RigidbodyComponent>();
     for (const auto entity : emitterView)

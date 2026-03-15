@@ -388,7 +388,7 @@ void GPUScene::UpdateDirectionalLightData(SceneData& scene, uint32_t frameIndex)
     }
 }
 
-void GPUScene::UpdatePointLightData(PointLightArray& pointLightArray, MAYBE_UNUSED uint32_t frameIndex)
+void GPUScene::UpdatePointLightData(PointLightArray& pointLightArray, [[maybe_unused]] uint32_t frameIndex)
 {
     auto pointLightView = _ecs.GetRegistry().view<PointLightComponent, TransformComponent>();
     uint32_t pointLightCount = 0;

@@ -12,7 +12,7 @@ class ScriptingModule : public ModuleInterface
 {
     ModuleTickOrder Init(Engine& engine) override;
     void Tick(Engine& engine) override;
-    void Shutdown(MAYBE_UNUSED Engine& engine) override { };
+    void Shutdown([[maybe_unused]] Engine& engine) override { };
 
 public:
     NON_COPYABLE(ScriptingModule);

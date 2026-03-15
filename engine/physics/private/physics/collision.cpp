@@ -74,7 +74,7 @@ public:
     }
 
 #if defined(JPH_EXTERNAL_PROFILE) || defined(JPH_PROFILE_ENABLED)
-    NO_DISCARD virtual const char* GetBroadPhaseLayerName(JPH::BroadPhaseLayer inLayer) const override
+    [[nodiscard]] virtual const char* GetBroadPhaseLayerName(JPH::BroadPhaseLayer inLayer) const override
     {
         switch (inLayer.GetValue())
         {

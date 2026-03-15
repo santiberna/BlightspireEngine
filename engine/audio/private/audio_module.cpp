@@ -20,7 +20,7 @@ inline FMOD_VECTOR GLMToFMOD(const glm::vec3& v)
     return vec;
 }
 
-ModuleTickOrder AudioModule::Init(MAYBE_UNUSED Engine& engine)
+ModuleTickOrder AudioModule::Init([[maybe_unused]] Engine& engine)
 {
     const auto tickOrder = ModuleTickOrder::ePostTick;
 
@@ -62,7 +62,7 @@ ModuleTickOrder AudioModule::Init(MAYBE_UNUSED Engine& engine)
 
     return tickOrder;
 }
-void AudioModule::Shutdown(MAYBE_UNUSED Engine& engine)
+void AudioModule::Shutdown([[maybe_unused]] Engine& engine)
 {
     if (_studioSystem)
     {
@@ -118,7 +118,7 @@ void AudioModule::Reset()
     _events.clear();
 }
 
-void AudioModule::Tick(MAYBE_UNUSED Engine& engine)
+void AudioModule::Tick([[maybe_unused]] Engine& engine)
 {
     FMOD_CHECKRESULT(FMOD_Studio_System_Update(_studioSystem));
 
@@ -293,7 +293,7 @@ EventInstance AudioModule::StartOneShotEvent(const std::string_view name)
 {
     return StartEvent(name, true);
 }
-NO_DISCARD EventInstance AudioModule::StartLoopingEvent(const std::string_view name)
+[[nodiscard]] EventInstance AudioModule::StartLoopingEvent(const std::string_view name)
 {
     return StartEvent(name, false);
 }
@@ -327,7 +327,7 @@ bool HasDistanceParameter(FMOD_STUDIO_EVENTDESCRIPTION* eventDescription)
     return false;
 }
 
-NO_DISCARD EventInstance AudioModule::StartEvent(const std::string_view name, const bool isOneShot)
+[[nodiscard]] EventInstance AudioModule::StartEvent(const std::string_view name, const bool isOneShot)
 {
     FMOD_STUDIO_EVENTDESCRIPTION* eve = nullptr;
     FMOD_CHECKRESULT(FMOD_Studio_System_GetEvent(_studioSystem, name.data(), &eve));

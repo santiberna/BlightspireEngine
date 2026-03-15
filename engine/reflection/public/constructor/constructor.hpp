@@ -18,7 +18,7 @@ public:
     NON_COPYABLE(Constructor);
     NON_MOVABLE(Constructor);
 
-    NO_DISCARD virtual Value invoke(const ArgumentList& parameters) const = 0;
+    [[nodiscard]] virtual Value invoke(const ArgumentList& parameters) const = 0;
 
 protected:
     ReflectFactory& store;

@@ -24,7 +24,7 @@
 PhysicsModule::PhysicsModule() { }
 PhysicsModule::~PhysicsModule() { }
 
-ModuleTickOrder PhysicsModule::Init(MAYBE_UNUSED Engine& engine)
+ModuleTickOrder PhysicsModule::Init([[maybe_unused]] Engine& engine)
 {
     // Register allocators for Jolt, uses malloc and free by default
     JPH::RegisterDefaultAllocator();
@@ -70,7 +70,7 @@ ModuleTickOrder PhysicsModule::Init(MAYBE_UNUSED Engine& engine)
     return ModuleTickOrder::ePreTick;
 }
 
-void PhysicsModule::Shutdown(MAYBE_UNUSED Engine& engine)
+void PhysicsModule::Shutdown([[maybe_unused]] Engine& engine)
 {
     RigidbodyComponent::DisconnectRegistryCallbacks(engine.GetModule<ECSModule>().GetRegistry());
     JPH::UnregisterTypes();
@@ -79,7 +79,7 @@ void PhysicsModule::Shutdown(MAYBE_UNUSED Engine& engine)
     JPH::Factory::sInstance = nullptr;
 }
 
-void PhysicsModule::Tick(MAYBE_UNUSED Engine& engine)
+void PhysicsModule::Tick([[maybe_unused]] Engine& engine)
 {
     float deltatimeSeconds = glm::min(engine.GetModule<TimeModule>().GetDeltatime().count(), PHYSICS_MAX_DT) * 0.001f;
 

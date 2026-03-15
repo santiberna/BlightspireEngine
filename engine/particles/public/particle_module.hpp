@@ -30,8 +30,8 @@ GENERATE_ENUM_FLAG_OPERATORS(SpawnEmitterFlagBits)
 class ParticleModule final : public ModuleInterface
 {
     ModuleTickOrder Init(Engine& engine) override;
-    void Shutdown(MAYBE_UNUSED Engine& engine) override { };
-    void Tick(MAYBE_UNUSED Engine& engine) override;
+    void Shutdown([[maybe_unused]] Engine& engine) override { };
+    void Tick([[maybe_unused]] Engine& engine) override;
 
 public:
     ParticleModule()

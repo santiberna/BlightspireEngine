@@ -15,7 +15,7 @@ class LayerBodyDrawFilter : public JPH::BodyDrawFilter
 public:
     virtual ~LayerBodyDrawFilter() = default;
 
-    NO_DISCARD bool ShouldDraw(const JPH::Body& inBody) const override
+    [[nodiscard]] bool ShouldDraw(const JPH::Body& inBody) const override
     {
         return layersToDraw.contains(inBody.GetObjectLayer());
     }
@@ -26,20 +26,20 @@ public:
 class PhysicsDebugRenderer : public JPH::DebugRendererSimple
 {
 public:
-    void DrawLine(JPH::RVec3Arg inFrom, JPH::RVec3Arg inTo, MAYBE_UNUSED JPH::ColorArg inColor) override;
-    void AddPersistentLine(JPH::RVec3Arg inFrom, JPH::RVec3Arg inTo, MAYBE_UNUSED JPH::ColorArg inColor);
+    void DrawLine(JPH::RVec3Arg inFrom, JPH::RVec3Arg inTo, [[maybe_unused]] JPH::ColorArg inColor) override;
+    void AddPersistentLine(JPH::RVec3Arg inFrom, JPH::RVec3Arg inTo, [[maybe_unused]] JPH::ColorArg inColor);
 
     void DrawText3D(
-        MAYBE_UNUSED JPH::RVec3Arg inPosition,
-        MAYBE_UNUSED const std::string_view& inString,
-        MAYBE_UNUSED JPH::ColorArg inColor,
-        MAYBE_UNUSED float inHeight) override { };
+        [[maybe_unused]] JPH::RVec3Arg inPosition,
+        [[maybe_unused]] const std::string_view& inString,
+        [[maybe_unused]] JPH::ColorArg inColor,
+        [[maybe_unused]] float inHeight) override { };
     // {
     //     // Not implemented
     // }
 
-    NO_DISCARD const std::vector<glm::vec3>& GetLinesData() const { return linePositions; }
-    NO_DISCARD const std::vector<glm::vec3>& GetPersistentLinesData() const { return persistentLinePositions; }
+    [[nodiscard]] const std::vector<glm::vec3>& GetLinesData() const { return linePositions; }
+    [[nodiscard]] const std::vector<glm::vec3>& GetPersistentLinesData() const { return persistentLinePositions; }
 
     void ClearLines() { linePositions.clear(); }
     void ClearPersistentLines() { persistentLinePositions.clear(); }

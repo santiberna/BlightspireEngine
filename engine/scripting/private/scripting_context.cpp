@@ -47,7 +47,7 @@ std::string LoadFile(const std::string& path)
     throw wren::NotFound();
 }
 
-void* ReallocFn(void* prev, size_t size, MAYBE_UNUSED void* user)
+void* ReallocFn(void* prev, size_t size, [[maybe_unused]] void* user)
 {
     TracyFree(prev);
 

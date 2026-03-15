@@ -63,8 +63,8 @@ public:
     vk::CommandPool CommandPool() const { return _commandPool; }
     VmaAllocator MemoryAllocator() const { return _vmaAllocator; }
 
-    NO_DISCARD const bb::VulkanDispatchLoader& Dldi() const { return _dldi; }
-    NO_DISCARD const QueueFamilyIndices& QueueFamilies() const { return _queueFamilyIndices; }
+    [[nodiscard]] const bb::VulkanDispatchLoader& Dldi() const { return _dldi; }
+    [[nodiscard]] const QueueFamilyIndices& QueueFamilies() const { return _queueFamilyIndices; }
 
 private:
     friend class Renderer;

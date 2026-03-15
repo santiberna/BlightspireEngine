@@ -4,9 +4,9 @@
 
 using namespace reflection;
 
-Value::Value(MAYBE_UNUSED VoidValueType _unused) { }
+Value::Value([[maybe_unused]] VoidValueType _unused) { }
 
-bool Value::operator==(MAYBE_UNUSED VoidValueType _unused) const { return value == nullptr; }
+bool Value::operator==([[maybe_unused]] VoidValueType _unused) const { return value == nullptr; }
 
 Value::Value(std::shared_ptr<void> value, const Type* type)
     : value(std::move(value))

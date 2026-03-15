@@ -11,7 +11,7 @@
 
 #include <tracy/Tracy.hpp>
 
-ModuleTickOrder ECSModule::Init(MAYBE_UNUSED Engine& engine)
+ModuleTickOrder ECSModule::Init([[maybe_unused]] Engine& engine)
 {
     TransformHelpers::SubscribeToEvents(registry);
     RelationshipHelpers::SubscribeToEvents(registry);
@@ -19,7 +19,7 @@ ModuleTickOrder ECSModule::Init(MAYBE_UNUSED Engine& engine)
     return ModuleTickOrder::eTick;
 }
 
-void ECSModule::Shutdown(MAYBE_UNUSED Engine& engine)
+void ECSModule::Shutdown([[maybe_unused]] Engine& engine)
 {
     TransformHelpers::UnsubscribeToEvents(registry);
     RelationshipHelpers::UnsubscribeToEvents(registry);

@@ -20,7 +20,7 @@ BloomDownsamplePass::~BloomDownsamplePass()
     _context->VulkanContext()->Device().destroy(_pipelineLayout);
 }
 
-void BloomDownsamplePass::RecordCommands(vk::CommandBuffer commandBuffer, MAYBE_UNUSED uint32_t currentFrame, const RenderSceneDescription& scene)
+void BloomDownsamplePass::RecordCommands(vk::CommandBuffer commandBuffer, [[maybe_unused]] uint32_t currentFrame, const RenderSceneDescription& scene)
 {
     TracyVkZone(scene.tracyContext, commandBuffer, "Bloom Downsample Pass");
 

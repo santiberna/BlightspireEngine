@@ -19,7 +19,7 @@ AudioSystem::AudioSystem(ECSModule& ecs, AudioModule& audioModule)
     , _audioModule(audioModule)
 {
 }
-void AudioSystem::Update(ECSModule& ecs, MAYBE_UNUSED float dt)
+void AudioSystem::Update(ECSModule& ecs, [[maybe_unused]] float dt)
 {
     const auto& listenerView = ecs.GetRegistry().view<AudioListenerComponent>();
 

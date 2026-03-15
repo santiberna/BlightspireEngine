@@ -137,7 +137,7 @@ DigitalActionType ActionManager::CheckDigitalInput(const DigitalAction& action) 
     return result;
 }
 
-DigitalActionType ActionManager::CheckInput(MAYBE_UNUSED std::string_view actionName, KeyboardCode code) const
+DigitalActionType ActionManager::CheckInput([[maybe_unused]] std::string_view actionName, KeyboardCode code) const
 {
     DigitalActionType result {};
 
@@ -157,7 +157,7 @@ DigitalActionType ActionManager::CheckInput(MAYBE_UNUSED std::string_view action
     return result;
 }
 
-DigitalActionType ActionManager::CheckInput(MAYBE_UNUSED std::string_view actionName, MouseButton button) const
+DigitalActionType ActionManager::CheckInput([[maybe_unused]] std::string_view actionName, MouseButton button) const
 {
     DigitalActionType result {};
 
@@ -194,12 +194,12 @@ glm::vec2 ActionManager::CheckAnalogInput(const AnalogAction& action) const
     return { 0.0f, 0.0f };
 }
 
-glm::vec2 ActionManager::CheckInput(MAYBE_UNUSED std::string_view actionName, const KeyboardAnalog& keyboardAnalog) const
+glm::vec2 ActionManager::CheckInput([[maybe_unused]] std::string_view actionName, const KeyboardAnalog& keyboardAnalog) const
 {
     return { _inputDeviceManager.IsKeyHeld(keyboardAnalog.right) - _inputDeviceManager.IsKeyHeld(keyboardAnalog.left), _inputDeviceManager.IsKeyHeld(keyboardAnalog.up) - _inputDeviceManager.IsKeyHeld(keyboardAnalog.down) };
 }
 
-glm::vec2 ActionManager::CheckInput(MAYBE_UNUSED std::string_view actionName, MAYBE_UNUSED const MouseAnalog& mouseAnalog) const
+glm::vec2 ActionManager::CheckInput([[maybe_unused]] std::string_view actionName, [[maybe_unused]] const MouseAnalog& mouseAnalog) const
 {
     return {}; // TODO: Support mouse movement
 }
@@ -292,7 +292,7 @@ struct DigitalActionVisitor
         visual.bindingInputName = MOUSE_BUTTON_NAMES.at(code) + " Button";
     }
 
-    void operator()(MAYBE_UNUSED GamepadButton notUsed) { }
+    void operator()([[maybe_unused]] GamepadButton notUsed) { }
 };
 
 std::vector<BindingOriginVisual> ActionManager::GetDigitalMouseAndKeyboardOriginVisual(const DigitalAction& action) const
@@ -318,13 +318,13 @@ struct AnalogActionVisitor
         visual.bindingInputName = KEYBOARD_KEY_NAMES.at(code.up) + KEYBOARD_KEY_NAMES.at(code.left) + KEYBOARD_KEY_NAMES.at(code.down) + KEYBOARD_KEY_NAMES.at(code.right);
     }
 
-    void operator()(MAYBE_UNUSED MouseAnalog notUsed)
+    void operator()([[maybe_unused]] MouseAnalog notUsed)
     {
         BindingOriginVisual& visual = out.emplace_back();
         visual.bindingInputName = "Mouse";
     }
 
-    void operator()(MAYBE_UNUSED GamepadAnalog notUsed) { }
+    void operator()([[maybe_unused]] GamepadAnalog notUsed) { }
 };
 
 std::vector<BindingOriginVisual> ActionManager::GetAnalogMouseAndKeyboardOriginVisual(const AnalogAction& action) const

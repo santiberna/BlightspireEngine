@@ -24,7 +24,7 @@ ModuleTickOrder ApplicationModule::Init(Engine& engine)
     if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMEPAD))
     {
         spdlog::error("Failed initializing SDL: {0}", SDL_GetError());
-        engine.SetExit(-1);
+        engine.RequestShutdown(-1);
         return priority;
     }
 
@@ -36,7 +36,7 @@ ModuleTickOrder ApplicationModule::Init(Engine& engine)
     if (dm == nullptr)
     {
         spdlog::error("Failed retrieving DisplayMode: {0}", SDL_GetError());
-        engine.SetExit(-1);
+        engine.RequestShutdown(-1);
         return priority;
     }
 
@@ -49,7 +49,7 @@ ModuleTickOrder ApplicationModule::Init(Engine& engine)
     if (_window == nullptr)
     {
         spdlog::error("Failed creating SDL window: {}", SDL_GetError());
-        engine.SetExit(-1);
+        engine.RequestShutdown(-1);
         SDL_Quit();
         return priority;
     }
@@ -118,7 +118,7 @@ void ApplicationModule::Tick(Engine& engine)
 
         if (event.type == SDL_EventType::SDL_EVENT_QUIT)
         {
-            engine.SetExit(0);
+            engine.RequestShutdown(0);
             break;
         }
     }

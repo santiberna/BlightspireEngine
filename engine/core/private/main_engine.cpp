@@ -3,36 +3,22 @@
 #include <string>
 #include <tracy/Tracy.hpp>
 
-int MainEngine::Run()
-{
-    while (!_exitRequested)
-    {
-        MainLoopOnce();
-        FrameMark;
-    }
-
-    return _exitCode;
-}
-void MainEngine::MainLoopOnce()
+int* MainEngine::Tick()
 {
     ZoneScoped;
-    for (auto modulePriorityPair : _tickOrder)
+    for (auto* entry : _tickOrder)
     {
         ZoneScoped;
+        auto name = std::string(entry->name) + "::Tick";
+        ZoneName(name.c_str(), name.size());
 
-        auto name = std::string(modulePriorityPair.module->GetName()) + " tick";
-        ZoneName(name.c_str(), 32);
-
-        modulePriorityPair.module->Tick(*this);
+        entry->module->Tick(*this);
 
         if (_exitRequested)
         {
-            return;
+            return &_exitCode;
         }
     }
-}
-
-int MainEngine::GetExitCode() const
-{
-    return _exitCode;
+    FrameMark;
+    return nullptr;
 }

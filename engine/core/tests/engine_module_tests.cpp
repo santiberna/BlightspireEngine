@@ -13,7 +13,6 @@ class TestModule : public ModuleInterface
 
     void Tick(MAYBE_UNUSED Engine& engine) override { };
     void Shutdown(MAYBE_UNUSED Engine& engine) override { };
-    std::string_view GetName() override { return "Test Module"; }
 };
 
 class DependentModule : public ModuleInterface
@@ -26,7 +25,6 @@ class DependentModule : public ModuleInterface
 
     void Tick(MAYBE_UNUSED Engine& engine) override { };
     void Shutdown(MAYBE_UNUSED Engine& engine) override { };
-    std::string_view GetName() override { return "Dependent Module"; }
 };
 
 class CheckUpdateModule : public ModuleInterface
@@ -45,8 +43,6 @@ class CheckUpdateModule : public ModuleInterface
 
     };
 
-    std::string_view GetName() override { return "CheckUpdate Module"; }
-
 public:
     bool _has_updated = false;
 };
@@ -60,11 +56,10 @@ class SelfDestructModuleFirst : public ModuleInterface
 
     void Tick(Engine& engine) override
     {
-        engine.SetExit(-1);
+        engine.RequestShutdown(-1);
     };
 
     void Shutdown(MAYBE_UNUSED Engine& engine) override { };
-    std::string_view GetName() override { return "SelfDestructFirst Module"; }
 };
 
 class SelfDestructModuleLast : public ModuleInterface
@@ -76,12 +71,10 @@ class SelfDestructModuleLast : public ModuleInterface
 
     void Tick(Engine& engine) override
     {
-        engine.SetExit(-2);
+        engine.RequestShutdown(-2);
     };
 
     void Shutdown(MAYBE_UNUSED Engine& engine) override { };
-
-    std::string_view GetName() override { return "SelfDestructLast Module"; }
 };
 
 class SetAtFreeModule : public ModuleInterface
@@ -97,8 +90,6 @@ class SetAtFreeModule : public ModuleInterface
     {
         *target = 1;
     };
-
-    std::string_view GetName() override { return "SetAtFree Module"; }
 
 public:
     uint32_t* target = nullptr;
@@ -118,8 +109,6 @@ class SetAtFreeModule2 : public ModuleInterface
         *target = 2;
     };
 
-    std::string_view GetName() override { return "SetAtFree2 Module"; }
-
 public:
     uint32_t* target = nullptr;
 };
@@ -131,7 +120,7 @@ TEST(EngineModuleTests, ModuleGetter)
     MainEngine e {};
     e.AddModule<TestModules::TestModule>();
 
-    EXPECT_NE(e.GetModuleSafe<TestModules::TestModule>(), nullptr)
+    EXPECT_NE(e.TryGetModule<TestModules::TestModule>(), nullptr)
         << "Test Module was not added successfully";
 }
 
@@ -140,7 +129,7 @@ TEST(EngineModuleTests, ModuleDependency)
     MainEngine e {};
     e.AddModule<TestModules::DependentModule>();
 
-    EXPECT_NE(e.GetModuleSafe<TestModules::TestModule>(), nullptr)
+    EXPECT_NE(e.TryGetModule<TestModules::TestModule>(), nullptr)
         << "Test Module was not added, even if it was a dependency of DependantModule";
 }
 
@@ -149,25 +138,31 @@ TEST(EngineModuleTests, EngineExit)
     MainEngine e {};
     e.AddModule<TestModules::SelfDestructModuleFirst>();
 
-    e.MainLoopOnce();
-
-    auto exitCode = e.GetExitCode();
-    EXPECT_EQ(exitCode, -1) << "SelfDestructFirst was not able to set the exit code to -1";
+    int* exit = e.Tick();
+    ASSERT_TRUE(exit != nullptr);
+    EXPECT_EQ(*exit, -1) << "SelfDestructFirst was not able to set the exit code to -1";
 }
 
 TEST(EngineModuleTests, EngineReset)
 {
-    MainEngine e {};
-    e.AddModule<TestModules::SelfDestructModuleFirst>();
-    e.MainLoopOnce();
+    {
+        MainEngine e {};
+        e.AddModule<TestModules::SelfDestructModuleFirst>();
+        int* exit = e.Tick();
 
-    EXPECT_EQ(e.GetExitCode(), -1);
+        ASSERT_TRUE(exit != nullptr);
+        EXPECT_EQ(*exit, -1);
+    }
 
-    e.Reset();
-    e.AddModule<TestModules::SelfDestructModuleLast>();
-    e.MainLoopOnce();
+    {
+        MainEngine e {};
+        e.AddModule<TestModules::SelfDestructModuleFirst>();
+        e.AddModule<TestModules::SelfDestructModuleLast>();
+        int* exit = e.Tick();
 
-    EXPECT_EQ(e.GetExitCode(), -2);
+        ASSERT_TRUE(exit != nullptr);
+        EXPECT_EQ(*exit, -1);
+    }
 }
 
 TEST(EngineModuleTests, ModuleDeallocation)
@@ -175,26 +170,16 @@ TEST(EngineModuleTests, ModuleDeallocation)
     uint32_t target {};
     {
         MainEngine e {};
-
         e.GetModule<TestModules::SetAtFreeModule>().target = &target;
         e.GetModule<TestModules::SetAtFreeModule2>().target = &target;
-        e.AddModule<TestModules::SelfDestructModuleFirst>();
-
-        e.Reset();
-
-        EXPECT_EQ(target, 1) << "SetAtFreeModule was not deleted last";
     }
-
+    EXPECT_EQ(target, 1) << "SetAtFreeModule was not deleted last";
     {
         MainEngine e {};
         e.GetModule<TestModules::SetAtFreeModule2>().target = &target;
         e.GetModule<TestModules::SetAtFreeModule>().target = &target;
-        e.AddModule<TestModules::SelfDestructModuleFirst>();
-
-        e.Reset();
-
-        EXPECT_EQ(target, 2) << "SetAtFreeModule2 was not deleted last";
     }
+    EXPECT_EQ(target, 2) << "SetAtFreeModule2 was not deleted last";
 }
 
 TEST(EngineModuleTests, ModuleTick)
@@ -205,7 +190,7 @@ TEST(EngineModuleTests, ModuleTick)
         e.AddModule<TestModules::CheckUpdateModule>();
         e.AddModule<TestModules::SelfDestructModuleFirst>();
 
-        e.MainLoopOnce();
+        e.Tick();
 
         EXPECT_EQ(e.GetModule<TestModules::CheckUpdateModule>()._has_updated, false)
             << "CheckUpdateModule should not have ticked, SelfDestructFirst terminates before";
@@ -216,7 +201,7 @@ TEST(EngineModuleTests, ModuleTick)
         e.AddModule<TestModules::CheckUpdateModule>();
         e.AddModule<TestModules::SelfDestructModuleLast>();
 
-        e.MainLoopOnce();
+        e.Tick();
 
         EXPECT_EQ(e.GetModule<TestModules::CheckUpdateModule>()._has_updated, true)
             << "CheckUpdateModule should have ticked, SelfDestructLast terminates afterwards";

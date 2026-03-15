@@ -77,7 +77,7 @@ ModuleTickOrder InspectorModule::Init(Engine& engine)
 
 void InspectorModule::Shutdown(Engine& engine)
 {
-    if (auto* ptr = engine.GetModuleSafe<RendererModule>())
+    if (auto* ptr = engine.TryGetModule<RendererModule>())
     {
         ptr->GetRenderer()->FlushCommands();
     }
@@ -197,7 +197,7 @@ void InspectorModule::Tick(MAYBE_UNUSED Engine& engine)
 
         if (ImGui::BeginMenu("Exit Program"))
         {
-            engine.SetExit(0);
+            engine.RequestShutdown(0);
             ImGui::EndMenu();
         }
 

@@ -8,7 +8,7 @@
 #include "common.hpp"
 #include "vulkan_include.hpp"
 
-struct VulkanInitInfo;
+struct SDL_Window;
 
 struct QueueFamilyIndices
 {
@@ -26,7 +26,7 @@ struct QueueFamilyIndices
 struct VulkanInitInfo
 {
     glm::uvec2 window_size {};
-    struct SDL_Window* window_handle = nullptr;
+    SDL_Window* window_handle = nullptr;
 };
 
 constexpr bool ENABLE_VALIDATION_LAYERS =

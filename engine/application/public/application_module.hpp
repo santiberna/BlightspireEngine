@@ -7,17 +7,18 @@
 class InputDeviceManager;
 class ActionManager;
 
+struct SDL_Window;
+
 class ApplicationModule : public ModuleInterface
 {
     ModuleTickOrder Init(Engine& engine) override;
     void Shutdown(Engine& engine) override;
     void Tick(Engine& engine) override;
-    std::string_view GetName() override { return "Application Module"; }
 
 public:
     ApplicationModule();
 
-    [[nodiscard]] struct SDL_Window* GetWindowHandle() const { return _window; }
+    [[nodiscard]] SDL_Window* GetWindowHandle() const { return _window; }
     [[nodiscard]] InputDeviceManager& GetInputDeviceManager() const { return *_inputDeviceManager; }
     [[nodiscard]] ActionManager& GetActionManager() const { return *_actionManager; }
 
@@ -32,7 +33,7 @@ public:
 private:
     std::unique_ptr<InputDeviceManager> _inputDeviceManager {};
     std::unique_ptr<ActionManager> _actionManager {};
-    struct SDL_Window* _window = nullptr;
+    SDL_Window* _window = nullptr;
 
     std::string _windowName = "Blightspire";
     bool _isFullscreen = true;

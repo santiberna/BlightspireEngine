@@ -14,7 +14,6 @@ class ThreadModule : public ModuleInterface
 
     void Tick(MAYBE_UNUSED Engine& engine) override { };
     void Shutdown(MAYBE_UNUSED Engine& engine) override { };
-    std::string_view GetName() override { return "Thread Module"; }
 
     std::unique_ptr<ThreadPool> _threadPool;
 

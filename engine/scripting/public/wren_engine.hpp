@@ -13,7 +13,7 @@ struct WrenEngine
         if (instance == nullptr)
             return std::nullopt;
 
-        if (auto ptr = instance->GetModuleSafe<T>())
+        if (auto ptr = instance->TryGetModule<T>())
             return ptr;
 
         return std::nullopt;

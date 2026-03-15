@@ -37,13 +37,13 @@
 #error "Unsupported platform"
 #endif
 
-// Assert
-// #if defined(BB_DEVELOPMENT)
-// namespace bb
-// {
-// void assertImpl(bool condition);
-// }
-// #define BB_ASSERT(condition) bb::assertImpl(condition)
-// #else
-// #define BB_ASSERT(condition)
-// #endif
+// Assertions
+#if defined(BB_DEVELOPMENT)
+namespace bb
+{
+void assertImpl(bool condition);
+}
+#define BB_ASSERT(condition) bb::assertImpl(condition)
+#else
+#define BB_ASSERT(condition)
+#endif

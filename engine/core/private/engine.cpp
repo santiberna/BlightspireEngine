@@ -28,7 +28,7 @@ void Engine::RequestShutdown(int exit_code)
     _exitCode = exit_code;
 }
 
-void Engine::Reset()
+Engine::~Engine()
 {
     for (auto it = _initOrder.rbegin(); it != _initOrder.rend(); ++it)
     {
@@ -42,13 +42,8 @@ void Engine::Reset()
         module->Shutdown(*this);
         delete module;
     }
-
-    _modules.clear();
-    _tickOrder.clear();
-    _initOrder.clear();
-    _exitRequested = false;
-    _exitCode = 0;
 }
+
 ModuleInterface* Engine::GetModuleUntyped(std::type_index type) const
 {
     if (auto it = _modules.find(type); it != _modules.end())

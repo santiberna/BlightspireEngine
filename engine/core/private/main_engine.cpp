@@ -3,17 +3,7 @@
 #include <string>
 #include <tracy/Tracy.hpp>
 
-int MainEngine::Run()
-{
-    while (!_exitRequested)
-    {
-        MainLoopOnce();
-        FrameMark;
-    }
-
-    return _exitCode;
-}
-void MainEngine::MainLoopOnce()
+int* MainEngine::Tick()
 {
     ZoneScoped;
     for (auto* entry : _tickOrder)
@@ -26,12 +16,9 @@ void MainEngine::MainLoopOnce()
 
         if (_exitRequested)
         {
-            return;
+            return &_exitCode;
         }
     }
-}
-
-int MainEngine::GetExitCode() const
-{
-    return _exitCode;
+    FrameMark;
+    return nullptr;
 }

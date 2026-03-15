@@ -138,25 +138,31 @@ TEST(EngineModuleTests, EngineExit)
     MainEngine e {};
     e.AddModule<TestModules::SelfDestructModuleFirst>();
 
-    e.MainLoopOnce();
-
-    auto exitCode = e.GetExitCode();
-    EXPECT_EQ(exitCode, -1) << "SelfDestructFirst was not able to set the exit code to -1";
+    int* exit = e.Tick();
+    ASSERT_TRUE(exit != nullptr);
+    EXPECT_EQ(*exit, -1) << "SelfDestructFirst was not able to set the exit code to -1";
 }
 
 TEST(EngineModuleTests, EngineReset)
 {
-    MainEngine e {};
-    e.AddModule<TestModules::SelfDestructModuleFirst>();
-    e.MainLoopOnce();
+    {
+        MainEngine e {};
+        e.AddModule<TestModules::SelfDestructModuleFirst>();
+        int* exit = e.Tick();
 
-    EXPECT_EQ(e.GetExitCode(), -1);
+        ASSERT_TRUE(exit != nullptr);
+        EXPECT_EQ(*exit, -1);
+    }
 
-    e.Reset();
-    e.AddModule<TestModules::SelfDestructModuleLast>();
-    e.MainLoopOnce();
+    {
+        MainEngine e {};
+        e.AddModule<TestModules::SelfDestructModuleFirst>();
+        e.AddModule<TestModules::SelfDestructModuleLast>();
+        int* exit = e.Tick();
 
-    EXPECT_EQ(e.GetExitCode(), -2);
+        ASSERT_TRUE(exit != nullptr);
+        EXPECT_EQ(*exit, -1);
+    }
 }
 
 TEST(EngineModuleTests, ModuleDeallocation)
@@ -164,26 +170,16 @@ TEST(EngineModuleTests, ModuleDeallocation)
     uint32_t target {};
     {
         MainEngine e {};
-
         e.GetModule<TestModules::SetAtFreeModule>().target = &target;
         e.GetModule<TestModules::SetAtFreeModule2>().target = &target;
-        e.AddModule<TestModules::SelfDestructModuleFirst>();
-
-        e.Reset();
-
-        EXPECT_EQ(target, 1) << "SetAtFreeModule was not deleted last";
     }
-
+    EXPECT_EQ(target, 1) << "SetAtFreeModule was not deleted last";
     {
         MainEngine e {};
         e.GetModule<TestModules::SetAtFreeModule2>().target = &target;
         e.GetModule<TestModules::SetAtFreeModule>().target = &target;
-        e.AddModule<TestModules::SelfDestructModuleFirst>();
-
-        e.Reset();
-
-        EXPECT_EQ(target, 2) << "SetAtFreeModule2 was not deleted last";
     }
+    EXPECT_EQ(target, 2) << "SetAtFreeModule2 was not deleted last";
 }
 
 TEST(EngineModuleTests, ModuleTick)
@@ -194,7 +190,7 @@ TEST(EngineModuleTests, ModuleTick)
         e.AddModule<TestModules::CheckUpdateModule>();
         e.AddModule<TestModules::SelfDestructModuleFirst>();
 
-        e.MainLoopOnce();
+        e.Tick();
 
         EXPECT_EQ(e.GetModule<TestModules::CheckUpdateModule>()._has_updated, false)
             << "CheckUpdateModule should not have ticked, SelfDestructFirst terminates before";
@@ -205,7 +201,7 @@ TEST(EngineModuleTests, ModuleTick)
         e.AddModule<TestModules::CheckUpdateModule>();
         e.AddModule<TestModules::SelfDestructModuleLast>();
 
-        e.MainLoopOnce();
+        e.Tick();
 
         EXPECT_EQ(e.GetModule<TestModules::CheckUpdateModule>()._has_updated, true)
             << "CheckUpdateModule should have ticked, SelfDestructLast terminates afterwards";

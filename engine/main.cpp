@@ -67,7 +67,13 @@ int Main()
         }
 
         spdlog::info("{}ms taken for complete startup!", startupTimer.GetElapsed().count());
-        result = instance.Run();
+
+        int* exit = nullptr;
+        while (exit == nullptr)
+        {
+            exit = instance.Tick();
+        }
+        result = *exit;
     }
 
     fileIO::Deinit();

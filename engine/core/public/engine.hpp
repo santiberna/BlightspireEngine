@@ -13,7 +13,7 @@ class Engine
 {
 public:
     Engine() = default;
-    virtual ~Engine() { Reset(); }
+    virtual ~Engine();
 
     NON_COPYABLE(Engine);
     NON_MOVABLE(Engine);
@@ -30,6 +30,9 @@ public:
     void RequestShutdown(int exit_code);
 
 protected:
+    [[nodiscard]] ModuleInterface* GetModuleUntyped(std::type_index type) const;
+    void RegisterNewModule(std::type_index module_type, ModuleInterface* module);
+
     struct ModuleEntry
     {
         ModuleInterface* module {};
@@ -40,17 +43,6 @@ protected:
     int _exitCode = 0;
     bool _exitRequested = false;
     std::vector<ModuleEntry*> _tickOrder {};
-
-    // Cleans up all modules
-    void Reset();
-
-private:
-    [[nodiscard]] ModuleInterface* GetModuleUntyped(std::type_index type) const;
-    void AddModuleToTickList(ModuleInterface* module, ModuleTickOrder priority);
-    void RegisterNewModule(std::type_index module_type, ModuleInterface* module);
-
-    // Raw pointers are used because deallocation order of modules is important
-
     std::unordered_map<std::type_index, ModuleEntry> _modules {};
     std::vector<ModuleEntry*> _initOrder {};
 };

@@ -2,16 +2,21 @@
 #include <spdlog/sinks/rotating_file_sink.h>
 #include <time.h>
 
-#ifdef _WIN32
+#if BB_PLATFORM == BB_WINDOWS
 #include <windows.h>
-#else
+#elif BB_PLATFORM == BB_LINUX
 #include <sys/utsname.h>
+#else
+#error "Unimplemented"
 #endif
 
-#ifdef _WIN32
-OSVERSIONINFOEX GetWindowsVersion()
+std::string bb::getOsName()
 {
-    OSVERSIONINFOEX result {};
+#if BB_PLATFORM == BB_WINDOWS
+    double majorVersion = 0.0;
+    double minorVersion = 0.0;
+
+    OSVERSIONINFOEX info;
 
     // Get the function pointer to RtlGetVersion
     void* procAddress = reinterpret_cast<void*>(GetProcAddress(GetModuleHandleA("ntdll"), "RtlGetVersion"));
@@ -21,30 +26,21 @@ OSVERSIONINFOEX GetWindowsVersion()
     {
         using GetVersionProcType = NTSTATUS(WINAPI*)(PRTL_OSVERSIONINFOW);
         auto call = reinterpret_cast<GetVersionProcType>(procAddress);
-        call((PRTL_OSVERSIONINFOW)&result);
+        call((PRTL_OSVERSIONINFOW)&info);
     }
-
-    return result;
-}
-#endif
-
-std::string bb::getOsName()
-{
-#ifdef _WIN32
-    double majorVersion = 0.0;
-    double minorVersion = 0.0;
-
-    OSVERSIONINFOEX info = GetWindowsVersion();
 
     majorVersion = static_cast<double>(info.dwMajorVersion);
     minorVersion = static_cast<double>(info.dwMinorVersion);
-
     return "Windows " + std::to_string(majorVersion) + "-" + std::to_string(minorVersion);
-#else
+
+#elif BB_PLATFORM == BB_LINUX
     utsname name {};
     uname(&name);
 
     return std::string(name.sysname) + " " + std::string(name.release);
+
+#else
+#error "Unimplemented"
 #endif
 }
 
@@ -53,10 +49,12 @@ std::string SerializeTimePoint(const std::chrono::system_clock::time_point& time
     std::time_t tt = std::chrono::system_clock::to_time_t(time);
     std::tm tm {};
 
-#ifdef _WIN32
+#if BB_PLATFORM == BB_WINDOWS
     gmtime_s(&tm, &tt); // GMT (UTC)
-#else
+#elif BB_PLATFORM == BB_LINUX
     gmtime_r(&tt, &tm); // GMT (UTC)
+#else
+#error "Unimplemented"
 #endif
 
     std::stringstream ss {};

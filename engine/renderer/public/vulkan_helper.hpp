@@ -75,9 +75,7 @@ void EndQueueLabel(vk::Queue queue, const bb::VulkanDispatchLoader& dldi);
 template <typename T>
 static void NameObject(T object, std::string_view label, std::shared_ptr<VulkanContext> context)
 {
-#if defined(NDEBUG)
-    return;
-#endif
+#if BB_DEVELOPMENT
     vk::DebugUtilsObjectNameInfoEXT nameInfo {};
 
     nameInfo.pObjectName = label.data();
@@ -87,6 +85,7 @@ static void NameObject(T object, std::string_view label, std::shared_ptr<VulkanC
     vk::Result result = context->Device().setDebugUtilsObjectNameEXT(&nameInfo, context->Dldi());
     if (result != vk::Result::eSuccess)
         spdlog::warn("Failed debug naming object!");
+#endif
 }
 
 uint32_t FormatSize(vk::Format format);

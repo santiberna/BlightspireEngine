@@ -16,12 +16,23 @@
     ClassName& operator=(ClassName&&) noexcept = default;
 // NOLINTEND
 
-// Attribute macros
+// Development and debug switches
+#undef NDEBUG
+#if defined(DISTRIBUTION)
+#define NDEBUG
+#define BB_DEVELOPMENT false
+#else
+#define BB_DEVELOPMENT true
+#endif
 
-// System Macro definitions
+// Platform switches
+#define BB_WINDOWS 0
+#define BB_LINUX 1
 
-#ifdef _WIN32
-#define WINDOWS
-#elif __linux__
-#define LINUX
+#if defined(_WIN64)
+#define BB_PLATFORM BB_WINDOWS
+#elif defined(__linux__)
+#define BB_PLATFORM BB_LINUX
+#else
+#error "Unsupported platform"
 #endif

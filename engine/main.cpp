@@ -80,7 +80,7 @@ int Main()
     return result;
 }
 
-#if defined(_WIN32) && defined(DISTRIBUTION)
+#if (BB_PLATFORM == BB_WINDOWS) && (BB_DEVELOPMENT == false)
 
 int APIENTRY WinMain([[maybe_unused]] HINSTANCE hInstance, [[maybe_unused]] HINSTANCE hPrevInstance, [[maybe_unused]] LPSTR lpCmdLine, [[maybe_unused]] int nShowCmd)
 {

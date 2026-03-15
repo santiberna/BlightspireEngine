@@ -1,6 +1,6 @@
 
 // The OPTIMIZE macro causes conflicts when compiling STB Image on WSL
-#if not defined(NDEBUG)
+#if BB_DEVELOPMENT == true
 #undef __OPTIMIZE__
 #endif
 

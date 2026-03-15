@@ -359,40 +359,40 @@ void util::CopyImageToImage(vk::CommandBuffer commandBuffer, vk::Image srcImage,
 
 void util::BeginQueueLabel(vk::Queue queue, std::string_view label, glm::vec3 color, const bb::VulkanDispatchLoader& dldi)
 {
-    if (!ENABLE_VALIDATION_LAYERS)
-        return;
+#if BB_DEVELOPMENT == true
     vk::DebugUtilsLabelEXT labelExt {};
     memcpy(labelExt.color.data(), &color.r, sizeof(glm::vec3));
     labelExt.color[3] = 1.0f;
     labelExt.pLabelName = label.data();
 
     queue.beginDebugUtilsLabelEXT(&labelExt, dldi);
+#endif
 }
 
 void util::EndQueueLabel(vk::Queue queue, const bb::VulkanDispatchLoader& dldi)
 {
-    if (!ENABLE_VALIDATION_LAYERS)
-        return;
+#if BB_DEVELOPMENT == true
     queue.endDebugUtilsLabelEXT(dldi);
+#endif
 }
 
 void util::BeginLabel(vk::CommandBuffer commandBuffer, std::string_view label, glm::vec3 color, const bb::VulkanDispatchLoader& dldi)
 {
-    if (!ENABLE_VALIDATION_LAYERS)
-        return;
+#if BB_DEVELOPMENT == true
     vk::DebugUtilsLabelEXT labelExt {};
     memcpy(labelExt.color.data(), &color.r, sizeof(glm::vec3));
     labelExt.color[3] = 1.0f;
     labelExt.pLabelName = label.data();
 
     commandBuffer.beginDebugUtilsLabelEXT(&labelExt, dldi);
+#endif
 }
 
 void util::EndLabel(vk::CommandBuffer commandBuffer, const bb::VulkanDispatchLoader& dldi)
 {
-    if (!ENABLE_VALIDATION_LAYERS)
-        return;
+#if BB_DEVELOPMENT == true
     commandBuffer.endDebugUtilsLabelEXT(dldi);
+#endif
 }
 
 vk::ImageAspectFlags util::GetImageAspectFlags(vk::Format format)

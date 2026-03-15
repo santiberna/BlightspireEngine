@@ -29,13 +29,6 @@ struct VulkanInitInfo
     SDL_Window* window_handle = nullptr;
 };
 
-constexpr bool ENABLE_VALIDATION_LAYERS =
-#if not defined(NDEBUG)
-    true;
-#else
-    false;
-#endif
-
 enum class BindlessBinding : std::uint8_t
 {
     eImage = 0,
@@ -91,7 +84,7 @@ private:
 
     const std::vector<const char*> _deviceExtensions = {
         VK_KHR_SWAPCHAIN_EXTENSION_NAME,
-#if defined(LINUX)
+#if BB_PLATFORM == BB_LINUX
         VK_KHR_MULTIVIEW_EXTENSION_NAME,
         VK_KHR_MAINTENANCE2_EXTENSION_NAME,
 #endif

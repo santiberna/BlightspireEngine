@@ -93,18 +93,10 @@ FetchContent_MakeAvailable(Tracy)
 add_subdirectory(entt)
 
 # SDL
-FetchContent_Declare(
-        SDL
-        GIT_REPOSITORY https://github.com/libsdl-org/SDL.git
-        GIT_TAG release-3.4.0
-        GIT_SHALLOW TRUE
-        GIT_PROGRESS TRUE
-)
-
 set(SDL_SHARED OFF)
 set(SDL_STATIC ON)
-FetchContent_MakeAvailable(SDL)
 
+add_subdirectory(SDL)
 target_compile_options(SDL3-static PRIVATE -Wno-deprecated-declarations)
 
 # GLM

@@ -21,10 +21,9 @@ VulkanContext::VulkanContext(const VulkanInitInfo& initInfo)
         vkGetDeviceProcAddr };
     SetupDebugMessenger();
 
-    SDL_Window* window = reinterpret_cast<SDL_Window*>(initInfo.window_handle);
     VkSurfaceKHR window_surface = nullptr;
 
-    if (!SDL_Vulkan_CreateSurface(window, _instance, nullptr, &window_surface))
+    if (!SDL_Vulkan_CreateSurface(initInfo.window_handle, _instance, nullptr, &window_surface))
     {
         spdlog::error("Failed creating SDL vk::Surface: {}", SDL_GetError());
     }

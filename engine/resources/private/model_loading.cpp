@@ -8,7 +8,6 @@
 
 #include "math_util.hpp"
 #include "physics/shape_factory.hpp"
-#include "profile_macros.hpp"
 #include "resource_management/image_resource_manager.hpp"
 #include "resource_management/mesh_resource_manager.hpp"
 
@@ -16,6 +15,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtx/norm.hpp>
 #include <stb_image.h>
+#include <tracy/Tracy.hpp>
 
 constexpr static auto DEFAULT_LOAD_FLAGS = fastgltf::Options::DecomposeNodeMatrices | fastgltf::Options::LoadExternalBuffers | fastgltf::Options::LoadExternalImages;
 static fastgltf::Parser parser = fastgltf::Parser(fastgltf::Extensions::KHR_lights_punctual | fastgltf::Extensions::KHR_texture_transform);

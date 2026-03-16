@@ -1,7 +1,7 @@
 #pragma once
 #include "common.hpp"
-#include "profile_macros.hpp"
 
+#include <tracy/Tracy.hpp>
 #include <tracy/TracyC.h>
 
 class WrenTracyZone

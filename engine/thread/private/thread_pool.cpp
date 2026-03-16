@@ -1,6 +1,6 @@
-#include "profile_macros.hpp"
 #include <string>
 #include <thread_pool.hpp>
+#include <tracy/Tracy.hpp>
 
 ThreadPool::ThreadPool(uint32_t threadCount)
 {

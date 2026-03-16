@@ -1,9 +1,8 @@
 #include "scripting_context.hpp"
 #include "file_io.hpp"
 
-#include "profile_macros.hpp"
-
 #include <filesystem>
+#include <tracy/Tracy.hpp>
 
 namespace detail
 {

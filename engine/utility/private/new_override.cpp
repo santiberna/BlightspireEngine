@@ -1,5 +1,5 @@
 #if defined TRACY_ENABLE
-#include "profile_macros.hpp"
+#include <tracy/Tracy.hpp>
 
 void* operator new(size_t size)
 {

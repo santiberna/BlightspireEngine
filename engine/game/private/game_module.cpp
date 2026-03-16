@@ -413,7 +413,7 @@ void GameModule::Tick(Engine& engine)
         _menuStack.top().lock()->visibility = UIElement::VisibilityState::eUpdatedAndVisible;
     }
 
-#if !DISTRIBUTION
+#if BB_DEVELOPMENT
     auto& inputDeviceManager = applicationModule.GetInputDeviceManager();
     if (inputDeviceManager.IsKeyPressed(KeyboardCode::eH))
     {

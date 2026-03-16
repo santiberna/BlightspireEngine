@@ -32,28 +32,28 @@
       }
     },
     {
-      "name": "x64-Debug",
+      "name": "Win64-Debug",
       "inherits": "default",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Debug"
       }
     },
     {
-      "name": "x64-Release",
+      "name": "Win64-Release",
       "inherits": "default",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release"
       }
     },
     {
-      "name": "x64-RelWithDebInfo",
+      "name": "Win64-RelWithDebInfo",
       "inherits": "default",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "RelWithDebInfo"
       }
     },
     {
-      "name": "x64-Distribution",
+      "name": "Win64-Distribution",
       "inherits": "default",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release"
@@ -101,8 +101,8 @@
   ],
   "testPresets": [
     {
-      "name": "Test x64-Debug",
-      "configurePreset": "x64-Debug",
+      "name": "Test Win64-Debug",
+      "configurePreset": "Win64-Debug",
       "execution": {
         "stopOnFailure": false
       },

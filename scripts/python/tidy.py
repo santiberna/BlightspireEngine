@@ -12,7 +12,7 @@ EXTENSION = ['.c', '.cpp', '.cc', '.h', '.hpp']
 # Define your clang-tidy command and options
 COMMAND = 'clang-tidy'
 PROFILE_ENABLE = "--enable-check-profile"
-COMPILE_DATABASE = 'build/x64-Release'
+COMPILE_DATABASE = 'build/Win64-Release'
 OPTIONS = '--config-file=.clang-tidy'
 
 

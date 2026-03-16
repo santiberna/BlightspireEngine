@@ -1,7 +1,7 @@
 {
   "output": "package/windows-dist",
   "executables": [
-    "build/x64-Distribution/Blightspire.exe"
+    "build/Win64-Distribution/Blightspire.exe"
   ],
   "assets": [
     "assets",
@@ -10,9 +10,9 @@
     "content"
   ],
   "files": [
-    "build/x64-Distribution/steam_api64.dll",
-    "build/x64-Distribution/fmod.dll",
-    "build/x64-Distribution/fmodstudio.dll",
+    "build/Win64-Distribution/steam_api64.dll",
+    "build/Win64-Distribution/fmod.dll",
+    "build/Win64-Distribution/fmodstudio.dll",
     "version.txt"
   ]
 }

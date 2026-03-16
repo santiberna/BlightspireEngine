@@ -8,10 +8,6 @@
 
 #include <spdlog/spdlog.h>
 
-// SDL throws some weird errors when parsed with clang-analyzer (used in clang-tidy checks)
-// This definition fixes the issues and does not change the final build output
-#define SDL_DISABLE_ANALYZE_MACROS
-
 #include <SDL3/SDL.h>
 #include <file_io.hpp>
 #include <imgui_sdl_include.hpp>

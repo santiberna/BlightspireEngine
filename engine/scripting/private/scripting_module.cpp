@@ -1,11 +1,10 @@
 #include "scripting_module.hpp"
 #include "bytes.hpp"
 #include "file_io.hpp"
-
-#include "profile_macros.hpp"
 #include "time_module.hpp"
 #include "wren_bindings.hpp"
 
+#include <tracy/Tracy.hpp>
 void ScriptingModule::ResetVM()
 {
     _mainModule.reset();

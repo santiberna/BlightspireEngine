@@ -1,10 +1,10 @@
 #include "resources/image.hpp"
-#include "profile_macros.hpp"
-#include "vulkan_helper.hpp"
 
+#include "vulkan_helper.hpp"
 #include <file_io.hpp>
 #include <spdlog/spdlog.h>
 #include <stb_image.h>
+#include <tracy/Tracy.hpp>
 
 CPUImage& CPUImage::FromPNG(std::string_view path)
 {

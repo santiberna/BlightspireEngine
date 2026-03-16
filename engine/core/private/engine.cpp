@@ -1,7 +1,8 @@
 #include "engine.hpp"
-#include "profile_macros.hpp"
+
 #include <algorithm>
 #include <array>
+#include <tracy/Tracy.hpp>
 
 namespace
 {

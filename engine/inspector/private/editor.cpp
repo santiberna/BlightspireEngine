@@ -16,13 +16,13 @@
 #include "ecs_module.hpp"
 #include "emitter_component.hpp"
 #include "imgui_backend.hpp"
-#include "profile_macros.hpp"
 #include "renderer.hpp"
 #include "systems/lifetime_component.hpp"
 #include "systems/physics_system.hpp"
 
 #include <entt/entity/entity.hpp>
 #include <misc/cpp/imgui_stdlib.h>
+#include <tracy/Tracy.hpp>
 
 Editor::Editor(ECSModule& ecs)
     : _ecs(ecs)

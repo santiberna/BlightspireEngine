@@ -6,12 +6,12 @@
 #include "physics/physics_bindings.hpp"
 #include "physics/shape_factory.hpp"
 #include "physics_module.hpp"
-#include "profile_macros.hpp"
 #include "utility/enum_bind.hpp"
 #include "utility/random_util.hpp"
 #include "wren_entity.hpp"
 
 #include <glm/gtx/rotate_vector.hpp>
+#include <tracy/Tracy.hpp>
 
 namespace bindings
 {

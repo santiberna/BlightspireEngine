@@ -2,13 +2,14 @@
 
 #include "graphics_resources.hpp"
 #include "pipeline_builder.hpp"
-#include "profile_macros.hpp"
 #include "resource_management/buffer_resource_manager.hpp"
 #include "resource_management/image_resource_manager.hpp"
 #include "resource_management/material_resource_manager.hpp"
 #include "resource_management/sampler_resource_manager.hpp"
 #include "vulkan_context.hpp"
 #include "vulkan_helper.hpp"
+
+#include <tracy/Tracy.hpp>
 
 GraphicsContext::GraphicsContext(const VulkanInitInfo& initInfo)
     : _drawStats()

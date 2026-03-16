@@ -19,12 +19,12 @@
 
 #define TRIANGLE_EDGE_CENTERS 1
 
-ModuleTickOrder PathfindingModule::Init(MAYBE_UNUSED Engine& engine)
+ModuleTickOrder PathfindingModule::Init([[maybe_unused]] Engine& engine)
 {
     return ModuleTickOrder::eTick;
 }
 
-void PathfindingModule::Tick(MAYBE_UNUSED Engine& engine)
+void PathfindingModule::Tick([[maybe_unused]] Engine& engine)
 {
     // Draws any path that was generated through the scripting language
     if (_debugDraw)
@@ -47,7 +47,7 @@ void PathfindingModule::Tick(MAYBE_UNUSED Engine& engine)
     }
 }
 
-void PathfindingModule::Shutdown(MAYBE_UNUSED Engine& engine)
+void PathfindingModule::Shutdown([[maybe_unused]] Engine& engine)
 {
 }
 

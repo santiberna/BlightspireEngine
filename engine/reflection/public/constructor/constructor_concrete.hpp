@@ -13,11 +13,11 @@ class ConstructorImpl : public Constructor
 {
 public:
     ConstructorImpl(ReflectFactory& type_store);
-    NO_DISCARD Value invoke(const ArgumentList& parameters) const override;
+    [[nodiscard]] Value invoke(const ArgumentList& parameters) const override;
 
 private:
     template <std::size_t... Is>
-    NO_DISCARD Value invokeHelper(
+    [[nodiscard]] Value invokeHelper(
         const ArgumentList& args, std::index_sequence<Is...> _sequence) const;
 };
 
@@ -44,8 +44,8 @@ Value ConstructorImpl<Class, Args...>::invoke(const ArgumentList& args) const
 
 template <typename Class, typename... Args>
 template <std::size_t... Is>
-NO_DISCARD Value ConstructorImpl<Class, Args...>::invokeHelper(
-    const ArgumentList& args, MAYBE_UNUSED std::index_sequence<Is...> _sequence) const
+[[nodiscard]] Value ConstructorImpl<Class, Args...>::invokeHelper(
+    const ArgumentList& args, [[maybe_unused]] std::index_sequence<Is...> _sequence) const
 {
     return store.makeValue<Class>(
         std::forward<Args>(args.get(Is).cast<detail::BareType<Args>>())...);

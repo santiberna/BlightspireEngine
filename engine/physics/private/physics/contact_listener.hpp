@@ -18,24 +18,24 @@ public:
 
     // See: ContactListener
     JPH::ValidateResult OnContactValidate(
-        MAYBE_UNUSED const JPH::Body& inBody1,
-        MAYBE_UNUSED const JPH::Body& inBody2,
-        MAYBE_UNUSED JPH::RVec3Arg inBaseOffset,
-        MAYBE_UNUSED const JPH::CollideShapeResult& inCollisionResult) override;
+        [[maybe_unused]] const JPH::Body& inBody1,
+        [[maybe_unused]] const JPH::Body& inBody2,
+        [[maybe_unused]] JPH::RVec3Arg inBaseOffset,
+        [[maybe_unused]] const JPH::CollideShapeResult& inCollisionResult) override;
 
     void OnContactAdded(
-        MAYBE_UNUSED const JPH::Body& inBody1,
-        MAYBE_UNUSED const JPH::Body& inBody2,
-        MAYBE_UNUSED const JPH::ContactManifold& inManifold,
-        MAYBE_UNUSED JPH::ContactSettings& ioSettings) override;
+        [[maybe_unused]] const JPH::Body& inBody1,
+        [[maybe_unused]] const JPH::Body& inBody2,
+        [[maybe_unused]] const JPH::ContactManifold& inManifold,
+        [[maybe_unused]] JPH::ContactSettings& ioSettings) override;
 
     void OnContactPersisted(
-        MAYBE_UNUSED const JPH::Body& inBody1,
-        MAYBE_UNUSED const JPH::Body& inBody2,
-        MAYBE_UNUSED const JPH::ContactManifold& inManifold,
-        MAYBE_UNUSED JPH::ContactSettings& ioSettings) override;
+        [[maybe_unused]] const JPH::Body& inBody1,
+        [[maybe_unused]] const JPH::Body& inBody2,
+        [[maybe_unused]] const JPH::ContactManifold& inManifold,
+        [[maybe_unused]] JPH::ContactSettings& ioSettings) override;
 
-    void OnContactRemoved(MAYBE_UNUSED const JPH::SubShapeIDPair& inSubShapePair) override;
+    void OnContactRemoved([[maybe_unused]] const JPH::SubShapeIDPair& inSubShapePair) override;
 
 private:
     // contact callbacks are triggered asynchronously

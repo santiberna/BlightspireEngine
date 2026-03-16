@@ -5,7 +5,7 @@
 namespace EnttEditor
 {
 template <>
-void ComponentEditorWidget<AnimationChannelComponent>(MAYBE_UNUSED entt::registry& reg, MAYBE_UNUSED entt::registry::entity_type e)
+void ComponentEditorWidget<AnimationChannelComponent>([[maybe_unused]] entt::registry& reg, [[maybe_unused]] entt::registry::entity_type e)
 {
 }
 }

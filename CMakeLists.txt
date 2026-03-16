@@ -10,11 +10,12 @@ project(BlightspireEngine)
 ### COMPILATION SETTINGS ###
 
 option(WARNINGS_AS_ERRORS "Enable warnings as errors" OFF)
-
+option(DEVELOPER_BUILD "Enable debug/development functionality" ON)
 option(COMPILE_TESTS "Compile with Unit Tests" ON)
 option(COMPILE_SHADERS "Compile all GLSL shaders as part of build step" ON)
 
 ### COMPILE OPTIMIZATIONS (OFF by default cause they may cause issues) ###
+
 option(ENABLE_PCH "Compile with precompiled header" OFF)
 option(ENABLE_UNITY "Compile using Unity Builds" OFF)
 
@@ -58,18 +59,11 @@ else ()
 endif ()
 
 # Add executable with settings based on configuration used
-if ("${CMAKE_PRESET_NAME}" STREQUAL "Win64-Distribution")
+if (NOT DEVELOPER_BUILD AND WIN32)
     add_executable(Blightspire WIN32 "engine/main.cpp" ${APP_ICON_RESOURCE_WINDOWS})
-elseif ("${CMAKE_PRESET_NAME}" STREQUAL "WSL-Distribution")
-    add_executable(Blightspire "engine/main.cpp")
-    set_target_properties(Blightspire
-            PROPERTIES
-            LINK_FLAGS "-mwindows"
-    )
 else ()
-    add_executable(Blightspire "engine/main.cpp" ${APP_ICON_RESOURCE_WINDOWS})
+    add_executable(Blightspire "engine/main.cpp")
 endif ()
-
 
 target_link_libraries(Blightspire
     PRIVATE CompilerFlags

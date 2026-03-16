@@ -48,7 +48,7 @@ private:
         float filterRadius = 0.005f;
 
     private:
-        MAYBE_UNUSED float _padding;
+        [[maybe_unused]] float _padding;
     } _data;
 
     std::shared_ptr<GraphicsContext> _context;

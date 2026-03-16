@@ -65,11 +65,11 @@ using GameActions = std::vector<ActionSet>;
 struct DigitalActionResult
 {
     // True once upon pressed.
-    NO_DISCARD bool IsPressed() const { return HasAnyFlags(value, DigitalActionType::ePressed); }
+    [[nodiscard]] bool IsPressed() const { return HasAnyFlags(value, DigitalActionType::ePressed); }
     // True all the time upon held.
-    NO_DISCARD bool IsHeld() const { return HasAnyFlags(value, DigitalActionType::eHeld); }
+    [[nodiscard]] bool IsHeld() const { return HasAnyFlags(value, DigitalActionType::eHeld); }
     // True once upon released.
-    NO_DISCARD bool IsReleased() const { return HasAnyFlags(value, DigitalActionType::eReleased); }
+    [[nodiscard]] bool IsReleased() const { return HasAnyFlags(value, DigitalActionType::eReleased); }
 
     DigitalActionType value = DigitalActionType::eNone;
 };
@@ -107,16 +107,16 @@ public:
     void SetCustomInputGlyphs(const GamepadGlyphs& gamepadGlyphs) { _gamepadGlyphs = gamepadGlyphs; }
 
     // Button actions.
-    NO_DISCARD DigitalActionResult GetDigitalAction(std::string_view actionName) const;
+    [[nodiscard]] DigitalActionResult GetDigitalAction(std::string_view actionName) const;
 
     // Axis actions.
-    NO_DISCARD glm::vec2 GetAnalogAction(std::string_view actionName) const;
+    [[nodiscard]] glm::vec2 GetAnalogAction(std::string_view actionName) const;
 
     // Returns information to be visually displayed for all bindings for the given digital action.
-    NO_DISCARD std::vector<BindingOriginVisual> GetDigitalActionBindingOriginVisual(std::string_view actionName) const;
+    [[nodiscard]] std::vector<BindingOriginVisual> GetDigitalActionBindingOriginVisual(std::string_view actionName) const;
 
     // Returns information to be visually displayed for all bindings for the given analog action.
-    NO_DISCARD std::vector<BindingOriginVisual> GetAnalogActionBindingOriginVisual(std::string_view actionName) const;
+    [[nodiscard]] std::vector<BindingOriginVisual> GetAnalogActionBindingOriginVisual(std::string_view actionName) const;
 
 protected:
     const InputDeviceManager& _inputDeviceManager;
@@ -124,16 +124,16 @@ protected:
     uint32_t _activeActionSet = 0;
     GamepadGlyphs _gamepadGlyphs {};
 
-    NO_DISCARD DigitalActionType CheckDigitalInput(const DigitalAction& action) const;
-    NO_DISCARD DigitalActionType CheckInput(MAYBE_UNUSED std::string_view actionName, KeyboardCode code) const;
-    NO_DISCARD DigitalActionType CheckInput(MAYBE_UNUSED std::string_view actionName, MouseButton button) const;
-    NO_DISCARD virtual DigitalActionType CheckInput(std::string_view actionName, GamepadButton button) const = 0;
-    NO_DISCARD glm::vec2 CheckAnalogInput(const AnalogAction& action) const;
-    NO_DISCARD glm::vec2 CheckInput(MAYBE_UNUSED std::string_view actionName, const KeyboardAnalog& keyboardAnalog) const;
-    NO_DISCARD glm::vec2 CheckInput(MAYBE_UNUSED std::string_view actionName, MAYBE_UNUSED const MouseAnalog& mouseAnalog) const;
-    NO_DISCARD virtual glm::vec2 CheckInput(std::string_view actionName, GamepadAnalog gamepadAnalog) const = 0;
-    NO_DISCARD virtual std::vector<BindingOriginVisual> GetDigitalActionGamepadOriginVisual(const DigitalAction& action) const;
-    NO_DISCARD virtual std::vector<BindingOriginVisual> GetAnalogActionGamepadOriginVisual(const AnalogAction& action) const;
-    NO_DISCARD std::vector<BindingOriginVisual> GetDigitalMouseAndKeyboardOriginVisual(const DigitalAction& action) const;
-    NO_DISCARD std::vector<BindingOriginVisual> GetAnalogMouseAndKeyboardOriginVisual(const AnalogAction& action) const;
+    [[nodiscard]] DigitalActionType CheckDigitalInput(const DigitalAction& action) const;
+    [[nodiscard]] DigitalActionType CheckInput([[maybe_unused]] std::string_view actionName, KeyboardCode code) const;
+    [[nodiscard]] DigitalActionType CheckInput([[maybe_unused]] std::string_view actionName, MouseButton button) const;
+    [[nodiscard]] virtual DigitalActionType CheckInput(std::string_view actionName, GamepadButton button) const = 0;
+    [[nodiscard]] glm::vec2 CheckAnalogInput(const AnalogAction& action) const;
+    [[nodiscard]] glm::vec2 CheckInput([[maybe_unused]] std::string_view actionName, const KeyboardAnalog& keyboardAnalog) const;
+    [[nodiscard]] glm::vec2 CheckInput([[maybe_unused]] std::string_view actionName, [[maybe_unused]] const MouseAnalog& mouseAnalog) const;
+    [[nodiscard]] virtual glm::vec2 CheckInput(std::string_view actionName, GamepadAnalog gamepadAnalog) const = 0;
+    [[nodiscard]] virtual std::vector<BindingOriginVisual> GetDigitalActionGamepadOriginVisual(const DigitalAction& action) const;
+    [[nodiscard]] virtual std::vector<BindingOriginVisual> GetAnalogActionGamepadOriginVisual(const AnalogAction& action) const;
+    [[nodiscard]] std::vector<BindingOriginVisual> GetDigitalMouseAndKeyboardOriginVisual(const DigitalAction& action) const;
+    [[nodiscard]] std::vector<BindingOriginVisual> GetAnalogMouseAndKeyboardOriginVisual(const AnalogAction& action) const;
 };

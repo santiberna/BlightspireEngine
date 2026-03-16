@@ -92,7 +92,7 @@ class FrameGraphRenderPass
 {
 public:
     virtual ~FrameGraphRenderPass() = default;
-    virtual void RecordCommands(vk::CommandBuffer commandBuffer, MAYBE_UNUSED uint32_t currentFrame, MAYBE_UNUSED const RenderSceneDescription& scene) = 0;
+    virtual void RecordCommands(vk::CommandBuffer commandBuffer, [[maybe_unused]] uint32_t currentFrame, [[maybe_unused]] const RenderSceneDescription& scene) = 0;
 };
 
 struct FrameGraphNodeCreation

@@ -1,11 +1,11 @@
 #include "time_module.hpp"
 
-ModuleTickOrder TimeModule::Init(MAYBE_UNUSED Engine& e)
+ModuleTickOrder TimeModule::Init([[maybe_unused]] Engine& e)
 {
     return ModuleTickOrder::eFirst;
 }
 
-void TimeModule::Tick(MAYBE_UNUSED Engine& e)
+void TimeModule::Tick([[maybe_unused]] Engine& e)
 {
     _currentDeltaTime = _deltaTimer.GetElapsed();
     _deltaTimer.Reset();

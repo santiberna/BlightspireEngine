@@ -4,9 +4,9 @@
 
 class TimeModule : public ModuleInterface
 {
-    ModuleTickOrder Init(MAYBE_UNUSED Engine& engine) override;
-    void Tick(MAYBE_UNUSED Engine& engine) override;
-    void Shutdown(MAYBE_UNUSED Engine& engine) override { };
+    ModuleTickOrder Init([[maybe_unused]] Engine& engine) override;
+    void Tick([[maybe_unused]] Engine& engine) override;
+    void Shutdown([[maybe_unused]] Engine& engine) override { };
 
 public:
     NON_COPYABLE(TimeModule);

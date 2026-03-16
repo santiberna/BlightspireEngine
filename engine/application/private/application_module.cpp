@@ -90,7 +90,7 @@ ModuleTickOrder ApplicationModule::Init(Engine& engine)
     return priority;
 }
 
-void ApplicationModule::Shutdown(MAYBE_UNUSED Engine& engine)
+void ApplicationModule::Shutdown([[maybe_unused]] Engine& engine)
 {
     SDL_DestroyWindow(_window);
     SDL_Quit();

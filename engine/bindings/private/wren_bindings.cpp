@@ -113,7 +113,7 @@ float GetAmbientStrength(WrenEngine& engine)
     return engine.instance->GetModule<RendererModule>().GetRenderer()->GetSettings().data.lighting.ambientStrength;
 }
 
-bool IsDistribution(MAYBE_UNUSED WrenEngine& self)
+bool IsDistribution([[maybe_unused]] WrenEngine& self)
 {
 #if DISTRIBUTION
     return true;

@@ -6,40 +6,40 @@ namespace TestModules
 
 class TestModule : public ModuleInterface
 {
-    ModuleTickOrder Init(MAYBE_UNUSED Engine& engine) override
+    ModuleTickOrder Init([[maybe_unused]] Engine& engine) override
     {
         return ModuleTickOrder::eFirst;
     };
 
-    void Tick(MAYBE_UNUSED Engine& engine) override { };
-    void Shutdown(MAYBE_UNUSED Engine& engine) override { };
+    void Tick([[maybe_unused]] Engine& engine) override { };
+    void Shutdown([[maybe_unused]] Engine& engine) override { };
 };
 
 class DependentModule : public ModuleInterface
 {
-    ModuleTickOrder Init(MAYBE_UNUSED Engine& engine) override
+    ModuleTickOrder Init([[maybe_unused]] Engine& engine) override
     {
         engine.GetModule<TestModule>();
         return ModuleTickOrder::eFirst;
     };
 
-    void Tick(MAYBE_UNUSED Engine& engine) override { };
-    void Shutdown(MAYBE_UNUSED Engine& engine) override { };
+    void Tick([[maybe_unused]] Engine& engine) override { };
+    void Shutdown([[maybe_unused]] Engine& engine) override { };
 };
 
 class CheckUpdateModule : public ModuleInterface
 {
-    ModuleTickOrder Init(MAYBE_UNUSED Engine& engine) override
+    ModuleTickOrder Init([[maybe_unused]] Engine& engine) override
     {
         return ModuleTickOrder::eTick;
     };
 
-    void Tick(MAYBE_UNUSED Engine& engine) override
+    void Tick([[maybe_unused]] Engine& engine) override
     {
         _has_updated = true;
     };
 
-    void Shutdown(MAYBE_UNUSED Engine& engine) override {
+    void Shutdown([[maybe_unused]] Engine& engine) override {
 
     };
 
@@ -49,7 +49,7 @@ public:
 
 class SelfDestructModuleFirst : public ModuleInterface
 {
-    ModuleTickOrder Init(MAYBE_UNUSED Engine& engine) override
+    ModuleTickOrder Init([[maybe_unused]] Engine& engine) override
     {
         return ModuleTickOrder::eFirst;
     };
@@ -59,12 +59,12 @@ class SelfDestructModuleFirst : public ModuleInterface
         engine.RequestShutdown(-1);
     };
 
-    void Shutdown(MAYBE_UNUSED Engine& engine) override { };
+    void Shutdown([[maybe_unused]] Engine& engine) override { };
 };
 
 class SelfDestructModuleLast : public ModuleInterface
 {
-    ModuleTickOrder Init(MAYBE_UNUSED Engine& engine) override
+    ModuleTickOrder Init([[maybe_unused]] Engine& engine) override
     {
         return ModuleTickOrder::eLast;
     };
@@ -74,19 +74,19 @@ class SelfDestructModuleLast : public ModuleInterface
         engine.RequestShutdown(-2);
     };
 
-    void Shutdown(MAYBE_UNUSED Engine& engine) override { };
+    void Shutdown([[maybe_unused]] Engine& engine) override { };
 };
 
 class SetAtFreeModule : public ModuleInterface
 {
-    ModuleTickOrder Init(MAYBE_UNUSED Engine& engine) override
+    ModuleTickOrder Init([[maybe_unused]] Engine& engine) override
     {
         return ModuleTickOrder::eFirst;
     }
 
-    void Tick(MAYBE_UNUSED Engine& engine) override { };
+    void Tick([[maybe_unused]] Engine& engine) override { };
 
-    void Shutdown(MAYBE_UNUSED Engine& engine) override
+    void Shutdown([[maybe_unused]] Engine& engine) override
     {
         *target = 1;
     };
@@ -97,14 +97,14 @@ public:
 
 class SetAtFreeModule2 : public ModuleInterface
 {
-    ModuleTickOrder Init(MAYBE_UNUSED Engine& engine) override
+    ModuleTickOrder Init([[maybe_unused]] Engine& engine) override
     {
         return ModuleTickOrder::eFirst;
     }
 
-    void Tick(MAYBE_UNUSED Engine& engine) override { };
+    void Tick([[maybe_unused]] Engine& engine) override { };
 
-    void Shutdown(MAYBE_UNUSED Engine& engine) override
+    void Shutdown([[maybe_unused]] Engine& engine) override
     {
         *target = 2;
     };

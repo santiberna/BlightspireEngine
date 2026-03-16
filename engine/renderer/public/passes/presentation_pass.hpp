@@ -8,7 +8,7 @@ class PresentationPass final : public FrameGraphRenderPass
 {
 public:
     PresentationPass(const std::shared_ptr<GraphicsContext>& context, const SwapChain& swapChain, ResourceHandle<GPUImage> input);
-    void RecordCommands(vk::CommandBuffer commandBuffer, MAYBE_UNUSED uint32_t currentFrame, const RenderSceneDescription& scene) final;
+    void RecordCommands(vk::CommandBuffer commandBuffer, [[maybe_unused]] uint32_t currentFrame, const RenderSceneDescription& scene) final;
 
 private:
     std::shared_ptr<GraphicsContext> _context;

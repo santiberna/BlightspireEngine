@@ -40,7 +40,7 @@ GaussianBlurPass::~GaussianBlurPass()
     _context->VulkanContext()->Device().destroy(_descriptorSetLayout);
 }
 
-void GaussianBlurPass::RecordCommands(vk::CommandBuffer commandBuffer, uint32_t currentFrame, MAYBE_UNUSED const RenderSceneDescription& scene)
+void GaussianBlurPass::RecordCommands(vk::CommandBuffer commandBuffer, uint32_t currentFrame, [[maybe_unused]] const RenderSceneDescription& scene)
 {
     TracyVkZone(scene.tracyContext, commandBuffer, "Gaussian Blur Pass");
     //  The verticalTargetData target is created by this pass, so we need to transition it from undefined layout

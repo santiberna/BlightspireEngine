@@ -38,7 +38,7 @@ PhysicsSystem::PhysicsSystem(ECSModule& ecs, PhysicsModule& physicsModule)
 {
 }
 
-void PhysicsSystem::Update(MAYBE_UNUSED ECSModule& ecs, MAYBE_UNUSED float deltaTime)
+void PhysicsSystem::Update([[maybe_unused]] ECSModule& ecs, [[maybe_unused]] float deltaTime)
 {
     // This part should be fast because it returns a vector of just ids not whole rigidbodies
     JPH::BodyIDVector activeBodies;
@@ -77,7 +77,7 @@ void PhysicsSystem::Update(MAYBE_UNUSED ECSModule& ecs, MAYBE_UNUSED float delta
     }
 }
 
-void PhysicsSystem::Render(MAYBE_UNUSED const ECSModule& ecs) const
+void PhysicsSystem::Render([[maybe_unused]] const ECSModule& ecs) const
 {
 }
 

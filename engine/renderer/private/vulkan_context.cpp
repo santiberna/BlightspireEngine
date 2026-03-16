@@ -13,7 +13,7 @@
 
 VulkanContext::VulkanContext(const VulkanInitInfo& initInfo)
 {
-    _validationEnabled = CheckValidationLayerSupport() && ENABLE_VALIDATION_LAYERS;
+    _validationEnabled = CheckValidationLayerSupport() && BB_DEVELOPMENT;
     spdlog::info("Validation layers enabled: {}", _validationEnabled ? "TRUE" : "FALSE");
 
     CreateInstance();
@@ -227,7 +227,7 @@ std::vector<const char*> VulkanContext::GetRequiredExtensions()
     if (_validationEnabled)
         extensions.emplace_back(vk::EXTDebugUtilsExtensionName);
 
-#ifdef LINUX
+#if BB_PLATFORM == BB_LINUX
     extensions.emplace_back(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME);
 #endif
 

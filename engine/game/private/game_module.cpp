@@ -259,7 +259,7 @@ void GameModule::ApplySettings(Engine& engine)
     }
 }
 
-void GameModule::Shutdown(MAYBE_UNUSED Engine& engine)
+void GameModule::Shutdown([[maybe_unused]] Engine& engine)
 {
     gameSettings.SaveToFile(GAME_SETTINGS_FILE);
 }

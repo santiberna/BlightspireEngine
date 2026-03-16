@@ -23,7 +23,7 @@ void DebugCallback(int severity, const char* message)
     }
 }
 
-ModuleTickOrder SteamModule::Init(MAYBE_UNUSED Engine& engine)
+ModuleTickOrder SteamModule::Init([[maybe_unused]] Engine& engine)
 {
     SteamErrMsg errorMessage = { 0 };
     if (SteamAPI_InitEx(&errorMessage) != k_ESteamAPIInitResult_OK)
@@ -58,7 +58,7 @@ ModuleTickOrder SteamModule::Init(MAYBE_UNUSED Engine& engine)
     return ModuleTickOrder::ePreTick;
 }
 
-void SteamModule::Tick(MAYBE_UNUSED Engine& engine)
+void SteamModule::Tick([[maybe_unused]] Engine& engine)
 {
     if (!_steamAvailable)
     {
@@ -83,7 +83,7 @@ void SteamModule::Tick(MAYBE_UNUSED Engine& engine)
     _statsCounterMs += engine.GetModule<TimeModule>().GetRealDeltatime().count();
 }
 
-void SteamModule::Shutdown(MAYBE_UNUSED Engine& engine)
+void SteamModule::Shutdown([[maybe_unused]] Engine& engine)
 {
     SteamAPI_Shutdown();
 }

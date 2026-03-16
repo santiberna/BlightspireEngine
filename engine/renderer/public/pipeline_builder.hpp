@@ -55,7 +55,7 @@ protected: // TODO: Review access modifier, right now everything is protected.
     std::vector<vk::PushConstantRange> _pushConstantRanges;
 
     void ReflectShaders();
-    virtual void ReflectShader(MAYBE_UNUSED const ShaderStage& shaderStage) { }
+    virtual void ReflectShader([[maybe_unused]] const ShaderStage& shaderStage) { }
     void ReflectPushConstants(const ShaderStage& shaderStage);
     void ReflectDescriptorLayouts(const ShaderStage& shaderStage);
     vk::PipelineLayout CreatePipelineLayout();

@@ -15,21 +15,21 @@ class Type
 {
 public:
     template <typename T>
-    NO_DISCARD bool is() const;
+    [[nodiscard]] bool is() const;
 
     NON_COPYABLE(Type);
     DEFAULT_MOVABLE(Type);
     ~Type();
 
-    NO_DISCARD Value construct(const ArgumentList& args) const;
-    NO_DISCARD std::optional<uint64_t> getConstant(std::string_view name) const;
-    NO_DISCARD std::type_index getIndex() const;
+    [[nodiscard]] Value construct(const ArgumentList& args) const;
+    [[nodiscard]] std::optional<uint64_t> getConstant(std::string_view name) const;
+    [[nodiscard]] std::type_index getIndex() const;
 
-    NO_DISCARD const Field* getField(std::string_view name) const;
-    NO_DISCARD const Method* getMethod(std::string_view name) const;
+    [[nodiscard]] const Field* getField(std::string_view name) const;
+    [[nodiscard]] const Method* getMethod(std::string_view name) const;
 
-    NO_DISCARD const auto& allFields() const { return fields; }
-    NO_DISCARD const auto& allMethods() const { return methods; }
+    [[nodiscard]] const auto& allFields() const { return fields; }
+    [[nodiscard]] const auto& allMethods() const { return methods; }
 
 private:
     Type();

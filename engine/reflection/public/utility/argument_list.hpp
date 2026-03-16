@@ -17,8 +17,8 @@ public:
     {
     }
 
-    NO_DISCARD std::vector<const Type*> asTypes() const;
-    NO_DISCARD ValueRef get(size_t i) const;
+    [[nodiscard]] std::vector<const Type*> asTypes() const;
+    [[nodiscard]] ValueRef get(size_t i) const;
 
 private:
     std::vector<ValueRef> values;

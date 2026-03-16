@@ -23,11 +23,11 @@ public:
         ConstMemberPointer<Class, Ret, Args...>, MemberPointer<Class, Ret, Args...>>;
 
     MethodImpl(ReflectFactory& type_store, Callable ptr);
-    NO_DISCARD Value invoke(ValueRef object, const ArgumentList& parameters) const override;
+    [[nodiscard]] Value invoke(ValueRef object, const ArgumentList& parameters) const override;
 
 private:
     template <std::size_t... Is>
-    NO_DISCARD Ret invokeHelper(
+    [[nodiscard]] Ret invokeHelper(
         Class& obj, const ArgumentList& args, std::index_sequence<Is...> sequence) const;
 
     Callable callable {};
@@ -70,7 +70,7 @@ Value MethodImpl<Ret, Class, Qualifiers, Args...>::invoke(
 template <typename Ret, typename Class, typename Qualifiers, typename... Args>
 template <std::size_t... Is>
 Ret MethodImpl<Ret, Class, Qualifiers, Args...>::invokeHelper(
-    Class& obj, const ArgumentList& args, MAYBE_UNUSED std::index_sequence<Is...> sequence) const
+    Class& obj, const ArgumentList& args, [[maybe_unused]] std::index_sequence<Is...> sequence) const
 {
     return (obj.*callable)(args.get(Is).cast<detail::BareType<Args>>()...);
 }

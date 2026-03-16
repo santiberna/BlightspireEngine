@@ -12,17 +12,17 @@ public:
     NON_COPYABLE(UIModule);
     NON_MOVABLE(UIModule);
 
-    NO_DISCARD Viewport& GetViewport() { return *_viewport; };
-    NO_DISCARD const Viewport& GetViewport() const { return *_viewport; };
+    [[nodiscard]] Viewport& GetViewport() { return *_viewport; };
+    [[nodiscard]] const Viewport& GetViewport() const { return *_viewport; };
 
     UIInputContext uiInputContext;
 
 private:
-    ModuleTickOrder Init(MAYBE_UNUSED Engine& engine) final;
+    ModuleTickOrder Init([[maybe_unused]] Engine& engine) final;
 
     std::unique_ptr<Viewport> _viewport;
     std::shared_ptr<GraphicsContext> _graphicsContext;
 
-    void Tick(MAYBE_UNUSED Engine& engine) final;
-    void Shutdown(MAYBE_UNUSED Engine& engine) final { }
+    void Tick([[maybe_unused]] Engine& engine) final;
+    void Shutdown([[maybe_unused]] Engine& engine) final { }
 };

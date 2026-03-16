@@ -532,7 +532,7 @@ CPUImage ProcessImage(const fastgltf::Image& gltfImage, const fastgltf::Asset& g
     ZoneScopedN("Image Loading");
 
     std::visit(fastgltf::visitor {
-                   [](MAYBE_UNUSED auto& arg) {},
+                   []([[maybe_unused]] auto& arg) {},
                    [&](const fastgltf::sources::URI& filePath)
                    {
                        assert(filePath.fileByteOffset == 0); // We don't support offsets with stbi.
@@ -587,7 +587,7 @@ CPUImage ProcessImage(const fastgltf::Image& gltfImage, const fastgltf::Asset& g
                        std::visit(
                            fastgltf::visitor { // We only care about VectorWithMime here, because we specify LoadExternalBuffers, meaning
                                // all buffers are already loaded into a vector.
-                               [](MAYBE_UNUSED auto& arg) {},
+                               []([[maybe_unused]] auto& arg) {},
                                [&](const fastgltf::sources::Array& vector)
                                {
                                    int32_t width, height, nrChannels;

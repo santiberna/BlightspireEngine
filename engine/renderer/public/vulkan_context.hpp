@@ -29,13 +29,6 @@ struct VulkanInitInfo
     SDL_Window* window_handle = nullptr;
 };
 
-constexpr bool ENABLE_VALIDATION_LAYERS =
-#if not defined(NDEBUG)
-    true;
-#else
-    false;
-#endif
-
 enum class BindlessBinding : std::uint8_t
 {
     eImage = 0,
@@ -63,8 +56,8 @@ public:
     vk::CommandPool CommandPool() const { return _commandPool; }
     VmaAllocator MemoryAllocator() const { return _vmaAllocator; }
 
-    NO_DISCARD const bb::VulkanDispatchLoader& Dldi() const { return _dldi; }
-    NO_DISCARD const QueueFamilyIndices& QueueFamilies() const { return _queueFamilyIndices; }
+    [[nodiscard]] const bb::VulkanDispatchLoader& Dldi() const { return _dldi; }
+    [[nodiscard]] const QueueFamilyIndices& QueueFamilies() const { return _queueFamilyIndices; }
 
 private:
     friend class Renderer;
@@ -91,7 +84,7 @@ private:
 
     const std::vector<const char*> _deviceExtensions = {
         VK_KHR_SWAPCHAIN_EXTENSION_NAME,
-#if defined(LINUX)
+#if BB_PLATFORM == BB_LINUX
         VK_KHR_MULTIVIEW_EXTENSION_NAME,
         VK_KHR_MAINTENANCE2_EXTENSION_NAME,
 #endif

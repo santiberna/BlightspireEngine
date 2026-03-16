@@ -11,7 +11,7 @@ SDLActionManager::SDLActionManager(const SDLInputDeviceManager& sdlInputDeviceMa
 {
 }
 
-DigitalActionType SDLActionManager::CheckInput(MAYBE_UNUSED std::string_view actionName, GamepadButton button) const
+DigitalActionType SDLActionManager::CheckInput([[maybe_unused]] std::string_view actionName, GamepadButton button) const
 {
     DigitalActionType result {};
 
@@ -31,7 +31,7 @@ DigitalActionType SDLActionManager::CheckInput(MAYBE_UNUSED std::string_view act
     return result;
 }
 
-glm::vec2 SDLActionManager::CheckInput(MAYBE_UNUSED std::string_view actionName, GamepadAnalog gamepadAnalog) const
+glm::vec2 SDLActionManager::CheckInput([[maybe_unused]] std::string_view actionName, GamepadAnalog gamepadAnalog) const
 {
     glm::vec2 result = { 0.0f, 0.0f };
 

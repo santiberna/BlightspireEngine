@@ -56,7 +56,7 @@ VolumetricPass::~VolumetricPass()
     _context->Resources()->BufferResourceManager().Destroy(_fogTrailsBuffer);
 }
 
-void VolumetricPass::RecordCommands(vk::CommandBuffer commandBuffer, uint32_t currentFrame, MAYBE_UNUSED const RenderSceneDescription& scene)
+void VolumetricPass::RecordCommands(vk::CommandBuffer commandBuffer, uint32_t currentFrame, [[maybe_unused]] const RenderSceneDescription& scene)
 {
     TracyVkZone(scene.tracyContext, commandBuffer, "Tonemapping Pass");
 

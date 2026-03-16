@@ -55,8 +55,8 @@ public:
         _clearAtEndOfFrame = true;
     }
 
-    NO_DISCARD std::vector<std::shared_ptr<UIElement>>& GetElements() { return _baseElements; }
-    NO_DISCARD const std::vector<std::shared_ptr<UIElement>>& CGetElements() const { return _baseElements; }
+    [[nodiscard]] std::vector<std::shared_ptr<UIElement>>& GetElements() { return _baseElements; }
+    [[nodiscard]] const std::vector<std::shared_ptr<UIElement>>& CGetElements() const { return _baseElements; }
 
     const glm::uvec2& GetExtend() { return _extend; }
     const glm::uvec2& GetOffset() { return _offset; }

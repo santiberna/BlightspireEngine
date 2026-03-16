@@ -46,7 +46,7 @@ public:
         requires IsSystem<T>;
 
     template <typename A>
-    void save(A& archive, MAYBE_UNUSED uint32_t version) const;
+    void save(A& archive, [[maybe_unused]] uint32_t version) const;
 
 private:
     entt::registry registry {};
@@ -75,7 +75,7 @@ T* ECSModule::GetSystem()
 }
 
 template <typename A>
-void ECSModule::save(A& archive, MAYBE_UNUSED uint32_t version) const
+void ECSModule::save(A& archive, [[maybe_unused]] uint32_t version) const
 {
     auto entityView = registry.view<entt::entity>();
     for (auto entity : entityView)

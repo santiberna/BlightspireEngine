@@ -15,7 +15,7 @@ VKAPI_ATTR VkBool32 VKAPI_CALL util::DebugCallback(
     vk::DebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
     vk::DebugUtilsMessageTypeFlagsEXT messageType,
     const vk::DebugUtilsMessengerCallbackDataEXT* pCallbackData,
-    MAYBE_UNUSED void* pUserData)
+    [[maybe_unused]] void* pUserData)
 {
     const char* typeText = "[UNKNOWN]";
 

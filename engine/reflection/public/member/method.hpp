@@ -23,7 +23,7 @@ public:
     template <typename Class, typename Ret, typename... Args>
     using ConstMemberPointer = Ret (Class::*)(Args...) const;
 
-    NO_DISCARD virtual Value invoke(ValueRef object, const ArgumentList& parameters) const = 0;
+    [[nodiscard]] virtual Value invoke(ValueRef object, const ArgumentList& parameters) const = 0;
 
 protected:
     ReflectFactory& store;

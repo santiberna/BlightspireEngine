@@ -17,8 +17,8 @@ public:
     NON_MOVABLE(Field);
     NON_COPYABLE(Field);
 
-    NO_DISCARD void* rawAccess(void* ptr) const;
-    NO_DISCARD const Type* getType() const;
+    [[nodiscard]] void* rawAccess(void* ptr) const;
+    [[nodiscard]] const Type* getType() const;
 
 private:
     size_t offset {};

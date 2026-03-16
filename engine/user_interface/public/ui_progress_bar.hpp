@@ -43,7 +43,7 @@ public:
     void SubmitDrawInfo(std::vector<QuadDrawInfo>& drawList) const override;
 
     void SetFractionFilled(float percentage);
-    NO_DISCARD float GetFractionFilled() const { return _fractionFilled; }
+    [[nodiscard]] float GetFractionFilled() const { return _fractionFilled; }
 
 private:
     float _fractionFilled = 0.5f;

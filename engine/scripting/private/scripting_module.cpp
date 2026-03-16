@@ -30,7 +30,7 @@ void ScriptingModule::GenerateEngineBindingsFile()
     }
 }
 
-ModuleTickOrder ScriptingModule::Init(MAYBE_UNUSED Engine& engine)
+ModuleTickOrder ScriptingModule::Init([[maybe_unused]] Engine& engine)
 {
     VMInitConfig config {};
     config.includePaths.emplace_back("./");

@@ -359,7 +359,7 @@ Renderer::Renderer(ApplicationModule& application, Viewport& viewport, const std
         .AddNode(toneMappingPass)
         .AddNode(fxaaPass)
         .AddNode(uiPass)
-#ifndef DISTRIBUTION
+#if BB_DEVELOPMENT
         .AddNode(debugPass)
 #endif
         .AddNode(presentationPass)

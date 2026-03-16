@@ -58,7 +58,7 @@ else ()
 endif ()
 
 # Add executable with settings based on configuration used
-if ("${CMAKE_PRESET_NAME}" STREQUAL "x64-Distribution")
+if ("${CMAKE_PRESET_NAME}" STREQUAL "Win64-Distribution")
     add_executable(Blightspire WIN32 "engine/main.cpp" ${APP_ICON_RESOURCE_WINDOWS})
 elseif ("${CMAKE_PRESET_NAME}" STREQUAL "WSL-Distribution")
     add_executable(Blightspire "engine/main.cpp")

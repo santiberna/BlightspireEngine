@@ -115,11 +115,7 @@ float GetAmbientStrength(WrenEngine& engine)
 
 bool IsDistribution([[maybe_unused]] WrenEngine& self)
 {
-#if DISTRIBUTION
-    return true;
-#else
-    return false;
-#endif
+    return BB_DEVELOPMENT == 0;
 }
 
 void DrawDebugLine(WrenEngine& engine, const glm::vec3& start, const glm::vec3& end)

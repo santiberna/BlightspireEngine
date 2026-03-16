@@ -26,6 +26,6 @@ target_add_module(Engine resources)
 target_add_module(Engine thread)
 target_add_module(Engine settings)
 
-if (DEVELOPMENT_BUILD)
+if (DEVELOPER_BUILD)
     target_add_module(Engine inspector)
 endif()

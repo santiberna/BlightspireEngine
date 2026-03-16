@@ -18,18 +18,13 @@
 
 int Main()
 {
-#ifdef DISTRIBUTION
-    bb::setupFileLogger();
-#else
-    bb::setupDefaultLogger();
-#endif
-
-#ifdef DISTRIBUTION
-    fileIO::Init(false); // RAII wrapper for mounting the file system.
-#else
+#if BB_DEVELOPMENT
     fileIO::Init(true); // RAII wrapper for mounting the file system.
+    bb::setupDefaultLogger();
+#else
+    fileIO::Init(false); // RAII wrapper for mounting the file system.
+    bb::setupFileLogger();
 #endif
-
     int result;
     {
         MainEngine instance;

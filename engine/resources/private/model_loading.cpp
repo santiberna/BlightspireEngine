@@ -114,10 +114,10 @@ fastgltf::Asset LoadFastGLTFAsset(std::string_view path)
     // if (!fileStream.isOpen())
     //   throw std::runtime_error("Path not found!");
 
-#ifdef DISTRIBUTION
-    std::string_view directory = "./";
-#else
+#if BB_DEVELOPEMENT
     std::string_view directory = path.substr(0, path.find_last_of('/'));
+#else
+    std::string_view directory = "./";
 #endif
 
     auto loadedGltf = parser.loadGltf(fileStream, directory, DEFAULT_LOAD_FLAGS);
@@ -216,10 +216,10 @@ CPUModel ModelLoading::LoadGLTF(std::string_view path)
     // if (!fileStream.isOpen())
     //   throw std::runtime_error("Path not found!");
 
-#ifdef DISTRIBUTION
-    std::string_view directory = "./";
-#else
+#if BB_DEVELOPEMENT
     std::string_view directory = path.substr(0, path.find_last_of('/'));
+#else
+    std::string_view directory = "./";
 #endif
 
     auto loadedGltf = parser.loadGltf(fileStream, directory, DEFAULT_LOAD_FLAGS);

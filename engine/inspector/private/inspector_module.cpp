@@ -89,7 +89,7 @@ void InspectorModule::Tick([[maybe_unused]] Engine& engine)
     _imguiBackend->NewFrame();
     ImGui::NewFrame();
 
-#if BB_DEVELOPMENT == 0
+#if BB_DEVELOPMENT
     _performanceTracker->Update();
 
     if (ImGui::BeginMainMenuBar())

@@ -65,7 +65,7 @@ void LightingPass::RecordCommands(vk::CommandBuffer commandBuffer, uint32_t curr
     renderingInfo.pDepthAttachment = nullptr;
     renderingInfo.pStencilAttachment = nullptr;
 
-    commandBuffer.beginRenderingKHR(&renderingInfo, _context->VulkanContext()->Dldi());
+    commandBuffer.beginRenderingKHR(&renderingInfo);
 
     commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, _pipeline);
 
@@ -83,7 +83,7 @@ void LightingPass::RecordCommands(vk::CommandBuffer commandBuffer, uint32_t curr
 
     _context->GetDrawStats().Draw(3);
 
-    commandBuffer.endRenderingKHR(_context->VulkanContext()->Dldi());
+    commandBuffer.endRenderingKHR();
 }
 
 LightingPass::~LightingPass()

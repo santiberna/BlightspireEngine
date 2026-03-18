@@ -168,10 +168,10 @@ void GeometryPass::DrawGeometry(vk::CommandBuffer commandBuffer, uint32_t curren
     renderingInfo.pDepthAttachment = &depthAttachmentInfo;
     renderingInfo.pStencilAttachment = nullptr;
 
-    commandBuffer.beginRenderingKHR(&renderingInfo, _context->VulkanContext()->Dldi());
+    commandBuffer.beginRenderingKHR(&renderingInfo);
     DrawIndirectGeometry(commandBuffer, currentFrame, scene);
     DrawDirectGeometry(commandBuffer, currentFrame, scene);
-    commandBuffer.endRenderingKHR(_context->VulkanContext()->Dldi());
+    commandBuffer.endRenderingKHR();
 }
 
 void GeometryPass::DrawIndirectGeometry(vk::CommandBuffer commandBuffer, uint32_t currentFrame, const RenderSceneDescription& scene)
@@ -204,8 +204,7 @@ void GeometryPass::DrawIndirectGeometry(vk::CommandBuffer commandBuffer, uint32_
             countBuffer,
             0,
             scene.gpuScene->StaticDrawCount(),
-            sizeof(DrawIndexedIndirectCommand),
-            _context->VulkanContext()->Dldi());
+            sizeof(DrawIndexedIndirectCommand));
 
         _context->GetDrawStats().IndirectDraw(scene.gpuScene->StaticDrawCount(), scene.gpuScene->DrawCommandIndexCount(scene.gpuScene->StaticDrawCommands()));
     }
@@ -239,8 +238,7 @@ void GeometryPass::DrawIndirectGeometry(vk::CommandBuffer commandBuffer, uint32_
             countBuffer,
             0,
             scene.gpuScene->SkinnedDrawCount(),
-            sizeof(DrawIndexedIndirectCommand),
-            _context->VulkanContext()->Dldi());
+            sizeof(DrawIndexedIndirectCommand));
 
         _context->GetDrawStats().IndirectDraw(scene.gpuScene->SkinnedDrawCount(), scene.gpuScene->DrawCommandIndexCount(scene.gpuScene->SkinnedDrawCommands()));
     }

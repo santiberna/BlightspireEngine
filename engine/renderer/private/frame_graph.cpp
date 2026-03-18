@@ -102,7 +102,7 @@ void FrameGraph::RecordCommands(vk::CommandBuffer commandBuffer, uint32_t curren
     {
         const FrameGraphNode& node = _nodes[nodeHandle];
 
-        util::BeginLabel(commandBuffer, node.name, node.debugLabelColor, vkContext->Dldi());
+        util::BeginLabel(commandBuffer, node.name, node.debugLabelColor);
 
         {
             TracyVkZoneC(scene.tracyContext, commandBuffer, "Framegraph barrier", tracy::Color::IndianRed);
@@ -117,7 +117,7 @@ void FrameGraph::RecordCommands(vk::CommandBuffer commandBuffer, uint32_t curren
 
         node.renderPass.RecordCommands(commandBuffer, currentFrame, scene);
 
-        util::EndLabel(commandBuffer, vkContext->Dldi());
+        util::EndLabel(commandBuffer);
     }
 }
 

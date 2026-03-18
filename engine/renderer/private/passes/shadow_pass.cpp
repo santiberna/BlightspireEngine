@@ -131,7 +131,7 @@ void ShadowPass::DrawGeometry(vk::CommandBuffer commandBuffer, uint32_t currentF
             .pDepthAttachment = &depthAttachmentInfo,
         };
 
-        commandBuffer.beginRenderingKHR(&renderingInfo, _context->VulkanContext()->Dldi());
+        commandBuffer.beginRenderingKHR(&renderingInfo);
 
         if (scene.gpuScene->StaticDrawCount() > 0)
         {
@@ -155,12 +155,11 @@ void ShadowPass::DrawGeometry(vk::CommandBuffer commandBuffer, uint32_t currentF
                 countBuffer,
                 0,
                 scene.gpuScene->StaticDrawCount(),
-                sizeof(DrawIndexedIndirectCommand),
-                _context->VulkanContext()->Dldi());
+                sizeof(DrawIndexedIndirectCommand));
 
             _context->GetDrawStats().IndirectDraw(scene.gpuScene->StaticDrawCount(), scene.gpuScene->DrawCommandIndexCount(scene.gpuScene->StaticDrawCommands()));
         }
-        commandBuffer.endRenderingKHR(vkContext->Dldi());
+        commandBuffer.endRenderingKHR();
     }
 
     {
@@ -179,7 +178,7 @@ void ShadowPass::DrawGeometry(vk::CommandBuffer commandBuffer, uint32_t currentF
             .pDepthAttachment = &depthAttachmentInfo,
         };
 
-        commandBuffer.beginRenderingKHR(&renderingInfo, _context->VulkanContext()->Dldi());
+        commandBuffer.beginRenderingKHR(&renderingInfo);
 
         if (scene.gpuScene->SkinnedDrawCount() > 0)
         {
@@ -204,12 +203,11 @@ void ShadowPass::DrawGeometry(vk::CommandBuffer commandBuffer, uint32_t currentF
                 countBuffer,
                 0,
                 scene.gpuScene->SkinnedDrawCount(),
-                sizeof(DrawIndexedIndirectCommand),
-                _context->VulkanContext()->Dldi());
+                sizeof(DrawIndexedIndirectCommand));
 
             _context->GetDrawStats().IndirectDraw(scene.gpuScene->SkinnedDrawCount(), scene.gpuScene->DrawCommandIndexCount(scene.gpuScene->SkinnedDrawCommands()));
         }
 
-        commandBuffer.endRenderingKHR(vkContext->Dldi());
+        commandBuffer.endRenderingKHR();
     }
 }

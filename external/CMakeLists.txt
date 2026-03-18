@@ -27,7 +27,12 @@ add_library(VulkanAPI INTERFACE)
 
 target_link_libraries(VulkanAPI INTERFACE ${Vulkan_LIBRARY})
 target_include_directories(VulkanAPI INTERFACE ${Vulkan_INCLUDE_DIRS})
-target_compile_definitions(VulkanAPI INTERFACE VULKAN_HPP_NO_CONSTRUCTORS)
+
+target_compile_definitions(VulkanAPI 
+    INTERFACE
+        VK_NO_PROTOTYPES
+        VULKAN_HPP_NO_CONSTRUCTORS
+)
 
 # FastGLTF
 FetchContent_Declare(
@@ -88,6 +93,11 @@ set(TRACY_ENABLE ON)
 set(TRACY_ON_DEMAND ON)
 
 FetchContent_MakeAvailable(Tracy)
+
+target_compile_definitions(TracyClient
+    PUBLIC
+        TRACY_VK_USE_SYMBOL_TABLE   
+)
 
 # EnTT
 add_subdirectory(entt)
@@ -176,7 +186,11 @@ file(GLOB implot_headers CONFIGURE_DEPENDS "implot/*.h")
 set(implot_files ${implot_sources} ${implot_headers})
 
 add_library(ImGui ${imgui_files} ${implot_files} "imgui_entt_entity_editor/imgui_entt_entity_editor.hpp")
-target_compile_definitions(ImGui PRIVATE SDL_ENABLE_OLD_NAMES)
+
+target_compile_definitions(ImGui 
+    PRIVATE SDL_ENABLE_OLD_NAMES
+    )
+
 target_compile_options(ImGui PRIVATE -Wno-nontrivial-memcall)
 
 target_link_libraries(ImGui

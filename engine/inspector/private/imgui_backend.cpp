@@ -40,6 +40,13 @@ ImGuiBackend::ImGuiBackend(const std::shared_ptr<GraphicsContext>& context, cons
     initInfoVulkan.DescriptorPool = vkContext->DescriptorPool();
     initInfoVulkan.MinImageCount = 2;
     initInfoVulkan.ImageCount = swapChain.GetImageCount();
+
+    auto vulkan_loader = [](const char* name, void* userData)
+    {
+        return VULKAN_HPP_DEFAULT_DISPATCHER.vkGetInstanceProcAddr(reinterpret_cast<VkInstance>(userData), name);
+    };
+
+    ImGui_ImplVulkan_LoadFunctions(vulkan_loader, vkContext->Instance());
     ImGui_ImplVulkan_Init(&initInfoVulkan);
 
     ImGui_ImplVulkan_CreateFontsTexture();

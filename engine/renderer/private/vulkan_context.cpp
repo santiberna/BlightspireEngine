@@ -6,19 +6,98 @@
 #include "pipeline_builder.hpp"
 #include "swap_chain.hpp"
 #include "vulkan_helper.hpp"
-#include "vulkan_validation.hpp"
 #include <log_setup.hpp>
 
 #include <SDL3/SDL_vulkan.h>
 
+VULKAN_HPP_DEFAULT_DISPATCH_LOADER_DYNAMIC_STORAGE
+
+namespace
+{
+constexpr std::array INSTANCE_LAYERS = {
+#if BB_DEVELOPMENT
+    "VK_LAYER_KHRONOS_validation"
+#endif
+};
+
+constexpr std::array DEVICE_EXTENSIONS = {
+    vk::KHRSwapchainExtensionName,
+    vk::KHRCreateRenderpass2ExtensionName,
+    vk::KHRDepthStencilResolveExtensionName,
+    vk::KHRDynamicRenderingExtensionName,
+    vk::EXTDescriptorIndexingExtensionName,
+    vk::KHRShaderDrawParametersExtensionName,
+    vk::KHRDrawIndirectCountExtensionName,
+    vk::EXTCalibratedTimestampsExtensionName,
+    vk::KHRPushDescriptorExtensionName,
+    vk::EXTSamplerFilterMinmaxExtensionName,
+
+#if BB_PLATFORM == BB_LINUX
+    vk::KHRMaintenance2ExtensionName,
+    vk::KHRMultiviewExtensionName,
+#endif
+};
+
+VKAPI_ATTR VkBool32 VKAPI_CALL VulkanDebugCallback(
+    vk::DebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
+    vk::DebugUtilsMessageTypeFlagsEXT messageType,
+    const vk::DebugUtilsMessengerCallbackDataEXT* pCallbackData,
+    [[maybe_unused]] void* pUserData)
+{
+    const char* typeText = "[UNKNOWN]";
+
+    if (messageType & vk::DebugUtilsMessageTypeFlagBitsEXT::eGeneral)
+    {
+        typeText = "[GENERAL]";
+    }
+    else if (messageType & vk::DebugUtilsMessageTypeFlagBitsEXT::eValidation)
+    {
+        typeText = "[VALIDATION]";
+    }
+    else if (messageType & vk::DebugUtilsMessageTypeFlagBitsEXT::ePerformance)
+    {
+        typeText = "[PERFORMANCE]";
+    }
+
+    spdlog::level::level_enum logLevel {};
+
+    switch (messageSeverity)
+    {
+    case vk::DebugUtilsMessageSeverityFlagBitsEXT::eVerbose:
+        logLevel = spdlog::level::level_enum::trace;
+        break;
+    case vk::DebugUtilsMessageSeverityFlagBitsEXT::eInfo:
+        logLevel = spdlog::level::level_enum::info;
+        break;
+    case vk::DebugUtilsMessageSeverityFlagBitsEXT::eWarning:
+        logLevel = spdlog::level::level_enum::warn;
+        break;
+    case vk::DebugUtilsMessageSeverityFlagBitsEXT::eError:
+        logLevel = spdlog::level::level_enum::err;
+        break;
+    default:
+        break;
+    }
+
+    if (messageSeverity >= vk::DebugUtilsMessageSeverityFlagBitsEXT::eWarning)
+        spdlog::log(logLevel, "{0} Validation layer: {1}", typeText, pCallbackData->pMessage);
+
+    // Do not abort or assert(false) here.
+    // Validation errors are not fatal and the application can output extra debug logs in some circumstances after this is called.
+    // Prefer breakpoints in the debugger if needed
+
+    return VK_FALSE;
+}
+}
+
 VulkanContext::VulkanContext(const VulkanInitInfo& initInfo)
 {
+    VULKAN_HPP_DEFAULT_DISPATCHER.init();
+
     _validationEnabled = CheckValidationLayerSupport() && BB_DEVELOPMENT;
     spdlog::info("Validation layers enabled: {}", _validationEnabled ? "TRUE" : "FALSE");
 
     CreateInstance();
-    _dldi = bb::VulkanDispatchLoader { _instance, vkGetInstanceProcAddr, _device,
-        vkGetDeviceProcAddr };
     SetupDebugMessenger();
 
     SDL_Window* window = reinterpret_cast<SDL_Window*>(initInfo.window_handle);
@@ -38,8 +117,8 @@ VulkanContext::VulkanContext(const VulkanInitInfo& initInfo)
     CreateDescriptorPool();
 
     VmaVulkanFunctions vulkanFunctions = {};
-    vulkanFunctions.vkGetInstanceProcAddr = &vkGetInstanceProcAddr;
-    vulkanFunctions.vkGetDeviceProcAddr = &vkGetDeviceProcAddr;
+    vulkanFunctions.vkGetInstanceProcAddr = VULKAN_HPP_DEFAULT_DISPATCHER.vkGetInstanceProcAddr;
+    vulkanFunctions.vkGetDeviceProcAddr = VULKAN_HPP_DEFAULT_DISPATCHER.vkGetDeviceProcAddr;
 
     VmaAllocatorCreateInfo vmaAllocatorCreateInfo {};
     vmaAllocatorCreateInfo.physicalDevice = _physicalDevice;
@@ -70,7 +149,7 @@ VulkanContext::VulkanContext(const VulkanInitInfo& initInfo)
 VulkanContext::~VulkanContext()
 {
     if (_validationEnabled)
-        _instance.destroyDebugUtilsMessengerEXT(_debugMessenger, nullptr, _dldi);
+        _instance.destroyDebugUtilsMessengerEXT(_debugMessenger, nullptr);
 
     _device.destroy(_descriptorPool);
     _device.destroy(_commandPool);
@@ -110,10 +189,19 @@ void VulkanContext::CreateInstance()
 
     if (_validationEnabled)
     {
-        createInfo.enabledLayerCount = _validationLayers.size();
-        createInfo.ppEnabledLayerNames = _validationLayers.data();
+        createInfo.enabledLayerCount = INSTANCE_LAYERS.size();
+        createInfo.ppEnabledLayerNames = INSTANCE_LAYERS.data();
 
-        util::PopulateDebugMessengerCreateInfo(structureChain.get<vk::DebugUtilsMessengerCreateInfoEXT>());
+        using enum vk::DebugUtilsMessageTypeFlagBitsEXT;
+        using enum vk::DebugUtilsMessageSeverityFlagBitsEXT;
+
+        vk::DebugUtilsMessengerCreateInfoEXT debug_messenger_info {};
+        debug_messenger_info.messageSeverity = eVerbose | eInfo | eWarning | eError;
+        debug_messenger_info.messageType = eGeneral | eValidation | ePerformance;
+        debug_messenger_info.pfnUserCallback = VulkanDebugCallback;
+        debug_messenger_info.pUserData = nullptr;
+
+        structureChain.assign<vk::DebugUtilsMessengerCreateInfoEXT>(debug_messenger_info);
     }
     else
     {
@@ -123,6 +211,7 @@ void VulkanContext::CreateInstance()
     }
 
     util::VK_ASSERT(vk::createInstance(&createInfo, nullptr, &_instance), "Failed to create vk instance!");
+    VULKAN_HPP_DEFAULT_DISPATCHER.init(_instance);
 }
 
 void VulkanContext::PickPhysicalDevice()
@@ -198,7 +287,7 @@ uint32_t VulkanContext::RateDeviceSuitability(const vk::PhysicalDevice& deviceTo
 bool VulkanContext::ExtensionsSupported(const vk::PhysicalDevice& deviceToCheckSupport)
 {
     std::vector<vk::ExtensionProperties> availableExtensions = deviceToCheckSupport.enumerateDeviceExtensionProperties();
-    std::set<std::string> requiredExtensions { _deviceExtensions.begin(), _deviceExtensions.end() };
+    std::set<std::string> requiredExtensions { DEVICE_EXTENSIONS.begin(), DEVICE_EXTENSIONS.end() };
     for (const auto& extension : availableExtensions)
         requiredExtensions.erase(extension.extensionName);
 
@@ -208,7 +297,7 @@ bool VulkanContext::ExtensionsSupported(const vk::PhysicalDevice& deviceToCheckS
 bool VulkanContext::CheckValidationLayerSupport()
 {
     std::vector<vk::LayerProperties> availableLayers = vk::enumerateInstanceLayerProperties();
-    bool result = std::all_of(_validationLayers.begin(), _validationLayers.end(), [&availableLayers](const auto& layerName)
+    bool result = std::all_of(INSTANCE_LAYERS.begin(), INSTANCE_LAYERS.end(), [&availableLayers](const auto& layerName)
         {
         const auto it = std::find_if(availableLayers.begin(), availableLayers.end(), [&layerName](const auto &layer)
                 { return strcmp(layerName, layer.layerName) == 0; });
@@ -239,11 +328,16 @@ void VulkanContext::SetupDebugMessenger()
     if (!_validationEnabled)
         return;
 
-    vk::DebugUtilsMessengerCreateInfoEXT createInfo {};
-    util::PopulateDebugMessengerCreateInfo(createInfo);
-    createInfo.pUserData = nullptr;
+    using enum vk::DebugUtilsMessageTypeFlagBitsEXT;
+    using enum vk::DebugUtilsMessageSeverityFlagBitsEXT;
 
-    util::VK_ASSERT(_instance.createDebugUtilsMessengerEXT(&createInfo, nullptr, &_debugMessenger, _dldi),
+    vk::DebugUtilsMessengerCreateInfoEXT debug_messenger_info {};
+    debug_messenger_info.messageSeverity = eVerbose | eInfo | eWarning | eError;
+    debug_messenger_info.messageType = eGeneral | eValidation | ePerformance;
+    debug_messenger_info.pfnUserCallback = VulkanDebugCallback;
+    debug_messenger_info.pUserData = nullptr;
+
+    util::VK_ASSERT(_instance.createDebugUtilsMessengerEXT(&debug_messenger_info, nullptr, &_debugMessenger),
         "Failed to create debug messenger!");
 }
 
@@ -283,10 +377,11 @@ void VulkanContext::CreateDevice()
     createInfo.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size());
     createInfo.pQueueCreateInfos = queueCreateInfos.data();
     createInfo.pEnabledFeatures = nullptr;
-    createInfo.enabledExtensionCount = static_cast<uint32_t>(_deviceExtensions.size());
-    createInfo.ppEnabledExtensionNames = _deviceExtensions.data();
+    createInfo.enabledExtensionCount = static_cast<uint32_t>(DEVICE_EXTENSIONS.size());
+    createInfo.ppEnabledExtensionNames = DEVICE_EXTENSIONS.data();
 
     util::VK_ASSERT(_physicalDevice.createDevice(&createInfo, nullptr, &_device), "Failed creating a logical device!");
+    VULKAN_HPP_DEFAULT_DISPATCHER.init(_device);
 
     _device.getQueue(_queueFamilyIndices.graphicsFamily.value(), 0, &_graphicsQueue);
     _device.getQueue(_queueFamilyIndices.presentFamily.value(), 0, &_presentQueue);

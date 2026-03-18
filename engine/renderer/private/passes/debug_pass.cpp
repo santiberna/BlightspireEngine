@@ -75,7 +75,7 @@ void DebugPass::RecordCommands(vk::CommandBuffer commandBuffer, uint32_t current
         .pStencilAttachment = util::HasStencilComponent(_gBuffers.DepthFormat()) ? &stencilAttachmentInfo : nullptr,
     };
 
-    commandBuffer.beginRenderingKHR(&renderingInfo, _context->VulkanContext()->Dldi());
+    commandBuffer.beginRenderingKHR(&renderingInfo);
 
     commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, _pipeline);
 
@@ -92,7 +92,7 @@ void DebugPass::RecordCommands(vk::CommandBuffer commandBuffer, uint32_t current
 
     ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), commandBuffer);
 
-    commandBuffer.endRenderingKHR(_context->VulkanContext()->Dldi());
+    commandBuffer.endRenderingKHR();
 
     ClearLines();
 }

@@ -60,7 +60,7 @@ void BuildHzbPass::RecordCommands(vk::CommandBuffer commandBuffer, [[maybe_unuse
             .imageLayout = vk::ImageLayout::eGeneral,
         };
 
-        commandBuffer.pushDescriptorSetWithTemplateKHR<std::array<vk::DescriptorImageInfo, 2>>(_hzbUpdateTemplate, _buildHzbPipelineLayout, 0, { inputImageInfo, outputImageInfo }, _context->VulkanContext()->Dldi());
+        commandBuffer.pushDescriptorSetWithTemplateKHR<std::array<vk::DescriptorImageInfo, 2>>(_hzbUpdateTemplate, _buildHzbPipelineLayout, 0, { inputImageInfo, outputImageInfo });
 
         commandBuffer.bindPipeline(vk::PipelineBindPoint::eCompute, _buildHzbPipeline);
 

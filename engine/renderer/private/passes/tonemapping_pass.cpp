@@ -132,7 +132,7 @@ void TonemappingPass::RecordCommands(vk::CommandBuffer commandBuffer, uint32_t c
         .pStencilAttachment = nullptr,
     };
 
-    commandBuffer.beginRenderingKHR(&renderingInfo, _context->VulkanContext()->Dldi());
+    commandBuffer.beginRenderingKHR(&renderingInfo);
 
     commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, _pipeline);
 
@@ -149,7 +149,7 @@ void TonemappingPass::RecordCommands(vk::CommandBuffer commandBuffer, uint32_t c
 
     _context->GetDrawStats().Draw(3);
 
-    commandBuffer.endRenderingKHR(_context->VulkanContext()->Dldi());
+    commandBuffer.endRenderingKHR();
 }
 
 void TonemappingPass::CreatePipeline()

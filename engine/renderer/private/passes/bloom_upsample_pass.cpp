@@ -73,7 +73,7 @@ void BloomUpsamplePass::RecordCommands(vk::CommandBuffer commandBuffer, uint32_t
         commandBuffer.setViewport(0, 1, &viewport);
         commandBuffer.setScissor(0, { renderingInfo.renderArea });
 
-        commandBuffer.beginRenderingKHR(&renderingInfo, _context->VulkanContext()->Dldi());
+        commandBuffer.beginRenderingKHR(&renderingInfo);
 
         struct PushConstants
         {
@@ -92,7 +92,7 @@ void BloomUpsamplePass::RecordCommands(vk::CommandBuffer commandBuffer, uint32_t
 
         _context->GetDrawStats().Draw(3);
 
-        commandBuffer.endRenderingKHR(_context->VulkanContext()->Dldi());
+        commandBuffer.endRenderingKHR();
 
         // Prepare for next pass
         resolution *= 2.0f;

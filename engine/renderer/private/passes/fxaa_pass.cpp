@@ -52,7 +52,7 @@ void FXAAPass::RecordCommands(vk::CommandBuffer commandBuffer, [[maybe_unused]] 
     renderingInfo.pDepthAttachment = nullptr;
     renderingInfo.pStencilAttachment = nullptr;
 
-    commandBuffer.beginRenderingKHR(&renderingInfo, _context->VulkanContext()->Dldi());
+    commandBuffer.beginRenderingKHR(&renderingInfo);
 
     commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, _pipeline);
 
@@ -63,7 +63,7 @@ void FXAAPass::RecordCommands(vk::CommandBuffer commandBuffer, [[maybe_unused]] 
 
     _context->GetDrawStats().Draw(3);
 
-    commandBuffer.endRenderingKHR(_context->VulkanContext()->Dldi());
+    commandBuffer.endRenderingKHR();
 }
 
 FXAAPass::~FXAAPass()

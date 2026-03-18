@@ -94,7 +94,7 @@ void GaussianBlurPass::RecordCommands(vk::CommandBuffer commandBuffer, uint32_t 
             .pStencilAttachment = nullptr,
         };
 
-        commandBuffer.beginRenderingKHR(&renderingInfo, _context->VulkanContext()->Dldi());
+        commandBuffer.beginRenderingKHR(&renderingInfo);
 
         commandBuffer.pushConstants<uint32_t>(_pipelineLayout, vk::ShaderStageFlagBits::eFragment, 0, isVerticalPass);
         commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, _pipeline);
@@ -104,7 +104,7 @@ void GaussianBlurPass::RecordCommands(vk::CommandBuffer commandBuffer, uint32_t 
 
         _context->GetDrawStats().Draw(3);
 
-        commandBuffer.endRenderingKHR(_context->VulkanContext()->Dldi());
+        commandBuffer.endRenderingKHR();
     }
 }
 

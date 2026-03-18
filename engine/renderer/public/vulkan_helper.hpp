@@ -59,18 +59,16 @@ vk::ImageAspectFlags GetImageAspectFlags(vk::Format format);
 
 void BeginLabel(vk::CommandBuffer commandBuffer,
     std::string_view label,
-    glm::vec3 color,
-    const bb::VulkanDispatchLoader& dldi);
+    glm::vec3 color);
 
-void EndLabel(vk::CommandBuffer commandBuffer, const bb::VulkanDispatchLoader& dldi);
+void EndLabel(vk::CommandBuffer commandBuffer);
 
 void BeginQueueLabel(
     vk::Queue queue,
     std::string_view label,
-    glm::vec3 color,
-    const bb::VulkanDispatchLoader& dldi);
+    glm::vec3 color);
 
-void EndQueueLabel(vk::Queue queue, const bb::VulkanDispatchLoader& dldi);
+void EndQueueLabel(vk::Queue queue);
 
 template <typename T>
 static void NameObject(T object, std::string_view label, std::shared_ptr<VulkanContext> context)
@@ -82,7 +80,7 @@ static void NameObject(T object, std::string_view label, std::shared_ptr<VulkanC
     nameInfo.objectType = object.objectType;
     nameInfo.objectHandle = reinterpret_cast<uint64_t>(static_cast<typename T::CType>(object));
 
-    vk::Result result = context->Device().setDebugUtilsObjectNameEXT(&nameInfo, context->Dldi());
+    vk::Result result = context->Device().setDebugUtilsObjectNameEXT(&nameInfo);
     if (result != vk::Result::eSuccess)
         spdlog::warn("Failed debug naming object!");
 #else

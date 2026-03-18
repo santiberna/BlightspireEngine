@@ -97,7 +97,7 @@ void ParticlePass::RecordKickOff(vk::CommandBuffer commandBuffer)
 {
     auto vkContext { _context->VulkanContext() };
 
-    util::BeginLabel(commandBuffer, "Kick-off particle pass", glm::vec3 { 255.0f, 105.0f, 180.0f } / 255.0f, vkContext->Dldi());
+    util::BeginLabel(commandBuffer, "Kick-off particle pass", glm::vec3 { 255.0f, 105.0f, 180.0f } / 255.0f);
 
     commandBuffer.bindPipeline(vk::PipelineBindPoint::eCompute, _pipelines[static_cast<uint32_t>(ShaderStages::eKickOff)]);
 
@@ -111,7 +111,7 @@ void ParticlePass::RecordKickOff(vk::CommandBuffer commandBuffer)
     memoryBarrier.dstAccessMask = vk::AccessFlagBits::eShaderWrite;
     commandBuffer.pipelineBarrier(vk::PipelineStageFlagBits::eComputeShader, vk::PipelineStageFlagBits::eComputeShader, vk::DependencyFlags { 0 }, memoryBarrier, {}, {});
 
-    util::EndLabel(commandBuffer, vkContext->Dldi());
+    util::EndLabel(commandBuffer);
 }
 
 void ParticlePass::RecordEmit(vk::CommandBuffer commandBuffer)
@@ -119,7 +119,7 @@ void ParticlePass::RecordEmit(vk::CommandBuffer commandBuffer)
     auto vkContext { _context->VulkanContext() };
     auto resources { _context->Resources() };
 
-    util::BeginLabel(commandBuffer, "Emit particle pass", glm::vec3 { 255.0f, 105.0f, 180.0f } / 255.0f, vkContext->Dldi());
+    util::BeginLabel(commandBuffer, "Emit particle pass", glm::vec3 { 255.0f, 105.0f, 180.0f } / 255.0f);
 
     // make sure the copy buffer command is done before dispatching
     vk::BufferMemoryBarrier barrier {};
@@ -152,7 +152,7 @@ void ParticlePass::RecordEmit(vk::CommandBuffer commandBuffer)
     memoryBarrier.dstAccessMask = vk::AccessFlagBits::eShaderWrite;
     commandBuffer.pipelineBarrier(vk::PipelineStageFlagBits::eComputeShader, vk::PipelineStageFlagBits::eComputeShader, vk::DependencyFlags { 0 }, memoryBarrier, {}, {});
 
-    util::EndLabel(commandBuffer, vkContext->Dldi());
+    util::EndLabel(commandBuffer);
 }
 
 void ParticlePass::RecordSimulate(vk::CommandBuffer commandBuffer, const CameraResource& camera, float deltaTime, uint32_t currentFrame)
@@ -169,7 +169,7 @@ void ParticlePass::RecordSimulate(vk::CommandBuffer commandBuffer, const CameraR
     barrier.dstAccessMask = vk::AccessFlagBits::eShaderRead;
     commandBuffer.pipelineBarrier(vk::PipelineStageFlagBits::eTransfer, vk::PipelineStageFlagBits::eComputeShader, vk::DependencyFlags { 0 }, {}, barrier, {});
 
-    util::BeginLabel(commandBuffer, "Simulate particle pass", glm::vec3 { 255.0f, 105.0f, 180.0f } / 255.0f, vkContext->Dldi());
+    util::BeginLabel(commandBuffer, "Simulate particle pass", glm::vec3 { 255.0f, 105.0f, 180.0f } / 255.0f);
 
     commandBuffer.bindPipeline(vk::PipelineBindPoint::eCompute, _pipelines[static_cast<uint32_t>(ShaderStages::eSimulate)]);
 
@@ -191,7 +191,7 @@ void ParticlePass::RecordSimulate(vk::CommandBuffer commandBuffer, const CameraR
     memoryBarrier.dstAccessMask = vk::AccessFlagBits::eIndirectCommandRead | vk::AccessFlagBits::eMemoryRead;
     commandBuffer.pipelineBarrier(vk::PipelineStageFlagBits::eComputeShader, vk::PipelineStageFlagBits::eDrawIndirect, vk::DependencyFlags { 0 }, memoryBarrier, {}, {});
 
-    util::EndLabel(commandBuffer, vkContext->Dldi());
+    util::EndLabel(commandBuffer);
 }
 
 void ParticlePass::RecordRenderIndexedIndirect(vk::CommandBuffer commandBuffer, const RenderSceneDescription& scene, uint32_t currentFrame)
@@ -235,8 +235,8 @@ void ParticlePass::RecordRenderIndexedIndirect(vk::CommandBuffer commandBuffer, 
     renderingInfo.pDepthAttachment = &depthAttachmentInfo;
     renderingInfo.pStencilAttachment = util::HasStencilComponent(_gBuffers.DepthFormat()) ? &stencilAttachmentInfo : nullptr;
 
-    util::BeginLabel(commandBuffer, "Particle rendering pass", glm::vec3 { 255.0f, 105.0f, 180.0f } / 255.0f, vkContext->Dldi());
-    commandBuffer.beginRenderingKHR(&renderingInfo, vkContext->Dldi());
+    util::BeginLabel(commandBuffer, "Particle rendering pass", glm::vec3 { 255.0f, 105.0f, 180.0f } / 255.0f);
+    commandBuffer.beginRenderingKHR(&renderingInfo);
 
     commandBuffer.setViewport(0, 1, &_gBuffers.Viewport());
     commandBuffer.setScissor(0, 1, &_gBuffers.Scissor());
@@ -258,8 +258,8 @@ void ParticlePass::RecordRenderIndexedIndirect(vk::CommandBuffer commandBuffer, 
 
     _context->GetDrawStats().Draw(6);
 
-    commandBuffer.endRenderingKHR(vkContext->Dldi());
-    util::EndLabel(commandBuffer, vkContext->Dldi());
+    commandBuffer.endRenderingKHR();
+    util::EndLabel(commandBuffer);
 }
 
 void ParticlePass::UpdateEmitters(vk::CommandBuffer commandBuffer, uint32_t currentFrame)

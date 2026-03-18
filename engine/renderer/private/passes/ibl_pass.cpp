@@ -52,7 +52,7 @@ void IBLPass::RecordCommands(vk::CommandBuffer commandBuffer)
     const GPUImage& irradianceMap = *_context->Resources()->ImageResourceManager().Access(_irradianceMap);
     const GPUImage& prefilterMap = *_context->Resources()->ImageResourceManager().Access(_prefilterMap);
 
-    util::BeginLabel(commandBuffer, "Irradiance pass", glm::vec3 { 17.0f, 138.0f, 178.0f } / 255.0f, _context->VulkanContext()->Dldi());
+    util::BeginLabel(commandBuffer, "Irradiance pass", glm::vec3 { 17.0f, 138.0f, 178.0f } / 255.0f);
 
     util::TransitionImageLayout(commandBuffer, irradianceMap.image, irradianceMap.format, vk::ImageLayout::eUndefined, vk::ImageLayout::eColorAttachmentOptimal, 6, 0, 1);
 
@@ -77,7 +77,7 @@ void IBLPass::RecordCommands(vk::CommandBuffer commandBuffer)
             .pStencilAttachment = nullptr,
         };
 
-        commandBuffer.beginRenderingKHR(&renderingInfo, _context->VulkanContext()->Dldi());
+        commandBuffer.beginRenderingKHR(&renderingInfo);
 
         IrradiancePushConstant pc {
             .index = static_cast<uint32_t>(i),
@@ -97,13 +97,13 @@ void IBLPass::RecordCommands(vk::CommandBuffer commandBuffer)
 
         _context->GetDrawStats().Draw(3);
 
-        commandBuffer.endRenderingKHR(_context->VulkanContext()->Dldi());
+        commandBuffer.endRenderingKHR();
     }
 
     util::TransitionImageLayout(commandBuffer, irradianceMap.image, irradianceMap.format, vk::ImageLayout::eColorAttachmentOptimal, vk::ImageLayout::eShaderReadOnlyOptimal, 6, 0, 1);
-    util::EndLabel(commandBuffer, _context->VulkanContext()->Dldi());
+    util::EndLabel(commandBuffer);
 
-    util::BeginLabel(commandBuffer, "Prefilter pass", glm::vec3 { 17.0f, 138.0f, 178.0f } / 255.0f, _context->VulkanContext()->Dldi());
+    util::BeginLabel(commandBuffer, "Prefilter pass", glm::vec3 { 17.0f, 138.0f, 178.0f } / 255.0f);
     util::TransitionImageLayout(commandBuffer, prefilterMap.image, prefilterMap.format, vk::ImageLayout::eUndefined, vk::ImageLayout::eColorAttachmentOptimal, 6, 0, prefilterMap.mips);
 
     for (size_t i = 0; i < prefilterMap.mips; ++i)
@@ -130,7 +130,7 @@ void IBLPass::RecordCommands(vk::CommandBuffer commandBuffer)
                 .pStencilAttachment = nullptr,
             };
 
-            commandBuffer.beginRenderingKHR(&renderingInfo, _context->VulkanContext()->Dldi());
+            commandBuffer.beginRenderingKHR(&renderingInfo);
 
             PrefilterPushConstant pc {
                 .faceIndex = static_cast<uint32_t>(j),
@@ -151,16 +151,16 @@ void IBLPass::RecordCommands(vk::CommandBuffer commandBuffer)
 
             _context->GetDrawStats().Draw(3);
 
-            commandBuffer.endRenderingKHR(_context->VulkanContext()->Dldi());
+            commandBuffer.endRenderingKHR();
         }
     }
 
     util::TransitionImageLayout(commandBuffer, prefilterMap.image, prefilterMap.format, vk::ImageLayout::eColorAttachmentOptimal, vk::ImageLayout::eShaderReadOnlyOptimal, 6, 0, prefilterMap.mips);
 
-    util::EndLabel(commandBuffer, _context->VulkanContext()->Dldi());
+    util::EndLabel(commandBuffer);
 
     const GPUImage* brdfLUT = _context->Resources()->ImageResourceManager().Access(_brdfLUT);
-    util::BeginLabel(commandBuffer, "BRDF Integration pass", glm::vec3 { 17.0f, 138.0f, 178.0f } / 255.0f, _context->VulkanContext()->Dldi());
+    util::BeginLabel(commandBuffer, "BRDF Integration pass", glm::vec3 { 17.0f, 138.0f, 178.0f } / 255.0f);
     util::TransitionImageLayout(commandBuffer, brdfLUT->image, brdfLUT->format, vk::ImageLayout::eUndefined, vk::ImageLayout::eColorAttachmentOptimal);
 
     vk::RenderingAttachmentInfoKHR finalColorAttachmentInfo {
@@ -182,7 +182,7 @@ void IBLPass::RecordCommands(vk::CommandBuffer commandBuffer)
         .pStencilAttachment = nullptr,
     };
 
-    commandBuffer.beginRenderingKHR(&renderingInfo, _context->VulkanContext()->Dldi());
+    commandBuffer.beginRenderingKHR(&renderingInfo);
 
     commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, _brdfLUTPipeline);
 
@@ -196,11 +196,11 @@ void IBLPass::RecordCommands(vk::CommandBuffer commandBuffer)
 
     _context->GetDrawStats().Draw(3);
 
-    commandBuffer.endRenderingKHR(_context->VulkanContext()->Dldi());
+    commandBuffer.endRenderingKHR();
 
     util::TransitionImageLayout(commandBuffer, brdfLUT->image, brdfLUT->format, vk::ImageLayout::eColorAttachmentOptimal, vk::ImageLayout::eShaderReadOnlyOptimal);
 
-    util::EndLabel(commandBuffer, _context->VulkanContext()->Dldi());
+    util::EndLabel(commandBuffer);
 }
 
 void IBLPass::CreateIrradiancePipeline()

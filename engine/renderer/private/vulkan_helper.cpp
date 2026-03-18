@@ -357,7 +357,7 @@ void util::CopyImageToImage(vk::CommandBuffer commandBuffer, vk::Image srcImage,
     commandBuffer.blitImage2(&blitInfo);
 }
 
-void util::BeginQueueLabel(vk::Queue queue, std::string_view label, glm::vec3 color, const bb::VulkanDispatchLoader& dldi)
+void util::BeginQueueLabel(vk::Queue queue, std::string_view label, glm::vec3 color)
 {
 #if BB_DEVELOPMENT
     vk::DebugUtilsLabelEXT labelExt {};
@@ -365,26 +365,24 @@ void util::BeginQueueLabel(vk::Queue queue, std::string_view label, glm::vec3 co
     labelExt.color[3] = 1.0f;
     labelExt.pLabelName = label.data();
 
-    queue.beginDebugUtilsLabelEXT(&labelExt, dldi);
+    queue.beginDebugUtilsLabelEXT(&labelExt);
 #else
     (void)queue;
     (void)label;
     (void)color;
-    (void)dldi;
 #endif
 }
 
-void util::EndQueueLabel(vk::Queue queue, const bb::VulkanDispatchLoader& dldi)
+void util::EndQueueLabel(vk::Queue queue)
 {
 #if BB_DEVELOPMENT
-    queue.endDebugUtilsLabelEXT(dldi);
+    queue.endDebugUtilsLabelEXT();
 #else
     (void)queue;
-    (void)dldi;
 #endif
 }
 
-void util::BeginLabel(vk::CommandBuffer commandBuffer, std::string_view label, glm::vec3 color, const bb::VulkanDispatchLoader& dldi)
+void util::BeginLabel(vk::CommandBuffer commandBuffer, std::string_view label, glm::vec3 color)
 {
 #if BB_DEVELOPMENT
     vk::DebugUtilsLabelEXT labelExt {};
@@ -392,22 +390,20 @@ void util::BeginLabel(vk::CommandBuffer commandBuffer, std::string_view label, g
     labelExt.color[3] = 1.0f;
     labelExt.pLabelName = label.data();
 
-    commandBuffer.beginDebugUtilsLabelEXT(&labelExt, dldi);
+    commandBuffer.beginDebugUtilsLabelEXT(&labelExt);
 #else
     (void)commandBuffer;
     (void)label;
     (void)color;
-    (void)dldi;
 #endif
 }
 
-void util::EndLabel(vk::CommandBuffer commandBuffer, const bb::VulkanDispatchLoader& dldi)
+void util::EndLabel(vk::CommandBuffer commandBuffer)
 {
 #if BB_DEVELOPMENT
-    commandBuffer.endDebugUtilsLabelEXT(dldi);
+    commandBuffer.endDebugUtilsLabelEXT();
 #else
     (void)commandBuffer;
-    (void)dldi;
 #endif
 }
 

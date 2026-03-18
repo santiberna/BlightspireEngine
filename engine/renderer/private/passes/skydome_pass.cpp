@@ -72,7 +72,7 @@ void SkydomePass::RecordCommands(vk::CommandBuffer commandBuffer, uint32_t curre
     renderingInfo.pDepthAttachment = &depthAttachmentInfo;
     renderingInfo.pStencilAttachment = util::HasStencilComponent(_gBuffers.DepthFormat()) ? &stencilAttachmentInfo : nullptr;
 
-    commandBuffer.beginRenderingKHR(&renderingInfo, _context->VulkanContext()->Dldi());
+    commandBuffer.beginRenderingKHR(&renderingInfo);
 
     commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, _pipeline);
 
@@ -93,7 +93,7 @@ void SkydomePass::RecordCommands(vk::CommandBuffer commandBuffer, uint32_t curre
 
     _context->GetDrawStats().Draw(sphere->count);
 
-    commandBuffer.endRenderingKHR(_context->VulkanContext()->Dldi());
+    commandBuffer.endRenderingKHR();
 }
 
 void SkydomePass::CreatePipeline()

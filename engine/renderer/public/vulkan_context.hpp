@@ -73,16 +73,14 @@ private:
     QueueFamilyIndices _queueFamilyIndices;
     uint32_t _minUniformBufferOffsetAlignment;
 
-    bool _validationEnabled = false;
+#if BB_DEVELOPMENT
     vk::DebugUtilsMessengerEXT _debugMessenger;
+#endif
 
     void PickPhysicalDevice();
     uint32_t RateDeviceSuitability(const vk::PhysicalDevice& device);
 
     bool ExtensionsSupported(const vk::PhysicalDevice& device);
-    bool CheckValidationLayerSupport();
-    std::vector<const char*> GetRequiredExtensions();
-    void SetupDebugMessenger();
 
     void CreateInstance();
     void CreateDevice();

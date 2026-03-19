@@ -2,6 +2,7 @@
 
 #include <map>
 #include <set>
+#include <unordered_set>
 
 #include "pipeline_builder.hpp"
 #include "swap_chain.hpp"
@@ -14,9 +15,20 @@ VULKAN_HPP_DEFAULT_DISPATCH_LOADER_DYNAMIC_STORAGE
 
 namespace
 {
-constexpr std::array INSTANCE_LAYERS = {
+constexpr uint32_t VULKAN_API_VERSION = vk::makeApiVersion(0, 1, 4, 0);
+
+constexpr const char* INSTANCE_LAYERS[] = {
 #if BB_DEVELOPMENT
     "VK_LAYER_KHRONOS_validation"
+#endif
+};
+
+constexpr const char* INSTANCE_EXTENSIONS[] = {
+#if BB_DEVELOPMENT
+    vk::EXTDebugUtilsExtensionName
+#endif
+#if BB_PLATFORM == BB_LINUX
+        vk::KHRGetPhysicalDeviceProperties2ExtensionName,
 #endif
 };
 
@@ -38,6 +50,7 @@ constexpr std::array DEVICE_EXTENSIONS = {
 #endif
 };
 
+#if BB_DEVELOPMENT
 VKAPI_ATTR VkBool32 VKAPI_CALL VulkanDebugCallback(
     vk::DebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
     vk::DebugUtilsMessageTypeFlagsEXT messageType,
@@ -88,26 +101,122 @@ VKAPI_ATTR VkBool32 VKAPI_CALL VulkanDebugCallback(
 
     return VK_FALSE;
 }
+#endif
+
 }
 
 VulkanContext::VulkanContext(const VulkanInitInfo& initInfo)
 {
     VULKAN_HPP_DEFAULT_DISPATCHER.init();
 
-    _validationEnabled = CheckValidationLayerSupport() && BB_DEVELOPMENT;
-    spdlog::info("Validation layers enabled: {}", _validationEnabled ? "TRUE" : "FALSE");
-
-    CreateInstance();
-    SetupDebugMessenger();
-
-    SDL_Window* window = reinterpret_cast<SDL_Window*>(initInfo.window_handle);
-    VkSurfaceKHR window_surface = nullptr;
-
-    if (!SDL_Vulkan_CreateSurface(window, _instance, nullptr, &window_surface))
+    auto loader_version = vk::enumerateInstanceVersion();
+    if (loader_version < VULKAN_API_VERSION)
     {
-        spdlog::error("Failed creating SDL vk::Surface: {}", SDL_GetError());
+        spdlog::error("VulkanContext: Requires version {}.{}, but max supported by loader is {}.{}",
+            vk::apiVersionMajor(VULKAN_API_VERSION),
+            vk::apiVersionMinor(VULKAN_API_VERSION),
+            vk::apiVersionMajor(loader_version),
+            vk::apiVersionMinor(loader_version),
+            loader_version);
+
+        assert(false);
+        return;
     }
 
+    auto layers = vk::enumerateInstanceLayerProperties();
+
+    std::vector<std::string_view> layer_names;
+    for (const auto& layer : layers)
+    {
+        layer_names.push_back(std::string_view(layer.layerName));
+    }
+
+    for (std::string_view requested_layer : INSTANCE_LAYERS)
+    {
+        if (std::ranges::find(layer_names, requested_layer) == layer_names.end())
+        {
+            spdlog::error("VulkanContext: Requested layer {} not supported!", requested_layer);
+            assert(false);
+            return;
+        }
+    }
+
+    std::vector<const char*> requested_extensions;
+    requested_extensions.insert(requested_extensions.end(), std::begin(INSTANCE_EXTENSIONS), std::end(INSTANCE_EXTENSIONS));
+
+    uint32_t sdl_extensions_count = 0;
+    const char* const* extension_array = SDL_Vulkan_GetInstanceExtensions(&sdl_extensions_count);
+    requested_extensions.insert(requested_extensions.end(), extension_array, extension_array + sdl_extensions_count);
+
+    auto instance_extensions = vk::enumerateInstanceExtensionProperties();
+
+    std::vector<std::string_view> extension_names;
+    for (const auto& extension : instance_extensions)
+    {
+        extension_names.push_back(std::string_view(extension.extensionName));
+    }
+
+    for (std::string_view extension : requested_extensions)
+    {
+        if (std::ranges::find(extension_names, extension) == extension_names.end())
+        {
+            spdlog::error("VulkanContext: Requested instance extension {} not supported!", extension);
+            assert(false);
+            return;
+        }
+    }
+
+    vk::ApplicationInfo appInfo {
+        .pApplicationName = "Blightspire",
+        .applicationVersion = vk::makeApiVersion(0, 0, 0, 0),
+        .pEngineName = "Blightspire Engine",
+        .engineVersion = vk::makeApiVersion(0, 1, 0, 0),
+        .apiVersion = VULKAN_API_VERSION,
+    };
+
+    vk::InstanceCreateInfo instance_info {
+        .flags = vk::InstanceCreateFlags {},
+        .pApplicationInfo = &appInfo,
+        .enabledLayerCount = static_cast<uint32_t>(std::size(INSTANCE_LAYERS)),
+        .ppEnabledLayerNames = INSTANCE_LAYERS,
+        .enabledExtensionCount = static_cast<uint32_t>(requested_extensions.size()),
+        .ppEnabledExtensionNames = requested_extensions.data() // Extensions.
+    };
+
+#if BB_DEVELOPMENT
+    vk::DebugUtilsMessengerCreateInfoEXT debug_messenger_info {};
+    {
+        using enum vk::DebugUtilsMessageTypeFlagBitsEXT;
+        using enum vk::DebugUtilsMessageSeverityFlagBitsEXT;
+        debug_messenger_info.messageSeverity = eVerbose | eInfo | eWarning | eError;
+        debug_messenger_info.messageType = eGeneral | eValidation | ePerformance;
+        debug_messenger_info.pfnUserCallback = VulkanDebugCallback;
+        debug_messenger_info.pUserData = nullptr;
+    }
+
+    vk::StructureChain<vk::InstanceCreateInfo, vk::DebugUtilsMessengerCreateInfoEXT> create_info;
+    create_info.assign(debug_messenger_info);
+    create_info.assign(instance_info);
+#else
+    vk::StructureChain<vk::InstanceCreateInfo> create_info {};
+    create_info.assign(instance_info);
+#endif
+
+    util::VK_ASSERT(vk::createInstance(&create_info.get(), nullptr, &_instance), "Failed to create vk instance!");
+    VULKAN_HPP_DEFAULT_DISPATCHER.init(_instance);
+
+#if BB_DEVELOPMENT
+    util::VK_ASSERT(_instance.createDebugUtilsMessengerEXT(&debug_messenger_info, nullptr, &_debugMessenger),
+        "Failed to create debug messenger!");
+#endif
+
+    VkSurfaceKHR window_surface = nullptr;
+    if (!SDL_Vulkan_CreateSurface(initInfo.window_handle, _instance, nullptr, &window_surface))
+    {
+        spdlog::error("VulkanContext: Failed creating SDL vk::Surface. {}", SDL_GetError());
+        assert(false);
+        return;
+    }
     _surface = window_surface;
 
     PickPhysicalDevice();
@@ -148,8 +257,10 @@ VulkanContext::VulkanContext(const VulkanInitInfo& initInfo)
 
 VulkanContext::~VulkanContext()
 {
-    if (_validationEnabled)
+#if BB_DEVELOPMENT
+    if (_debugMessenger)
         _instance.destroyDebugUtilsMessengerEXT(_debugMessenger, nullptr);
+#endif
 
     _device.destroy(_descriptorPool);
     _device.destroy(_commandPool);
@@ -163,55 +274,6 @@ VulkanContext::~VulkanContext()
 
 void VulkanContext::CreateInstance()
 {
-    vk::ApplicationInfo appInfo {
-        .pApplicationName = "Bubonic Brotherhood Game",
-        .applicationVersion = vk::makeApiVersion(0, 0, 0, 0),
-        .pEngineName = "BB Engine",
-        .engineVersion = vk::makeApiVersion(0, 1, 0, 0),
-        .apiVersion = vk::makeApiVersion(0, 1, 4, 0),
-    };
-
-    vk::StructureChain<vk::InstanceCreateInfo, vk::DebugUtilsMessengerCreateInfoEXT>
-        structureChain;
-
-    auto extensions = GetRequiredExtensions();
-
-    structureChain.assign({
-        .flags = vk::InstanceCreateFlags {},
-        .pApplicationInfo = &appInfo,
-        .enabledLayerCount = 0,
-        .ppEnabledLayerNames = nullptr, // Validation layers.
-        .enabledExtensionCount = static_cast<uint32_t>(extensions.size()),
-        .ppEnabledExtensionNames = extensions.data() // Extensions.
-    });
-
-    auto& createInfo = structureChain.get<vk::InstanceCreateInfo>();
-
-    if (_validationEnabled)
-    {
-        createInfo.enabledLayerCount = INSTANCE_LAYERS.size();
-        createInfo.ppEnabledLayerNames = INSTANCE_LAYERS.data();
-
-        using enum vk::DebugUtilsMessageTypeFlagBitsEXT;
-        using enum vk::DebugUtilsMessageSeverityFlagBitsEXT;
-
-        vk::DebugUtilsMessengerCreateInfoEXT debug_messenger_info {};
-        debug_messenger_info.messageSeverity = eVerbose | eInfo | eWarning | eError;
-        debug_messenger_info.messageType = eGeneral | eValidation | ePerformance;
-        debug_messenger_info.pfnUserCallback = VulkanDebugCallback;
-        debug_messenger_info.pUserData = nullptr;
-
-        structureChain.assign<vk::DebugUtilsMessengerCreateInfoEXT>(debug_messenger_info);
-    }
-    else
-    {
-        // Make sure the debug extension is unlinked.
-        structureChain.unlink<vk::DebugUtilsMessengerCreateInfoEXT>();
-        createInfo.enabledLayerCount = 0;
-    }
-
-    util::VK_ASSERT(vk::createInstance(&createInfo, nullptr, &_instance), "Failed to create vk instance!");
-    VULKAN_HPP_DEFAULT_DISPATCHER.init(_instance);
 }
 
 void VulkanContext::PickPhysicalDevice()
@@ -292,53 +354,6 @@ bool VulkanContext::ExtensionsSupported(const vk::PhysicalDevice& deviceToCheckS
         requiredExtensions.erase(extension.extensionName);
 
     return requiredExtensions.empty();
-}
-
-bool VulkanContext::CheckValidationLayerSupport()
-{
-    std::vector<vk::LayerProperties> availableLayers = vk::enumerateInstanceLayerProperties();
-    bool result = std::all_of(INSTANCE_LAYERS.begin(), INSTANCE_LAYERS.end(), [&availableLayers](const auto& layerName)
-        {
-        const auto it = std::find_if(availableLayers.begin(), availableLayers.end(), [&layerName](const auto &layer)
-                { return strcmp(layerName, layer.layerName) == 0; });
-
-        return it != availableLayers.end(); });
-
-    return result;
-}
-
-std::vector<const char*> VulkanContext::GetRequiredExtensions()
-{
-    uint32_t sdl_extensions_count = 0;
-    const char* const* extension_array = SDL_Vulkan_GetInstanceExtensions(&sdl_extensions_count);
-
-    std::vector<const char*> extensions(extension_array, extension_array + sdl_extensions_count);
-    if (_validationEnabled)
-        extensions.emplace_back(vk::EXTDebugUtilsExtensionName);
-
-#if BB_PLATFORM == BB_LINUX
-    extensions.emplace_back(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME);
-#endif
-
-    return extensions;
-}
-
-void VulkanContext::SetupDebugMessenger()
-{
-    if (!_validationEnabled)
-        return;
-
-    using enum vk::DebugUtilsMessageTypeFlagBitsEXT;
-    using enum vk::DebugUtilsMessageSeverityFlagBitsEXT;
-
-    vk::DebugUtilsMessengerCreateInfoEXT debug_messenger_info {};
-    debug_messenger_info.messageSeverity = eVerbose | eInfo | eWarning | eError;
-    debug_messenger_info.messageType = eGeneral | eValidation | ePerformance;
-    debug_messenger_info.pfnUserCallback = VulkanDebugCallback;
-    debug_messenger_info.pUserData = nullptr;
-
-    util::VK_ASSERT(_instance.createDebugUtilsMessengerEXT(&debug_messenger_info, nullptr, &_debugMessenger),
-        "Failed to create debug messenger!");
 }
 
 void VulkanContext::CreateDevice()

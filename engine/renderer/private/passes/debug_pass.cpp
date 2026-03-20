@@ -30,8 +30,9 @@ DebugPass::DebugPass(const std::shared_ptr<GraphicsContext>& context, const Swap
 
 DebugPass::~DebugPass()
 {
-    _context->VulkanContext()->Device().destroy(_pipeline);
-    _context->VulkanContext()->Device().destroy(_pipelineLayout);
+    vk::Device device = _context->VulkanContext()->Device();
+    device.destroy(_pipeline);
+    device.destroy(_pipelineLayout);
 }
 
 void DebugPass::RecordCommands(vk::CommandBuffer commandBuffer, uint32_t currentFrame, const RenderSceneDescription& scene)

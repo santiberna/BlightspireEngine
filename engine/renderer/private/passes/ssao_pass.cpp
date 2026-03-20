@@ -25,9 +25,6 @@ SSAOPass::SSAOPass(const std::shared_ptr<GraphicsContext>& context, const Settin
     _pushConstants.normalIndex = _gBuffers.Attachments()[1].Index();
     _pushConstants.depthIndex = _gBuffers.Depth().Index();
 
-    vk::PhysicalDeviceProperties properties {};
-    _context->VulkanContext()->PhysicalDevice().getProperties(&properties);
-
     CreateBuffers();
     CreateDescriptorSetLayouts();
     CreateDescriptorSets();
@@ -82,9 +79,10 @@ void SSAOPass::RecordCommands(vk::CommandBuffer commandBuffer, uint32_t currentF
 
 SSAOPass::~SSAOPass()
 {
-    _context->VulkanContext()->Device().destroy(_pipeline);
-    _context->VulkanContext()->Device().destroy(_pipelineLayout);
-    _context->VulkanContext()->Device().destroy(_descriptorSetLayout);
+    vk::Device device = _context->VulkanContext()->Device();
+    device.destroy(_pipeline);
+    device.destroy(_pipelineLayout);
+    device.destroy(_descriptorSetLayout);
     _context->Resources()->BufferResourceManager().Destroy(_sampleKernelBuffer);
 }
 
@@ -233,7 +231,8 @@ void SSAOPass::CreateDescriptorSets()
         .pSetLayouts = &_descriptorSetLayout
     };
 
-    if (_context->VulkanContext()->Device().allocateDescriptorSets(&allocInfo, &_descriptorSet) != vk::Result::eSuccess)
+    vk::Device device = _context->VulkanContext()->Device();
+    if (device.allocateDescriptorSets(&allocInfo, &_descriptorSet) != vk::Result::eSuccess)
     {
         throw std::runtime_error("Failed to allocate descriptor set");
     }
@@ -254,5 +253,5 @@ void SSAOPass::CreateDescriptorSets()
             .pBufferInfo = &sampleKernelBufferInfo }
     };
 
-    _context->VulkanContext()->Device().updateDescriptorSets(descriptorWrites.size(), descriptorWrites.data(), 0, nullptr);
+    device.updateDescriptorSets(descriptorWrites.size(), descriptorWrites.data(), 0, nullptr);
 }

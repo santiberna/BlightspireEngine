@@ -23,8 +23,9 @@ ClusterGenerationPass::ClusterGenerationPass(const std::shared_ptr<GraphicsConte
 
 ClusterGenerationPass::~ClusterGenerationPass()
 {
-    _context->VulkanContext()->Device().destroy(_pipeline);
-    _context->VulkanContext()->Device().destroy(_pipelineLayout);
+    vk::Device device = _context->VulkanContext()->Device();
+    device.destroy(_pipeline);
+    device.destroy(_pipelineLayout);
 }
 
 void ClusterGenerationPass::RecordCommands(vk::CommandBuffer commandBuffer, uint32_t currentFrame, const RenderSceneDescription& scene)
@@ -64,10 +65,11 @@ void ClusterGenerationPass::CreatePipeline()
         .pPushConstantRanges = &pushConstantRange,
     };
 
-    util::VK_ASSERT(_context->VulkanContext()->Device().createPipelineLayout(&pipelineLayoutCreateInfo, nullptr, &_pipelineLayout), "Failed to create pipeline layout for clustering pipeline!");
+    vk::Device device = _context->VulkanContext()->Device();
+    util::VK_ASSERT(device.createPipelineLayout(&pipelineLayoutCreateInfo, nullptr, &_pipelineLayout), "Failed to create pipeline layout for clustering pipeline!");
 
     std::vector<std::byte> compShader = shader::ReadFile("shaders/bin/cluster_aabb_generation.comp.spv");
-    vk::ShaderModule computeModule = shader::CreateShaderModule(compShader, _context->VulkanContext()->Device());
+    vk::ShaderModule computeModule = shader::CreateShaderModule(compShader, device);
 
     vk::PipelineShaderStageCreateInfo computeStage {
         .stage = vk::ShaderStageFlagBits::eCompute,
@@ -84,7 +86,7 @@ void ClusterGenerationPass::CreatePipeline()
     // reflector.AddShaderStage(vk::ShaderStageFlagBits::eCompute, compShader);
     // reflector.BuildPipeline(_pipeline, _pipelineLayout);
 
-    auto result = _context->VulkanContext()->Device().createComputePipeline(nullptr, pipelineCreateInfo, nullptr);
+    auto result = device.createComputePipeline(nullptr, pipelineCreateInfo, nullptr);
     _pipeline = result.value;
-    _context->VulkanContext()->Device().destroy(computeModule);
+    device.destroy(computeModule);
 }

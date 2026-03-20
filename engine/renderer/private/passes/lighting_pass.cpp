@@ -27,9 +27,6 @@ LightingPass::LightingPass(const std::shared_ptr<GraphicsContext>& context, cons
     _pushConstants.shadowMapSize = _context->Resources()->ImageResourceManager().Access(scene.StaticShadow())->width;
     _pushConstants.clusterDimensions = glm::ivec3 { CLUSTER_X, CLUSTER_Y, CLUSTER_Z };
 
-    vk::PhysicalDeviceProperties properties {};
-    _context->VulkanContext()->PhysicalDevice().getProperties(&properties);
-
     CreatePipeline();
 }
 
@@ -88,8 +85,9 @@ void LightingPass::RecordCommands(vk::CommandBuffer commandBuffer, uint32_t curr
 
 LightingPass::~LightingPass()
 {
-    _context->VulkanContext()->Device().destroy(_pipeline);
-    _context->VulkanContext()->Device().destroy(_pipelineLayout);
+    vk::Device device = _context->VulkanContext()->Device();
+    device.destroy(_pipeline);
+    device.destroy(_pipelineLayout);
 }
 
 void LightingPass::CreatePipeline()

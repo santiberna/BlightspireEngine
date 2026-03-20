@@ -156,7 +156,8 @@ vk::CommandBuffer util::BeginSingleTimeCommands(std::shared_ptr<VulkanContext> c
     allocateInfo.commandBufferCount = 1;
 
     vk::CommandBuffer commandBuffer;
-    util::VK_ASSERT(context->Device().allocateCommandBuffers(&allocateInfo, &commandBuffer), "Failed allocating one time command buffer!");
+    vk::Device device = context->Device();
+    util::VK_ASSERT(device.allocateCommandBuffers(&allocateInfo, &commandBuffer), "Failed allocating one time command buffer!");
 
     vk::CommandBufferBeginInfo beginInfo {};
     beginInfo.flags = vk::CommandBufferUsageFlagBits::eOneTimeSubmit;
@@ -174,10 +175,13 @@ void util::EndSingleTimeCommands(std::shared_ptr<VulkanContext> context, vk::Com
     submitInfo.commandBufferCount = 1;
     submitInfo.pCommandBuffers = &commandBuffer;
 
-    util::VK_ASSERT(context->GraphicsQueue().submit(1, &submitInfo, nullptr), "Failed submitting one time buffer to queue!");
-    context->GraphicsQueue().waitIdle();
+    vk::Queue graphics_queue = context->GraphicsQueue();
+    vk::Device device = context->Device();
 
-    context->Device().free(context->CommandPool(), commandBuffer);
+    util::VK_ASSERT(graphics_queue.submit(1, &submitInfo, nullptr), "Failed submitting one time buffer to queue!");
+    graphics_queue.waitIdle();
+
+    device.free(context->CommandPool(), commandBuffer);
 }
 
 void util::CopyBuffer(vk::CommandBuffer commandBuffer, vk::Buffer srcBuffer, vk::Buffer dstBuffer, vk::DeviceSize size, uint32_t offset)

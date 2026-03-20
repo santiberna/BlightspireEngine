@@ -12,10 +12,11 @@ SingleTimeCommands::SingleTimeCommands(const std::shared_ptr<VulkanContext>& con
     allocateInfo.commandPool = _context->CommandPool();
     allocateInfo.commandBufferCount = 1;
 
-    util::VK_ASSERT(_context->Device().allocateCommandBuffers(&allocateInfo, &_commandBuffer), "Failed allocating one time command buffer!");
+    vk::Device device = _context->Device();
+    util::VK_ASSERT(device.allocateCommandBuffers(&allocateInfo, &_commandBuffer), "Failed allocating one time command buffer!");
 
     vk::FenceCreateInfo fenceInfo {};
-    util::VK_ASSERT(_context->Device().createFence(&fenceInfo, nullptr, &_fence), "Failed creating single time command fence!");
+    util::VK_ASSERT(device.createFence(&fenceInfo, nullptr, &_fence), "Failed creating single time command fence!");
 
     vk::CommandBufferBeginInfo beginInfo {};
     beginInfo.flags = vk::CommandBufferUsageFlagBits::eOneTimeSubmit;
@@ -39,11 +40,14 @@ void SingleTimeCommands::Submit()
     submitInfo.commandBufferCount = 1;
     submitInfo.pCommandBuffers = &_commandBuffer;
 
-    util::VK_ASSERT(_context->GraphicsQueue().submit(1, &submitInfo, _fence), "Failed submitting one time buffer to queue!");
-    util::VK_ASSERT(_context->Device().waitForFences(1, &_fence, VK_TRUE, std::numeric_limits<uint64_t>::max()), "Failed waiting for fence!");
+    vk::Device device = _context->Device();
+    vk::Queue graphics = _context->GraphicsQueue();
 
-    _context->Device().free(_context->CommandPool(), _commandBuffer);
-    _context->Device().destroy(_fence);
+    util::VK_ASSERT(graphics.submit(1, &submitInfo, _fence), "Failed submitting one time buffer to queue!");
+    util::VK_ASSERT(device.waitForFences(1, &_fence, VK_TRUE, std::numeric_limits<uint64_t>::max()), "Failed waiting for fence!");
+
+    device.free(_context->CommandPool(), _commandBuffer);
+    device.destroy(_fence);
 
     assert(_stagingAllocations.size() == _stagingBuffers.size());
     for (size_t i = 0; i < _stagingBuffers.size(); ++i)

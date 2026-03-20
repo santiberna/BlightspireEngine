@@ -30,8 +30,9 @@ SkydomePass::SkydomePass(const std::shared_ptr<GraphicsContext>& context, Resour
 
 SkydomePass::~SkydomePass()
 {
-    _context->VulkanContext()->Device().destroy(_pipelineLayout);
-    _context->VulkanContext()->Device().destroy(_pipeline);
+    vk::Device device = _context->VulkanContext()->Device();
+    device.destroy(_pipelineLayout);
+    device.destroy(_pipeline);
 }
 
 void SkydomePass::RecordCommands(vk::CommandBuffer commandBuffer, uint32_t currentFrame, const RenderSceneDescription& scene)

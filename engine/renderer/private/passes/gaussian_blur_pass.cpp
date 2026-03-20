@@ -35,9 +35,10 @@ GaussianBlurPass::GaussianBlurPass(const std::shared_ptr<GraphicsContext>& conte
 
 GaussianBlurPass::~GaussianBlurPass()
 {
-    _context->VulkanContext()->Device().destroy(_pipeline);
-    _context->VulkanContext()->Device().destroy(_pipelineLayout);
-    _context->VulkanContext()->Device().destroy(_descriptorSetLayout);
+    vk::Device device = _context->VulkanContext()->Device();
+    device.destroy(_pipeline);
+    device.destroy(_pipelineLayout);
+    device.destroy(_descriptorSetLayout);
 }
 
 void GaussianBlurPass::RecordCommands(vk::CommandBuffer commandBuffer, uint32_t currentFrame, [[maybe_unused]] const RenderSceneDescription& scene)
@@ -167,7 +168,8 @@ void GaussianBlurPass::CreateDescriptorSets()
         .pSetLayouts = layouts.data(),
     };
 
-    util::VK_ASSERT(_context->VulkanContext()->Device().allocateDescriptorSets(&allocateInfo, _sourceDescriptorSets.data()),
+    vk::Device device = _context->VulkanContext()->Device();
+    util::VK_ASSERT(device.allocateDescriptorSets(&allocateInfo, _sourceDescriptorSets.data()),
         "Failed allocating descriptor sets!");
 
     for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
@@ -186,12 +188,12 @@ void GaussianBlurPass::CreateDescriptorSets()
         descriptorWrites[0].descriptorCount = 1;
         descriptorWrites[0].pImageInfo = &imageInfo;
 
-        _context->VulkanContext()->Device().updateDescriptorSets(descriptorWrites.size(), descriptorWrites.data(), 0, nullptr);
+        device.updateDescriptorSets(descriptorWrites.size(), descriptorWrites.data(), 0, nullptr);
     }
 
     for (size_t i = 0; i < _targets.size(); ++i)
     {
-        util::VK_ASSERT(_context->VulkanContext()->Device().allocateDescriptorSets(&allocateInfo, _targetDescriptorSets[i].data()),
+        util::VK_ASSERT(device.allocateDescriptorSets(&allocateInfo, _targetDescriptorSets[i].data()),
             "Failed allocating descriptor sets!");
 
         for (size_t frame = 0; frame < MAX_FRAMES_IN_FLIGHT; ++frame)
@@ -210,7 +212,7 @@ void GaussianBlurPass::CreateDescriptorSets()
             descriptorWrites[0].descriptorCount = 1;
             descriptorWrites[0].pImageInfo = &imageInfo;
 
-            _context->VulkanContext()->Device().updateDescriptorSets(descriptorWrites.size(), descriptorWrites.data(), 0, nullptr);
+            device.updateDescriptorSets(descriptorWrites.size(), descriptorWrites.data(), 0, nullptr);
         }
     }
 }

@@ -17,7 +17,8 @@ Sampler::Sampler(const SamplerCreation& creation, const std::shared_ptr<VulkanCo
     vk::SamplerCreateInfo& createInfo { structureChain.get<vk::SamplerCreateInfo>() };
     if (creation.useMaxAnisotropy)
     {
-        auto properties = _context->PhysicalDevice().getProperties();
+        vk::PhysicalDevice physical = _context->PhysicalDevice();
+        auto properties = physical.getProperties();
         createInfo.maxAnisotropy = properties.limits.maxSamplerAnisotropy;
     }
 
@@ -38,7 +39,8 @@ Sampler::Sampler(const SamplerCreation& creation, const std::shared_ptr<VulkanCo
     createInfo.minFilter = creation.minFilter;
     createInfo.magFilter = creation.magFilter;
 
-    sampler = _context->Device().createSampler(createInfo);
+    vk::Device device = _context->Device();
+    sampler = device.createSampler(createInfo);
 
     util::NameObject(sampler, creation.name, _context);
 }
@@ -50,7 +52,8 @@ Sampler::~Sampler()
         return;
     }
 
-    _context->Device().destroy(sampler);
+    vk::Device device = _context->Device();
+    device.destroy(sampler);
 }
 
 Sampler::Sampler(Sampler&& other) noexcept

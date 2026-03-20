@@ -39,7 +39,8 @@ ModuleTickOrder RendererModule::Init(Engine& engine)
 
 void RendererModule::Shutdown([[maybe_unused]] Engine& engine)
 {
-    _context->VulkanContext()->Device().waitIdle();
+    vk::Device device = _context->VulkanContext()->Device();
+    device.waitIdle();
     _renderer.reset();
 
     ImPlot::DestroyContext();

@@ -28,7 +28,8 @@ CameraResource::~CameraResource()
 {
     if (_descriptorSetLayout)
     {
-        _context->VulkanContext()->Device().destroy(_descriptorSetLayout);
+        vk::Device device = _context->VulkanContext()->Device();
+        device.destroy(_descriptorSetLayout);
         _descriptorSetLayout = nullptr;
     }
 }
@@ -87,7 +88,8 @@ void CameraResource::CreateDescriptorSets()
     allocateInfo.descriptorSetCount = MAX_FRAMES_IN_FLIGHT;
     allocateInfo.pSetLayouts = layouts.data();
 
-    util::VK_ASSERT(vkContext->Device().allocateDescriptorSets(&allocateInfo, _descriptorSets.data()),
+    vk::Device device = vkContext->Device();
+    util::VK_ASSERT(device.allocateDescriptorSets(&allocateInfo, _descriptorSets.data()),
         "Failed allocating descriptor sets!");
 
     for (size_t i = 0; i < _descriptorSets.size(); ++i)
@@ -108,7 +110,7 @@ void CameraResource::CreateDescriptorSets()
             .descriptorType = vk::DescriptorType::eUniformBuffer,
             .pBufferInfo = &bufferInfo,
         };
-        vkContext->Device().updateDescriptorSets({ bufferWrite }, {});
+        device.updateDescriptorSets({ bufferWrite }, {});
     }
 }
 

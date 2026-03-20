@@ -80,7 +80,8 @@ static void NameObject(T object, std::string_view label, std::shared_ptr<VulkanC
     nameInfo.objectType = object.objectType;
     nameInfo.objectHandle = reinterpret_cast<uint64_t>(static_cast<typename T::CType>(object));
 
-    vk::Result result = context->Device().setDebugUtilsObjectNameEXT(&nameInfo);
+    vk::Device device = context->Device();
+    vk::Result result = device.setDebugUtilsObjectNameEXT(&nameInfo);
     if (result != vk::Result::eSuccess)
         spdlog::warn("Failed debug naming object!");
 #else

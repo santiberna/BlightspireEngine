@@ -53,7 +53,9 @@ vk::DescriptorSet CameraBatch::Draw::CreateDescriptor(const std::shared_ptr<Grap
         .descriptorSetCount = 1,
         .pSetLayouts = &dsl,
     };
-    vk::DescriptorSet descriptor = context->VulkanContext()->Device().allocateDescriptorSets(allocateInfo).front();
+
+    vk::Device device = context->VulkanContext()->Device();
+    vk::DescriptorSet descriptor = device.allocateDescriptorSets(allocateInfo).front();
 
     vk::DescriptorBufferInfo bufferInfo {
         .buffer = context->Resources()->BufferResourceManager().Access(buffer)->buffer,
@@ -70,8 +72,7 @@ vk::DescriptorSet CameraBatch::Draw::CreateDescriptor(const std::shared_ptr<Grap
         .pBufferInfo = &bufferInfo,
     };
 
-    context->VulkanContext()->Device().updateDescriptorSets({ bufferWrite }, {});
-
+    device.updateDescriptorSets({ bufferWrite }, {});
     return descriptor;
 }
 

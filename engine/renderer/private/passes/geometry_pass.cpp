@@ -26,10 +26,11 @@ GeometryPass::GeometryPass(const std::shared_ptr<GraphicsContext>& context, cons
 
 GeometryPass::~GeometryPass()
 {
-    _context->VulkanContext()->Device().destroy(_staticPipeline);
-    _context->VulkanContext()->Device().destroy(_staticPipelineLayout);
-    _context->VulkanContext()->Device().destroy(_skinnedPipeline);
-    _context->VulkanContext()->Device().destroy(_skinnedPipelineLayout);
+    vk::Device device = _context->VulkanContext()->Device();
+    device.destroy(_staticPipeline);
+    device.destroy(_staticPipelineLayout);
+    device.destroy(_skinnedPipeline);
+    device.destroy(_skinnedPipelineLayout);
 }
 
 void GeometryPass::RecordCommands(vk::CommandBuffer commandBuffer, uint32_t currentFrame, const RenderSceneDescription& scene)

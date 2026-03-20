@@ -38,15 +38,15 @@ GraphicsContext::GraphicsContext(const VulkanInitInfo& initInfo)
 
 GraphicsContext::~GraphicsContext()
 {
-    _vulkanContext->Device().destroy(_bindlessLayout);
-    _vulkanContext->Device().destroy(_bindlessPool);
-
-    _graphicsResources.reset();
-    _vulkanContext.reset();
+    vk::Device device = _vulkanContext->Device();
+    device.destroy(_bindlessLayout);
+    device.destroy(_bindlessPool);
 }
 
 void GraphicsContext::CreateBindlessDescriptorSet()
 {
+    vk::Device device = _vulkanContext->Device();
+
     std::array<vk::DescriptorPoolSize, 6> poolSizes = {
         vk::DescriptorPoolSize { vk::DescriptorType::eCombinedImageSampler, MAX_BINDLESS_RESOURCES },
         vk::DescriptorPoolSize { vk::DescriptorType::eCombinedImageSampler, MAX_BINDLESS_RESOURCES },
@@ -61,7 +61,7 @@ void GraphicsContext::CreateBindlessDescriptorSet()
     poolCreateInfo.maxSets = MAX_BINDLESS_RESOURCES * poolSizes.size();
     poolCreateInfo.poolSizeCount = poolSizes.size();
     poolCreateInfo.pPoolSizes = poolSizes.data();
-    util::VK_ASSERT(_vulkanContext->Device().createDescriptorPool(&poolCreateInfo, nullptr, &_bindlessPool), "Failed creating bindless pool!");
+    util::VK_ASSERT(device.createDescriptorPool(&poolCreateInfo, nullptr, &_bindlessPool), "Failed creating bindless pool!");
 
     std::vector<vk::DescriptorSetLayoutBinding> bindings(3);
     vk::DescriptorSetLayoutBinding& combinedImageSampler = bindings[0];
@@ -108,7 +108,7 @@ void GraphicsContext::CreateBindlessDescriptorSet()
     allocInfo.descriptorSetCount = 1;
     allocInfo.pSetLayouts = &_bindlessLayout;
 
-    util::VK_ASSERT(_vulkanContext->Device().allocateDescriptorSets(&allocInfo, &_bindlessSet), "Failed creating bindless descriptor set!");
+    util::VK_ASSERT(device.allocateDescriptorSets(&allocInfo, &_bindlessSet), "Failed creating bindless descriptor set!");
 
     util::NameObject(_bindlessSet, "Bindless DS", _vulkanContext);
 }
@@ -168,7 +168,8 @@ void GraphicsContext::UpdateBindlessImages()
         _bindlessImageWrites.at(i).pImageInfo = &_bindlessImageInfos[i];
     }
 
-    _vulkanContext->Device().updateDescriptorSets(MAX_BINDLESS_RESOURCES, _bindlessImageWrites.data(), 0, nullptr);
+    vk::Device device = _vulkanContext->Device();
+    device.updateDescriptorSets(MAX_BINDLESS_RESOURCES, _bindlessImageWrites.data(), 0, nullptr);
 }
 
 void GraphicsContext::UpdateBindlessMaterials()
@@ -205,5 +206,6 @@ void GraphicsContext::UpdateBindlessMaterials()
     _bindlessMaterialWrite.descriptorCount = 1;
     _bindlessMaterialWrite.pBufferInfo = &_bindlessMaterialInfo;
 
-    _vulkanContext->Device().updateDescriptorSets(1, &_bindlessMaterialWrite, 0, nullptr);
+    vk::Device device = _vulkanContext->Device();
+    device.updateDescriptorSets(1, &_bindlessMaterialWrite, 0, nullptr);
 }

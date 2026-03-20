@@ -62,11 +62,12 @@ void SwapChain::CreateSwapChain(const glm::uvec2& screenSize)
     createInfo.clipped = vk::True;
     createInfo.oldSwapchain = nullptr;
 
-    util::VK_ASSERT(vkContext->Device().createSwapchainKHR(&createInfo, nullptr, &_swapChain), "Failed creating swap chain!");
+    vk::Device device = vkContext->Device();
+    util::VK_ASSERT(device.createSwapchainKHR(&createInfo, nullptr, &_swapChain), "Failed creating swap chain!");
 
     util::NameObject(_swapChain, "Main Swapchain", vkContext);
 
-    _images = vkContext->Device().getSwapchainImagesKHR(_swapChain);
+    _images = device.getSwapchainImagesKHR(_swapChain);
     _format = surfaceFormat.format;
     _extent = extent;
 
@@ -75,18 +76,17 @@ void SwapChain::CreateSwapChain(const glm::uvec2& screenSize)
 
 void SwapChain::Resize(const glm::uvec2& screenSize)
 {
-    auto vkContext { _context->VulkanContext() };
-
-    vkContext->Device().waitIdle();
+    vk::Device device = _context->VulkanContext()->Device();
+    device.waitIdle();
 
     CleanUpSwapChain();
-
     CreateSwapChain(screenSize);
 }
 
 void SwapChain::CreateSwapChainImageViews()
 {
     auto vkContext { _context->VulkanContext() };
+    vk::Device device = vkContext->Device();
 
     _imageViews.resize(_images.size());
     for (size_t i = 0; i < _imageViews.size(); ++i)
@@ -105,7 +105,7 @@ void SwapChain::CreateSwapChainImageViews()
                 1 // layer count
             }
         };
-        util::VK_ASSERT(vkContext->Device().createImageView(&createInfo, nullptr, &_imageViews[i]), "Failed creating image view for swap chain!");
+        util::VK_ASSERT(device.createImageView(&createInfo, nullptr, &_imageViews[i]), "Failed creating image view for swap chain!");
 
         util::NameObject(_imageViews[i], "Swapchain Image View", vkContext);
         util::NameObject(_images[i], "Swapchain Image", vkContext);
@@ -172,11 +172,12 @@ vk::Extent2D SwapChain::ChooseSwapExtent(const vk::SurfaceCapabilitiesKHR& capab
 void SwapChain::CleanUpSwapChain()
 {
     auto vkContext { _context->VulkanContext() };
+    vk::Device device = vkContext->Device();
 
     for (auto imageView : _imageViews)
     {
-        vkContext->Device().destroy(imageView);
+        device.destroy(imageView);
     }
 
-    vkContext->Device().destroy(_swapChain);
+    device.destroy(_swapChain);
 }

@@ -1,11 +1,11 @@
 #pragma once
 
 #include <glm/vec2.hpp>
-#include <memory>
 #include <optional>
 #include <vma_include.hpp>
 
 #include "common.hpp"
+#include "fwd_vulkan.hpp"
 #include "vulkan_include.hpp"
 
 struct SDL_Window;
@@ -46,16 +46,15 @@ public:
     NON_COPYABLE(VulkanContext);
     NON_MOVABLE(VulkanContext);
 
-    vk::Instance Instance() const { return _instance; }
-    vk::PhysicalDevice PhysicalDevice() const { return _physicalDevice; }
-    vk::Device Device() const { return _device; }
-    vk::Queue GraphicsQueue() const { return _graphicsQueue; }
-    vk::Queue PresentQueue() const { return _presentQueue; }
-    vk::SurfaceKHR Surface() const { return _surface; }
-    vk::DescriptorPool DescriptorPool() const { return _descriptorPool; }
-    vk::CommandPool CommandPool() const { return _commandPool; }
-    VmaAllocator MemoryAllocator() const { return _vmaAllocator; }
-
+    [[nodiscard]] VkInstance Instance() const { return _instance; }
+    [[nodiscard]] VkPhysicalDevice PhysicalDevice() const { return _physicalDevice; }
+    [[nodiscard]] VkDevice Device() const { return _device; }
+    [[nodiscard]] VkQueue GraphicsQueue() const { return _graphicsQueue; }
+    [[nodiscard]] VkQueue PresentQueue() const { return _presentQueue; }
+    [[nodiscard]] VkSurfaceKHR Surface() const { return _surface; }
+    [[nodiscard]] VkDescriptorPool DescriptorPool() const { return _descriptorPool; }
+    [[nodiscard]] VkCommandPool CommandPool() const { return _commandPool; }
+    [[nodiscard]] VmaAllocator MemoryAllocator() const { return _vmaAllocator; }
     [[nodiscard]] const QueueFamilyIndices& QueueFamilies() const { return _queueFamilyIndices; }
 
 private:

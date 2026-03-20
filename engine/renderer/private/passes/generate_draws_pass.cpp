@@ -22,8 +22,9 @@ GenerateDrawsPass::GenerateDrawsPass(const std::shared_ptr<GraphicsContext>& con
 
 GenerateDrawsPass::~GenerateDrawsPass()
 {
-    _context->VulkanContext()->Device().destroy(_generateDrawsPipeline);
-    _context->VulkanContext()->Device().destroy(_generateDrawsPipelineLayout);
+    vk::Device device = _context->VulkanContext()->Device();
+    device.destroy(_generateDrawsPipeline);
+    device.destroy(_generateDrawsPipelineLayout);
 }
 
 void GenerateDrawsPass::RecordCommands(vk::CommandBuffer commandBuffer, uint32_t currentFrame, const RenderSceneDescription& scene)

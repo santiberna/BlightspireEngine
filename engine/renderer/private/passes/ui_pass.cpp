@@ -25,8 +25,9 @@ UIPass::UIPass(const std::shared_ptr<GraphicsContext>& context, const ResourceHa
 
 UIPass::~UIPass()
 {
-    _context->VulkanContext()->Device().destroy(_pipeline);
-    _context->VulkanContext()->Device().destroy(_pipelineLayout);
+    vk::Device device = _context->VulkanContext()->Device();
+    device.destroy(_pipeline);
+    device.destroy(_pipelineLayout);
 }
 
 void UIPass::CreatePipeLine()

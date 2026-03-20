@@ -26,11 +26,11 @@ BuildHzbPass::BuildHzbPass(const std::shared_ptr<GraphicsContext>& context, Came
 
 BuildHzbPass::~BuildHzbPass()
 {
-    const auto& vkContext = _context->VulkanContext();
+    vk::Device device = _context->VulkanContext()->Device();
 
-    vkContext->Device().destroy(_buildHzbPipelineLayout);
-    vkContext->Device().destroy(_buildHzbPipeline);
-    vkContext->Device().destroy(_hzbUpdateTemplate);
+    device.destroy(_buildHzbPipelineLayout);
+    device.destroy(_buildHzbPipeline);
+    device.destroy(_hzbUpdateTemplate);
 }
 
 void BuildHzbPass::RecordCommands(vk::CommandBuffer commandBuffer, [[maybe_unused]] uint32_t currentFrame, [[maybe_unused]] const RenderSceneDescription& scene)
@@ -135,5 +135,6 @@ void BuildHzbPass::CreateUpdateTemplate()
         .set = 0
     };
 
-    _hzbUpdateTemplate = _context->VulkanContext()->Device().createDescriptorUpdateTemplate(updateTemplateInfo);
+    vk::Device device = _context->VulkanContext()->Device();
+    _hzbUpdateTemplate = device.createDescriptorUpdateTemplate(updateTemplateInfo);
 }

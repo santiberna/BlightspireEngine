@@ -22,7 +22,8 @@ BloomSettings::~BloomSettings()
     auto vkContext { _context->VulkanContext() };
     auto resources { _context->Resources() };
 
-    vkContext->Device().destroy(_descriptorSetLayout);
+    vk::Device device = vkContext->Device();
+    device.destroy(_descriptorSetLayout);
 }
 
 void BloomSettings::Update(uint32_t currentFrame)
@@ -84,7 +85,8 @@ void BloomSettings::CreateUniformBuffers()
     allocateInfo.descriptorSetCount = MAX_FRAMES_IN_FLIGHT;
     allocateInfo.pSetLayouts = layouts.data();
 
-    util::VK_ASSERT(vkContext->Device().allocateDescriptorSets(&allocateInfo, _frameData.descriptorSets.data()),
+    vk::Device device = vkContext->Device();
+    util::VK_ASSERT(device.allocateDescriptorSets(&allocateInfo, _frameData.descriptorSets.data()),
         "Failed allocating descriptor sets!");
 
     for (size_t i = 0; i < _frameData.descriptorSets.size(); ++i)
@@ -115,5 +117,6 @@ void BloomSettings::UpdateDescriptorSet(uint32_t currentFrame)
     bufferWrite.descriptorCount = 1;
     bufferWrite.pBufferInfo = &bufferInfo;
 
-    vkContext->Device().updateDescriptorSets(descriptorWrites.size(), descriptorWrites.data(), 0, nullptr);
+    vk::Device device = vkContext->Device();
+    device.updateDescriptorSets(descriptorWrites.size(), descriptorWrites.data(), 0, nullptr);
 }

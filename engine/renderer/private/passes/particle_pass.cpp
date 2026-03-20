@@ -40,14 +40,16 @@ ParticlePass::~ParticlePass()
     auto vkContext { _context->VulkanContext() };
     auto resources { _context->Resources() };
 
+    vk::Device device = vkContext->Device();
+
     // Pipeline stuff
     for (auto& pipeline : _pipelines)
     {
-        vkContext->Device().destroy(pipeline);
+        device.destroy(pipeline);
     }
     for (auto& layout : _pipelineLayouts)
     {
-        vkContext->Device().destroy(layout);
+        device.destroy(layout);
     }
     // Buffer stuff
     for (auto& storageBuffer : _particlesBuffers)
@@ -66,11 +68,11 @@ ParticlePass::~ParticlePass()
         util::vmaDestroyBuffer(vkContext->MemoryAllocator(), _localEmitterStagingBuffer[i], _localEmitterStagingBufferAllocation[i]);
     }
 
-    vkContext->Device().destroy(_localEmittersDescriptorSetLayout);
-    vkContext->Device().destroy(_particlesBuffersDescriptorSetLayout);
-    vkContext->Device().destroy(_emittersBufferDescriptorSetLayout);
-    vkContext->Device().destroy(_culledInstancesDescriptorSetLayout);
-    vkContext->Device().destroy(_drawCommandsDescriptorSetLayout);
+    device.destroy(_localEmittersDescriptorSetLayout);
+    device.destroy(_particlesBuffersDescriptorSetLayout);
+    device.destroy(_emittersBufferDescriptorSetLayout);
+    device.destroy(_culledInstancesDescriptorSetLayout);
+    device.destroy(_drawCommandsDescriptorSetLayout);
 }
 
 void ParticlePass::RecordCommands(vk::CommandBuffer commandBuffer, uint32_t currentFrame, const RenderSceneDescription& scene)
@@ -401,6 +403,7 @@ void ParticlePass::CreatePipelines()
     auto vkContext { _context->VulkanContext() };
     auto resources { _context->Resources() };
 
+    vk::Device device = vkContext->Device();
     { // kick-off
         vk::PipelineLayoutCreateInfo pipelineLayoutCreateInfo {};
         std::array<vk::DescriptorSetLayout, 3> layouts = { _context->BindlessLayout(), _particlesBuffersDescriptorSetLayout, _drawCommandsDescriptorSetLayout };
@@ -408,11 +411,11 @@ void ParticlePass::CreatePipelines()
         pipelineLayoutCreateInfo.pSetLayouts = layouts.data();
         pipelineLayoutCreateInfo.pushConstantRangeCount = 0;
 
-        _pipelineLayouts[static_cast<uint32_t>(ShaderStages::eKickOff)] = vkContext->Device().createPipelineLayout(pipelineLayoutCreateInfo);
+        _pipelineLayouts[static_cast<uint32_t>(ShaderStages::eKickOff)] = device.createPipelineLayout(pipelineLayoutCreateInfo);
 
         std::vector<std::byte> byteCode = shader::ReadFile("shaders/bin/kick_off.comp.spv");
 
-        vk::ShaderModule shaderModule = shader::CreateShaderModule(byteCode, vkContext->Device());
+        vk::ShaderModule shaderModule = shader::CreateShaderModule(byteCode, device);
 
         vk::PipelineShaderStageCreateInfo shaderStageCreateInfo {
             .stage = vk::ShaderStageFlagBits::eCompute,
@@ -425,11 +428,11 @@ void ParticlePass::CreatePipelines()
             .layout = _pipelineLayouts[static_cast<uint32_t>(ShaderStages::eKickOff)],
         };
 
-        auto result = vkContext->Device().createComputePipeline(nullptr, computePipelineCreateInfo, nullptr);
+        auto result = device.createComputePipeline(nullptr, computePipelineCreateInfo, nullptr);
         util::VK_ASSERT(result.result, "Failed creating the kick_off compute pipeline!");
         _pipelines[static_cast<uint32_t>(ShaderStages::eKickOff)] = result.value;
 
-        vkContext->Device().destroy(shaderModule);
+        device.destroy(shaderModule);
     }
 
     { // emit
@@ -447,11 +450,11 @@ void ParticlePass::CreatePipelines()
         pipelineLayoutCreateInfo.pushConstantRangeCount = 1;
         pipelineLayoutCreateInfo.pPushConstantRanges = &pcRange;
 
-        _pipelineLayouts[static_cast<uint32_t>(ShaderStages::eEmit)] = vkContext->Device().createPipelineLayout(pipelineLayoutCreateInfo);
+        _pipelineLayouts[static_cast<uint32_t>(ShaderStages::eEmit)] = device.createPipelineLayout(pipelineLayoutCreateInfo);
 
         auto byteCode = shader::ReadFile("shaders/bin/emit.comp.spv");
 
-        vk::ShaderModule shaderModule = shader::CreateShaderModule(byteCode, vkContext->Device());
+        vk::ShaderModule shaderModule = shader::CreateShaderModule(byteCode, device);
 
         vk::PipelineShaderStageCreateInfo shaderStageCreateInfo {
             .stage = vk::ShaderStageFlagBits::eCompute,
@@ -464,11 +467,11 @@ void ParticlePass::CreatePipelines()
             .layout = _pipelineLayouts[static_cast<uint32_t>(ShaderStages::eEmit)],
         };
 
-        auto result = vkContext->Device().createComputePipeline(nullptr, computePipelineCreateInfo, nullptr);
+        auto result = device.createComputePipeline(nullptr, computePipelineCreateInfo, nullptr);
         util::VK_ASSERT(result.result, "Failed creating the emit compute pipeline!");
         _pipelines[static_cast<uint32_t>(ShaderStages::eEmit)] = result.value;
 
-        vkContext->Device().destroy(shaderModule);
+        device.destroy(shaderModule);
     }
 
     { // simulate
@@ -486,11 +489,11 @@ void ParticlePass::CreatePipelines()
         pipelineLayoutCreateInfo.pushConstantRangeCount = 1;
         pipelineLayoutCreateInfo.pPushConstantRanges = &pcRange;
 
-        _pipelineLayouts[static_cast<uint32_t>(ShaderStages::eSimulate)] = vkContext->Device().createPipelineLayout(pipelineLayoutCreateInfo);
+        _pipelineLayouts[static_cast<uint32_t>(ShaderStages::eSimulate)] = device.createPipelineLayout(pipelineLayoutCreateInfo);
 
         std::vector<std::byte> byteCode = shader::ReadFile("shaders/bin/simulate.comp.spv");
 
-        vk::ShaderModule shaderModule = shader::CreateShaderModule(byteCode, vkContext->Device());
+        vk::ShaderModule shaderModule = shader::CreateShaderModule(byteCode, device);
 
         vk::PipelineShaderStageCreateInfo shaderStageCreateInfo {
             .stage = vk::ShaderStageFlagBits::eCompute,
@@ -503,11 +506,11 @@ void ParticlePass::CreatePipelines()
             .layout = _pipelineLayouts[static_cast<uint32_t>(ShaderStages::eSimulate)],
         };
 
-        auto result = vkContext->Device().createComputePipeline(nullptr, computePipelineCreateInfo, nullptr);
+        auto result = device.createComputePipeline(nullptr, computePipelineCreateInfo, nullptr);
         util::VK_ASSERT(result.result, "Failed creating the simulate compute pipeline!");
         _pipelines[static_cast<uint32_t>(ShaderStages::eSimulate)] = result.value;
 
-        vkContext->Device().destroy(shaderModule);
+        device.destroy(shaderModule);
     }
 
     { // indexed indirect rendering (billboard)
@@ -556,6 +559,7 @@ void ParticlePass::CreatePipelines()
 void ParticlePass::CreateDescriptorSetLayouts()
 {
     auto vkContext { _context->VulkanContext() };
+    vk::Device device = vkContext->Device();
 
     { // Particle Storage Buffers
         std::array<vk::DescriptorSetLayoutBinding, 5> bindings {};
@@ -582,7 +586,7 @@ void ParticlePass::CreateDescriptorSetLayouts()
         createInfo.flags = vk::DescriptorSetLayoutCreateFlagBits::eUpdateAfterBindPool;
         createInfo.pNext = &bindingCreateInfo;
 
-        util::VK_ASSERT(vkContext->Device().createDescriptorSetLayout(&createInfo, nullptr, &_particlesBuffersDescriptorSetLayout),
+        util::VK_ASSERT(device.createDescriptorSetLayout(&createInfo, nullptr, &_particlesBuffersDescriptorSetLayout),
             "Failed creating particle buffers descriptor set layout!");
     }
 
@@ -600,7 +604,7 @@ void ParticlePass::CreateDescriptorSetLayouts()
         createInfo.bindingCount = bindings.size();
         createInfo.pBindings = bindings.data();
 
-        util::VK_ASSERT(vkContext->Device().createDescriptorSetLayout(&createInfo, nullptr, &_emittersBufferDescriptorSetLayout),
+        util::VK_ASSERT(device.createDescriptorSetLayout(&createInfo, nullptr, &_emittersBufferDescriptorSetLayout),
             "Failed creating emitter buffer descriptor set layout!");
     }
 
@@ -618,7 +622,7 @@ void ParticlePass::CreateDescriptorSetLayouts()
         createInfo.bindingCount = bindings.size();
         createInfo.pBindings = bindings.data();
 
-        util::VK_ASSERT(vkContext->Device().createDescriptorSetLayout(&createInfo, nullptr, &_localEmittersDescriptorSetLayout),
+        util::VK_ASSERT(device.createDescriptorSetLayout(&createInfo, nullptr, &_localEmittersDescriptorSetLayout),
             "Failed creating local emitter buffer descriptor set layout!");
     }
 
@@ -649,7 +653,7 @@ void ParticlePass::CreateDescriptorSetLayouts()
         createInfo.bindingCount = bindings.size();
         createInfo.pBindings = bindings.data();
 
-        util::VK_ASSERT(vkContext->Device().createDescriptorSetLayout(&createInfo, nullptr, &_drawCommandsDescriptorSetLayout),
+        util::VK_ASSERT(device.createDescriptorSetLayout(&createInfo, nullptr, &_drawCommandsDescriptorSetLayout),
             "Failed creating particle draw commands buffer descriptor set layout!");
     }
 }
@@ -657,6 +661,7 @@ void ParticlePass::CreateDescriptorSetLayouts()
 void ParticlePass::CreateDescriptorSets()
 {
     auto vkContext { _context->VulkanContext() };
+    vk::Device device = vkContext->Device();
 
     { // Particle Storage Buffers
         vk::DescriptorSetAllocateInfo allocateInfo {};
@@ -666,7 +671,7 @@ void ParticlePass::CreateDescriptorSets()
 
         std::array<vk::DescriptorSet, 1> descriptorSets;
 
-        util::VK_ASSERT(vkContext->Device().allocateDescriptorSets(&allocateInfo, descriptorSets.data()),
+        util::VK_ASSERT(device.allocateDescriptorSets(&allocateInfo, descriptorSets.data()),
             "Failed allocating Particle Storage Buffer descriptor sets!");
 
         _particlesBuffersDescriptorSet = descriptorSets[0];
@@ -680,7 +685,7 @@ void ParticlePass::CreateDescriptorSets()
         allocateInfo.pSetLayouts = &_culledInstancesDescriptorSetLayout;
 
         std::array<vk::DescriptorSet, 1> descriptorSets;
-        util::VK_ASSERT(vkContext->Device().allocateDescriptorSets(&allocateInfo, descriptorSets.data()),
+        util::VK_ASSERT(device.allocateDescriptorSets(&allocateInfo, descriptorSets.data()),
             "Failed allocating Particle Instances Storage Buffer descriptor sets!");
 
         _culledInstancesDescriptorSet = descriptorSets[0];
@@ -694,7 +699,7 @@ void ParticlePass::CreateDescriptorSets()
         allocateInfo.pSetLayouts = &_emittersBufferDescriptorSetLayout;
 
         std::array<vk::DescriptorSet, 1> descriptorSets;
-        util::VK_ASSERT(vkContext->Device().allocateDescriptorSets(&allocateInfo, descriptorSets.data()),
+        util::VK_ASSERT(device.allocateDescriptorSets(&allocateInfo, descriptorSets.data()),
             "Failed allocating Emitter Uniform Buffer descriptor sets!");
 
         _emittersDescriptorSet = descriptorSets[0];
@@ -708,7 +713,7 @@ void ParticlePass::CreateDescriptorSets()
         allocateInfo.pSetLayouts = &_localEmittersDescriptorSetLayout;
 
         std::array<vk::DescriptorSet, 1> descriptorSets;
-        util::VK_ASSERT(vkContext->Device().allocateDescriptorSets(&allocateInfo, descriptorSets.data()),
+        util::VK_ASSERT(device.allocateDescriptorSets(&allocateInfo, descriptorSets.data()),
             "Failed allocating Local Emitter Uniform Buffer descriptor sets!");
 
         _localEmittersDescriptorSet = descriptorSets[0];
@@ -722,7 +727,7 @@ void ParticlePass::CreateDescriptorSets()
         allocateInfo.pSetLayouts = &_drawCommandsDescriptorSetLayout;
 
         std::array<vk::DescriptorSet, 1> descriptorSets;
-        util::VK_ASSERT(vkContext->Device().allocateDescriptorSets(&allocateInfo, descriptorSets.data()),
+        util::VK_ASSERT(device.allocateDescriptorSets(&allocateInfo, descriptorSets.data()),
             "Failed allocating Particle Draw Commands Buffer descriptor set!");
 
         _drawCommandsDescriptorSet = descriptorSets[0];
@@ -733,6 +738,7 @@ void ParticlePass::CreateDescriptorSets()
 void ParticlePass::UpdateParticleBuffersDescriptorSets()
 {
     auto vkContext { _context->VulkanContext() };
+    vk::Device device = vkContext->Device();
     auto resources { _context->Resources() };
 
     std::array<vk::WriteDescriptorSet, 5> descriptorWrites {};
@@ -807,12 +813,13 @@ void ParticlePass::UpdateParticleBuffersDescriptorSets()
     counterBufferWrite.descriptorCount = 1;
     counterBufferWrite.pBufferInfo = &counterBufferInfo;
 
-    vkContext->Device().updateDescriptorSets(descriptorWrites.size(), descriptorWrites.data(), 0, nullptr);
+    device.updateDescriptorSets(descriptorWrites.size(), descriptorWrites.data(), 0, nullptr);
 }
 
 void ParticlePass::UpdateParticleInstancesBufferDescriptorSet()
 {
     auto vkContext { _context->VulkanContext() };
+    vk::Device device = vkContext->Device();
     auto resources { _context->Resources() };
 
     std::array<vk::WriteDescriptorSet, 1> descriptorWrites {};
@@ -830,12 +837,13 @@ void ParticlePass::UpdateParticleInstancesBufferDescriptorSet()
     culledInstancesBufferWrite.descriptorCount = 1;
     culledInstancesBufferWrite.pBufferInfo = &culledInstancesBufferInfo;
 
-    vkContext->Device().updateDescriptorSets(descriptorWrites.size(), descriptorWrites.data(), 0, nullptr);
+    device.updateDescriptorSets(descriptorWrites.size(), descriptorWrites.data(), 0, nullptr);
 }
 
 void ParticlePass::UpdateEmittersBuffersDescriptorSets()
 {
     auto vkContext { _context->VulkanContext() };
+    vk::Device device = vkContext->Device();
     auto resources { _context->Resources() };
 
     std::array<vk::WriteDescriptorSet, 1> descriptorWrites {};
@@ -853,12 +861,13 @@ void ParticlePass::UpdateEmittersBuffersDescriptorSets()
     emitterBufferWrite.descriptorCount = 1;
     emitterBufferWrite.pBufferInfo = &emitterBufferInfo;
 
-    vkContext->Device().updateDescriptorSets(descriptorWrites.size(), descriptorWrites.data(), 0, nullptr);
+    device.updateDescriptorSets(descriptorWrites.size(), descriptorWrites.data(), 0, nullptr);
 }
 
 void ParticlePass::UpdateLocalEmittersBuffersDescriptorSets()
 {
     auto vkContext { _context->VulkanContext() };
+    vk::Device device = vkContext->Device();
     auto resources { _context->Resources() };
 
     std::array<vk::WriteDescriptorSet, 1> descriptorWrites {};
@@ -876,12 +885,13 @@ void ParticlePass::UpdateLocalEmittersBuffersDescriptorSets()
     localEmitterBufferWrite.descriptorCount = 1;
     localEmitterBufferWrite.pBufferInfo = &localEmitterBufferInfo;
 
-    vkContext->Device().updateDescriptorSets(descriptorWrites.size(), descriptorWrites.data(), 0, nullptr);
+    device.updateDescriptorSets(descriptorWrites.size(), descriptorWrites.data(), 0, nullptr);
 }
 
 void ParticlePass::UpdateDrawCommandsBufferDescriptorSet()
 {
     auto vkContext { _context->VulkanContext() };
+    vk::Device device = vkContext->Device();
     auto resources { _context->Resources() };
 
     std::array<vk::WriteDescriptorSet, 1> descriptorWrites {};
@@ -899,7 +909,7 @@ void ParticlePass::UpdateDrawCommandsBufferDescriptorSet()
     drawCommandsBufferWrite.descriptorCount = 1;
     drawCommandsBufferWrite.pBufferInfo = &drawCommandsBufferInfo;
 
-    vkContext->Device().updateDescriptorSets(descriptorWrites.size(), descriptorWrites.data(), 0, nullptr);
+    device.updateDescriptorSets(descriptorWrites.size(), descriptorWrites.data(), 0, nullptr);
 }
 
 void ParticlePass::CreateBuffers()

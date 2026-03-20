@@ -18,8 +18,9 @@ BloomUpsamplePass::BloomUpsamplePass(const std::shared_ptr<GraphicsContext>& con
 
 BloomUpsamplePass::~BloomUpsamplePass()
 {
-    _context->VulkanContext()->Device().destroy(_pipeline);
-    _context->VulkanContext()->Device().destroy(_pipelineLayout);
+    vk::Device device = _context->VulkanContext()->Device();
+    device.destroy(_pipeline);
+    device.destroy(_pipelineLayout);
 }
 
 void BloomUpsamplePass::RecordCommands(vk::CommandBuffer commandBuffer, uint32_t currentFrame, const RenderSceneDescription& scene)

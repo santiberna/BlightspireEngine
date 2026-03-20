@@ -417,18 +417,19 @@ std::vector<ResourceHandle<GPUModel>> Renderer::LoadModels(const std::vector<CPU
 
 void Renderer::FlushCommands()
 {
-    GetContext()->VulkanContext()->Device().waitIdle();
+    vk::Device device = _context->VulkanContext()->Device();
+    device.waitIdle();
 }
 
 Renderer::~Renderer()
 {
-    auto vkContext { _context->VulkanContext() };
+    vk::Device device = _context->VulkanContext()->Device();
 
     for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
     {
-        vkContext->Device().destroy(_inFlightFences[i]);
-        vkContext->Device().destroy(_renderFinishedSemaphores[i]);
-        vkContext->Device().destroy(_imageAvailableSemaphores[i]);
+        device.destroy(_inFlightFences[i]);
+        device.destroy(_renderFinishedSemaphores[i]);
+        device.destroy(_imageAvailableSemaphores[i]);
     }
 
     _swapChain.reset();
@@ -441,12 +442,13 @@ Renderer::~Renderer()
 
 void Renderer::CreateCommandBuffers()
 {
+    vk::Device device = _context->VulkanContext()->Device();
     vk::CommandBufferAllocateInfo commandBufferAllocateInfo {};
     commandBufferAllocateInfo.commandPool = _context->VulkanContext()->CommandPool();
     commandBufferAllocateInfo.level = vk::CommandBufferLevel::ePrimary;
     commandBufferAllocateInfo.commandBufferCount = _commandBuffers.size();
 
-    util::VK_ASSERT(_context->VulkanContext()->Device().allocateCommandBuffers(&commandBufferAllocateInfo, _commandBuffers.data()),
+    util::VK_ASSERT(device.allocateCommandBuffers(&commandBufferAllocateInfo, _commandBuffers.data()),
         "Failed allocating command buffer!");
 }
 
@@ -472,8 +474,7 @@ void Renderer::RecordCommandBuffer(const vk::CommandBuffer& commandBuffer, uint3
 
 void Renderer::CreateSyncObjects()
 {
-    auto vkContext { _context->VulkanContext() };
-
+    vk::Device device = _context->VulkanContext()->Device();
     vk::SemaphoreCreateInfo semaphoreCreateInfo {};
     vk::FenceCreateInfo fenceCreateInfo {};
     fenceCreateInfo.flags = vk::FenceCreateFlagBits::eSignaled;
@@ -481,12 +482,12 @@ void Renderer::CreateSyncObjects()
     std::string errorMsg { "Failed creating sync object!" };
     for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
     {
-        util::VK_ASSERT(vkContext->Device().createSemaphore(&semaphoreCreateInfo, nullptr, &_imageAvailableSemaphores[i]), errorMsg);
-        util::VK_ASSERT(vkContext->Device().createFence(&fenceCreateInfo, nullptr, &_inFlightFences[i]), errorMsg);
+        util::VK_ASSERT(device.createSemaphore(&semaphoreCreateInfo, nullptr, &_imageAvailableSemaphores[i]), errorMsg);
+        util::VK_ASSERT(device.createFence(&fenceCreateInfo, nullptr, &_inFlightFences[i]), errorMsg);
     }
 
     for (size_t i = 0; i < _swapChain->GetImageCount(); ++i)
-        util::VK_ASSERT(vkContext->Device().createSemaphore(&semaphoreCreateInfo, nullptr, &_renderFinishedSemaphores[i]), errorMsg);
+        util::VK_ASSERT(device.createSemaphore(&semaphoreCreateInfo, nullptr, &_renderFinishedSemaphores[i]), errorMsg);
 }
 
 void Renderer::InitializeHDRTarget()

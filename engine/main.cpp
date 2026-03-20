@@ -86,8 +86,7 @@ int APIENTRY WinMain([[maybe_unused]] HINSTANCE hInstance, [[maybe_unused]] HINS
 
 int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
 {
-    return 0;
-    // return Main();
+    return Main();
 }
 
 #endif

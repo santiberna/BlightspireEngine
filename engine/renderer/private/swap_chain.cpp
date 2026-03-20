@@ -65,7 +65,7 @@ void SwapChain::CreateSwapChain(const glm::uvec2& screenSize)
     vk::Device device = vkContext->Device();
     util::VK_ASSERT(device.createSwapchainKHR(&createInfo, nullptr, &_swapChain), "Failed creating swap chain!");
 
-    util::NameObject(_swapChain, "Main Swapchain", vkContext);
+    vkContext->DebugSetObjectName(_swapChain, "Main Swapchain");
 
     _images = device.getSwapchainImagesKHR(_swapChain);
     _format = surfaceFormat.format;
@@ -107,8 +107,8 @@ void SwapChain::CreateSwapChainImageViews()
         };
         util::VK_ASSERT(device.createImageView(&createInfo, nullptr, &_imageViews[i]), "Failed creating image view for swap chain!");
 
-        util::NameObject(_imageViews[i], "Swapchain Image View", vkContext);
-        util::NameObject(_images[i], "Swapchain Image", vkContext);
+        vkContext->DebugSetObjectName(_imageViews[i], "Swapchain Image View");
+        vkContext->DebugSetObjectName(_images[i], "Swapchain Image");
     }
 }
 

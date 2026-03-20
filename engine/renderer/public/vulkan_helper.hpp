@@ -44,7 +44,7 @@ bool HasStencilComponent(vk::Format format);
 std::optional<vk::Format> FindSupportedFormat(const vk::PhysicalDevice physicalDevice, const std::vector<vk::Format>& candidates, vk::ImageTiling tiling,
     vk::FormatFeatureFlags features);
 uint32_t FindMemoryType(vk::PhysicalDevice physicalDevice, uint32_t typeFilter, vk::MemoryPropertyFlags properties);
-void CreateBuffer(std::shared_ptr<VulkanContext> context, vk::DeviceSize size, vk::BufferUsageFlags usage, vk::Buffer& buffer, bool mappable, VmaAllocation& allocation, VmaMemoryUsage memoryUsage, std::string_view name);
+void CreateBuffer(std::shared_ptr<VulkanContext> context, vk::DeviceSize size, vk::BufferUsageFlags usage, vk::Buffer& buffer, bool mappable, VmaAllocation& allocation, VmaMemoryUsage memoryUsage, const char* name);
 vk::CommandBuffer BeginSingleTimeCommands(std::shared_ptr<VulkanContext> context);
 void EndSingleTimeCommands(std::shared_ptr<VulkanContext> context, vk::CommandBuffer commandBuffer);
 void CopyBuffer(vk::CommandBuffer commandBuffer, vk::Buffer srcBuffer, vk::Buffer dstBuffer, vk::DeviceSize size, uint32_t offset = 0);
@@ -69,27 +69,5 @@ void BeginQueueLabel(
     glm::vec3 color);
 
 void EndQueueLabel(vk::Queue queue);
-
-template <typename T>
-static void NameObject(T object, std::string_view label, std::shared_ptr<VulkanContext> context)
-{
-#if BB_DEVELOPMENT
-    vk::DebugUtilsObjectNameInfoEXT nameInfo {};
-
-    nameInfo.pObjectName = label.data();
-    nameInfo.objectType = object.objectType;
-    nameInfo.objectHandle = reinterpret_cast<uint64_t>(static_cast<typename T::CType>(object));
-
-    vk::Device device = context->Device();
-    vk::Result result = device.setDebugUtilsObjectNameEXT(&nameInfo);
-    if (result != vk::Result::eSuccess)
-        spdlog::warn("Failed debug naming object!");
-#else
-    (void)object;
-    (void)label;
-    (void)context;
-#endif
-}
-
 uint32_t FormatSize(vk::Format format);
 }

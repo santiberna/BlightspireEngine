@@ -346,6 +346,24 @@ uint32_t VulkanContext::RateDeviceSuitability(const vk::PhysicalDevice& deviceTo
     return score;
 }
 
+void VulkanContext::DebugSetObjectName(void* vulkanObject, uint32_t objectType, const char* name) const
+{
+#if BB_DEVELOPMENT
+    vk::DebugUtilsObjectNameInfoEXT name_info {
+        .objectType = static_cast<vk::ObjectType>(objectType),
+        .objectHandle = std::bit_cast<uint64_t>(vulkanObject),
+        .pObjectName = name
+    };
+
+    auto result = _device.setDebugUtilsObjectNameEXT(&name_info);
+    util::VK_ASSERT(result, "Failed to name object!");
+#else
+    (void)vulkanObject;
+    (void)objectType;
+    (void)name;
+#endif
+}
+
 bool VulkanContext::ExtensionsSupported(const vk::PhysicalDevice& deviceToCheckSupport)
 {
     std::vector<vk::ExtensionProperties> availableExtensions = deviceToCheckSupport.enumerateDeviceExtensionProperties();

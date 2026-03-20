@@ -343,7 +343,8 @@ GPUImage::GPUImage(const CPUImage& creation, ResourceHandle<Sampler> textureSamp
             ss << "[IMAGE] ";
             ss << creation.name;
             std::string imageStr = ss.str();
-            util::NameObject(image, imageStr, _context);
+
+            _context->DebugSetObjectName(image, imageStr.c_str());
             ss.str("");
 
             for (size_t i = 0; i < imageCreateInfo.arrayLayers; ++i)
@@ -351,7 +352,7 @@ GPUImage::GPUImage(const CPUImage& creation, ResourceHandle<Sampler> textureSamp
                 ss << "[VIEW " << i << "] ";
                 ss << creation.name;
                 std::string viewStr = ss.str();
-                util::NameObject(layerViews[i].view, viewStr, _context);
+                _context->DebugSetObjectName(layerViews[i].view, viewStr.c_str());
                 ss.str("");
             }
 

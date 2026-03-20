@@ -154,7 +154,7 @@ void GaussianBlurPass::CreateDescriptorSetLayout()
     };
 
     _descriptorSetLayout = PipelineBuilder::CacheDescriptorSetLayout(*_context->VulkanContext(), bindings, { "source" });
-    util::NameObject(_descriptorSetLayout, "Gaussian blur descriptor set layout", _context->VulkanContext());
+    _context->VulkanContext()->DebugSetObjectName(_descriptorSetLayout, "Gaussian blur descriptor set layout");
 }
 
 void GaussianBlurPass::CreateDescriptorSets()

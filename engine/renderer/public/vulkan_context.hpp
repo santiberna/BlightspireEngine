@@ -57,6 +57,10 @@ public:
     [[nodiscard]] VmaAllocator MemoryAllocator() const { return _vmaAllocator; }
     [[nodiscard]] const QueueFamilyIndices& QueueFamilies() const { return _queueFamilyIndices; }
 
+    template <typename T>
+    void DebugSetObjectName(T vulkanObject, const char* name) const;
+    void DebugSetObjectName(void* vulkanObject, uint32_t objectType, const char* name) const;
+
 private:
     friend class Renderer;
 
@@ -86,3 +90,9 @@ private:
     void CreateCommandPool();
     void CreateDescriptorPool();
 };
+
+template <typename T>
+void VulkanContext::DebugSetObjectName(T vulkanObject, const char* name) const
+{
+    DebugSetObjectName(std::bit_cast<void*>(vulkanObject), static_cast<uint32_t>(T::objectType), name);
+}

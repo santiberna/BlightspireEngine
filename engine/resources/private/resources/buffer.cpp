@@ -41,7 +41,7 @@ Buffer::Buffer(const BufferCreation& creation, const std::shared_ptr<VulkanConte
         creation.isMappable,
         allocation,
         creation.memoryUsage,
-        creation.name);
+        creation.name.c_str());
 
     size = creation.size;
     usage = creation.usage;

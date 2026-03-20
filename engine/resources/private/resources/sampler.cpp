@@ -42,7 +42,7 @@ Sampler::Sampler(const SamplerCreation& creation, const std::shared_ptr<VulkanCo
     vk::Device device = _context->Device();
     sampler = device.createSampler(createInfo);
 
-    util::NameObject(sampler, creation.name, _context);
+    _context->DebugSetObjectName(sampler, creation.name.c_str());
 }
 
 Sampler::~Sampler()

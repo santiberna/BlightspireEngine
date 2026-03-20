@@ -109,8 +109,7 @@ void GraphicsContext::CreateBindlessDescriptorSet()
     allocInfo.pSetLayouts = &_bindlessLayout;
 
     util::VK_ASSERT(device.allocateDescriptorSets(&allocInfo, &_bindlessSet), "Failed creating bindless descriptor set!");
-
-    util::NameObject(_bindlessSet, "Bindless DS", _vulkanContext);
+    _vulkanContext->DebugSetObjectName(_bindlessSet, "Bindless DS");
 }
 
 void GraphicsContext::CreateBindlessMaterialBuffer()

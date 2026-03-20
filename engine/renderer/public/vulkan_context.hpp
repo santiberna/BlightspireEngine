@@ -7,6 +7,7 @@
 #include "common.hpp"
 #include "vulkan_fwd.hpp"
 #include "vulkan_include.hpp"
+#include <memory>
 
 struct SDL_Window;
 
@@ -46,47 +47,24 @@ public:
     NON_COPYABLE(VulkanContext);
     NON_MOVABLE(VulkanContext);
 
-    [[nodiscard]] VkInstance Instance() const { return _instance; }
-    [[nodiscard]] VkPhysicalDevice PhysicalDevice() const { return _physicalDevice; }
-    [[nodiscard]] VkDevice Device() const { return _device; }
-    [[nodiscard]] VkQueue GraphicsQueue() const { return _graphicsQueue; }
-    [[nodiscard]] VkQueue PresentQueue() const { return _presentQueue; }
-    [[nodiscard]] VkSurfaceKHR Surface() const { return _surface; }
-    [[nodiscard]] VkDescriptorPool DescriptorPool() const { return _descriptorPool; }
-    [[nodiscard]] VkCommandPool CommandPool() const { return _commandPool; }
-    [[nodiscard]] VmaAllocator MemoryAllocator() const { return _vmaAllocator; }
-    [[nodiscard]] const QueueFamilyIndices& QueueFamilies() const { return _queueFamilyIndices; }
+    [[nodiscard]] VkInstance Instance() const;
+    [[nodiscard]] VkPhysicalDevice PhysicalDevice() const;
+    [[nodiscard]] VkDevice Device() const;
+    [[nodiscard]] VkQueue GraphicsQueue() const;
+    [[nodiscard]] VkQueue PresentQueue() const;
+    [[nodiscard]] VkSurfaceKHR Surface() const;
+    [[nodiscard]] VkDescriptorPool DescriptorPool() const;
+    [[nodiscard]] VkCommandPool CommandPool() const;
+    [[nodiscard]] VmaAllocator MemoryAllocator() const;
+    [[nodiscard]] const QueueFamilyIndices& QueueFamilies() const;
 
     template <typename T>
     void DebugSetObjectName(T vulkanObject, const char* name) const;
     void DebugSetObjectName(void* vulkanObject, uint32_t objectType, const char* name) const;
 
 private:
-    vk::Instance _instance;
-    vk::PhysicalDevice _physicalDevice;
-    vk::Device _device;
-    vk::Queue _graphicsQueue;
-    vk::Queue _presentQueue;
-    vk::SurfaceKHR _surface;
-    vk::DescriptorPool _descriptorPool;
-    vk::CommandPool _commandPool;
-    VmaAllocator _vmaAllocator;
-    QueueFamilyIndices _queueFamilyIndices;
-    uint32_t _minUniformBufferOffsetAlignment;
-
-#if BB_DEVELOPMENT
-    vk::DebugUtilsMessengerEXT _debugMessenger;
-#endif
-
-    void PickPhysicalDevice();
-    uint32_t RateDeviceSuitability(const vk::PhysicalDevice& device);
-
-    bool ExtensionsSupported(const vk::PhysicalDevice& device);
-
-    void CreateInstance();
-    void CreateDevice();
-    void CreateCommandPool();
-    void CreateDescriptorPool();
+    struct Impl;
+    std::unique_ptr<Impl> m_impl {};
 };
 
 template <typename T>

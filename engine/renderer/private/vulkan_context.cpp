@@ -103,10 +103,89 @@ VKAPI_ATTR VkBool32 VKAPI_CALL VulkanDebugCallback(
 }
 #endif
 
+bool ExtensionsSupported(vk::PhysicalDevice deviceToCheckSupport)
+{
+    std::vector<vk::ExtensionProperties> availableExtensions = deviceToCheckSupport.enumerateDeviceExtensionProperties();
+    std::set<std::string> requiredExtensions { DEVICE_EXTENSIONS.begin(), DEVICE_EXTENSIONS.end() };
+    for (const auto& extension : availableExtensions)
+        requiredExtensions.erase(extension.extensionName);
+
+    return requiredExtensions.empty();
 }
+
+uint32_t RateDeviceSuitability(vk::PhysicalDevice deviceToRate, vk::SurfaceKHR surface)
+{
+    vk::StructureChain<vk::PhysicalDeviceFeatures2, vk::PhysicalDeviceDescriptorIndexingFeatures> structureChain;
+
+    auto& indexingFeatures = structureChain.get<vk::PhysicalDeviceDescriptorIndexingFeatures>();
+    auto& deviceFeatures = structureChain.get<vk::PhysicalDeviceFeatures2>();
+
+    vk::PhysicalDeviceProperties deviceProperties;
+    deviceToRate.getProperties(&deviceProperties);
+    deviceToRate.getFeatures2(&deviceFeatures);
+
+    QueueFamilyIndices familyIndices = QueueFamilyIndices::FindQueueFamilies(deviceToRate, surface);
+
+    uint32_t score { 0 };
+
+    // Failed if geometry shader is not supported.
+    if (!deviceFeatures.features.geometryShader)
+        return 0;
+
+    // Failed if graphics family queue is not supported.
+    if (!familyIndices.IsComplete())
+        return 0;
+
+    // Failed if no extensions are supported.
+    if (!ExtensionsSupported(deviceToRate))
+        return 0;
+
+    // Check for bindless rendering support.
+    if (!indexingFeatures.descriptorBindingPartiallyBound || !indexingFeatures.runtimeDescriptorArray || !indexingFeatures.descriptorBindingUniformBufferUpdateAfterBind)
+        return 0;
+
+    // Check support for swap chain.
+    SwapChain::SupportDetails swapChainSupportDetails = SwapChain::QuerySupport(deviceToRate, surface);
+    bool swapChainUnsupported = swapChainSupportDetails.formats.empty() || swapChainSupportDetails.presentModes.empty();
+    if (swapChainUnsupported)
+        return 0;
+
+    // Favor discrete GPUs above all else.
+    if (deviceProperties.deviceType == vk::PhysicalDeviceType::eDiscreteGpu)
+        score += 50000;
+
+    // Slightly favor integrated GPUs.
+    if (deviceProperties.deviceType == vk::PhysicalDeviceType::eIntegratedGpu)
+        score += 30000;
+
+    score += deviceProperties.limits.maxImageDimension2D;
+
+    return score;
+}
+
+}
+struct VulkanContext::Impl
+{
+    vk::Instance instance;
+    vk::PhysicalDevice physical_device;
+    vk::Device device;
+    vk::Queue graphics_queue;
+    vk::Queue present_queue;
+    vk::SurfaceKHR surface;
+    vk::DescriptorPool descriptor_pool;
+    vk::CommandPool command_pool;
+    VmaAllocator vma_allocator;
+    QueueFamilyIndices queue_family_indices;
+    uint32_t minUniformBufferOffsetAlignment;
+
+#if BB_DEVELOPMENT
+    vk::DebugUtilsMessengerEXT debug_messenger;
+#endif
+};
 
 VulkanContext::VulkanContext(const VulkanInitInfo& initInfo)
 {
+    m_impl = std::make_unique<Impl>();
     VULKAN_HPP_DEFAULT_DISPATCHER.init();
 
     auto loader_version = vk::enumerateInstanceVersion();
@@ -202,83 +281,24 @@ VulkanContext::VulkanContext(const VulkanInitInfo& initInfo)
     create_info.assign(instance_info);
 #endif
 
-    util::VK_ASSERT(vk::createInstance(&create_info.get(), nullptr, &_instance), "Failed to create vk instance!");
-    VULKAN_HPP_DEFAULT_DISPATCHER.init(_instance);
+    util::VK_ASSERT(vk::createInstance(&create_info.get(), nullptr, &m_impl->instance), "Failed to create vk instance!");
+    VULKAN_HPP_DEFAULT_DISPATCHER.init(m_impl->instance);
 
 #if BB_DEVELOPMENT
-    util::VK_ASSERT(_instance.createDebugUtilsMessengerEXT(&debug_messenger_info, nullptr, &_debugMessenger),
+    util::VK_ASSERT(m_impl->instance.createDebugUtilsMessengerEXT(&debug_messenger_info, nullptr, &m_impl->debug_messenger),
         "Failed to create debug messenger!");
 #endif
 
     VkSurfaceKHR window_surface = nullptr;
-    if (!SDL_Vulkan_CreateSurface(initInfo.window_handle, _instance, nullptr, &window_surface))
+    if (!SDL_Vulkan_CreateSurface(initInfo.window_handle, m_impl->instance, nullptr, &window_surface))
     {
         spdlog::error("VulkanContext: Failed creating SDL vk::Surface. {}", SDL_GetError());
         assert(false);
         return;
     }
-    _surface = window_surface;
+    m_impl->surface = window_surface;
 
-    PickPhysicalDevice();
-    CreateDevice();
-
-    CreateCommandPool();
-    CreateDescriptorPool();
-
-    VmaVulkanFunctions vulkanFunctions = {};
-    vulkanFunctions.vkGetInstanceProcAddr = VULKAN_HPP_DEFAULT_DISPATCHER.vkGetInstanceProcAddr;
-    vulkanFunctions.vkGetDeviceProcAddr = VULKAN_HPP_DEFAULT_DISPATCHER.vkGetDeviceProcAddr;
-
-    VmaAllocatorCreateInfo vmaAllocatorCreateInfo {};
-    vmaAllocatorCreateInfo.physicalDevice = _physicalDevice;
-    vmaAllocatorCreateInfo.device = _device;
-    vmaAllocatorCreateInfo.instance = _instance;
-    vmaAllocatorCreateInfo.vulkanApiVersion = vk::makeApiVersion(0, 1, 4, 0);
-    vmaAllocatorCreateInfo.pVulkanFunctions = &vulkanFunctions;
-    vmaCreateAllocator(&vmaAllocatorCreateInfo, &_vmaAllocator);
-
-    vk::PhysicalDeviceProperties properties;
-    _physicalDevice.getProperties(&properties);
-    _minUniformBufferOffsetAlignment = properties.limits.minUniformBufferOffsetAlignment;
-
-    spdlog::info("##### SYSTEM INFO #####");
-    spdlog::info("Operating System: {}", bb::getOsName());
-
-    uint32_t apiVersion = vk::enumerateInstanceVersion();
-    uint32_t major = VK_VERSION_MAJOR(apiVersion);
-    uint32_t minor = VK_VERSION_MINOR(apiVersion);
-    uint32_t patch = VK_VERSION_PATCH(apiVersion);
-    spdlog::info("Vulkan Version Installed: {}.{}.{}", major, minor, patch);
-
-    spdlog::info("GPU: {}", std::string(properties.deviceName));
-    spdlog::info("GPU Driver Version (encoded): {}", properties.driverVersion); // Encoding can be different for each vendor
-    spdlog::info("#######################");
-}
-
-VulkanContext::~VulkanContext()
-{
-#if BB_DEVELOPMENT
-    if (_debugMessenger)
-        _instance.destroyDebugUtilsMessengerEXT(_debugMessenger, nullptr);
-#endif
-
-    _device.destroy(_descriptorPool);
-    _device.destroy(_commandPool);
-
-    vmaDestroyAllocator(_vmaAllocator);
-
-    _instance.destroy(_surface);
-    _device.destroy();
-    _instance.destroy();
-}
-
-void VulkanContext::CreateInstance()
-{
-}
-
-void VulkanContext::PickPhysicalDevice()
-{
-    std::vector<vk::PhysicalDevice> devices = _instance.enumeratePhysicalDevices();
+    std::vector<vk::PhysicalDevice> devices = m_impl->instance.enumeratePhysicalDevices();
     if (devices.empty())
         throw std::runtime_error("No GPU's with Vulkan support available!");
 
@@ -286,99 +306,18 @@ void VulkanContext::PickPhysicalDevice()
 
     for (const auto& device : devices)
     {
-        uint32_t score = RateDeviceSuitability(device);
+        uint32_t score = RateDeviceSuitability(device, m_impl->surface);
         if (score > 0)
             candidates.emplace(score, device);
     }
     if (candidates.empty())
         throw std::runtime_error("Failed finding suitable device!");
 
-    _physicalDevice = candidates.rbegin()->second;
-}
+    m_impl->physical_device = candidates.rbegin()->second;
 
-uint32_t VulkanContext::RateDeviceSuitability(const vk::PhysicalDevice& deviceToRate)
-{
-    vk::StructureChain<vk::PhysicalDeviceFeatures2, vk::PhysicalDeviceDescriptorIndexingFeatures> structureChain;
-
-    auto& indexingFeatures = structureChain.get<vk::PhysicalDeviceDescriptorIndexingFeatures>();
-    auto& deviceFeatures = structureChain.get<vk::PhysicalDeviceFeatures2>();
-
-    vk::PhysicalDeviceProperties deviceProperties;
-    deviceToRate.getProperties(&deviceProperties);
-    deviceToRate.getFeatures2(&deviceFeatures);
-
-    QueueFamilyIndices familyIndices = QueueFamilyIndices::FindQueueFamilies(deviceToRate, _surface);
-
-    uint32_t score { 0 };
-
-    // Failed if geometry shader is not supported.
-    if (!deviceFeatures.features.geometryShader)
-        return 0;
-
-    // Failed if graphics family queue is not supported.
-    if (!familyIndices.IsComplete())
-        return 0;
-
-    // Failed if no extensions are supported.
-    if (!ExtensionsSupported(deviceToRate))
-        return 0;
-
-    // Check for bindless rendering support.
-    if (!indexingFeatures.descriptorBindingPartiallyBound || !indexingFeatures.runtimeDescriptorArray || !indexingFeatures.descriptorBindingUniformBufferUpdateAfterBind)
-        return 0;
-
-    // Check support for swap chain.
-    SwapChain::SupportDetails swapChainSupportDetails = SwapChain::QuerySupport(deviceToRate, _surface);
-    bool swapChainUnsupported = swapChainSupportDetails.formats.empty() || swapChainSupportDetails.presentModes.empty();
-    if (swapChainUnsupported)
-        return 0;
-
-    // Favor discrete GPUs above all else.
-    if (deviceProperties.deviceType == vk::PhysicalDeviceType::eDiscreteGpu)
-        score += 50000;
-
-    // Slightly favor integrated GPUs.
-    if (deviceProperties.deviceType == vk::PhysicalDeviceType::eIntegratedGpu)
-        score += 30000;
-
-    score += deviceProperties.limits.maxImageDimension2D;
-
-    return score;
-}
-
-void VulkanContext::DebugSetObjectName(void* vulkanObject, uint32_t objectType, const char* name) const
-{
-#if BB_DEVELOPMENT
-    vk::DebugUtilsObjectNameInfoEXT name_info {
-        .objectType = static_cast<vk::ObjectType>(objectType),
-        .objectHandle = std::bit_cast<uint64_t>(vulkanObject),
-        .pObjectName = name
-    };
-
-    auto result = _device.setDebugUtilsObjectNameEXT(&name_info);
-    util::VK_ASSERT(result, "Failed to name object!");
-#else
-    (void)vulkanObject;
-    (void)objectType;
-    (void)name;
-#endif
-}
-
-bool VulkanContext::ExtensionsSupported(const vk::PhysicalDevice& deviceToCheckSupport)
-{
-    std::vector<vk::ExtensionProperties> availableExtensions = deviceToCheckSupport.enumerateDeviceExtensionProperties();
-    std::set<std::string> requiredExtensions { DEVICE_EXTENSIONS.begin(), DEVICE_EXTENSIONS.end() };
-    for (const auto& extension : availableExtensions)
-        requiredExtensions.erase(extension.extensionName);
-
-    return requiredExtensions.empty();
-}
-
-void VulkanContext::CreateDevice()
-{
-    _queueFamilyIndices = QueueFamilyIndices::FindQueueFamilies(_physicalDevice, _surface);
+    m_impl->queue_family_indices = QueueFamilyIndices::FindQueueFamilies(m_impl->physical_device, m_impl->surface);
     std::vector<vk::DeviceQueueCreateInfo> queueCreateInfos {};
-    std::set<uint32_t> uniqueQueueFamilies = { _queueFamilyIndices.graphicsFamily.value(), _queueFamilyIndices.presentFamily.value() };
+    std::set<uint32_t> uniqueQueueFamilies = { m_impl->queue_family_indices.graphicsFamily.value(), m_impl->queue_family_indices.presentFamily.value() };
     float queuePriority { 1.0f };
 
     for (uint32_t familyQueueIndex : uniqueQueueFamilies)
@@ -393,7 +332,7 @@ void VulkanContext::CreateDevice()
     // its probably best to filter devices based on their supported features in RateDeviceSuitability
 
     auto& deviceFeatures = structureChain.get<vk::PhysicalDeviceFeatures2>();
-    _physicalDevice.getFeatures2(&deviceFeatures);
+    m_impl->physical_device.getFeatures2(&deviceFeatures);
 
     auto& synchronization2Features = structureChain.get<vk::PhysicalDeviceSynchronization2Features>();
     synchronization2Features.synchronization2 = true;
@@ -413,24 +352,18 @@ void VulkanContext::CreateDevice()
     createInfo.enabledExtensionCount = static_cast<uint32_t>(DEVICE_EXTENSIONS.size());
     createInfo.ppEnabledExtensionNames = DEVICE_EXTENSIONS.data();
 
-    util::VK_ASSERT(_physicalDevice.createDevice(&createInfo, nullptr, &_device), "Failed creating a logical device!");
-    VULKAN_HPP_DEFAULT_DISPATCHER.init(_device);
+    util::VK_ASSERT(m_impl->physical_device.createDevice(&createInfo, nullptr, &m_impl->device), "Failed creating a logical device!");
+    VULKAN_HPP_DEFAULT_DISPATCHER.init(m_impl->device);
 
-    _device.getQueue(_queueFamilyIndices.graphicsFamily.value(), 0, &_graphicsQueue);
-    _device.getQueue(_queueFamilyIndices.presentFamily.value(), 0, &_presentQueue);
-}
+    m_impl->device.getQueue(m_impl->queue_family_indices.graphicsFamily.value(), 0, &m_impl->graphics_queue);
+    m_impl->device.getQueue(m_impl->queue_family_indices.presentFamily.value(), 0, &m_impl->present_queue);
 
-void VulkanContext::CreateCommandPool()
-{
     vk::CommandPoolCreateInfo commandPoolCreateInfo {};
     commandPoolCreateInfo.flags = vk::CommandPoolCreateFlagBits::eResetCommandBuffer;
-    commandPoolCreateInfo.queueFamilyIndex = _queueFamilyIndices.graphicsFamily.value();
+    commandPoolCreateInfo.queueFamilyIndex = m_impl->queue_family_indices.graphicsFamily.value();
 
-    util::VK_ASSERT(_device.createCommandPool(&commandPoolCreateInfo, nullptr, &_commandPool), "Failed creating command pool!");
-}
+    util::VK_ASSERT(m_impl->device.createCommandPool(&commandPoolCreateInfo, nullptr, &m_impl->command_pool), "Failed creating command pool!");
 
-void VulkanContext::CreateDescriptorPool()
-{
     std::vector<vk::DescriptorPoolSize> poolSizes = {
         { vk::DescriptorType::eSampler, 1024 },
         { vk::DescriptorType::eCombinedImageSampler, 1024 },
@@ -445,12 +378,87 @@ void VulkanContext::CreateDescriptorPool()
         { vk::DescriptorType::eInputAttachment, 1024 }
     };
 
-    vk::DescriptorPoolCreateInfo createInfo {};
-    createInfo.poolSizeCount = poolSizes.size();
-    createInfo.pPoolSizes = poolSizes.data();
-    createInfo.maxSets = 256;
-    createInfo.flags = vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet | vk::DescriptorPoolCreateFlagBits::eUpdateAfterBind;
-    util::VK_ASSERT(_device.createDescriptorPool(&createInfo, nullptr, &_descriptorPool), "Failed creating descriptor pool!");
+    vk::DescriptorPoolCreateInfo pool_info {};
+    pool_info.poolSizeCount = poolSizes.size();
+    pool_info.pPoolSizes = poolSizes.data();
+    pool_info.maxSets = 256;
+    pool_info.flags = vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet | vk::DescriptorPoolCreateFlagBits::eUpdateAfterBind;
+    util::VK_ASSERT(m_impl->device.createDescriptorPool(&pool_info, nullptr, &m_impl->descriptor_pool), "Failed creating descriptor pool!");
+
+    VmaVulkanFunctions vulkanFunctions = {};
+    vulkanFunctions.vkGetInstanceProcAddr = VULKAN_HPP_DEFAULT_DISPATCHER.vkGetInstanceProcAddr;
+    vulkanFunctions.vkGetDeviceProcAddr = VULKAN_HPP_DEFAULT_DISPATCHER.vkGetDeviceProcAddr;
+
+    VmaAllocatorCreateInfo vmaAllocatorCreateInfo {};
+    vmaAllocatorCreateInfo.physicalDevice = m_impl->physical_device;
+    vmaAllocatorCreateInfo.device = m_impl->device;
+    vmaAllocatorCreateInfo.instance = m_impl->instance;
+    vmaAllocatorCreateInfo.vulkanApiVersion = vk::makeApiVersion(0, 1, 4, 0);
+    vmaAllocatorCreateInfo.pVulkanFunctions = &vulkanFunctions;
+    vmaCreateAllocator(&vmaAllocatorCreateInfo, &m_impl->vma_allocator);
+
+    vk::PhysicalDeviceProperties properties;
+    m_impl->physical_device.getProperties(&properties);
+    m_impl->minUniformBufferOffsetAlignment = properties.limits.minUniformBufferOffsetAlignment;
+
+    spdlog::info("##### SYSTEM INFO #####");
+    spdlog::info("Operating System: {}", bb::getOsName());
+
+    uint32_t apiVersion = vk::enumerateInstanceVersion();
+    uint32_t major = VK_VERSION_MAJOR(apiVersion);
+    uint32_t minor = VK_VERSION_MINOR(apiVersion);
+    uint32_t patch = VK_VERSION_PATCH(apiVersion);
+    spdlog::info("Vulkan Version Installed: {}.{}.{}", major, minor, patch);
+
+    spdlog::info("GPU: {}", std::string(properties.deviceName));
+    spdlog::info("GPU Driver Version (encoded): {}", properties.driverVersion); // Encoding can be different for each vendor
+    spdlog::info("#######################");
+}
+
+VulkanContext::~VulkanContext()
+{
+#if BB_DEVELOPMENT
+    if (m_impl->debug_messenger)
+        m_impl->instance.destroyDebugUtilsMessengerEXT(m_impl->debug_messenger, nullptr);
+#endif
+
+    m_impl->device.destroy(m_impl->descriptor_pool);
+    m_impl->device.destroy(m_impl->command_pool);
+
+    vmaDestroyAllocator(m_impl->vma_allocator);
+
+    m_impl->instance.destroy(m_impl->surface);
+    m_impl->device.destroy();
+    m_impl->instance.destroy();
+}
+
+VkInstance VulkanContext::Instance() const { return m_impl->instance; }
+VkPhysicalDevice VulkanContext::PhysicalDevice() const { return m_impl->physical_device; }
+VkDevice VulkanContext::Device() const { return m_impl->device; }
+VkQueue VulkanContext::GraphicsQueue() const { return m_impl->graphics_queue; }
+VkQueue VulkanContext::PresentQueue() const { return m_impl->present_queue; }
+VkSurfaceKHR VulkanContext::Surface() const { return m_impl->surface; }
+VkDescriptorPool VulkanContext::DescriptorPool() const { return m_impl->descriptor_pool; }
+VkCommandPool VulkanContext::CommandPool() const { return m_impl->command_pool; }
+VmaAllocator VulkanContext::MemoryAllocator() const { return m_impl->vma_allocator; }
+const QueueFamilyIndices& VulkanContext::QueueFamilies() const { return m_impl->queue_family_indices; }
+
+void VulkanContext::DebugSetObjectName(void* vulkanObject, uint32_t objectType, const char* name) const
+{
+#if BB_DEVELOPMENT
+    vk::DebugUtilsObjectNameInfoEXT name_info {
+        .objectType = static_cast<vk::ObjectType>(objectType),
+        .objectHandle = std::bit_cast<uint64_t>(vulkanObject),
+        .pObjectName = name
+    };
+
+    auto result = m_impl->device.setDebugUtilsObjectNameEXT(&name_info);
+    util::VK_ASSERT(result, "Failed to name object!");
+#else
+    (void)vulkanObject;
+    (void)objectType;
+    (void)name;
+#endif
 }
 
 QueueFamilyIndices QueueFamilyIndices::FindQueueFamilies(vk::PhysicalDevice device, vk::SurfaceKHR surface)

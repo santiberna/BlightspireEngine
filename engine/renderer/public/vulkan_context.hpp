@@ -62,8 +62,6 @@ public:
     void DebugSetObjectName(void* vulkanObject, uint32_t objectType, const char* name) const;
 
 private:
-    friend class Renderer;
-
     vk::Instance _instance;
     vk::PhysicalDevice _physicalDevice;
     vk::Device _device;

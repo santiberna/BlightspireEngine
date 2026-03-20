@@ -39,7 +39,7 @@ TonemappingPass::TonemappingPass(const std::shared_ptr<GraphicsContext>& context
 
 TonemappingPass::~TonemappingPass()
 {
-    vk::Device device = _context->VulkanContext()->Device();
+    vk::Device device = _context->GetVulkanContext()->Device();
     device.destroy(_pipeline);
     device.destroy(_pipelineLayout);
     device.destroy(_paletteDescriptorSetLayout);
@@ -209,7 +209,7 @@ void TonemappingPass::CreateDescriptorSetLayouts()
             .pImmutableSamplers = nullptr }
     };
 
-    _paletteDescriptorSetLayout = PipelineBuilder::CacheDescriptorSetLayout(*_context->VulkanContext(), bindings, { "ColorPaletteUBO" });
+    _paletteDescriptorSetLayout = PipelineBuilder::CacheDescriptorSetLayout(*_context->GetVulkanContext(), bindings, { "ColorPaletteUBO" });
 }
 
 void TonemappingPass::UpdatePaletteBuffer(const std::vector<glm::vec4>& paletteColors)
@@ -222,12 +222,12 @@ void TonemappingPass::UpdatePaletteBuffer(const std::vector<glm::vec4>& paletteC
 void TonemappingPass::CreateDescriptorSets()
 {
     vk::DescriptorSetAllocateInfo allocInfo {
-        .descriptorPool = _context->VulkanContext()->DescriptorPool(),
+        .descriptorPool = _context->GetVulkanContext()->DescriptorPool(),
         .descriptorSetCount = 1,
         .pSetLayouts = &_paletteDescriptorSetLayout
     };
 
-    vk::Device device = _context->VulkanContext()->Device();
+    vk::Device device = _context->GetVulkanContext()->Device();
     if (device.allocateDescriptorSets(&allocInfo, &_paletteDescriptorSet) != vk::Result::eSuccess)
     {
         throw std::runtime_error("Failed to allocate descriptor set");

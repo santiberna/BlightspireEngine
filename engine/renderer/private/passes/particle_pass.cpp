@@ -37,7 +37,7 @@ ParticlePass::ParticlePass(const std::shared_ptr<GraphicsContext>& context, ECSM
 
 ParticlePass::~ParticlePass()
 {
-    auto vkContext { _context->VulkanContext() };
+    auto vkContext { _context->GetVulkanContext() };
     auto resources { _context->Resources() };
 
     vk::Device device = vkContext->Device();
@@ -97,7 +97,7 @@ void ParticlePass::RecordCommands(vk::CommandBuffer commandBuffer, uint32_t curr
 
 void ParticlePass::RecordKickOff(vk::CommandBuffer commandBuffer)
 {
-    auto vkContext { _context->VulkanContext() };
+    auto vkContext { _context->GetVulkanContext() };
 
     util::BeginLabel(commandBuffer, "Kick-off particle pass", glm::vec3 { 255.0f, 105.0f, 180.0f } / 255.0f);
 
@@ -118,7 +118,7 @@ void ParticlePass::RecordKickOff(vk::CommandBuffer commandBuffer)
 
 void ParticlePass::RecordEmit(vk::CommandBuffer commandBuffer)
 {
-    auto vkContext { _context->VulkanContext() };
+    auto vkContext { _context->GetVulkanContext() };
     auto resources { _context->Resources() };
 
     util::BeginLabel(commandBuffer, "Emit particle pass", glm::vec3 { 255.0f, 105.0f, 180.0f } / 255.0f);
@@ -159,7 +159,7 @@ void ParticlePass::RecordEmit(vk::CommandBuffer commandBuffer)
 
 void ParticlePass::RecordSimulate(vk::CommandBuffer commandBuffer, const CameraResource& camera, float deltaTime, uint32_t currentFrame)
 {
-    auto vkContext { _context->VulkanContext() };
+    auto vkContext { _context->GetVulkanContext() };
     auto resources { _context->Resources() };
 
     // make sure the copy buffer command is done before dispatching
@@ -198,7 +198,7 @@ void ParticlePass::RecordSimulate(vk::CommandBuffer commandBuffer, const CameraR
 
 void ParticlePass::RecordRenderIndexedIndirect(vk::CommandBuffer commandBuffer, const RenderSceneDescription& scene, uint32_t currentFrame)
 {
-    auto vkContext { _context->VulkanContext() };
+    auto vkContext { _context->GetVulkanContext() };
     auto resources { _context->Resources() };
 
     std::array<vk::RenderingAttachmentInfoKHR, 2> colorAttachmentInfos {};
@@ -266,7 +266,7 @@ void ParticlePass::RecordRenderIndexedIndirect(vk::CommandBuffer commandBuffer, 
 
 void ParticlePass::UpdateEmitters(vk::CommandBuffer commandBuffer, uint32_t currentFrame)
 {
-    auto vkContext { _context->VulkanContext() };
+    auto vkContext { _context->GetVulkanContext() };
     auto resources { _context->Resources() };
 
     auto view = _ecs.GetRegistry().view<ParticleEmitterComponent, ActiveEmitterTag>();
@@ -384,10 +384,10 @@ void ParticlePass::UpdateAliveLists()
 
 void ParticlePass::ResetParticles()
 {
-    auto vkContext { _context->VulkanContext() };
+    auto vkContext { _context->GetVulkanContext() };
     auto resources { _context->Resources() };
 
-    auto cmdBuffer = SingleTimeCommands(_context->VulkanContext());
+    auto cmdBuffer = SingleTimeCommands(_context->GetVulkanContext());
 
     std::vector<ParticleCounters> counters(1);
     cmdBuffer.CopyIntoLocalBuffer(counters, 0, resources->BufferResourceManager().Access(_particlesBuffers[static_cast<uint32_t>(ParticleBufferUsage::eCounter)])->buffer);
@@ -400,7 +400,7 @@ void ParticlePass::ResetParticles()
 
 void ParticlePass::CreatePipelines()
 {
-    auto vkContext { _context->VulkanContext() };
+    auto vkContext { _context->GetVulkanContext() };
     auto resources { _context->Resources() };
 
     vk::Device device = vkContext->Device();
@@ -558,7 +558,7 @@ void ParticlePass::CreatePipelines()
 
 void ParticlePass::CreateDescriptorSetLayouts()
 {
-    auto vkContext { _context->VulkanContext() };
+    auto vkContext { _context->GetVulkanContext() };
     vk::Device device = vkContext->Device();
 
     { // Particle Storage Buffers
@@ -660,7 +660,7 @@ void ParticlePass::CreateDescriptorSetLayouts()
 
 void ParticlePass::CreateDescriptorSets()
 {
-    auto vkContext { _context->VulkanContext() };
+    auto vkContext { _context->GetVulkanContext() };
     vk::Device device = vkContext->Device();
 
     { // Particle Storage Buffers
@@ -737,7 +737,7 @@ void ParticlePass::CreateDescriptorSets()
 
 void ParticlePass::UpdateParticleBuffersDescriptorSets()
 {
-    auto vkContext { _context->VulkanContext() };
+    auto vkContext { _context->GetVulkanContext() };
     vk::Device device = vkContext->Device();
     auto resources { _context->Resources() };
 
@@ -818,7 +818,7 @@ void ParticlePass::UpdateParticleBuffersDescriptorSets()
 
 void ParticlePass::UpdateParticleInstancesBufferDescriptorSet()
 {
-    auto vkContext { _context->VulkanContext() };
+    auto vkContext { _context->GetVulkanContext() };
     vk::Device device = vkContext->Device();
     auto resources { _context->Resources() };
 
@@ -842,7 +842,7 @@ void ParticlePass::UpdateParticleInstancesBufferDescriptorSet()
 
 void ParticlePass::UpdateEmittersBuffersDescriptorSets()
 {
-    auto vkContext { _context->VulkanContext() };
+    auto vkContext { _context->GetVulkanContext() };
     vk::Device device = vkContext->Device();
     auto resources { _context->Resources() };
 
@@ -866,7 +866,7 @@ void ParticlePass::UpdateEmittersBuffersDescriptorSets()
 
 void ParticlePass::UpdateLocalEmittersBuffersDescriptorSets()
 {
-    auto vkContext { _context->VulkanContext() };
+    auto vkContext { _context->GetVulkanContext() };
     vk::Device device = vkContext->Device();
     auto resources { _context->Resources() };
 
@@ -890,7 +890,7 @@ void ParticlePass::UpdateLocalEmittersBuffersDescriptorSets()
 
 void ParticlePass::UpdateDrawCommandsBufferDescriptorSet()
 {
-    auto vkContext { _context->VulkanContext() };
+    auto vkContext { _context->GetVulkanContext() };
     vk::Device device = vkContext->Device();
     auto resources { _context->Resources() };
 
@@ -914,10 +914,10 @@ void ParticlePass::UpdateDrawCommandsBufferDescriptorSet()
 
 void ParticlePass::CreateBuffers()
 {
-    auto vkContext { _context->VulkanContext() };
+    auto vkContext { _context->GetVulkanContext() };
     auto resources { _context->Resources() };
 
-    auto cmdBuffer = SingleTimeCommands(_context->VulkanContext());
+    auto cmdBuffer = SingleTimeCommands(_context->GetVulkanContext());
 
     { // Draw Commands SSB
         DrawIndexedIndirectCommand indirectCommand;

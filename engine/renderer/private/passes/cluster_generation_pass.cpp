@@ -23,7 +23,7 @@ ClusterGenerationPass::ClusterGenerationPass(const std::shared_ptr<GraphicsConte
 
 ClusterGenerationPass::~ClusterGenerationPass()
 {
-    vk::Device device = _context->VulkanContext()->Device();
+    vk::Device device = _context->GetVulkanContext()->Device();
     device.destroy(_pipeline);
     device.destroy(_pipelineLayout);
 }
@@ -65,7 +65,7 @@ void ClusterGenerationPass::CreatePipeline()
         .pPushConstantRanges = &pushConstantRange,
     };
 
-    vk::Device device = _context->VulkanContext()->Device();
+    vk::Device device = _context->GetVulkanContext()->Device();
     util::VK_ASSERT(device.createPipelineLayout(&pipelineLayoutCreateInfo, nullptr, &_pipelineLayout), "Failed to create pipeline layout for clustering pipeline!");
 
     std::vector<std::byte> compShader = shader::ReadFile("shaders/bin/cluster_aabb_generation.comp.spv");

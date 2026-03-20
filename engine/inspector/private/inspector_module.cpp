@@ -304,7 +304,7 @@ void DrawRenderStats(Engine& engine)
 void DumpVMAStats(Engine& engine)
 {
     char* statsJson {};
-    vmaBuildStatsString(engine.GetModule<RendererModule>().GetRenderer()->GetContext()->VulkanContext()->MemoryAllocator(), &statsJson, true);
+    vmaBuildStatsString(engine.GetModule<RendererModule>().GetRenderer()->GetContext()->GetVulkanContext()->MemoryAllocator(), &statsJson, true);
 
     const char* outputFilePath = "vma_stats.json";
     std::ofstream file { outputFilePath };
@@ -318,7 +318,7 @@ void DumpVMAStats(Engine& engine)
     {
         spdlog::error("Failed writing VMA stats to file!");
     }
-    vmaFreeStatsString(engine.GetModule<RendererModule>().GetRenderer()->GetContext()->VulkanContext()->MemoryAllocator(), statsJson);
+    vmaFreeStatsString(engine.GetModule<RendererModule>().GetRenderer()->GetContext()->GetVulkanContext()->MemoryAllocator(), statsJson);
 }
 
 void DrawBloomSettings(Settings& settings)

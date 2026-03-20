@@ -33,7 +33,7 @@ IBLPass::IBLPass(const std::shared_ptr<GraphicsContext>& context, ResourceHandle
 
 IBLPass::~IBLPass()
 {
-    vk::Device device = _context->VulkanContext()->Device();
+    vk::Device device = _context->GetVulkanContext()->Device();
 
     for (const auto& mips : _prefilterMapViews)
         for (const auto& view : mips)
@@ -320,7 +320,7 @@ void IBLPass::CreatePrefilterCubemap()
     _prefilterMap = _context->Resources()->ImageResourceManager().Create(creation, _sampler);
     _prefilterMapViews.resize(creation.mips);
 
-    vk::Device device = _context->VulkanContext()->Device();
+    vk::Device device = _context->GetVulkanContext()->Device();
     for (size_t i = 0; i < _prefilterMapViews.size(); ++i)
     {
         for (size_t j = 0; j < 6; ++j)

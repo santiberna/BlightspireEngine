@@ -25,7 +25,7 @@ ImGuiBackend::ImGuiBackend(const std::shared_ptr<GraphicsContext>& context, cons
     pipelineRenderingCreateInfoKhr.pColorAttachmentFormats = &swapChainFormat;
     pipelineRenderingCreateInfoKhr.depthAttachmentFormat = gbuffers.DepthFormat();
 
-    auto vkContext { _context->VulkanContext() };
+    auto vkContext { _context->GetVulkanContext() };
 
     ImGui_ImplVulkan_InitInfo initInfoVulkan {};
     initInfoVulkan.UseDynamicRendering = true;

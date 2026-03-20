@@ -17,7 +17,7 @@ SwapChain::~SwapChain()
 
 void SwapChain::CreateSwapChain(const glm::uvec2& screenSize)
 {
-    auto vkContext { _context->VulkanContext() };
+    auto vkContext { _context->GetVulkanContext() };
 
     _imageSize = screenSize;
     SupportDetails swapChainSupport = QuerySupport(vkContext->PhysicalDevice(), vkContext->Surface());
@@ -76,7 +76,7 @@ void SwapChain::CreateSwapChain(const glm::uvec2& screenSize)
 
 void SwapChain::Resize(const glm::uvec2& screenSize)
 {
-    vk::Device device = _context->VulkanContext()->Device();
+    vk::Device device = _context->GetVulkanContext()->Device();
     device.waitIdle();
 
     CleanUpSwapChain();
@@ -85,7 +85,7 @@ void SwapChain::Resize(const glm::uvec2& screenSize)
 
 void SwapChain::CreateSwapChainImageViews()
 {
-    auto vkContext { _context->VulkanContext() };
+    auto vkContext { _context->GetVulkanContext() };
     vk::Device device = vkContext->Device();
 
     _imageViews.resize(_images.size());
@@ -114,7 +114,7 @@ void SwapChain::CreateSwapChainImageViews()
 
 bool SwapChain::SetPresentMode(vk::PresentModeKHR presentMode)
 {
-    SupportDetails swapChainSupport = QuerySupport(_context->VulkanContext()->PhysicalDevice(), _context->VulkanContext()->Surface());
+    SupportDetails swapChainSupport = QuerySupport(_context->GetVulkanContext()->PhysicalDevice(), _context->GetVulkanContext()->Surface());
     const auto it = std::find(swapChainSupport.presentModes.begin(), swapChainSupport.presentModes.end(), presentMode);
 
     if (_presentMode == *it)
@@ -171,7 +171,7 @@ vk::Extent2D SwapChain::ChooseSwapExtent(const vk::SurfaceCapabilitiesKHR& capab
 
 void SwapChain::CleanUpSwapChain()
 {
-    auto vkContext { _context->VulkanContext() };
+    auto vkContext { _context->GetVulkanContext() };
     vk::Device device = vkContext->Device();
 
     for (auto imageView : _imageViews)

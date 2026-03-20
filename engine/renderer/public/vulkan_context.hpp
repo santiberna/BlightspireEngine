@@ -1,13 +1,12 @@
 #pragma once
 
-#include <glm/vec2.hpp>
-#include <optional>
-#include <vma_include.hpp>
-
 #include "common.hpp"
+#include "vma_include.hpp"
 #include "vulkan_fwd.hpp"
-#include "vulkan_include.hpp"
+
+#include <bit>
 #include <memory>
+#include <optional>
 
 struct SDL_Window;
 
@@ -15,19 +14,6 @@ struct QueueFamilyIndices
 {
     std::optional<uint32_t> graphicsFamily;
     std::optional<uint32_t> presentFamily;
-
-    bool IsComplete()
-    {
-        return graphicsFamily.has_value() && presentFamily.has_value();
-    }
-
-    static QueueFamilyIndices FindQueueFamilies(vk::PhysicalDevice device, vk::SurfaceKHR surface);
-};
-
-struct VulkanInitInfo
-{
-    glm::uvec2 window_size {};
-    SDL_Window* window_handle = nullptr;
 };
 
 enum class BindlessBinding : std::uint8_t
@@ -41,7 +27,7 @@ enum class BindlessBinding : std::uint8_t
 class VulkanContext
 {
 public:
-    explicit VulkanContext(const VulkanInitInfo& initInfo);
+    explicit VulkanContext(SDL_Window* window);
 
     ~VulkanContext();
     NON_COPYABLE(VulkanContext);

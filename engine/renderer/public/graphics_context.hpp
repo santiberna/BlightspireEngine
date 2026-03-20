@@ -14,19 +14,20 @@ struct Buffer;
 struct VulkanInitInfo;
 struct Sampler;
 struct GPUImage;
+struct SDL_Window;
 
 constexpr uint32_t MAX_BINDLESS_RESOURCES = 1024;
 
 class GraphicsContext
 {
 public:
-    GraphicsContext(const VulkanInitInfo& initInfo);
+    GraphicsContext(SDL_Window* window);
     ~GraphicsContext();
 
     NON_COPYABLE(GraphicsContext);
     NON_MOVABLE(GraphicsContext);
 
-    std::shared_ptr<class VulkanContext> VulkanContext() const { return _vulkanContext; }
+    std::shared_ptr<VulkanContext> GetVulkanContext() const { return _vulkanContext; }
     std::shared_ptr<GraphicsResources> Resources() const { return _graphicsResources; }
     vk::DescriptorSetLayout BindlessLayout() const { return _bindlessLayout; }
     vk::DescriptorSet BindlessSet() const { return _bindlessSet; }
@@ -37,7 +38,7 @@ public:
     void UpdateBindlessSet();
 
 private:
-    std::shared_ptr<class VulkanContext> _vulkanContext;
+    std::shared_ptr<VulkanContext> _vulkanContext;
     std::shared_ptr<GraphicsResources> _graphicsResources;
 
     // BINDLESS THINGS

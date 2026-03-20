@@ -35,7 +35,7 @@ GaussianBlurPass::GaussianBlurPass(const std::shared_ptr<GraphicsContext>& conte
 
 GaussianBlurPass::~GaussianBlurPass()
 {
-    vk::Device device = _context->VulkanContext()->Device();
+    vk::Device device = _context->GetVulkanContext()->Device();
     device.destroy(_pipeline);
     device.destroy(_pipelineLayout);
     device.destroy(_descriptorSetLayout);
@@ -153,8 +153,8 @@ void GaussianBlurPass::CreateDescriptorSetLayout()
         },
     };
 
-    _descriptorSetLayout = PipelineBuilder::CacheDescriptorSetLayout(*_context->VulkanContext(), bindings, { "source" });
-    _context->VulkanContext()->DebugSetObjectName(_descriptorSetLayout, "Gaussian blur descriptor set layout");
+    _descriptorSetLayout = PipelineBuilder::CacheDescriptorSetLayout(*_context->GetVulkanContext(), bindings, { "source" });
+    _context->GetVulkanContext()->DebugSetObjectName(_descriptorSetLayout, "Gaussian blur descriptor set layout");
 }
 
 void GaussianBlurPass::CreateDescriptorSets()
@@ -163,12 +163,12 @@ void GaussianBlurPass::CreateDescriptorSets()
     std::for_each(layouts.begin(), layouts.end(), [this](auto& l)
         { l = _descriptorSetLayout; });
     vk::DescriptorSetAllocateInfo allocateInfo {
-        .descriptorPool = _context->VulkanContext()->DescriptorPool(),
+        .descriptorPool = _context->GetVulkanContext()->DescriptorPool(),
         .descriptorSetCount = MAX_FRAMES_IN_FLIGHT,
         .pSetLayouts = layouts.data(),
     };
 
-    vk::Device device = _context->VulkanContext()->Device();
+    vk::Device device = _context->GetVulkanContext()->Device();
     util::VK_ASSERT(device.allocateDescriptorSets(&allocateInfo, _sourceDescriptorSets.data()),
         "Failed allocating descriptor sets!");
 

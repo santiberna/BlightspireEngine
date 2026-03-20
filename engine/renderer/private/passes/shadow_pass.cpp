@@ -23,7 +23,7 @@ ShadowPass::ShadowPass(const std::shared_ptr<GraphicsContext>& context, const GP
 
 ShadowPass::~ShadowPass()
 {
-    vk::Device device = _context->VulkanContext()->Device();
+    vk::Device device = _context->GetVulkanContext()->Device();
     device.destroy(_staticPipeline);
     device.destroy(_staticPipelineLayout);
     device.destroy(_skinnedPipeline);
@@ -109,7 +109,7 @@ void ShadowPass::CreateSkinnedPipeline(const GPUScene& gpuScene)
 
 void ShadowPass::DrawGeometry(vk::CommandBuffer commandBuffer, uint32_t currentFrame, const RenderSceneDescription& scene, bool prepass)
 {
-    auto vkContext { _context->VulkanContext() };
+    auto vkContext { _context->GetVulkanContext() };
     auto resources { _context->Resources() };
 
     const auto* staticShadowImage = resources->ImageResourceManager().Access(scene.gpuScene->StaticShadow());

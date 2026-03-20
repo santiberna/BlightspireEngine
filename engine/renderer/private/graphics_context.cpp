@@ -11,12 +11,12 @@
 
 #include <tracy/Tracy.hpp>
 
-GraphicsContext::GraphicsContext(const VulkanInitInfo& initInfo)
+GraphicsContext::GraphicsContext(SDL_Window* window)
     : _drawStats()
 {
     ZoneScopedN("Graphics Backend Initialization");
 
-    _vulkanContext = std::make_shared<class VulkanContext>(initInfo);
+    _vulkanContext = std::make_shared<VulkanContext>(window);
     _graphicsResources = std::make_shared<GraphicsResources>(_vulkanContext);
 
     CreateBindlessMaterialBuffer();

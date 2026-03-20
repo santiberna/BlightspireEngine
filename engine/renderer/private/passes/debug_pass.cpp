@@ -30,7 +30,7 @@ DebugPass::DebugPass(const std::shared_ptr<GraphicsContext>& context, const Swap
 
 DebugPass::~DebugPass()
 {
-    vk::Device device = _context->VulkanContext()->Device();
+    vk::Device device = _context->GetVulkanContext()->Device();
     device.destroy(_pipeline);
     device.destroy(_pipelineLayout);
 }

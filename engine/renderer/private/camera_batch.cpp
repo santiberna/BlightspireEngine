@@ -49,12 +49,12 @@ CameraBatch::Draw::Draw(const std::shared_ptr<GraphicsContext>& context, const s
 vk::DescriptorSet CameraBatch::Draw::CreateDescriptor(const std::shared_ptr<GraphicsContext>& context, vk::DescriptorSetLayout dsl, ResourceHandle<Buffer> buffer)
 {
     vk::DescriptorSetAllocateInfo allocateInfo {
-        .descriptorPool = context->VulkanContext()->DescriptorPool(),
+        .descriptorPool = context->GetVulkanContext()->DescriptorPool(),
         .descriptorSetCount = 1,
         .pSetLayouts = &dsl,
     };
 
-    vk::Device device = context->VulkanContext()->Device();
+    vk::Device device = context->GetVulkanContext()->Device();
     vk::DescriptorSet descriptor = device.allocateDescriptorSets(allocateInfo).front();
 
     vk::DescriptorBufferInfo bufferInfo {

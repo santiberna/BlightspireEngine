@@ -85,7 +85,7 @@ void LightingPass::RecordCommands(vk::CommandBuffer commandBuffer, uint32_t curr
 
 LightingPass::~LightingPass()
 {
-    vk::Device device = _context->VulkanContext()->Device();
+    vk::Device device = _context->GetVulkanContext()->Device();
     device.destroy(_pipeline);
     device.destroy(_pipelineLayout);
 }

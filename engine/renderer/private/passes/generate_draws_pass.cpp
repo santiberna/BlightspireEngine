@@ -22,7 +22,7 @@ GenerateDrawsPass::GenerateDrawsPass(const std::shared_ptr<GraphicsContext>& con
 
 GenerateDrawsPass::~GenerateDrawsPass()
 {
-    vk::Device device = _context->VulkanContext()->Device();
+    vk::Device device = _context->GetVulkanContext()->Device();
     device.destroy(_generateDrawsPipeline);
     device.destroy(_generateDrawsPipelineLayout);
 }

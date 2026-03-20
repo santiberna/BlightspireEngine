@@ -68,7 +68,7 @@ void FXAAPass::RecordCommands(vk::CommandBuffer commandBuffer, [[maybe_unused]] 
 
 FXAAPass::~FXAAPass()
 {
-    vk::Device device = _context->VulkanContext()->Device();
+    vk::Device device = _context->GetVulkanContext()->Device();
     device.destroy(_pipeline);
     device.destroy(_pipelineLayout);
 }

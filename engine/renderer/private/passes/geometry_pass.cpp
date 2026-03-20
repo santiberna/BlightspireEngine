@@ -26,7 +26,7 @@ GeometryPass::GeometryPass(const std::shared_ptr<GraphicsContext>& context, cons
 
 GeometryPass::~GeometryPass()
 {
-    vk::Device device = _context->VulkanContext()->Device();
+    vk::Device device = _context->GetVulkanContext()->Device();
     device.destroy(_staticPipeline);
     device.destroy(_staticPipelineLayout);
     device.destroy(_skinnedPipeline);

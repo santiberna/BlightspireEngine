@@ -13,3 +13,4 @@ BB_VULKAN_FWD(VkQueue);
 BB_VULKAN_FWD(VkSurfaceKHR);
 BB_VULKAN_FWD(VkDescriptorPool);
 BB_VULKAN_FWD(VkCommandPool);
+BB_VULKAN_FWD(VmaAllocator);

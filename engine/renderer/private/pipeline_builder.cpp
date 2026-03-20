@@ -14,7 +14,7 @@ PipelineBuilder::PipelineBuilder(const std::shared_ptr<GraphicsContext>& context
 
 PipelineBuilder::~PipelineBuilder()
 {
-    vk::Device device = _context->VulkanContext()->Device();
+    vk::Device device = _context->GetVulkanContext()->Device();
     for (auto& shaderStage : _shaderStages)
     {
         spvReflectDestroyShaderModule(&shaderStage.reflectModule);
@@ -181,7 +181,7 @@ void PipelineBuilder::ReflectDescriptorLayouts(const PipelineBuilder::ShaderStag
                 .pBindings = bindings.data(),
             };
 
-            vk::Device device = _context->VulkanContext()->Device();
+            vk::Device device = _context->GetVulkanContext()->Device();
             vk::DescriptorSetLayout layout { device.createDescriptorSetLayout(layoutInfo, nullptr) };
 
             _descriptorSetLayouts[set->set] = layout;
@@ -199,7 +199,7 @@ vk::PipelineLayout PipelineBuilder::CreatePipelineLayout()
         .pPushConstantRanges = _pushConstantRanges.data(),
     };
 
-    vk::Device device = _context->VulkanContext()->Device();
+    vk::Device device = _context->GetVulkanContext()->Device();
     return device.createPipelineLayout(createInfo, nullptr);
 }
 
@@ -210,7 +210,7 @@ vk::ShaderModule PipelineBuilder::CreateShaderModule(const std::vector<std::byte
         .pCode = reinterpret_cast<const uint32_t*>(spirvBytes.data()),
     };
 
-    vk::Device device = _context->VulkanContext()->Device();
+    vk::Device device = _context->GetVulkanContext()->Device();
     return device.createShaderModule(createInfo, nullptr);
 }
 
@@ -372,7 +372,7 @@ vk::Pipeline GraphicsPipelineBuilder::CreatePipeline()
     structureChain.assign(graphicsPipelineCreateInfo);
     structureChain.assign(renderingCreateInfo);
 
-    vk::Device device = _context->VulkanContext()->Device();
+    vk::Device device = _context->GetVulkanContext()->Device();
     auto [result, vkPipeline] = device.createGraphicsPipeline(nullptr, structureChain.get(), nullptr);
 
     util::VK_ASSERT(result, "Failed creating graphics pipeline!");
@@ -404,7 +404,7 @@ vk::Pipeline ComputePipelineBuilder::CreatePipeline()
         .layout = _pipelineLayout,
     };
 
-    vk::Device device = _context->VulkanContext()->Device();
+    vk::Device device = _context->GetVulkanContext()->Device();
     auto [result, vkPipeline] = device.createComputePipeline(nullptr, computePipelineCreateInfo, nullptr);
 
     util::VK_ASSERT(result, "Failed creating compute pipeline!");

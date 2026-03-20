@@ -96,7 +96,7 @@ void FrameGraph::Build()
 
 void FrameGraph::RecordCommands(vk::CommandBuffer commandBuffer, uint32_t currentFrame, const RenderSceneDescription& scene)
 {
-    auto vkContext { _context->VulkanContext() };
+    auto vkContext { _context->GetVulkanContext() };
 
     for (const FrameGraphNodeHandle nodeHandle : _sortedNodes)
     {

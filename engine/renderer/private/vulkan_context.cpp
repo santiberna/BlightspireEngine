@@ -113,6 +113,42 @@ bool ExtensionsSupported(vk::PhysicalDevice deviceToCheckSupport)
     return requiredExtensions.empty();
 }
 
+bool IsComplete(QueueFamilyIndices& indices)
+{
+    return indices.graphicsFamily && indices.presentFamily;
+}
+
+QueueFamilyIndices FindQueueFamilies(vk::PhysicalDevice device, vk::SurfaceKHR surface)
+{
+    QueueFamilyIndices indices {};
+
+    uint32_t queueFamilyCount { 0 };
+    device.getQueueFamilyProperties(&queueFamilyCount, nullptr);
+
+    std::vector<vk::QueueFamilyProperties> queueFamilies(queueFamilyCount);
+    device.getQueueFamilyProperties(&queueFamilyCount, queueFamilies.data());
+
+    for (size_t i = 0; i < queueFamilies.size(); ++i)
+    {
+        if (queueFamilies[i].queueFlags & vk::QueueFlagBits::eGraphics)
+            indices.graphicsFamily = i;
+
+        if (!indices.presentFamily.has_value())
+        {
+            vk::Bool32 supported;
+            util::VK_ASSERT(device.getSurfaceSupportKHR(i, surface, &supported),
+                "Failed querying surface support on physical device!");
+            if (supported)
+                indices.presentFamily = i;
+        }
+
+        if (indices.presentFamily && indices.graphicsFamily)
+            break;
+    }
+
+    return indices;
+}
+
 uint32_t RateDeviceSuitability(vk::PhysicalDevice deviceToRate, vk::SurfaceKHR surface)
 {
     vk::StructureChain<vk::PhysicalDeviceFeatures2, vk::PhysicalDeviceDescriptorIndexingFeatures> structureChain;
@@ -124,7 +160,7 @@ uint32_t RateDeviceSuitability(vk::PhysicalDevice deviceToRate, vk::SurfaceKHR s
     deviceToRate.getProperties(&deviceProperties);
     deviceToRate.getFeatures2(&deviceFeatures);
 
-    QueueFamilyIndices familyIndices = QueueFamilyIndices::FindQueueFamilies(deviceToRate, surface);
+    QueueFamilyIndices familyIndices = FindQueueFamilies(deviceToRate, surface);
 
     uint32_t score { 0 };
 
@@ -133,7 +169,7 @@ uint32_t RateDeviceSuitability(vk::PhysicalDevice deviceToRate, vk::SurfaceKHR s
         return 0;
 
     // Failed if graphics family queue is not supported.
-    if (!familyIndices.IsComplete())
+    if (!IsComplete(familyIndices))
         return 0;
 
     // Failed if no extensions are supported.
@@ -183,7 +219,7 @@ struct VulkanContext::Impl
 #endif
 };
 
-VulkanContext::VulkanContext(const VulkanInitInfo& initInfo)
+VulkanContext::VulkanContext(SDL_Window* window)
 {
     m_impl = std::make_unique<Impl>();
     VULKAN_HPP_DEFAULT_DISPATCHER.init();
@@ -290,7 +326,7 @@ VulkanContext::VulkanContext(const VulkanInitInfo& initInfo)
 #endif
 
     VkSurfaceKHR window_surface = nullptr;
-    if (!SDL_Vulkan_CreateSurface(initInfo.window_handle, m_impl->instance, nullptr, &window_surface))
+    if (!SDL_Vulkan_CreateSurface(window, m_impl->instance, nullptr, &window_surface))
     {
         spdlog::error("VulkanContext: Failed creating SDL vk::Surface. {}", SDL_GetError());
         assert(false);
@@ -315,7 +351,8 @@ VulkanContext::VulkanContext(const VulkanInitInfo& initInfo)
 
     m_impl->physical_device = candidates.rbegin()->second;
 
-    m_impl->queue_family_indices = QueueFamilyIndices::FindQueueFamilies(m_impl->physical_device, m_impl->surface);
+    m_impl->queue_family_indices = FindQueueFamilies(m_impl->physical_device, m_impl->surface);
+
     std::vector<vk::DeviceQueueCreateInfo> queueCreateInfos {};
     std::set<uint32_t> uniqueQueueFamilies = { m_impl->queue_family_indices.graphicsFamily.value(), m_impl->queue_family_indices.presentFamily.value() };
     float queuePriority { 1.0f };
@@ -459,35 +496,4 @@ void VulkanContext::DebugSetObjectName(void* vulkanObject, uint32_t objectType, 
     (void)objectType;
     (void)name;
 #endif
-}
-
-QueueFamilyIndices QueueFamilyIndices::FindQueueFamilies(vk::PhysicalDevice device, vk::SurfaceKHR surface)
-{
-    QueueFamilyIndices indices {};
-
-    uint32_t queueFamilyCount { 0 };
-    device.getQueueFamilyProperties(&queueFamilyCount, nullptr);
-
-    std::vector<vk::QueueFamilyProperties> queueFamilies(queueFamilyCount);
-    device.getQueueFamilyProperties(&queueFamilyCount, queueFamilies.data());
-
-    for (size_t i = 0; i < queueFamilies.size(); ++i)
-    {
-        if (queueFamilies[i].queueFlags & vk::QueueFlagBits::eGraphics)
-            indices.graphicsFamily = i;
-
-        if (!indices.presentFamily.has_value())
-        {
-            vk::Bool32 supported;
-            util::VK_ASSERT(device.getSurfaceSupportKHR(i, surface, &supported),
-                "Failed querying surface support on physical device!");
-            if (supported)
-                indices.presentFamily = i;
-        }
-
-        if (indices.IsComplete())
-            break;
-    }
-
-    return indices;
 }

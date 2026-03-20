@@ -26,7 +26,7 @@ BuildHzbPass::BuildHzbPass(const std::shared_ptr<GraphicsContext>& context, Came
 
 BuildHzbPass::~BuildHzbPass()
 {
-    vk::Device device = _context->VulkanContext()->Device();
+    vk::Device device = _context->GetVulkanContext()->Device();
 
     device.destroy(_buildHzbPipelineLayout);
     device.destroy(_buildHzbPipeline);
@@ -135,6 +135,6 @@ void BuildHzbPass::CreateUpdateTemplate()
         .set = 0
     };
 
-    vk::Device device = _context->VulkanContext()->Device();
+    vk::Device device = _context->GetVulkanContext()->Device();
     _hzbUpdateTemplate = device.createDescriptorUpdateTemplate(updateTemplateInfo);
 }

@@ -28,7 +28,7 @@ CameraResource::~CameraResource()
 {
     if (_descriptorSetLayout)
     {
-        vk::Device device = _context->VulkanContext()->Device();
+        vk::Device device = _context->GetVulkanContext()->Device();
         device.destroy(_descriptorSetLayout);
         _descriptorSetLayout = nullptr;
     }
@@ -51,7 +51,7 @@ void CameraResource::CreateDescriptorSetLayout(const std::shared_ptr<GraphicsCon
     std::vector<vk::DescriptorSetLayoutBinding> bindings { descriptorSetBinding };
     std::vector<std::string_view> names { "CameraUBO" };
 
-    _descriptorSetLayout = PipelineBuilder::CacheDescriptorSetLayout(*context->VulkanContext(), bindings, names);
+    _descriptorSetLayout = PipelineBuilder::CacheDescriptorSetLayout(*context->GetVulkanContext(), bindings, names);
 }
 
 void CameraResource::CreateBuffers()
@@ -78,7 +78,7 @@ void CameraResource::CreateBuffers()
 
 void CameraResource::CreateDescriptorSets()
 {
-    auto vkContext { _context->VulkanContext() };
+    auto vkContext { _context->GetVulkanContext() };
 
     std::array<vk::DescriptorSetLayout, MAX_FRAMES_IN_FLIGHT> layouts {};
     std::for_each(layouts.begin(), layouts.end(), [](auto& l)

@@ -30,7 +30,7 @@ SkydomePass::SkydomePass(const std::shared_ptr<GraphicsContext>& context, Resour
 
 SkydomePass::~SkydomePass()
 {
-    vk::Device device = _context->VulkanContext()->Device();
+    vk::Device device = _context->GetVulkanContext()->Device();
     device.destroy(_pipelineLayout);
     device.destroy(_pipeline);
 }

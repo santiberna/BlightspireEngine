@@ -50,7 +50,7 @@ VolumetricPass::VolumetricPass(const std::shared_ptr<GraphicsContext>& context, 
 
 VolumetricPass::~VolumetricPass()
 {
-    vk::Device device = _context->VulkanContext()->Device();
+    vk::Device device = _context->GetVulkanContext()->Device();
     device.destroy(_pipeline);
     device.destroy(_pipelineLayout);
     device.destroy(_fogTrailsDescriptorSetLayout);
@@ -190,17 +190,17 @@ void VolumetricPass::CreateDescriptorSetLayouts()
             .pImmutableSamplers = nullptr }
     };
 
-    _fogTrailsDescriptorSetLayout = PipelineBuilder::CacheDescriptorSetLayout(*_context->VulkanContext(), bindings, { "FogTrailsUBO" });
+    _fogTrailsDescriptorSetLayout = PipelineBuilder::CacheDescriptorSetLayout(*_context->GetVulkanContext(), bindings, { "FogTrailsUBO" });
 }
 void VolumetricPass::CreateDescriptorSets()
 {
     vk::DescriptorSetAllocateInfo allocInfo {
-        .descriptorPool = _context->VulkanContext()->DescriptorPool(),
+        .descriptorPool = _context->GetVulkanContext()->DescriptorPool(),
         .descriptorSetCount = 1,
         .pSetLayouts = &_fogTrailsDescriptorSetLayout
     };
 
-    vk::Device device = _context->VulkanContext()->Device();
+    vk::Device device = _context->GetVulkanContext()->Device();
     if (device.allocateDescriptorSets(&allocInfo, &_fogTrailsDescriptorSet) != vk::Result::eSuccess)
     {
         throw std::runtime_error("Failed to allocate descriptor set");

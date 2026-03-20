@@ -5,7 +5,7 @@
 #include <vma_include.hpp>
 
 #include "common.hpp"
-#include "fwd_vulkan.hpp"
+#include "vulkan_fwd.hpp"
 #include "vulkan_include.hpp"
 
 struct SDL_Window;

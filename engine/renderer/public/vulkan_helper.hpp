@@ -2,6 +2,7 @@
 
 #include "spirv_reflect.h"
 #include "vertex.hpp"
+#include "vma_include.hpp"
 #include "vulkan_context.hpp"
 #include <glm/glm.hpp>
 #include <magic_enum.hpp>

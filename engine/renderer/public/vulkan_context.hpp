@@ -1,7 +1,6 @@
 #pragma once
 
 #include "common.hpp"
-#include "vma_include.hpp"
 #include "vulkan_fwd.hpp"
 
 #include <bit>

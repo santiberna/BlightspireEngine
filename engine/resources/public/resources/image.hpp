@@ -37,7 +37,7 @@ enum class ImageFormat
     R32_SFLOAT,
     R16G16B16A16_SFLOAT,
     R16G16B16_SFLOAT,
-    R16G16B_SFLOAT,
+    R16G16_SFLOAT,
 
     // Depth
     D32_SFLOAT,
@@ -68,7 +68,7 @@ struct Image
     static std::optional<Image> fromFile(std::string_view path, bool is_srgb);
     static std::optional<Image> fromMemory(std::span<std::byte> data, bool is_srgb);
 
-    std::shared_ptr<std::byte[]> data {};
+    std::shared_ptr<std::byte[]> data {}; // Leave empty to create empty textures
     ImageFormat format {};
     ImageType type {};
     uint32_t width {};

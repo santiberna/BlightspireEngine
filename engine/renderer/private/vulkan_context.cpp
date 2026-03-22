@@ -483,6 +483,11 @@ const QueueFamilyIndices& VulkanContext::QueueFamilies() const { return m_impl->
 void VulkanContext::DebugSetObjectName(void* vulkanObject, uint32_t objectType, const char* name) const
 {
 #if BB_DEVELOPMENT
+    if (name == nullptr)
+    {
+        return;
+    }
+
     vk::DebugUtilsObjectNameInfoEXT name_info {
         .objectType = static_cast<vk::ObjectType>(objectType),
         .objectHandle = std::bit_cast<uint64_t>(vulkanObject),

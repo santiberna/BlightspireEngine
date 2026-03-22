@@ -8,6 +8,77 @@
 #include "vulkan_context.hpp"
 #include "vulkan_include.hpp"
 
+namespace bb
+{
+
+enum class ImageFormat
+{
+    NONE,
+
+    // Color sRGB
+    R8G8B8A8_SRGB,
+    R8G8B8_SRGB,
+    R8G8_SRGB,
+    R8_SRGB,
+
+    // Linear UNORM
+    R8G8B8A8_UNORM,
+    R8G8B8_UNORM,
+    R8G8_UNORM,
+    R8_UNORM,
+
+    R16_UNORM,
+    R16G16_UNORM,
+
+    // HDR / floating point
+    R32G32B32A32_SFLOAT,
+    R32G32B32_SFLOAT,
+    R32G32_SFLOAT,
+    R32_SFLOAT,
+    R16G16B16A16_SFLOAT,
+    R16G16B16_SFLOAT,
+    R16G16B_SFLOAT,
+
+    // Depth
+    D32_SFLOAT,
+    D24_UNORM_S8_UINT,
+    D16_UNORM,
+
+    // BC compressed sRGB
+    BC1_RGB_SRGB,
+    BC3_SRGB,
+    BC7_SRGB,
+
+    // BC compressed linear
+    BC5_UNORM,
+    BC7_UNORM,
+};
+
+enum class ImageType
+{
+    NONE,
+    IMAGE_2D,
+    IMAGE_2D_ARRAY,
+    IMAGE_CUBEMAP,
+    IMAGE_3D,
+};
+
+struct Image
+{
+    static std::optional<Image> fromFile(std::string_view path, bool is_srgb);
+    static std::optional<Image> fromMemory(std::span<std::byte> data, bool is_srgb);
+
+    std::shared_ptr<std::byte[]> data {};
+    ImageFormat format {};
+    ImageType type {};
+    uint32_t width {};
+    uint32_t height {};
+    uint32_t depth {};
+    uint32_t mips {}; // Leave as 0 to generate max amount of possible mips
+};
+
+}
+
 enum class ImageType
 {
     e2D,

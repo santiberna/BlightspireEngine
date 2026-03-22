@@ -119,9 +119,9 @@ CheckOptions:
 
   # Naming convention for enum constants
   - key: readability-identifier-naming.EnumConstantCase
-    value: CamelCase
+    value: UPPER_CASE
   - key: readability-identifier-naming.EnumConstantPrefix
-    value: 'e'
+    value: ''
   - key: readability-identifier-naming.EnumConstantSuffix
     value: ''
 

@@ -6,6 +6,97 @@
 #include <stb_image.h>
 #include <tracy/Tracy.hpp>
 
+std::optional<bb::Image> bb::Image::fromFile(std::string_view path, bool is_srgb)
+{
+    auto data = fileIO::OpenReadStream(std::string(path));
+    if (!data)
+    {
+        return std::nullopt;
+    }
+    auto mem = fileIO::DumpStreamIntoBytes(data.value());
+    return fromMemory(mem, is_srgb);
+}
+
+std::optional<bb::Image> bb::Image::fromMemory(std::span<std::byte> data, bool is_srgb)
+{
+    stbi_uc* mem_start = std::bit_cast<stbi_uc*>(data.data());
+    int mem_size = static_cast<int>(data.size());
+
+    int w;
+    int h;
+    int channels;
+    ImageFormat format;
+    std::byte* bytes = nullptr;
+
+    bool is_float = stbi_is_hdr_from_memory(mem_start, mem_size) != 0;
+    if (is_float)
+    {
+        bytes = std::bit_cast<std::byte*>(
+            stbi_loadf_from_memory(mem_start, mem_size, &w, &h, &channels, 0));
+
+        if (bytes == nullptr)
+        {
+            return std::nullopt;
+        }
+
+        switch (channels)
+        {
+        case 4:
+            format = ImageFormat::R32G32B32A32_SFLOAT;
+            break;
+        case 3:
+            format = ImageFormat::R32G32B32_SFLOAT;
+            break;
+        case 2:
+            format = ImageFormat::R32G32_SFLOAT;
+            break;
+        case 1:
+            format = ImageFormat::R32_SFLOAT;
+            break;
+        default:
+            return std::nullopt;
+        }
+    }
+    else
+    {
+        bytes = std::bit_cast<std::byte*>(
+            stbi_load_from_memory(mem_start, mem_size, &w, &h, &channels, 0));
+
+        if (bytes == nullptr)
+        {
+            return std::nullopt;
+        }
+
+        switch (channels)
+        {
+        case 4:
+            format = is_srgb ? ImageFormat::R8G8B8A8_SRGB : ImageFormat::R8G8B8A8_UNORM;
+            break;
+        case 3:
+            format = is_srgb ? ImageFormat::R8G8B8_SRGB : ImageFormat::R8G8B8_UNORM;
+            break;
+        case 2:
+            format = is_srgb ? ImageFormat::R8G8_SRGB : ImageFormat::R8G8_UNORM;
+            break;
+        case 1:
+            format = is_srgb ? ImageFormat::R8_SRGB : ImageFormat::R8_UNORM;
+            break;
+        default:
+            return std::nullopt;
+        }
+    }
+
+    bb::Image out;
+    out.depth = 1;
+    out.format = format;
+    out.type = ImageType::IMAGE_2D;
+    out.height = static_cast<uint32_t>(h);
+    out.width = static_cast<uint32_t>(w);
+    out.data = std::shared_ptr<std::byte[]>(bytes, stbi_image_free);
+
+    return out;
+}
+
 CPUImage& CPUImage::FromPNG(std::string_view path)
 {
     int width;

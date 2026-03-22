@@ -8,6 +8,8 @@
 #include <magic_enum.hpp>
 #include <spdlog/spdlog.h>
 
+#include "vulkan_include.hpp"
+
 namespace util
 {
 struct ImageLayoutTransitionState

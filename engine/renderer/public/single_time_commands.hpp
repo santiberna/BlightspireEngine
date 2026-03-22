@@ -1,13 +1,9 @@
 #pragma once
 
-#include <common.hpp>
-#include <cstddef>
-#include <cstdint>
-#include <memory>
-#include <vector>
-#include <vma_include.hpp>
+#include "common.hpp"
+#include "vulkan_fwd.hpp"
 
-#include "vulkan_include.hpp"
+#include <vector>
 
 class GraphicsContext;
 struct Texture;
@@ -16,42 +12,28 @@ class VulkanContext;
 class SingleTimeCommands
 {
 public:
-    SingleTimeCommands(const std::shared_ptr<VulkanContext>& context);
+    SingleTimeCommands(VulkanContext& context);
     ~SingleTimeCommands();
 
-    void Submit();
-    void CreateLocalBuffer(const std::byte* vec, uint32_t count, vk::Buffer& buffer, VmaAllocation& allocation, vk::BufferUsageFlags usage, std::string_view name);
-    void CopyIntoLocalBuffer(const std::byte* vec, uint32_t count, uint32_t offset, vk::Buffer buffer);
-
-    void TrackAllocation(VmaAllocation allocation, vk::Buffer buffer)
+    void TrackAllocation(VmaAllocation allocation, VkBuffer buffer)
     {
         _stagingAllocations.push_back(allocation);
         _stagingBuffers.push_back(buffer);
     }
 
     template <typename T>
-    void CreateLocalBuffer(const std::vector<T>& vec, vk::Buffer& buffer, VmaAllocation& allocation, vk::BufferUsageFlags usage, std::string_view name)
-    {
-        CreateLocalBuffer(reinterpret_cast<const std::byte*>(vec.data()), vec.size() * sizeof(T), buffer, allocation, usage, name);
-    }
-
-    template <typename T>
-    void CopyIntoLocalBuffer(const std::vector<T>& vec, uint32_t offset, vk::Buffer buffer)
+    void CopyIntoLocalBuffer(const std::vector<T>& vec, uint32_t offset, VkBuffer buffer)
     {
         CopyIntoLocalBuffer(reinterpret_cast<const std::byte*>(vec.data()), vec.size() * sizeof(T), offset * sizeof(T), buffer);
     }
+    void CopyIntoLocalBuffer(const std::byte* vec, uint32_t count, uint32_t offset, VkBuffer buffer);
 
-    const vk::CommandBuffer& CommandBuffer() const { return _commandBuffer; }
-
-    NON_MOVABLE(SingleTimeCommands);
-    NON_COPYABLE(SingleTimeCommands);
+    VkCommandBuffer CommandBuffer() const { return _commandBuffer; }
 
 private:
-    std::shared_ptr<VulkanContext> _context;
-    vk::CommandBuffer _commandBuffer;
-    vk::Fence _fence;
-    bool _submitted { false };
-
-    std::vector<vk::Buffer> _stagingBuffers;
+    VulkanContext& _context;
+    VkFence _fence;
+    VkCommandBuffer _commandBuffer;
+    std::vector<VkBuffer> _stagingBuffers;
     std::vector<VmaAllocation> _stagingAllocations;
 };

@@ -149,7 +149,7 @@ void SSAOPass::CreateBuffers()
     }
 
     auto resources { _context->Resources() };
-    auto cmdBuffer = SingleTimeCommands(_context->GetVulkanContext());
+    auto cmdBuffer = SingleTimeCommands(*_context->GetVulkanContext());
 
     // Sample Kernel buffer
     {

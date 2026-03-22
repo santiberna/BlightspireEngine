@@ -14,3 +14,7 @@ BB_VULKAN_FWD(VkSurfaceKHR);
 BB_VULKAN_FWD(VkDescriptorPool);
 BB_VULKAN_FWD(VkCommandPool);
 BB_VULKAN_FWD(VmaAllocator);
+BB_VULKAN_FWD(VmaAllocation);
+BB_VULKAN_FWD(VkCommandBuffer);
+BB_VULKAN_FWD(VkBuffer);
+BB_VULKAN_FWD(VkFence);

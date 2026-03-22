@@ -89,9 +89,8 @@ Renderer::Renderer(ApplicationModule& application, Viewport& viewport, const std
     ResourceHandle<GPUMesh> uvSphere;
     {
         ZoneScopedN("UV sphere render");
-        SingleTimeCommands commandBufferPrimitive { _context->GetVulkanContext() };
+        SingleTimeCommands commandBufferPrimitive { *_context->GetVulkanContext() };
         uvSphere = _context->Resources()->MeshResourceManager().Create(commandBufferPrimitive, GenerateUVSphere(32, 32), ResourceHandle<GPUMaterial>::Null(), *_staticBatchBuffer);
-        commandBufferPrimitive.Submit();
     }
 
     {
@@ -109,9 +108,8 @@ Renderer::Renderer(ApplicationModule& application, Viewport& viewport, const std
 
     {
         ZoneScopedN("IBL generation pass");
-        SingleTimeCommands commandBufferIBL { _context->GetVulkanContext() };
+        SingleTimeCommands commandBufferIBL { *_context->GetVulkanContext() };
         _iblPass->RecordCommands(commandBufferIBL.CommandBuffer());
-        commandBufferIBL.Submit();
     }
 
     GPUSceneCreation gpuSceneCreation {

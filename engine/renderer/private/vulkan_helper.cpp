@@ -129,23 +129,23 @@ std::optional<vk::Format> util::FindSupportedFormat(const vk::PhysicalDevice phy
     return std::nullopt;
 }
 
-void util::CreateBuffer(std::shared_ptr<VulkanContext> context, vk::DeviceSize size, vk::BufferUsageFlags usage, vk::Buffer& buffer, bool mappable, VmaAllocation& allocation, VmaMemoryUsage memoryUsage, const char* name)
+void util::CreateBuffer(VulkanContext& context, vk::DeviceSize size, vk::BufferUsageFlags usage, vk::Buffer& buffer, bool mappable, VmaAllocation& allocation, VmaMemoryUsage memoryUsage, const char* name)
 {
     vk::BufferCreateInfo bufferInfo {};
     bufferInfo.size = size;
     bufferInfo.usage = usage;
     bufferInfo.sharingMode = vk::SharingMode::eExclusive;
     bufferInfo.queueFamilyIndexCount = 1;
-    bufferInfo.pQueueFamilyIndices = &context->QueueFamilies().graphicsFamily.value();
+    bufferInfo.pQueueFamilyIndices = &context.QueueFamilies().graphicsFamily.value();
 
     VmaAllocationCreateInfo allocationInfo {};
     allocationInfo.usage = memoryUsage;
     if (mappable)
         allocationInfo.flags |= VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT;
 
-    util::VK_ASSERT(util::vmaCreateBuffer(context->MemoryAllocator(), reinterpret_cast<VkBufferCreateInfo*>(&bufferInfo), &allocationInfo, reinterpret_cast<VkBuffer*>(&buffer), &allocation, nullptr), "Failed creating buffer!");
-    vmaSetAllocationName(context->MemoryAllocator(), allocation, name);
-    context->DebugSetObjectName(buffer, name);
+    util::VK_ASSERT(util::vmaCreateBuffer(context.MemoryAllocator(), reinterpret_cast<VkBufferCreateInfo*>(&bufferInfo), &allocationInfo, reinterpret_cast<VkBuffer*>(&buffer), &allocation, nullptr), "Failed creating buffer!");
+    vmaSetAllocationName(context.MemoryAllocator(), allocation, name);
+    context.DebugSetObjectName(buffer, name);
 }
 
 vk::CommandBuffer util::BeginSingleTimeCommands(std::shared_ptr<VulkanContext> context)

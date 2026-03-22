@@ -387,15 +387,13 @@ void ParticlePass::ResetParticles()
     auto vkContext { _context->GetVulkanContext() };
     auto resources { _context->Resources() };
 
-    auto cmdBuffer = SingleTimeCommands(_context->GetVulkanContext());
+    auto cmdBuffer = SingleTimeCommands(*_context->GetVulkanContext());
 
     std::vector<ParticleCounters> counters(1);
     cmdBuffer.CopyIntoLocalBuffer(counters, 0, resources->BufferResourceManager().Access(_particlesBuffers[static_cast<uint32_t>(ParticleBufferUsage::eCounter)])->buffer);
 
     _emitters.clear();
     _localEmitters.clear();
-
-    cmdBuffer.Submit();
 }
 
 void ParticlePass::CreatePipelines()
@@ -917,151 +915,151 @@ void ParticlePass::CreateBuffers()
     auto vkContext { _context->GetVulkanContext() };
     auto resources { _context->Resources() };
 
-    auto cmdBuffer = SingleTimeCommands(_context->GetVulkanContext());
+    {
+        auto cmdBuffer = SingleTimeCommands(*_context->GetVulkanContext());
 
-    { // Draw Commands SSB
-        DrawIndexedIndirectCommand indirectCommand;
-        indirectCommand.command.firstIndex = 0;
-        indirectCommand.command.firstInstance = 0;
-        indirectCommand.command.indexCount = 6;
-        indirectCommand.command.instanceCount = 0;
-        indirectCommand.command.vertexOffset = 0;
-        std::vector<DrawIndexedIndirectCommand> data { indirectCommand };
-
-        BufferCreation creation {};
-        creation.SetName("Particle Draw Indirect buffer")
-            .SetSize(sizeof(DrawIndexedIndirectCommand))
-            .SetIsMappable(false)
-            .SetMemoryUsage(VMA_MEMORY_USAGE_AUTO_PREFER_DEVICE)
-            .SetUsageFlags(vk::BufferUsageFlagBits::eStorageBuffer | vk::BufferUsageFlagBits::eIndirectBuffer | vk::BufferUsageFlagBits::eTransferDst);
-
-        _drawCommandsBuffer = resources->BufferResourceManager().Create(creation);
-        cmdBuffer.CopyIntoLocalBuffer(data, 0, resources->BufferResourceManager().Access(_drawCommandsBuffer)->buffer);
-    }
-
-    { // Particle SSB
-        std::vector<Particle> particles(MAX_PARTICLES);
-        vk::DeviceSize bufferSize = sizeof(Particle) * MAX_PARTICLES;
-
-        BufferCreation creation {};
-        creation.SetName("Particle SSB")
-            .SetSize(bufferSize)
-            .SetIsMappable(false)
-            .SetMemoryUsage(VMA_MEMORY_USAGE_AUTO_PREFER_DEVICE)
-            .SetUsageFlags(vk::BufferUsageFlagBits::eStorageBuffer | vk::BufferUsageFlagBits::eTransferDst);
-        _particlesBuffers[static_cast<uint32_t>(ParticleBufferUsage::eParticle)] = resources->BufferResourceManager().Create(creation);
-        cmdBuffer.CopyIntoLocalBuffer(particles, 0, resources->BufferResourceManager().Access(_particlesBuffers[static_cast<uint32_t>(ParticleBufferUsage::eParticle)])->buffer);
-    }
-
-    { // Alive and Dead SSBs
-        vk::DeviceSize bufferSize = sizeof(uint32_t) * MAX_PARTICLES;
-
-        for (size_t i = static_cast<size_t>(ParticleBufferUsage::eAliveNew); i <= static_cast<size_t>(ParticleBufferUsage::eDead); i++)
-        {
-            std::vector<uint32_t> indices(MAX_PARTICLES);
-            if (i == static_cast<size_t>(ParticleBufferUsage::eDead))
-            {
-                for (uint32_t j = 0; j < MAX_PARTICLES; ++j)
-                {
-                    indices[j] = j;
-                }
-            }
+        { // Draw Commands SSB
+            DrawIndexedIndirectCommand indirectCommand;
+            indirectCommand.command.firstIndex = 0;
+            indirectCommand.command.firstInstance = 0;
+            indirectCommand.command.indexCount = 6;
+            indirectCommand.command.instanceCount = 0;
+            indirectCommand.command.vertexOffset = 0;
+            std::vector<DrawIndexedIndirectCommand> data { indirectCommand };
 
             BufferCreation creation {};
-            creation.SetName("Index " + std::to_string(i) + " list SSB")
+            creation.SetName("Particle Draw Indirect buffer")
+                .SetSize(sizeof(DrawIndexedIndirectCommand))
+                .SetIsMappable(false)
+                .SetMemoryUsage(VMA_MEMORY_USAGE_AUTO_PREFER_DEVICE)
+                .SetUsageFlags(vk::BufferUsageFlagBits::eStorageBuffer | vk::BufferUsageFlagBits::eIndirectBuffer | vk::BufferUsageFlagBits::eTransferDst);
+
+            _drawCommandsBuffer = resources->BufferResourceManager().Create(creation);
+            cmdBuffer.CopyIntoLocalBuffer(data, 0, resources->BufferResourceManager().Access(_drawCommandsBuffer)->buffer);
+        }
+
+        { // Particle SSB
+            std::vector<Particle> particles(MAX_PARTICLES);
+            vk::DeviceSize bufferSize = sizeof(Particle) * MAX_PARTICLES;
+
+            BufferCreation creation {};
+            creation.SetName("Particle SSB")
                 .SetSize(bufferSize)
                 .SetIsMappable(false)
                 .SetMemoryUsage(VMA_MEMORY_USAGE_AUTO_PREFER_DEVICE)
                 .SetUsageFlags(vk::BufferUsageFlagBits::eStorageBuffer | vk::BufferUsageFlagBits::eTransferDst);
-            _particlesBuffers[i] = resources->BufferResourceManager().Create(creation);
-            cmdBuffer.CopyIntoLocalBuffer(indices, 0, resources->BufferResourceManager().Access(_particlesBuffers[i])->buffer);
+            _particlesBuffers[static_cast<uint32_t>(ParticleBufferUsage::eParticle)] = resources->BufferResourceManager().Create(creation);
+            cmdBuffer.CopyIntoLocalBuffer(particles, 0, resources->BufferResourceManager().Access(_particlesBuffers[static_cast<uint32_t>(ParticleBufferUsage::eParticle)])->buffer);
+        }
+
+        { // Alive and Dead SSBs
+            vk::DeviceSize bufferSize = sizeof(uint32_t) * MAX_PARTICLES;
+
+            for (size_t i = static_cast<size_t>(ParticleBufferUsage::eAliveNew); i <= static_cast<size_t>(ParticleBufferUsage::eDead); i++)
+            {
+                std::vector<uint32_t> indices(MAX_PARTICLES);
+                if (i == static_cast<size_t>(ParticleBufferUsage::eDead))
+                {
+                    for (uint32_t j = 0; j < MAX_PARTICLES; ++j)
+                    {
+                        indices[j] = j;
+                    }
+                }
+
+                BufferCreation creation {};
+                creation.SetName("Index " + std::to_string(i) + " list SSB")
+                    .SetSize(bufferSize)
+                    .SetIsMappable(false)
+                    .SetMemoryUsage(VMA_MEMORY_USAGE_AUTO_PREFER_DEVICE)
+                    .SetUsageFlags(vk::BufferUsageFlagBits::eStorageBuffer | vk::BufferUsageFlagBits::eTransferDst);
+                _particlesBuffers[i] = resources->BufferResourceManager().Create(creation);
+                cmdBuffer.CopyIntoLocalBuffer(indices, 0, resources->BufferResourceManager().Access(_particlesBuffers[i])->buffer);
+            }
+        }
+
+        { // Counter SSB
+            std::vector<ParticleCounters> particleCounters(1);
+            vk::DeviceSize bufferSize = sizeof(ParticleCounters);
+
+            BufferCreation creation {};
+            creation.SetName("Counters SSB")
+                .SetSize(bufferSize)
+                .SetIsMappable(false)
+                .SetMemoryUsage(VMA_MEMORY_USAGE_AUTO_PREFER_DEVICE)
+                .SetUsageFlags(vk::BufferUsageFlagBits::eStorageBuffer | vk::BufferUsageFlagBits::eTransferDst);
+            _particlesBuffers[static_cast<uint32_t>(ParticleBufferUsage::eCounter)] = resources->BufferResourceManager().Create(creation);
+            cmdBuffer.CopyIntoLocalBuffer(particleCounters, 0, resources->BufferResourceManager().Access(_particlesBuffers[static_cast<uint32_t>(ParticleBufferUsage::eCounter)])->buffer);
+        }
+
+        { // Culled Instance SSB
+            vk::DeviceSize bufferSize = sizeof(ParticleInstance) * MAX_PARTICLES;
+            std::vector<std::byte> culledInstances(bufferSize);
+
+            BufferCreation creation {};
+            creation.SetName("Culled Instance SSB")
+                .SetSize(bufferSize)
+                .SetIsMappable(false)
+                .SetMemoryUsage(VMA_MEMORY_USAGE_AUTO_PREFER_DEVICE)
+                .SetUsageFlags(vk::BufferUsageFlagBits::eStorageBuffer | vk::BufferUsageFlagBits::eTransferDst);
+            _culledInstancesBuffer = resources->BufferResourceManager().Create(creation);
+            cmdBuffer.CopyIntoLocalBuffer(culledInstances, 0, resources->BufferResourceManager().Access(_culledInstancesBuffer)->buffer);
+        }
+
+        { // Billboard vertex buffer
+            std::vector<Vertex> billboardPositions = {
+                Vertex(glm::vec3(-0.5f, -0.5f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec4(0.0f), glm::vec2(0.0f, 1.0f)), // 0
+                Vertex(glm::vec3(0.5f, -0.5f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec4(0.0f), glm::vec2(1.0f, 1.0f)), // 1
+                Vertex(glm::vec3(-0.5f, 0.5f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec4(0.0f), glm::vec2(0.0f, 0.0f)), // 2
+                Vertex(glm::vec3(0.5f, 0.5f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec4(0.0f), glm::vec2(1.0f, 0.0f)), // 4
+            };
+            vk::DeviceSize bufferSize = sizeof(Vertex) * billboardPositions.size();
+
+            BufferCreation creation {};
+            creation.SetName("Billboard vertex buffer")
+                .SetSize(bufferSize)
+                .SetUsageFlags(vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eVertexBuffer)
+                .SetIsMappable(false)
+                .SetMemoryUsage(VMA_MEMORY_USAGE_GPU_ONLY);
+            _vertexBuffer = resources->BufferResourceManager().Create(creation);
+            cmdBuffer.CopyIntoLocalBuffer(billboardPositions, 0, resources->BufferResourceManager().Access(_vertexBuffer)->buffer);
+        }
+
+        { // Billboard index buffer
+            std::vector<uint32_t> billboardIndices = { 0, 1, 3, 0, 3, 2 };
+            vk::DeviceSize bufferSize = sizeof(uint32_t) * billboardIndices.size();
+
+            BufferCreation creation {};
+            creation.SetName("Billboard index buffer")
+                .SetSize(bufferSize)
+                .SetUsageFlags(vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eIndexBuffer)
+                .SetIsMappable(false)
+                .SetMemoryUsage(VMA_MEMORY_USAGE_GPU_ONLY);
+            _indexBuffer = resources->BufferResourceManager().Create(creation);
+            cmdBuffer.CopyIntoLocalBuffer(billboardIndices, 0, resources->BufferResourceManager().Access(_indexBuffer)->buffer);
+        }
+
+        { // Local Emitter UB
+            std::vector<LocalEmitter> localEmitters(MAX_EMITTERS);
+            vk::DeviceSize bufferSize = sizeof(LocalEmitter) * MAX_EMITTERS;
+
+            BufferCreation creation {};
+            creation.SetName("Local Emitter UB")
+                .SetSize(bufferSize)
+                .SetIsMappable(false)
+                .SetMemoryUsage(VMA_MEMORY_USAGE_AUTO_PREFER_DEVICE)
+                .SetUsageFlags(vk::BufferUsageFlagBits::eUniformBuffer | vk::BufferUsageFlagBits::eTransferDst);
+            _localEmittersBuffer = resources->BufferResourceManager().Create(creation);
+            cmdBuffer.CopyIntoLocalBuffer(localEmitters, 0, resources->BufferResourceManager().Access(_localEmittersBuffer)->buffer);
+        }
+
+        { // Local Emitter Staging buffer
+            vk::DeviceSize bufferSize = MAX_EMITTERS * sizeof(LocalEmitter);
+            for (uint32_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
+            {
+                util::CreateBuffer(*vkContext, bufferSize, vk::BufferUsageFlagBits::eTransferSrc, _localEmitterStagingBuffer[i], true, _localEmitterStagingBufferAllocation[i], VMA_MEMORY_USAGE_CPU_ONLY, "Local Emitter Staging buffer");
+            }
         }
     }
-
-    { // Counter SSB
-        std::vector<ParticleCounters> particleCounters(1);
-        vk::DeviceSize bufferSize = sizeof(ParticleCounters);
-
-        BufferCreation creation {};
-        creation.SetName("Counters SSB")
-            .SetSize(bufferSize)
-            .SetIsMappable(false)
-            .SetMemoryUsage(VMA_MEMORY_USAGE_AUTO_PREFER_DEVICE)
-            .SetUsageFlags(vk::BufferUsageFlagBits::eStorageBuffer | vk::BufferUsageFlagBits::eTransferDst);
-        _particlesBuffers[static_cast<uint32_t>(ParticleBufferUsage::eCounter)] = resources->BufferResourceManager().Create(creation);
-        cmdBuffer.CopyIntoLocalBuffer(particleCounters, 0, resources->BufferResourceManager().Access(_particlesBuffers[static_cast<uint32_t>(ParticleBufferUsage::eCounter)])->buffer);
-    }
-
-    { // Culled Instance SSB
-        vk::DeviceSize bufferSize = sizeof(ParticleInstance) * MAX_PARTICLES;
-        std::vector<std::byte> culledInstances(bufferSize);
-
-        BufferCreation creation {};
-        creation.SetName("Culled Instance SSB")
-            .SetSize(bufferSize)
-            .SetIsMappable(false)
-            .SetMemoryUsage(VMA_MEMORY_USAGE_AUTO_PREFER_DEVICE)
-            .SetUsageFlags(vk::BufferUsageFlagBits::eStorageBuffer | vk::BufferUsageFlagBits::eTransferDst);
-        _culledInstancesBuffer = resources->BufferResourceManager().Create(creation);
-        cmdBuffer.CopyIntoLocalBuffer(culledInstances, 0, resources->BufferResourceManager().Access(_culledInstancesBuffer)->buffer);
-    }
-
-    { // Billboard vertex buffer
-        std::vector<Vertex> billboardPositions = {
-            Vertex(glm::vec3(-0.5f, -0.5f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec4(0.0f), glm::vec2(0.0f, 1.0f)), // 0
-            Vertex(glm::vec3(0.5f, -0.5f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec4(0.0f), glm::vec2(1.0f, 1.0f)), // 1
-            Vertex(glm::vec3(-0.5f, 0.5f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec4(0.0f), glm::vec2(0.0f, 0.0f)), // 2
-            Vertex(glm::vec3(0.5f, 0.5f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec4(0.0f), glm::vec2(1.0f, 0.0f)), // 4
-        };
-        vk::DeviceSize bufferSize = sizeof(Vertex) * billboardPositions.size();
-
-        BufferCreation creation {};
-        creation.SetName("Billboard vertex buffer")
-            .SetSize(bufferSize)
-            .SetUsageFlags(vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eVertexBuffer)
-            .SetIsMappable(false)
-            .SetMemoryUsage(VMA_MEMORY_USAGE_GPU_ONLY);
-        _vertexBuffer = resources->BufferResourceManager().Create(creation);
-        cmdBuffer.CopyIntoLocalBuffer(billboardPositions, 0, resources->BufferResourceManager().Access(_vertexBuffer)->buffer);
-    }
-
-    { // Billboard index buffer
-        std::vector<uint32_t> billboardIndices = { 0, 1, 3, 0, 3, 2 };
-        vk::DeviceSize bufferSize = sizeof(uint32_t) * billboardIndices.size();
-
-        BufferCreation creation {};
-        creation.SetName("Billboard index buffer")
-            .SetSize(bufferSize)
-            .SetUsageFlags(vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eIndexBuffer)
-            .SetIsMappable(false)
-            .SetMemoryUsage(VMA_MEMORY_USAGE_GPU_ONLY);
-        _indexBuffer = resources->BufferResourceManager().Create(creation);
-        cmdBuffer.CopyIntoLocalBuffer(billboardIndices, 0, resources->BufferResourceManager().Access(_indexBuffer)->buffer);
-    }
-
-    { // Local Emitter UB
-        std::vector<LocalEmitter> localEmitters(MAX_EMITTERS);
-        vk::DeviceSize bufferSize = sizeof(LocalEmitter) * MAX_EMITTERS;
-
-        BufferCreation creation {};
-        creation.SetName("Local Emitter UB")
-            .SetSize(bufferSize)
-            .SetIsMappable(false)
-            .SetMemoryUsage(VMA_MEMORY_USAGE_AUTO_PREFER_DEVICE)
-            .SetUsageFlags(vk::BufferUsageFlagBits::eUniformBuffer | vk::BufferUsageFlagBits::eTransferDst);
-        _localEmittersBuffer = resources->BufferResourceManager().Create(creation);
-        cmdBuffer.CopyIntoLocalBuffer(localEmitters, 0, resources->BufferResourceManager().Access(_localEmittersBuffer)->buffer);
-    }
-
-    { // Local Emitter Staging buffer
-        vk::DeviceSize bufferSize = MAX_EMITTERS * sizeof(LocalEmitter);
-        for (uint32_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
-        {
-            util::CreateBuffer(vkContext, bufferSize, vk::BufferUsageFlagBits::eTransferSrc, _localEmitterStagingBuffer[i], true, _localEmitterStagingBufferAllocation[i], VMA_MEMORY_USAGE_CPU_ONLY, "Local Emitter Staging buffer");
-        }
-    }
-
-    cmdBuffer.Submit();
 
     { // Emitter UB
         vk::DeviceSize bufferSize = sizeof(Emitter) * MAX_EMITTERS;
@@ -1078,7 +1076,7 @@ void ParticlePass::CreateBuffers()
         vk::DeviceSize bufferSize = MAX_EMITTERS * sizeof(Emitter);
         for (uint32_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
         {
-            util::CreateBuffer(vkContext, bufferSize, vk::BufferUsageFlagBits::eTransferSrc, _emitterStagingBuffer[i], true, _emitterStagingBufferAllocation[i], VMA_MEMORY_USAGE_CPU_ONLY, "Emitter Staging buffer");
+            util::CreateBuffer(*vkContext, bufferSize, vk::BufferUsageFlagBits::eTransferSrc, _emitterStagingBuffer[i], true, _emitterStagingBufferAllocation[i], VMA_MEMORY_USAGE_CPU_ONLY, "Emitter Staging buffer");
         }
     }
 }

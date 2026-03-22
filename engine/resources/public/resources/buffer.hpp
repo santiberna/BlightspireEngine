@@ -4,7 +4,7 @@
 #include "vulkan_include.hpp"
 
 #include <memory>
-#include <vma/vk_mem_alloc.h>
+#include <vma_include.hpp>
 
 struct BufferCreation
 {

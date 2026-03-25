@@ -29,7 +29,7 @@ public:
     void CopyIntoLocalBuffer(const std::byte* vec, uint32_t count, uint32_t offset, VkBuffer buffer);
 
     VkCommandBuffer CommandBuffer() const { return _commandBuffer; }
-    // std::shared_ptr<VulkanContext> GetContext() const { return _context; }
+    VulkanContext& GetContext() const { return _context; }
 
     NON_MOVABLE(SingleTimeCommands);
     NON_COPYABLE(SingleTimeCommands);

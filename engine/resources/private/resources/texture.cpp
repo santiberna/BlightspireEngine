@@ -254,7 +254,7 @@ std::optional<bb::Texture> bb::Texture::fromImage(SingleTimeCommands& upload_com
     alloc_info.usage = VMA_MEMORY_USAGE_AUTO;
 
     VkResult result = util::vmaCreateImage(
-        upload_commands.GetContext()->MemoryAllocator(),
+        upload_commands.GetContext().MemoryAllocator(),
         reinterpret_cast<VkImageCreateInfo*>(&texture_info),
         &alloc_info,
         &texture.image,
@@ -278,7 +278,7 @@ std::optional<bb::Texture> bb::Texture::fromImage(SingleTimeCommands& upload_com
     view_info.subresourceRange.baseArrayLayer = 0;
     view_info.subresourceRange.layerCount = 1;
 
-    vk::Device device = upload_commands.GetContext()->Device();
+    vk::Device device = upload_commands.GetContext().Device();
 
     for (uint32_t i = 0; i < texture_info.arrayLayers; ++i)
     {
@@ -328,7 +328,7 @@ std::optional<bb::Texture> bb::Texture::fromImage(SingleTimeCommands& upload_com
             "Texture staging buffer");
 
         vmaCopyMemoryToAllocation(
-            upload_commands.GetContext()->MemoryAllocator(),
+            upload_commands.GetContext().MemoryAllocator(),
             image.data.get(),
             stagingAllocation,
             0,
@@ -398,15 +398,15 @@ std::optional<bb::Texture> bb::Texture::fromImage(SingleTimeCommands& upload_com
         upload_commands.TrackAllocation(stagingAllocation, stagingBuffer);
     }
 
-    auto context = upload_commands.GetContext();
+    auto* context = &upload_commands.GetContext();
 
     std::string n = name;
-    context->DebugSetObjectName(texture.image, ("[IMAGE] " + n).c_str());
-    context->DebugSetObjectName(texture.full_view, ("[VIEW] " + n).c_str());
+    context->DebugSetObjectName<vk::Image>(texture.image, ("[IMAGE] " + n).c_str());
+    context->DebugSetObjectName<vk::ImageView>(texture.full_view, ("[VIEW] " + n).c_str());
 
     for (size_t i = 0; i < texture.layers.size(); ++i)
     {
-        context->DebugSetObjectName(texture.layers[i].view,
+        context->DebugSetObjectName<vk::ImageView>(texture.layers[i].view,
             ("[VIEW " + std::to_string(i) + "] " + n).c_str());
     }
 

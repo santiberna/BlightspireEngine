@@ -89,9 +89,8 @@ Renderer::Renderer(ApplicationModule& application, Viewport& viewport, const std
     ResourceHandle<GPUMesh> uvSphere;
     {
         ZoneScopedN("UV sphere render");
-        SingleTimeCommands commandBufferPrimitive { _context->VulkanContext() };
+        SingleTimeCommands commandBufferPrimitive { *_context->GetVulkanContext() };
         uvSphere = _context->Resources()->MeshResourceManager().Create(commandBufferPrimitive, GenerateUVSphere(32, 32), ResourceHandle<GPUMaterial>::Null(), *_staticBatchBuffer);
-        commandBufferPrimitive.Submit();
     }
 
     {
@@ -109,9 +108,8 @@ Renderer::Renderer(ApplicationModule& application, Viewport& viewport, const std
 
     {
         ZoneScopedN("IBL generation pass");
-        SingleTimeCommands commandBufferIBL { _context->VulkanContext() };
+        SingleTimeCommands commandBufferIBL { *_context->GetVulkanContext() };
         _iblPass->RecordCommands(commandBufferIBL.CommandBuffer());
-        commandBufferIBL.Submit();
     }
 
     GPUSceneCreation gpuSceneCreation {
@@ -370,12 +368,13 @@ Renderer::Renderer(ApplicationModule& application, Viewport& viewport, const std
     for (size_t i = 0; i < _tracyContexts.size(); ++i)
     {
         _tracyContexts[i] = TracyVkContextCalibrated(
-            _context->VulkanContext()->PhysicalDevice(),
-            _context->VulkanContext()->Device(),
-            _context->VulkanContext()->GraphicsQueue(),
+            _context->GetVulkanContext()->Instance(),
+            _context->GetVulkanContext()->PhysicalDevice(),
+            _context->GetVulkanContext()->Device(),
+            _context->GetVulkanContext()->GraphicsQueue(),
             _commandBuffers[i],
-            reinterpret_cast<PFN_vkGetPhysicalDeviceCalibrateableTimeDomainsEXT>(_context->VulkanContext()->Instance().getProcAddr("vkGetPhysicalDeviceCalibrateableTimeDomainsEXT")),
-            reinterpret_cast<PFN_vkGetCalibratedTimestampsEXT>(_context->VulkanContext()->Instance().getProcAddr("vkGetCalibratedTimestampsEXT")));
+            VULKAN_HPP_DEFAULT_DISPATCHER.vkGetInstanceProcAddr,
+            VULKAN_HPP_DEFAULT_DISPATCHER.vkGetDeviceProcAddr);
         TracyVkContextName(_tracyContexts[i], contextNames[i].c_str(), contextNames[i].size());
     }
 }
@@ -416,18 +415,19 @@ std::vector<ResourceHandle<GPUModel>> Renderer::LoadModels(const std::vector<CPU
 
 void Renderer::FlushCommands()
 {
-    GetContext()->VulkanContext()->Device().waitIdle();
+    vk::Device device = _context->GetVulkanContext()->Device();
+    device.waitIdle();
 }
 
 Renderer::~Renderer()
 {
-    auto vkContext { _context->VulkanContext() };
+    vk::Device device = _context->GetVulkanContext()->Device();
 
     for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
     {
-        vkContext->Device().destroy(_inFlightFences[i]);
-        vkContext->Device().destroy(_renderFinishedSemaphores[i]);
-        vkContext->Device().destroy(_imageAvailableSemaphores[i]);
+        device.destroy(_inFlightFences[i]);
+        device.destroy(_renderFinishedSemaphores[i]);
+        device.destroy(_imageAvailableSemaphores[i]);
     }
 
     _swapChain.reset();
@@ -440,12 +440,13 @@ Renderer::~Renderer()
 
 void Renderer::CreateCommandBuffers()
 {
+    vk::Device device = _context->GetVulkanContext()->Device();
     vk::CommandBufferAllocateInfo commandBufferAllocateInfo {};
-    commandBufferAllocateInfo.commandPool = _context->VulkanContext()->CommandPool();
+    commandBufferAllocateInfo.commandPool = _context->GetVulkanContext()->CommandPool();
     commandBufferAllocateInfo.level = vk::CommandBufferLevel::ePrimary;
     commandBufferAllocateInfo.commandBufferCount = _commandBuffers.size();
 
-    util::VK_ASSERT(_context->VulkanContext()->Device().allocateCommandBuffers(&commandBufferAllocateInfo, _commandBuffers.data()),
+    util::VK_ASSERT(device.allocateCommandBuffers(&commandBufferAllocateInfo, _commandBuffers.data()),
         "Failed allocating command buffer!");
 }
 
@@ -471,8 +472,7 @@ void Renderer::RecordCommandBuffer(const vk::CommandBuffer& commandBuffer, uint3
 
 void Renderer::CreateSyncObjects()
 {
-    auto vkContext { _context->VulkanContext() };
-
+    vk::Device device = _context->GetVulkanContext()->Device();
     vk::SemaphoreCreateInfo semaphoreCreateInfo {};
     vk::FenceCreateInfo fenceCreateInfo {};
     fenceCreateInfo.flags = vk::FenceCreateFlagBits::eSignaled;
@@ -480,12 +480,12 @@ void Renderer::CreateSyncObjects()
     std::string errorMsg { "Failed creating sync object!" };
     for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
     {
-        util::VK_ASSERT(vkContext->Device().createSemaphore(&semaphoreCreateInfo, nullptr, &_imageAvailableSemaphores[i]), errorMsg);
-        util::VK_ASSERT(vkContext->Device().createFence(&fenceCreateInfo, nullptr, &_inFlightFences[i]), errorMsg);
+        util::VK_ASSERT(device.createSemaphore(&semaphoreCreateInfo, nullptr, &_imageAvailableSemaphores[i]), errorMsg);
+        util::VK_ASSERT(device.createFence(&fenceCreateInfo, nullptr, &_inFlightFences[i]), errorMsg);
     }
 
     for (size_t i = 0; i < _swapChain->GetImageCount(); ++i)
-        util::VK_ASSERT(vkContext->Device().createSemaphore(&semaphoreCreateInfo, nullptr, &_renderFinishedSemaphores[i]), errorMsg);
+        util::VK_ASSERT(device.createSemaphore(&semaphoreCreateInfo, nullptr, &_renderFinishedSemaphores[i]), errorMsg);
 }
 
 void Renderer::InitializeHDRTarget()
@@ -604,7 +604,7 @@ void Renderer::UpdateBindless()
 void Renderer::Render(float deltaTime)
 {
     vk::Result result {};
-    vk::Device device = _context->VulkanContext()->Device();
+    vk::Device device = _context->GetVulkanContext()->Device();
 
     {
         ZoneNamedN(zz, "Wait On Fence", true);
@@ -675,7 +675,7 @@ void Renderer::Render(float deltaTime)
 
     {
         ZoneNamedN(zz, "Submit Commands", true);
-        vk::Queue graphicsQueue = _context->VulkanContext()->GraphicsQueue();
+        vk::Queue graphicsQueue = _context->GetVulkanContext()->GraphicsQueue();
 
         result = graphicsQueue.submit(1, &submitInfo, _inFlightFences[_currentFrame]);
 
@@ -693,7 +693,7 @@ void Renderer::Render(float deltaTime)
 
     {
         ZoneNamedN(zz, "Present Image", true);
-        vk::Queue presentQueue = _context->VulkanContext()->PresentQueue();
+        vk::Queue presentQueue = _context->GetVulkanContext()->PresentQueue();
         result = presentQueue.presentKHR(&presentInfo);
     }
 

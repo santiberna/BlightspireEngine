@@ -50,9 +50,10 @@ VolumetricPass::VolumetricPass(const std::shared_ptr<GraphicsContext>& context, 
 
 VolumetricPass::~VolumetricPass()
 {
-    _context->VulkanContext()->Device().destroy(_pipeline);
-    _context->VulkanContext()->Device().destroy(_pipelineLayout);
-    _context->VulkanContext()->Device().destroy(_fogTrailsDescriptorSetLayout);
+    vk::Device device = _context->GetVulkanContext()->Device();
+    device.destroy(_pipeline);
+    device.destroy(_pipelineLayout);
+    device.destroy(_fogTrailsDescriptorSetLayout);
     _context->Resources()->BufferResourceManager().Destroy(_fogTrailsBuffer);
 }
 
@@ -105,7 +106,7 @@ void VolumetricPass::RecordCommands(vk::CommandBuffer commandBuffer, uint32_t cu
         .pStencilAttachment = nullptr,
     };
 
-    commandBuffer.beginRenderingKHR(&renderingInfo, _context->VulkanContext()->Dldi());
+    commandBuffer.beginRenderingKHR(&renderingInfo);
 
     commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, _pipeline);
 
@@ -125,7 +126,7 @@ void VolumetricPass::RecordCommands(vk::CommandBuffer commandBuffer, uint32_t cu
 
     _context->GetDrawStats().Draw(3);
 
-    commandBuffer.endRenderingKHR(_context->VulkanContext()->Dldi());
+    commandBuffer.endRenderingKHR();
 }
 
 void VolumetricPass::CreatePipeline()
@@ -189,17 +190,18 @@ void VolumetricPass::CreateDescriptorSetLayouts()
             .pImmutableSamplers = nullptr }
     };
 
-    _fogTrailsDescriptorSetLayout = PipelineBuilder::CacheDescriptorSetLayout(*_context->VulkanContext(), bindings, { "FogTrailsUBO" });
+    _fogTrailsDescriptorSetLayout = PipelineBuilder::CacheDescriptorSetLayout(*_context->GetVulkanContext(), bindings, { "FogTrailsUBO" });
 }
 void VolumetricPass::CreateDescriptorSets()
 {
     vk::DescriptorSetAllocateInfo allocInfo {
-        .descriptorPool = _context->VulkanContext()->DescriptorPool(),
+        .descriptorPool = _context->GetVulkanContext()->DescriptorPool(),
         .descriptorSetCount = 1,
         .pSetLayouts = &_fogTrailsDescriptorSetLayout
     };
 
-    if (_context->VulkanContext()->Device().allocateDescriptorSets(&allocInfo, &_fogTrailsDescriptorSet) != vk::Result::eSuccess)
+    vk::Device device = _context->GetVulkanContext()->Device();
+    if (device.allocateDescriptorSets(&allocInfo, &_fogTrailsDescriptorSet) != vk::Result::eSuccess)
     {
         throw std::runtime_error("Failed to allocate descriptor set");
     }
@@ -220,5 +222,5 @@ void VolumetricPass::CreateDescriptorSets()
             .pBufferInfo = &colorPaletteBufferInfo }
     };
 
-    _context->VulkanContext()->Device().updateDescriptorSets(descriptorWrites.size(), descriptorWrites.data(), 0, nullptr);
+    device.updateDescriptorSets(descriptorWrites.size(), descriptorWrites.data(), 0, nullptr);
 }

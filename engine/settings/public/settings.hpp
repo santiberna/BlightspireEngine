@@ -1,6 +1,6 @@
 #pragma once
 
-#include "serialization_helpers.hpp"
+#include "serialization.hpp"
 #include "tonemapping_functions.hpp"
 
 struct Settings
@@ -90,22 +90,22 @@ struct Settings
 };
 
 VISITABLE_STRUCT(Settings::Fog, color, density);
-CLASS_SERIALIZE_VERSION(Settings::Fog, 1);
+CLASS_SERIALIZE(Settings::Fog);
 
 VISITABLE_STRUCT(Settings::SSAO, strength, bias, radius, minDistance, maxDistance);
-CLASS_SERIALIZE_VERSION(Settings::SSAO, 0);
+CLASS_SERIALIZE(Settings::SSAO);
 
 VISITABLE_STRUCT(Settings::FXAA, enableFXAA, edgeThresholdMin, edgeThresholdMax, subPixelQuality, iterations);
-CLASS_SERIALIZE_VERSION(Settings::FXAA, 0);
+CLASS_SERIALIZE(Settings::FXAA);
 
 VISITABLE_STRUCT(Settings::Bloom, colorWeights, strength, gradientStrength, maxBrightnessExtraction, filterRadius);
-CLASS_SERIALIZE_VERSION(Settings::Bloom, 1);
+CLASS_SERIALIZE(Settings::Bloom);
 
 VISITABLE_STRUCT(Settings::Tonemapping, tonemappingFunction, exposure, enableVignette, vignetteIntensity, enableLensDistortion, lensDistortionIntensity, lensDistortionCubicIntensity, screenScale, enableToneAdjustments, brightness, contrast, saturation, vibrance, hue, enablePixelization, minPixelSize, maxPixelSize, pixelizationLevels, pixelizationDepthBias, enablePalette, ditherAmount, paletteAmount, palette, skyColor, sunColor, cloudsColor, voidColor, cloudsSpeed, waterColor);
-CLASS_SERIALIZE_VERSION(Settings::Tonemapping, 9);
+CLASS_SERIALIZE(Settings::Tonemapping);
 
 VISITABLE_STRUCT(Settings::Lighting, ambientStrength, ambientShadowStrength, decalNormalThreshold);
-CLASS_SERIALIZE_VERSION(Settings::Lighting, 0);
+CLASS_SERIALIZE(Settings::Lighting);
 
 VISITABLE_STRUCT(Settings, fog, ssao, fxaa, bloom, tonemapping, lighting);
-CLASS_SERIALIZE_VERSION(Settings, 1);
+CLASS_SERIALIZE(Settings);

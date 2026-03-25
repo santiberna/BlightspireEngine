@@ -24,11 +24,7 @@ ModuleTickOrder RendererModule::Init(Engine& engine)
     auto& ecs = engine.GetModule<ECSModule>();
     auto& app = engine.GetModule<ApplicationModule>();
 
-    VulkanInitInfo init_info {};
-    init_info.window_size = app.DisplaySize();
-    init_info.window_handle = app.GetWindowHandle();
-
-    _context = std::make_shared<GraphicsContext>(init_info);
+    _context = std::make_shared<GraphicsContext>(app.GetWindowHandle());
     _renderer = std::make_shared<Renderer>(engine.GetModule<ApplicationModule>(),
         engine.GetModule<UIModule>().GetViewport(), _context, ecs);
 
@@ -39,7 +35,8 @@ ModuleTickOrder RendererModule::Init(Engine& engine)
 
 void RendererModule::Shutdown([[maybe_unused]] Engine& engine)
 {
-    _context->VulkanContext()->Device().waitIdle();
+    vk::Device device = _context->GetVulkanContext()->Device();
+    device.waitIdle();
     _renderer.reset();
 
     ImPlot::DestroyContext();

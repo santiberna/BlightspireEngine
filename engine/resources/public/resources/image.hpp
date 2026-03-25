@@ -6,6 +6,7 @@
 #include "resources/sampler.hpp"
 #include "single_time_commands.hpp"
 #include "vulkan_context.hpp"
+#include "vulkan_include.hpp"
 
 enum class ImageType
 {

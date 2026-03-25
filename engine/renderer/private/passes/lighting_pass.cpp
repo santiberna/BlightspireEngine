@@ -27,9 +27,6 @@ LightingPass::LightingPass(const std::shared_ptr<GraphicsContext>& context, cons
     _pushConstants.shadowMapSize = _context->Resources()->ImageResourceManager().Access(scene.StaticShadow())->width;
     _pushConstants.clusterDimensions = glm::ivec3 { CLUSTER_X, CLUSTER_Y, CLUSTER_Z };
 
-    vk::PhysicalDeviceProperties properties {};
-    _context->VulkanContext()->PhysicalDevice().getProperties(&properties);
-
     CreatePipeline();
 }
 
@@ -65,7 +62,7 @@ void LightingPass::RecordCommands(vk::CommandBuffer commandBuffer, uint32_t curr
     renderingInfo.pDepthAttachment = nullptr;
     renderingInfo.pStencilAttachment = nullptr;
 
-    commandBuffer.beginRenderingKHR(&renderingInfo, _context->VulkanContext()->Dldi());
+    commandBuffer.beginRenderingKHR(&renderingInfo);
 
     commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, _pipeline);
 
@@ -83,13 +80,14 @@ void LightingPass::RecordCommands(vk::CommandBuffer commandBuffer, uint32_t curr
 
     _context->GetDrawStats().Draw(3);
 
-    commandBuffer.endRenderingKHR(_context->VulkanContext()->Dldi());
+    commandBuffer.endRenderingKHR();
 }
 
 LightingPass::~LightingPass()
 {
-    _context->VulkanContext()->Device().destroy(_pipeline);
-    _context->VulkanContext()->Device().destroy(_pipelineLayout);
+    vk::Device device = _context->GetVulkanContext()->Device();
+    device.destroy(_pipeline);
+    device.destroy(_pipelineLayout);
 }
 
 void LightingPass::CreatePipeline()

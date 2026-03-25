@@ -25,8 +25,9 @@ UIPass::UIPass(const std::shared_ptr<GraphicsContext>& context, const ResourceHa
 
 UIPass::~UIPass()
 {
-    _context->VulkanContext()->Device().destroy(_pipeline);
-    _context->VulkanContext()->Device().destroy(_pipelineLayout);
+    vk::Device device = _context->GetVulkanContext()->Device();
+    device.destroy(_pipeline);
+    device.destroy(_pipelineLayout);
 }
 
 void UIPass::CreatePipeLine()
@@ -91,7 +92,7 @@ void UIPass::RecordCommands(vk::CommandBuffer commandBuffer, [[maybe_unused]] ui
         .pStencilAttachment = nullptr,
     };
 
-    commandBuffer.beginRenderingKHR(&renderingInfo, _context->VulkanContext()->Dldi());
+    commandBuffer.beginRenderingKHR(&renderingInfo);
 
     commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, _pipeline);
     commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, _pipelineLayout, 0, { _context->BindlessSet() }, {});
@@ -112,7 +113,7 @@ void UIPass::RecordCommands(vk::CommandBuffer commandBuffer, [[maybe_unused]] ui
         commandBuffer.draw(6, 1, 0, 0);
         _context->GetDrawStats().Draw(6);
     }
-    commandBuffer.endRenderingKHR(_context->VulkanContext()->Dldi());
+    commandBuffer.endRenderingKHR();
     _drawList.clear();
 }
 void UIPass::SetProjectionMatrix(const glm::vec2& size, const glm::vec2& offset)

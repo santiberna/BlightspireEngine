@@ -28,7 +28,8 @@ CameraResource::~CameraResource()
 {
     if (_descriptorSetLayout)
     {
-        _context->VulkanContext()->Device().destroy(_descriptorSetLayout);
+        vk::Device device = _context->GetVulkanContext()->Device();
+        device.destroy(_descriptorSetLayout);
         _descriptorSetLayout = nullptr;
     }
 }
@@ -50,7 +51,7 @@ void CameraResource::CreateDescriptorSetLayout(const std::shared_ptr<GraphicsCon
     std::vector<vk::DescriptorSetLayoutBinding> bindings { descriptorSetBinding };
     std::vector<std::string_view> names { "CameraUBO" };
 
-    _descriptorSetLayout = PipelineBuilder::CacheDescriptorSetLayout(*context->VulkanContext(), bindings, names);
+    _descriptorSetLayout = PipelineBuilder::CacheDescriptorSetLayout(*context->GetVulkanContext(), bindings, names);
 }
 
 void CameraResource::CreateBuffers()
@@ -77,7 +78,7 @@ void CameraResource::CreateBuffers()
 
 void CameraResource::CreateDescriptorSets()
 {
-    auto vkContext { _context->VulkanContext() };
+    auto vkContext { _context->GetVulkanContext() };
 
     std::array<vk::DescriptorSetLayout, MAX_FRAMES_IN_FLIGHT> layouts {};
     std::for_each(layouts.begin(), layouts.end(), [](auto& l)
@@ -87,7 +88,8 @@ void CameraResource::CreateDescriptorSets()
     allocateInfo.descriptorSetCount = MAX_FRAMES_IN_FLIGHT;
     allocateInfo.pSetLayouts = layouts.data();
 
-    util::VK_ASSERT(vkContext->Device().allocateDescriptorSets(&allocateInfo, _descriptorSets.data()),
+    vk::Device device = vkContext->Device();
+    util::VK_ASSERT(device.allocateDescriptorSets(&allocateInfo, _descriptorSets.data()),
         "Failed allocating descriptor sets!");
 
     for (size_t i = 0; i < _descriptorSets.size(); ++i)
@@ -108,7 +110,7 @@ void CameraResource::CreateDescriptorSets()
             .descriptorType = vk::DescriptorType::eUniformBuffer,
             .pBufferInfo = &bufferInfo,
         };
-        vkContext->Device().updateDescriptorSets({ bufferWrite }, {});
+        device.updateDescriptorSets({ bufferWrite }, {});
     }
 }
 

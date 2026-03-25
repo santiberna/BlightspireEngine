@@ -3,7 +3,7 @@
 #include "gpu_scene.hpp"
 #include "graphics_context.hpp"
 #include "graphics_resources.hpp"
-#include "math_util.hpp"
+#include "math.hpp"
 #include "pipeline_builder.hpp"
 #include "resource_management/buffer_resource_manager.hpp"
 #include "resource_management/image_resource_manager.hpp"
@@ -49,11 +49,13 @@ CameraBatch::Draw::Draw(const std::shared_ptr<GraphicsContext>& context, const s
 vk::DescriptorSet CameraBatch::Draw::CreateDescriptor(const std::shared_ptr<GraphicsContext>& context, vk::DescriptorSetLayout dsl, ResourceHandle<Buffer> buffer)
 {
     vk::DescriptorSetAllocateInfo allocateInfo {
-        .descriptorPool = context->VulkanContext()->DescriptorPool(),
+        .descriptorPool = context->GetVulkanContext()->DescriptorPool(),
         .descriptorSetCount = 1,
         .pSetLayouts = &dsl,
     };
-    vk::DescriptorSet descriptor = context->VulkanContext()->Device().allocateDescriptorSets(allocateInfo).front();
+
+    vk::Device device = context->GetVulkanContext()->Device();
+    vk::DescriptorSet descriptor = device.allocateDescriptorSets(allocateInfo).front();
 
     vk::DescriptorBufferInfo bufferInfo {
         .buffer = context->Resources()->BufferResourceManager().Access(buffer)->buffer,
@@ -70,8 +72,7 @@ vk::DescriptorSet CameraBatch::Draw::CreateDescriptor(const std::shared_ptr<Grap
         .pBufferInfo = &bufferInfo,
     };
 
-    context->VulkanContext()->Device().updateDescriptorSets({ bufferWrite }, {});
-
+    device.updateDescriptorSets({ bufferWrite }, {});
     return descriptor;
 }
 

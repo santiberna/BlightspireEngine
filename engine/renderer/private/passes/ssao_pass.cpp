@@ -25,9 +25,6 @@ SSAOPass::SSAOPass(const std::shared_ptr<GraphicsContext>& context, const Settin
     _pushConstants.normalIndex = _gBuffers.Attachments()[1].Index();
     _pushConstants.depthIndex = _gBuffers.Depth().Index();
 
-    vk::PhysicalDeviceProperties properties {};
-    _context->VulkanContext()->PhysicalDevice().getProperties(&properties);
-
     CreateBuffers();
     CreateDescriptorSetLayouts();
     CreateDescriptorSets();
@@ -64,7 +61,7 @@ void SSAOPass::RecordCommands(vk::CommandBuffer commandBuffer, uint32_t currentF
     renderingInfo.pDepthAttachment = nullptr;
     renderingInfo.pStencilAttachment = nullptr;
 
-    commandBuffer.beginRenderingKHR(&renderingInfo, _context->VulkanContext()->Dldi());
+    commandBuffer.beginRenderingKHR(&renderingInfo);
 
     commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, _pipeline);
 
@@ -77,14 +74,15 @@ void SSAOPass::RecordCommands(vk::CommandBuffer commandBuffer, uint32_t currentF
 
     _context->GetDrawStats().Draw(3);
 
-    commandBuffer.endRenderingKHR(_context->VulkanContext()->Dldi());
+    commandBuffer.endRenderingKHR();
 }
 
 SSAOPass::~SSAOPass()
 {
-    _context->VulkanContext()->Device().destroy(_pipeline);
-    _context->VulkanContext()->Device().destroy(_pipelineLayout);
-    _context->VulkanContext()->Device().destroy(_descriptorSetLayout);
+    vk::Device device = _context->GetVulkanContext()->Device();
+    device.destroy(_pipeline);
+    device.destroy(_pipelineLayout);
+    device.destroy(_descriptorSetLayout);
     _context->Resources()->BufferResourceManager().Destroy(_sampleKernelBuffer);
 }
 
@@ -151,7 +149,7 @@ void SSAOPass::CreateBuffers()
     }
 
     auto resources { _context->Resources() };
-    auto cmdBuffer = SingleTimeCommands(_context->VulkanContext());
+    auto cmdBuffer = SingleTimeCommands(*_context->GetVulkanContext());
 
     // Sample Kernel buffer
     {
@@ -223,17 +221,18 @@ void SSAOPass::CreateDescriptorSetLayouts()
             .pImmutableSamplers = nullptr }
     };
 
-    _descriptorSetLayout = PipelineBuilder::CacheDescriptorSetLayout(*_context->VulkanContext(), bindings, { "uSampleKernel" });
+    _descriptorSetLayout = PipelineBuilder::CacheDescriptorSetLayout(*_context->GetVulkanContext(), bindings, { "uSampleKernel" });
 }
 void SSAOPass::CreateDescriptorSets()
 {
     vk::DescriptorSetAllocateInfo allocInfo {
-        .descriptorPool = _context->VulkanContext()->DescriptorPool(),
+        .descriptorPool = _context->GetVulkanContext()->DescriptorPool(),
         .descriptorSetCount = 1,
         .pSetLayouts = &_descriptorSetLayout
     };
 
-    if (_context->VulkanContext()->Device().allocateDescriptorSets(&allocInfo, &_descriptorSet) != vk::Result::eSuccess)
+    vk::Device device = _context->GetVulkanContext()->Device();
+    if (device.allocateDescriptorSets(&allocInfo, &_descriptorSet) != vk::Result::eSuccess)
     {
         throw std::runtime_error("Failed to allocate descriptor set");
     }
@@ -254,5 +253,5 @@ void SSAOPass::CreateDescriptorSets()
             .pBufferInfo = &sampleKernelBufferInfo }
     };
 
-    _context->VulkanContext()->Device().updateDescriptorSets(descriptorWrites.size(), descriptorWrites.data(), 0, nullptr);
+    device.updateDescriptorSets(descriptorWrites.size(), descriptorWrites.data(), 0, nullptr);
 }

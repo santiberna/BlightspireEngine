@@ -16,8 +16,9 @@ BloomDownsamplePass::BloomDownsamplePass(const std::shared_ptr<GraphicsContext>&
 
 BloomDownsamplePass::~BloomDownsamplePass()
 {
-    _context->VulkanContext()->Device().destroy(_pipeline);
-    _context->VulkanContext()->Device().destroy(_pipelineLayout);
+    vk::Device device = _context->GetVulkanContext()->Device();
+    device.destroy(_pipeline);
+    device.destroy(_pipelineLayout);
 }
 
 void BloomDownsamplePass::RecordCommands(vk::CommandBuffer commandBuffer, [[maybe_unused]] uint32_t currentFrame, const RenderSceneDescription& scene)
@@ -72,7 +73,7 @@ void BloomDownsamplePass::RecordCommands(vk::CommandBuffer commandBuffer, [[mayb
         commandBuffer.setViewport(0, 1, &viewport);
         commandBuffer.setScissor(0, { renderingInfo.renderArea });
 
-        commandBuffer.beginRenderingKHR(&renderingInfo, _context->VulkanContext()->Dldi());
+        commandBuffer.beginRenderingKHR(&renderingInfo);
 
         struct PushConstants
         {
@@ -92,7 +93,7 @@ void BloomDownsamplePass::RecordCommands(vk::CommandBuffer commandBuffer, [[mayb
 
         _context->GetDrawStats().Draw(3);
 
-        commandBuffer.endRenderingKHR(_context->VulkanContext()->Dldi());
+        commandBuffer.endRenderingKHR();
 
         // Prepare for next pass
         resolution *= 0.5f;

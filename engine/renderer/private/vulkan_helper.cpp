@@ -129,23 +129,23 @@ std::optional<vk::Format> util::FindSupportedFormat(const vk::PhysicalDevice phy
     return std::nullopt;
 }
 
-void util::CreateBuffer(std::shared_ptr<VulkanContext> context, vk::DeviceSize size, vk::BufferUsageFlags usage, vk::Buffer& buffer, bool mappable, VmaAllocation& allocation, VmaMemoryUsage memoryUsage, std::string_view name)
+void util::CreateBuffer(VulkanContext& context, vk::DeviceSize size, vk::BufferUsageFlags usage, vk::Buffer& buffer, bool mappable, VmaAllocation& allocation, VmaMemoryUsage memoryUsage, const char* name)
 {
     vk::BufferCreateInfo bufferInfo {};
     bufferInfo.size = size;
     bufferInfo.usage = usage;
     bufferInfo.sharingMode = vk::SharingMode::eExclusive;
     bufferInfo.queueFamilyIndexCount = 1;
-    bufferInfo.pQueueFamilyIndices = &context->QueueFamilies().graphicsFamily.value();
+    bufferInfo.pQueueFamilyIndices = &context.QueueFamilies().graphicsFamily.value();
 
     VmaAllocationCreateInfo allocationInfo {};
     allocationInfo.usage = memoryUsage;
     if (mappable)
         allocationInfo.flags |= VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT;
 
-    util::VK_ASSERT(util::vmaCreateBuffer(context->MemoryAllocator(), reinterpret_cast<VkBufferCreateInfo*>(&bufferInfo), &allocationInfo, reinterpret_cast<VkBuffer*>(&buffer), &allocation, nullptr), "Failed creating buffer!");
-    vmaSetAllocationName(context->MemoryAllocator(), allocation, name.data());
-    util::NameObject(buffer, name, context);
+    util::VK_ASSERT(util::vmaCreateBuffer(context.MemoryAllocator(), reinterpret_cast<VkBufferCreateInfo*>(&bufferInfo), &allocationInfo, reinterpret_cast<VkBuffer*>(&buffer), &allocation, nullptr), "Failed creating buffer!");
+    vmaSetAllocationName(context.MemoryAllocator(), allocation, name);
+    context.DebugSetObjectName(buffer, name);
 }
 
 vk::CommandBuffer util::BeginSingleTimeCommands(std::shared_ptr<VulkanContext> context)
@@ -156,7 +156,8 @@ vk::CommandBuffer util::BeginSingleTimeCommands(std::shared_ptr<VulkanContext> c
     allocateInfo.commandBufferCount = 1;
 
     vk::CommandBuffer commandBuffer;
-    util::VK_ASSERT(context->Device().allocateCommandBuffers(&allocateInfo, &commandBuffer), "Failed allocating one time command buffer!");
+    vk::Device device = context->Device();
+    util::VK_ASSERT(device.allocateCommandBuffers(&allocateInfo, &commandBuffer), "Failed allocating one time command buffer!");
 
     vk::CommandBufferBeginInfo beginInfo {};
     beginInfo.flags = vk::CommandBufferUsageFlagBits::eOneTimeSubmit;
@@ -174,10 +175,13 @@ void util::EndSingleTimeCommands(std::shared_ptr<VulkanContext> context, vk::Com
     submitInfo.commandBufferCount = 1;
     submitInfo.pCommandBuffers = &commandBuffer;
 
-    util::VK_ASSERT(context->GraphicsQueue().submit(1, &submitInfo, nullptr), "Failed submitting one time buffer to queue!");
-    context->GraphicsQueue().waitIdle();
+    vk::Queue graphics_queue = context->GraphicsQueue();
+    vk::Device device = context->Device();
 
-    context->Device().free(context->CommandPool(), commandBuffer);
+    util::VK_ASSERT(graphics_queue.submit(1, &submitInfo, nullptr), "Failed submitting one time buffer to queue!");
+    graphics_queue.waitIdle();
+
+    device.free(context->CommandPool(), commandBuffer);
 }
 
 void util::CopyBuffer(vk::CommandBuffer commandBuffer, vk::Buffer srcBuffer, vk::Buffer dstBuffer, vk::DeviceSize size, uint32_t offset)
@@ -357,7 +361,7 @@ void util::CopyImageToImage(vk::CommandBuffer commandBuffer, vk::Image srcImage,
     commandBuffer.blitImage2(&blitInfo);
 }
 
-void util::BeginQueueLabel(vk::Queue queue, std::string_view label, glm::vec3 color, const bb::VulkanDispatchLoader& dldi)
+void util::BeginQueueLabel(vk::Queue queue, std::string_view label, glm::vec3 color)
 {
 #if BB_DEVELOPMENT
     vk::DebugUtilsLabelEXT labelExt {};
@@ -365,26 +369,24 @@ void util::BeginQueueLabel(vk::Queue queue, std::string_view label, glm::vec3 co
     labelExt.color[3] = 1.0f;
     labelExt.pLabelName = label.data();
 
-    queue.beginDebugUtilsLabelEXT(&labelExt, dldi);
+    queue.beginDebugUtilsLabelEXT(&labelExt);
 #else
     (void)queue;
     (void)label;
     (void)color;
-    (void)dldi;
 #endif
 }
 
-void util::EndQueueLabel(vk::Queue queue, const bb::VulkanDispatchLoader& dldi)
+void util::EndQueueLabel(vk::Queue queue)
 {
 #if BB_DEVELOPMENT
-    queue.endDebugUtilsLabelEXT(dldi);
+    queue.endDebugUtilsLabelEXT();
 #else
     (void)queue;
-    (void)dldi;
 #endif
 }
 
-void util::BeginLabel(vk::CommandBuffer commandBuffer, std::string_view label, glm::vec3 color, const bb::VulkanDispatchLoader& dldi)
+void util::BeginLabel(vk::CommandBuffer commandBuffer, std::string_view label, glm::vec3 color)
 {
 #if BB_DEVELOPMENT
     vk::DebugUtilsLabelEXT labelExt {};
@@ -392,22 +394,20 @@ void util::BeginLabel(vk::CommandBuffer commandBuffer, std::string_view label, g
     labelExt.color[3] = 1.0f;
     labelExt.pLabelName = label.data();
 
-    commandBuffer.beginDebugUtilsLabelEXT(&labelExt, dldi);
+    commandBuffer.beginDebugUtilsLabelEXT(&labelExt);
 #else
     (void)commandBuffer;
     (void)label;
     (void)color;
-    (void)dldi;
 #endif
 }
 
-void util::EndLabel(vk::CommandBuffer commandBuffer, const bb::VulkanDispatchLoader& dldi)
+void util::EndLabel(vk::CommandBuffer commandBuffer)
 {
 #if BB_DEVELOPMENT
-    commandBuffer.endDebugUtilsLabelEXT(dldi);
+    commandBuffer.endDebugUtilsLabelEXT();
 #else
     (void)commandBuffer;
-    (void)dldi;
 #endif
 }
 

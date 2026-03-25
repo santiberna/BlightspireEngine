@@ -19,10 +19,11 @@ BloomSettings::BloomSettings(const std::shared_ptr<GraphicsContext>& context, co
 
 BloomSettings::~BloomSettings()
 {
-    auto vkContext { _context->VulkanContext() };
+    auto vkContext { _context->GetVulkanContext() };
     auto resources { _context->Resources() };
 
-    vkContext->Device().destroy(_descriptorSetLayout);
+    vk::Device device = vkContext->Device();
+    device.destroy(_descriptorSetLayout);
 }
 
 void BloomSettings::Update(uint32_t currentFrame)
@@ -41,7 +42,7 @@ void BloomSettings::Update(uint32_t currentFrame)
 
 void BloomSettings::CreateDescriptorSetLayout()
 {
-    auto vkContext { _context->VulkanContext() };
+    auto vkContext { _context->GetVulkanContext() };
 
     std::vector<vk::DescriptorSetLayoutBinding> bindings {};
     bindings.emplace_back(vk::DescriptorSetLayoutBinding {
@@ -52,13 +53,13 @@ void BloomSettings::CreateDescriptorSetLayout()
     });
     std::vector<std::string_view> names { "BloomSettingsUBO" };
 
-    _descriptorSetLayout = PipelineBuilder::CacheDescriptorSetLayout(*_context->VulkanContext(), bindings, names);
-    util::NameObject(_descriptorSetLayout, "Bloom settings DSL", vkContext);
+    _descriptorSetLayout = PipelineBuilder::CacheDescriptorSetLayout(*_context->GetVulkanContext(), bindings, names);
+    vkContext->DebugSetObjectName(_descriptorSetLayout, "Bloom settings DSL");
 }
 
 void BloomSettings::CreateUniformBuffers()
 {
-    auto vkContext { _context->VulkanContext() };
+    auto vkContext { _context->GetVulkanContext() };
     auto resources { _context->Resources() };
 
     for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
@@ -84,7 +85,8 @@ void BloomSettings::CreateUniformBuffers()
     allocateInfo.descriptorSetCount = MAX_FRAMES_IN_FLIGHT;
     allocateInfo.pSetLayouts = layouts.data();
 
-    util::VK_ASSERT(vkContext->Device().allocateDescriptorSets(&allocateInfo, _frameData.descriptorSets.data()),
+    vk::Device device = vkContext->Device();
+    util::VK_ASSERT(device.allocateDescriptorSets(&allocateInfo, _frameData.descriptorSets.data()),
         "Failed allocating descriptor sets!");
 
     for (size_t i = 0; i < _frameData.descriptorSets.size(); ++i)
@@ -95,7 +97,7 @@ void BloomSettings::CreateUniformBuffers()
 
 void BloomSettings::UpdateDescriptorSet(uint32_t currentFrame)
 {
-    auto vkContext { _context->VulkanContext() };
+    auto vkContext { _context->GetVulkanContext() };
     auto resources { _context->Resources() };
 
     const Buffer* buffer = resources->BufferResourceManager().Access(_frameData.buffers.at(currentFrame));
@@ -115,5 +117,6 @@ void BloomSettings::UpdateDescriptorSet(uint32_t currentFrame)
     bufferWrite.descriptorCount = 1;
     bufferWrite.pBufferInfo = &bufferInfo;
 
-    vkContext->Device().updateDescriptorSets(descriptorWrites.size(), descriptorWrites.data(), 0, nullptr);
+    vk::Device device = vkContext->Device();
+    device.updateDescriptorSets(descriptorWrites.size(), descriptorWrites.data(), 0, nullptr);
 }

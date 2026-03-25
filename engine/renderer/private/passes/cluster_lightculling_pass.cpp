@@ -23,8 +23,9 @@ ClusterLightCullingPass::ClusterLightCullingPass(const std::shared_ptr<GraphicsC
 
 ClusterLightCullingPass::~ClusterLightCullingPass()
 {
-    _context->VulkanContext()->Device().destroy(_pipeline);
-    _context->VulkanContext()->Device().destroy(_pipelineLayout);
+    vk::Device device = _context->GetVulkanContext()->Device();
+    device.destroy(_pipeline);
+    device.destroy(_pipelineLayout);
 }
 
 void ClusterLightCullingPass::RecordCommands(vk::CommandBuffer commandBuffer, uint32_t currentFrame, const RenderSceneDescription& scene)
@@ -56,10 +57,11 @@ void ClusterLightCullingPass::CreatePipeline()
         .pSetLayouts = layouts.data(),
     };
 
-    util::VK_ASSERT(_context->VulkanContext()->Device().createPipelineLayout(&pipelineLayoutCreateInfo, nullptr, &_pipelineLayout), "Failed to create pipeline layout for cluster culling pipeline");
+    vk::Device device = _context->GetVulkanContext()->Device();
+    util::VK_ASSERT(device.createPipelineLayout(&pipelineLayoutCreateInfo, nullptr, &_pipelineLayout), "Failed to create pipeline layout for cluster culling pipeline");
 
     std::vector<std::byte> compShader = shader::ReadFile("shaders/bin/cluster_light_culling.comp.spv");
-    vk::ShaderModule computeModule = shader::CreateShaderModule(compShader, _context->VulkanContext()->Device());
+    vk::ShaderModule computeModule = shader::CreateShaderModule(compShader, device);
 
     vk::PipelineShaderStageCreateInfo computeStage {
         .stage = vk::ShaderStageFlagBits::eCompute,
@@ -72,7 +74,7 @@ void ClusterLightCullingPass::CreatePipeline()
         .layout = _pipelineLayout,
     };
 
-    auto result = _context->VulkanContext()->Device().createComputePipeline(nullptr, pipelineCreateInfo, nullptr);
+    auto result = device.createComputePipeline(nullptr, pipelineCreateInfo, nullptr);
     _pipeline = result.value;
-    _context->VulkanContext()->Device().destroy(computeModule);
+    device.destroy(computeModule);
 }

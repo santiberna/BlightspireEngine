@@ -11,7 +11,7 @@ GBuffers::GBuffers(const std::shared_ptr<GraphicsContext>& context, glm::uvec2 s
     : _context(context)
     , _size(size)
 {
-    auto supportedDepthFormat = util::FindSupportedFormat(_context->VulkanContext()->PhysicalDevice(), { vk::Format::eD32Sfloat, vk::Format::eD32SfloatS8Uint, vk::Format::eD24UnormS8Uint },
+    auto supportedDepthFormat = util::FindSupportedFormat(_context->GetVulkanContext()->PhysicalDevice(), { vk::Format::eD32Sfloat, vk::Format::eD32SfloatS8Uint, vk::Format::eD24UnormS8Uint },
         vk::ImageTiling::eOptimal,
         vk::FormatFeatureFlagBits::eDepthStencilAttachment);
 

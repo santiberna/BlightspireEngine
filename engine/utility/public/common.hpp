@@ -34,5 +34,9 @@
 #elif defined(__linux__)
 #define BB_PLATFORM BB_LINUX
 #else
-#error "Unsupported platform"
+#error "Blightspire does not support current platform"
+#endif
+
+#if !defined(__LP64__) && !defined(_WIN64) && (!defined(__x86_64__) || defined(__ILP32__))
+#error "Blightspire does not support x32 architectures"
 #endif

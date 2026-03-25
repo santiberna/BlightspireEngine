@@ -23,10 +23,11 @@ ShadowPass::ShadowPass(const std::shared_ptr<GraphicsContext>& context, const GP
 
 ShadowPass::~ShadowPass()
 {
-    _context->VulkanContext()->Device().destroy(_staticPipeline);
-    _context->VulkanContext()->Device().destroy(_staticPipelineLayout);
-    _context->VulkanContext()->Device().destroy(_skinnedPipeline);
-    _context->VulkanContext()->Device().destroy(_skinnedPipelineLayout);
+    vk::Device device = _context->GetVulkanContext()->Device();
+    device.destroy(_staticPipeline);
+    device.destroy(_staticPipelineLayout);
+    device.destroy(_skinnedPipeline);
+    device.destroy(_skinnedPipelineLayout);
 }
 
 void ShadowPass::RecordCommands(vk::CommandBuffer commandBuffer, uint32_t currentFrame, const RenderSceneDescription& scene)
@@ -108,7 +109,7 @@ void ShadowPass::CreateSkinnedPipeline(const GPUScene& gpuScene)
 
 void ShadowPass::DrawGeometry(vk::CommandBuffer commandBuffer, uint32_t currentFrame, const RenderSceneDescription& scene, bool prepass)
 {
-    auto vkContext { _context->VulkanContext() };
+    auto vkContext { _context->GetVulkanContext() };
     auto resources { _context->Resources() };
 
     const auto* staticShadowImage = resources->ImageResourceManager().Access(scene.gpuScene->StaticShadow());
@@ -131,7 +132,7 @@ void ShadowPass::DrawGeometry(vk::CommandBuffer commandBuffer, uint32_t currentF
             .pDepthAttachment = &depthAttachmentInfo,
         };
 
-        commandBuffer.beginRenderingKHR(&renderingInfo, _context->VulkanContext()->Dldi());
+        commandBuffer.beginRenderingKHR(&renderingInfo);
 
         if (scene.gpuScene->StaticDrawCount() > 0)
         {
@@ -155,12 +156,11 @@ void ShadowPass::DrawGeometry(vk::CommandBuffer commandBuffer, uint32_t currentF
                 countBuffer,
                 0,
                 scene.gpuScene->StaticDrawCount(),
-                sizeof(DrawIndexedIndirectCommand),
-                _context->VulkanContext()->Dldi());
+                sizeof(DrawIndexedIndirectCommand));
 
             _context->GetDrawStats().IndirectDraw(scene.gpuScene->StaticDrawCount(), scene.gpuScene->DrawCommandIndexCount(scene.gpuScene->StaticDrawCommands()));
         }
-        commandBuffer.endRenderingKHR(vkContext->Dldi());
+        commandBuffer.endRenderingKHR();
     }
 
     {
@@ -179,7 +179,7 @@ void ShadowPass::DrawGeometry(vk::CommandBuffer commandBuffer, uint32_t currentF
             .pDepthAttachment = &depthAttachmentInfo,
         };
 
-        commandBuffer.beginRenderingKHR(&renderingInfo, _context->VulkanContext()->Dldi());
+        commandBuffer.beginRenderingKHR(&renderingInfo);
 
         if (scene.gpuScene->SkinnedDrawCount() > 0)
         {
@@ -204,12 +204,11 @@ void ShadowPass::DrawGeometry(vk::CommandBuffer commandBuffer, uint32_t currentF
                 countBuffer,
                 0,
                 scene.gpuScene->SkinnedDrawCount(),
-                sizeof(DrawIndexedIndirectCommand),
-                _context->VulkanContext()->Dldi());
+                sizeof(DrawIndexedIndirectCommand));
 
             _context->GetDrawStats().IndirectDraw(scene.gpuScene->SkinnedDrawCount(), scene.gpuScene->DrawCommandIndexCount(scene.gpuScene->SkinnedDrawCommands()));
         }
 
-        commandBuffer.endRenderingKHR(vkContext->Dldi());
+        commandBuffer.endRenderingKHR();
     }
 }

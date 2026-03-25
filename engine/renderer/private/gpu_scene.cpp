@@ -74,7 +74,7 @@ GPUScene::GPUScene(const GPUSceneCreation& creation, const Settings::Fog& settin
     };
     std::vector<std::string_view> namesVisibility { "VisibilityBuffer" };
 
-    _visibilityDSL = PipelineBuilder::CacheDescriptorSetLayout(*_context->VulkanContext(), bindingsVisibility, namesVisibility);
+    _visibilityDSL = PipelineBuilder::CacheDescriptorSetLayout(*_context->GetVulkanContext(), bindingsVisibility, namesVisibility);
 
     std::vector<vk::DescriptorSetLayoutBinding> bindingsRedirect {
         vk::DescriptorSetLayoutBinding {
@@ -85,7 +85,7 @@ GPUScene::GPUScene(const GPUSceneCreation& creation, const Settings::Fog& settin
     };
     std::vector<std::string_view> namesRedirect { "RedirectBuffer" };
 
-    _redirectDSL = PipelineBuilder::CacheDescriptorSetLayout(*_context->VulkanContext(), bindingsRedirect, namesRedirect);
+    _redirectDSL = PipelineBuilder::CacheDescriptorSetLayout(*_context->GetVulkanContext(), bindingsRedirect, namesRedirect);
 
     _mainCameraBatch = std::make_unique<CameraBatch>(_context, "Main Camera Batch", _mainCamera, creation.depthImage, _drawBufferDSL, _visibilityDSL, _redirectDSL);
     _shadowCameraBatch = std::make_unique<CameraBatch>(_context, "Shadow Camera Batch", _directionalLightShadowCamera, _staticShadowImage, _drawBufferDSL, _visibilityDSL, _redirectDSL);
@@ -99,19 +99,20 @@ GPUScene::GPUScene(const GPUSceneCreation& creation, const Settings::Fog& settin
 
 GPUScene::~GPUScene()
 {
-    auto vkContext { _context->VulkanContext() };
+    auto vkContext { _context->GetVulkanContext() };
+    vk::Device device = vkContext->Device();
 
-    vkContext->Device().destroy(_drawBufferDSL);
-    vkContext->Device().destroy(_sceneDescriptorSetLayout);
-    vkContext->Device().destroy(_objectInstancesDSL);
-    vkContext->Device().destroy(_skinDescriptorSetLayout);
-    vkContext->Device().destroy(_pointLightDSL);
-    vkContext->Device().destroy(_visibilityDSL);
-    vkContext->Device().destroy(_redirectDSL);
-    vkContext->Device().destroy(_hzbImageDSL);
-    vkContext->Device().destroy(_clusterDescriptorSetLayout);
-    vkContext->Device().destroy(_clusterCullingDescriptorSetLayout);
-    vkContext->Device().destroy(_decalDescriptorSetLayout);
+    device.destroy(_drawBufferDSL);
+    device.destroy(_sceneDescriptorSetLayout);
+    device.destroy(_objectInstancesDSL);
+    device.destroy(_skinDescriptorSetLayout);
+    device.destroy(_pointLightDSL);
+    device.destroy(_visibilityDSL);
+    device.destroy(_redirectDSL);
+    device.destroy(_hzbImageDSL);
+    device.destroy(_clusterDescriptorSetLayout);
+    device.destroy(_clusterCullingDescriptorSetLayout);
+    device.destroy(_decalDescriptorSetLayout);
 }
 
 void GPUScene::Update(uint32_t frameIndex)
@@ -635,7 +636,7 @@ void GPUScene::CreateSceneDescriptorSetLayout()
 
     std::vector<std::string_view> names { "SceneUBO" };
 
-    _sceneDescriptorSetLayout = PipelineBuilder::CacheDescriptorSetLayout(*_context->VulkanContext(), bindings, names);
+    _sceneDescriptorSetLayout = PipelineBuilder::CacheDescriptorSetLayout(*_context->GetVulkanContext(), bindings, names);
 }
 
 void GPUScene::CreatePointLightDescriptorSetLayout()
@@ -650,7 +651,7 @@ void GPUScene::CreatePointLightDescriptorSetLayout()
 
     std::vector<std::string_view> names { "PointLightSSBO" };
 
-    _pointLightDSL = PipelineBuilder::CacheDescriptorSetLayout(*_context->VulkanContext(), bindings, names);
+    _pointLightDSL = PipelineBuilder::CacheDescriptorSetLayout(*_context->GetVulkanContext(), bindings, names);
 }
 
 void GPUScene::CreateClusterDescriptorSetLayout()
@@ -665,7 +666,7 @@ void GPUScene::CreateClusterDescriptorSetLayout()
 
     std::vector<std::string_view> names { "ClusterData" };
 
-    _clusterDescriptorSetLayout = PipelineBuilder::CacheDescriptorSetLayout(*_context->VulkanContext(), bindings, names);
+    _clusterDescriptorSetLayout = PipelineBuilder::CacheDescriptorSetLayout(*_context->GetVulkanContext(), bindings, names);
 }
 
 void GPUScene::CreateClusterCullingDescriptorSetLayout()
@@ -683,7 +684,7 @@ void GPUScene::CreateClusterCullingDescriptorSetLayout()
 
     std::vector<std::string_view> names { "AtomicCount", "LightCells", "LightIndices" };
 
-    _clusterCullingDescriptorSetLayout = PipelineBuilder::CacheDescriptorSetLayout(*_context->VulkanContext(), bindings, names);
+    _clusterCullingDescriptorSetLayout = PipelineBuilder::CacheDescriptorSetLayout(*_context->GetVulkanContext(), bindings, names);
 }
 
 void GPUScene::CreateObjectInstanceDescriptorSetLayout()
@@ -700,7 +701,7 @@ void GPUScene::CreateObjectInstanceDescriptorSetLayout()
 
     std::vector<std::string_view> names { "InstanceData" };
 
-    _objectInstancesDSL = PipelineBuilder::CacheDescriptorSetLayout(*_context->VulkanContext(), bindings, names);
+    _objectInstancesDSL = PipelineBuilder::CacheDescriptorSetLayout(*_context->GetVulkanContext(), bindings, names);
 }
 
 void GPUScene::CreateSkinDescriptorSetLayout()
@@ -714,7 +715,7 @@ void GPUScene::CreateSkinDescriptorSetLayout()
 
     std::vector<vk::DescriptorSetLayoutBinding> bindings { binding };
     std::vector<std::string_view> names { "SkinningTransforms" };
-    _skinDescriptorSetLayout = PipelineBuilder::CacheDescriptorSetLayout(*_context->VulkanContext(), bindings, names);
+    _skinDescriptorSetLayout = PipelineBuilder::CacheDescriptorSetLayout(*_context->GetVulkanContext(), bindings, names);
 }
 
 void GPUScene::CreateHZBDescriptorSetLayout()
@@ -739,7 +740,7 @@ void GPUScene::CreateHZBDescriptorSetLayout()
         .pBindings = bindings.data(),
     };
 
-    _hzbImageDSL = PipelineBuilder::CacheDescriptorSetLayout(*_context->VulkanContext(), bindings, names, dslCreateInfo);
+    _hzbImageDSL = PipelineBuilder::CacheDescriptorSetLayout(*_context->GetVulkanContext(), bindings, names, dslCreateInfo);
 }
 
 void GPUScene::CreateDecalDescriptorSetLayout()
@@ -753,7 +754,7 @@ void GPUScene::CreateDecalDescriptorSetLayout()
 
     std::vector<vk::DescriptorSetLayoutBinding> bindings { binding };
     std::vector<std::string_view> names { "DecalUB" };
-    _decalDescriptorSetLayout = PipelineBuilder::CacheDescriptorSetLayout(*_context->VulkanContext(), bindings, names);
+    _decalDescriptorSetLayout = PipelineBuilder::CacheDescriptorSetLayout(*_context->GetVulkanContext(), bindings, names);
 }
 
 void GPUScene::CreateSceneDescriptorSets()
@@ -762,13 +763,15 @@ void GPUScene::CreateSceneDescriptorSets()
     std::for_each(layouts.begin(), layouts.end(), [this](auto& l)
         { l = _sceneDescriptorSetLayout; });
     vk::DescriptorSetAllocateInfo allocateInfo {};
-    allocateInfo.descriptorPool = _context->VulkanContext()->DescriptorPool();
+    allocateInfo.descriptorPool = _context->GetVulkanContext()->DescriptorPool();
     allocateInfo.descriptorSetCount = MAX_FRAMES_IN_FLIGHT;
     allocateInfo.pSetLayouts = layouts.data();
 
     std::array<vk::DescriptorSet, MAX_FRAMES_IN_FLIGHT> descriptorSets;
 
-    util::VK_ASSERT(_context->VulkanContext()->Device().allocateDescriptorSets(&allocateInfo, descriptorSets.data()),
+    vk::Device device = _context->GetVulkanContext()->Device();
+
+    util::VK_ASSERT(device.allocateDescriptorSets(&allocateInfo, descriptorSets.data()),
         "Failed allocating object instance descriptor sets!");
     for (size_t i = 0; i < descriptorSets.size(); ++i)
     {
@@ -783,12 +786,14 @@ void GPUScene::CreatePointLightDescriptorSets()
     std::for_each(layouts.begin(), layouts.end(), [this](auto& l)
         { l = _pointLightDSL; });
     vk::DescriptorSetAllocateInfo allocateInfo {};
-    allocateInfo.descriptorPool = _context->VulkanContext()->DescriptorPool();
+    allocateInfo.descriptorPool = _context->GetVulkanContext()->DescriptorPool();
     allocateInfo.descriptorSetCount = MAX_FRAMES_IN_FLIGHT;
     allocateInfo.pSetLayouts = layouts.data();
 
     std::array<vk::DescriptorSet, MAX_FRAMES_IN_FLIGHT> descriptorSets;
-    util::VK_ASSERT(_context->VulkanContext()->Device().allocateDescriptorSets(&allocateInfo, descriptorSets.data()),
+
+    vk::Device device = _context->GetVulkanContext()->Device();
+    util::VK_ASSERT(device.allocateDescriptorSets(&allocateInfo, descriptorSets.data()),
         "Failed allocating point light descriptor sets!");
     for (size_t i = 0; i < descriptorSets.size(); ++i)
     {
@@ -802,13 +807,14 @@ void GPUScene::CreateClusterDescriptorSet()
     vk::DescriptorSetLayout layout { _clusterDescriptorSetLayout };
 
     vk::DescriptorSetAllocateInfo allocateInfo {
-        .descriptorPool = _context->VulkanContext()->DescriptorPool(),
+        .descriptorPool = _context->GetVulkanContext()->DescriptorPool(),
         .descriptorSetCount = 1,
         .pSetLayouts = &layout,
     };
 
     vk::DescriptorSet descriptorSet;
-    util::VK_ASSERT(_context->VulkanContext()->Device().allocateDescriptorSets(&allocateInfo, &descriptorSet),
+    vk::Device device = _context->GetVulkanContext()->Device();
+    util::VK_ASSERT(device.allocateDescriptorSets(&allocateInfo, &descriptorSet),
         "Failed allocating cluster descriptor set!");
 
     _clusterData.descriptorSet = descriptorSet;
@@ -830,7 +836,7 @@ void GPUScene::CreateClusterDescriptorSet()
     bufferWrite.descriptorCount = 1;
     bufferWrite.pBufferInfo = &bufferInfo;
 
-    _context->VulkanContext()->Device().updateDescriptorSets(descriptorWrites.size(), descriptorWrites.data(), 0, nullptr);
+    device.updateDescriptorSets(descriptorWrites.size(), descriptorWrites.data(), 0, nullptr);
 }
 
 void GPUScene::CreateClusterCullingDescriptorSet()
@@ -841,13 +847,14 @@ void GPUScene::CreateClusterCullingDescriptorSet()
         { l = _clusterCullingDescriptorSetLayout; });
 
     vk::DescriptorSetAllocateInfo allocateInfo {
-        .descriptorPool = _context->VulkanContext()->DescriptorPool(),
+        .descriptorPool = _context->GetVulkanContext()->DescriptorPool(),
         .descriptorSetCount = MAX_FRAMES_IN_FLIGHT,
         .pSetLayouts = layouts.data(),
     };
 
     std::array<vk::DescriptorSet, MAX_FRAMES_IN_FLIGHT> descriptorSets;
-    util::VK_ASSERT(_context->VulkanContext()->Device().allocateDescriptorSets(&allocateInfo, descriptorSets.data()), "Failed to allocate descriptor set for cluster culling pipeline");
+    vk::Device device = _context->GetVulkanContext()->Device();
+    util::VK_ASSERT(device.allocateDescriptorSets(&allocateInfo, descriptorSets.data()), "Failed to allocate descriptor set for cluster culling pipeline");
 
     for (size_t i = 0; i < descriptorSets.size(); ++i)
     {
@@ -862,11 +869,13 @@ void GPUScene::CreateObjectInstancesDescriptorSets()
     std::for_each(layouts.begin(), layouts.end(), [this](auto& l)
         { l = _objectInstancesDSL; });
     vk::DescriptorSetAllocateInfo allocateInfo {};
-    allocateInfo.descriptorPool = _context->VulkanContext()->DescriptorPool();
+    allocateInfo.descriptorPool = _context->GetVulkanContext()->DescriptorPool();
     allocateInfo.descriptorSetCount = MAX_FRAMES_IN_FLIGHT * 2;
     allocateInfo.pSetLayouts = layouts.data();
 
-    std::vector<vk::DescriptorSet> descriptorSets = _context->VulkanContext()->Device().allocateDescriptorSets(allocateInfo);
+    vk::Device device = _context->GetVulkanContext()->Device();
+    std::vector<vk::DescriptorSet> descriptorSets = device.allocateDescriptorSets(allocateInfo);
+
     for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
     {
         _staticInstancesFrameData[i].descriptorSet = descriptorSets[i * 2];
@@ -879,11 +888,13 @@ void GPUScene::CreateSkinDescriptorSets()
 {
     std::array<vk::DescriptorSetLayout, MAX_FRAMES_IN_FLIGHT> layouts = { _skinDescriptorSetLayout, _skinDescriptorSetLayout, _skinDescriptorSetLayout };
     vk::DescriptorSetAllocateInfo allocateInfo {
-        .descriptorPool = _context->VulkanContext()->DescriptorPool(),
+        .descriptorPool = _context->GetVulkanContext()->DescriptorPool(),
         .descriptorSetCount = MAX_FRAMES_IN_FLIGHT,
         .pSetLayouts = layouts.data(),
     };
-    util::VK_ASSERT(_context->VulkanContext()->Device().allocateDescriptorSets(&allocateInfo, _skinDescriptorSets.data()),
+
+    vk::Device device = _context->GetVulkanContext()->Device();
+    util::VK_ASSERT(device.allocateDescriptorSets(&allocateInfo, _skinDescriptorSets.data()),
         "Failed allocating object instance descriptor sets!");
     for (size_t i = 0; i < _skinDescriptorSets.size(); ++i)
     {
@@ -895,13 +906,14 @@ void GPUScene::CreateDecalDescriptorSets()
 {
     std::array<vk::DescriptorSetLayout, MAX_FRAMES_IN_FLIGHT> layouts = { _decalDescriptorSetLayout, _decalDescriptorSetLayout, _decalDescriptorSetLayout };
     vk::DescriptorSetAllocateInfo allocateInfo {
-        .descriptorPool = _context->VulkanContext()->DescriptorPool(),
+        .descriptorPool = _context->GetVulkanContext()->DescriptorPool(),
         .descriptorSetCount = MAX_FRAMES_IN_FLIGHT,
         .pSetLayouts = layouts.data(),
     };
 
     std::array<vk::DescriptorSet, MAX_FRAMES_IN_FLIGHT> descriptorSets;
-    util::VK_ASSERT(_context->VulkanContext()->Device().allocateDescriptorSets(&allocateInfo, descriptorSets.data()),
+    vk::Device device = _context->GetVulkanContext()->Device();
+    util::VK_ASSERT(device.allocateDescriptorSets(&allocateInfo, descriptorSets.data()),
         "Failed allocating Decal Uniform Buffer descriptor sets!");
 
     for (size_t i = 0; i < descriptorSets.size(); ++i)
@@ -930,7 +942,8 @@ void GPUScene::UpdateSceneDescriptorSet(uint32_t frameIndex)
     bufferWrite.descriptorCount = 1;
     bufferWrite.pBufferInfo = &bufferInfo;
 
-    _context->VulkanContext()->Device().updateDescriptorSets(descriptorWrites.size(), descriptorWrites.data(), 0, nullptr);
+    vk::Device device = _context->GetVulkanContext()->Device();
+    device.updateDescriptorSets(descriptorWrites.size(), descriptorWrites.data(), 0, nullptr);
 }
 
 void GPUScene::UpdatePointLightDescriptorSet(uint32_t frameIndex)
@@ -952,7 +965,8 @@ void GPUScene::UpdatePointLightDescriptorSet(uint32_t frameIndex)
     bufferWrite.descriptorCount = 1;
     bufferWrite.pBufferInfo = &bufferInfo;
 
-    _context->VulkanContext()->Device().updateDescriptorSets(descriptorWrites.size(), descriptorWrites.data(), 0, nullptr);
+    vk::Device device = _context->GetVulkanContext()->Device();
+    device.updateDescriptorSets(descriptorWrites.size(), descriptorWrites.data(), 0, nullptr);
 }
 
 void GPUScene::UpdateAtomicGlobalDescriptorSet(uint32_t frameIndex)
@@ -984,7 +998,8 @@ void GPUScene::UpdateAtomicGlobalDescriptorSet(uint32_t frameIndex)
             .pBufferInfo = &bufferInfos[j],
         };
     }
-    _context->VulkanContext()->Device().updateDescriptorSets(3, writeDescriptorSets.data(), 0, nullptr);
+    vk::Device device = _context->GetVulkanContext()->Device();
+    device.updateDescriptorSets(3, writeDescriptorSets.data(), 0, nullptr);
 }
 
 void GPUScene::UpdateObjectInstancesDescriptorSet(uint32_t frameIndex)
@@ -1017,7 +1032,8 @@ void GPUScene::UpdateObjectInstancesDescriptorSet(uint32_t frameIndex)
     skinnedBufferWrite.descriptorCount = 1;
     skinnedBufferWrite.pBufferInfo = &skinnedBufferInfo;
 
-    _context->VulkanContext()->Device().updateDescriptorSets(descriptorWrites, 0);
+    vk::Device device = _context->GetVulkanContext()->Device();
+    device.updateDescriptorSets(descriptorWrites, 0);
 }
 
 void GPUScene::UpdateSkinDescriptorSet(uint32_t frameIndex)
@@ -1039,7 +1055,8 @@ void GPUScene::UpdateSkinDescriptorSet(uint32_t frameIndex)
         .pBufferInfo = &bufferInfo,
     };
 
-    _context->VulkanContext()->Device().updateDescriptorSets(1, &bufferWrite, 0, nullptr);
+    vk::Device device = _context->GetVulkanContext()->Device();
+    device.updateDescriptorSets(1, &bufferWrite, 0, nullptr);
 }
 
 void GPUScene::UpdateDecalDescriptorSet(uint32_t frameIndex)
@@ -1059,7 +1076,8 @@ void GPUScene::UpdateDecalDescriptorSet(uint32_t frameIndex)
         .pBufferInfo = &bufferInfo,
     };
 
-    _context->VulkanContext()->Device().updateDescriptorSets(1, &bufferWrite, 0, nullptr);
+    vk::Device device = _context->GetVulkanContext()->Device();
+    device.updateDescriptorSets(1, &bufferWrite, 0, nullptr);
 }
 
 void GPUScene::CreateSceneBuffers()
@@ -1236,7 +1254,7 @@ void GPUScene::InitializeIndirectDrawBuffer()
 
 void GPUScene::InitializeIndirectDrawDescriptor()
 {
-    auto vkContext { _context->VulkanContext() };
+    auto vkContext { _context->GetVulkanContext() };
 
     std::vector<vk::DescriptorSetLayoutBinding> bindings(1);
     bindings[0] = {
@@ -1257,7 +1275,8 @@ void GPUScene::InitializeIndirectDrawDescriptor()
     allocateInfo.descriptorSetCount = MAX_FRAMES_IN_FLIGHT;
     allocateInfo.pSetLayouts = layouts.data();
 
-    std::vector<vk::DescriptorSet> descriptorSets = vkContext->Device().allocateDescriptorSets(allocateInfo);
+    vk::Device device = vkContext->Device();
+    std::vector<vk::DescriptorSet> descriptorSets = device.allocateDescriptorSets(allocateInfo);
 
     std::array<vk::DescriptorBufferInfo, MAX_FRAMES_IN_FLIGHT> bufferInfos;
     std::array<vk::WriteDescriptorSet, MAX_FRAMES_IN_FLIGHT> bufferWrites;
@@ -1278,9 +1297,9 @@ void GPUScene::InitializeIndirectDrawDescriptor()
         bufferWrites[i].pBufferInfo = &staticBufferInfo;
     }
 
-    vkContext->Device().updateDescriptorSets(bufferWrites, {});
+    device.updateDescriptorSets(bufferWrites, {});
+    descriptorSets = device.allocateDescriptorSets(allocateInfo);
 
-    descriptorSets = vkContext->Device().allocateDescriptorSets(allocateInfo);
     for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
     {
         _skinnedDraws[i].descriptorSet = descriptorSets[i];
@@ -1298,7 +1317,7 @@ void GPUScene::InitializeIndirectDrawDescriptor()
         bufferWrites[i].pBufferInfo = &skinnedBufferInfo;
     }
 
-    vkContext->Device().updateDescriptorSets(bufferWrites, {});
+    device.updateDescriptorSets(bufferWrites, {});
 }
 
 void GPUScene::WriteDraws(uint32_t frameIndex)

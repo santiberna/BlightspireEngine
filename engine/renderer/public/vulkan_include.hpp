@@ -3,6 +3,7 @@
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
 #pragma clang diagnostic ignored "-Wdeprecated-copy"
+
 #include <vulkan/vulkan.hpp>
 
 #pragma clang diagnostic pop
@@ -14,9 +15,3 @@
 #undef Convex
 #undef near
 #undef far
-
-// Exposing dispatch loader, since it is used but lives in vk::detail
-namespace bb
-{
-using VulkanDispatchLoader = vk::detail::DispatchLoaderDynamic;
-}

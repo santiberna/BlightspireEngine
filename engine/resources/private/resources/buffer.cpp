@@ -34,14 +34,14 @@ BufferCreation& BufferCreation::SetName(std::string_view name)
 Buffer::Buffer(const BufferCreation& creation, const std::shared_ptr<VulkanContext>& context)
     : _context(context)
 {
-    util::CreateBuffer(_context,
+    util::CreateBuffer(*_context,
         creation.size,
         creation.usage,
         buffer,
         creation.isMappable,
         allocation,
         creation.memoryUsage,
-        creation.name);
+        creation.name.c_str());
 
     size = creation.size;
     usage = creation.usage;

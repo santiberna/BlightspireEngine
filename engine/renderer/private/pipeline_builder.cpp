@@ -14,10 +14,11 @@ PipelineBuilder::PipelineBuilder(const std::shared_ptr<GraphicsContext>& context
 
 PipelineBuilder::~PipelineBuilder()
 {
+    vk::Device device = _context->GetVulkanContext()->Device();
     for (auto& shaderStage : _shaderStages)
     {
         spvReflectDestroyShaderModule(&shaderStage.reflectModule);
-        _context->VulkanContext()->Device().destroy(shaderStage.shaderModule);
+        device.destroy(shaderStage.shaderModule);
     }
 }
 
@@ -50,6 +51,7 @@ std::tuple<vk::PipelineLayout, vk::Pipeline> PipelineBuilder::BuildPipeline()
 
 vk::DescriptorSetLayout PipelineBuilder::CacheDescriptorSetLayout(const VulkanContext& context, const std::vector<vk::DescriptorSetLayoutBinding>& bindings, const std::vector<std::string_view>& names, std::optional<vk::DescriptorSetLayoutCreateInfo> createInfo)
 {
+    vk::Device device = context.Device();
     size_t hash = HashBindings(bindings, names);
 
     if (_cacheDescriptorSetLayouts.find(hash) == _cacheDescriptorSetLayouts.end())
@@ -61,7 +63,7 @@ vk::DescriptorSetLayout PipelineBuilder::CacheDescriptorSetLayout(const VulkanCo
                 .pBindings = bindings.data(),
             };
         }
-        vk::DescriptorSetLayout layout { context.Device().createDescriptorSetLayout(createInfo.value(), nullptr) };
+        vk::DescriptorSetLayout layout { device.createDescriptorSetLayout(createInfo.value(), nullptr) };
 
         _cacheDescriptorSetLayouts[hash] = layout;
     }
@@ -179,7 +181,8 @@ void PipelineBuilder::ReflectDescriptorLayouts(const PipelineBuilder::ShaderStag
                 .pBindings = bindings.data(),
             };
 
-            vk::DescriptorSetLayout layout { _context->VulkanContext()->Device().createDescriptorSetLayout(layoutInfo, nullptr) };
+            vk::Device device = _context->GetVulkanContext()->Device();
+            vk::DescriptorSetLayout layout { device.createDescriptorSetLayout(layoutInfo, nullptr) };
 
             _descriptorSetLayouts[set->set] = layout;
             _cacheDescriptorSetLayouts[hash] = _descriptorSetLayouts[set->set];
@@ -196,7 +199,8 @@ vk::PipelineLayout PipelineBuilder::CreatePipelineLayout()
         .pPushConstantRanges = _pushConstantRanges.data(),
     };
 
-    return _context->VulkanContext()->Device().createPipelineLayout(createInfo, nullptr);
+    vk::Device device = _context->GetVulkanContext()->Device();
+    return device.createPipelineLayout(createInfo, nullptr);
 }
 
 vk::ShaderModule PipelineBuilder::CreateShaderModule(const std::vector<std::byte>& spirvBytes)
@@ -206,7 +210,8 @@ vk::ShaderModule PipelineBuilder::CreateShaderModule(const std::vector<std::byte
         .pCode = reinterpret_cast<const uint32_t*>(spirvBytes.data()),
     };
 
-    return _context->VulkanContext()->Device().createShaderModule(createInfo, nullptr);
+    vk::Device device = _context->GetVulkanContext()->Device();
+    return device.createShaderModule(createInfo, nullptr);
 }
 
 size_t PipelineBuilder::HashBindings(const std::vector<vk::DescriptorSetLayoutBinding>& bindings, const std::vector<std::string_view>& names)
@@ -367,7 +372,8 @@ vk::Pipeline GraphicsPipelineBuilder::CreatePipeline()
     structureChain.assign(graphicsPipelineCreateInfo);
     structureChain.assign(renderingCreateInfo);
 
-    auto [result, vkPipeline] = _context->VulkanContext()->Device().createGraphicsPipeline(nullptr, structureChain.get(), nullptr);
+    vk::Device device = _context->GetVulkanContext()->Device();
+    auto [result, vkPipeline] = device.createGraphicsPipeline(nullptr, structureChain.get(), nullptr);
 
     util::VK_ASSERT(result, "Failed creating graphics pipeline!");
 
@@ -398,7 +404,8 @@ vk::Pipeline ComputePipelineBuilder::CreatePipeline()
         .layout = _pipelineLayout,
     };
 
-    auto [result, vkPipeline] = _context->VulkanContext()->Device().createComputePipeline(nullptr, computePipelineCreateInfo, nullptr);
+    vk::Device device = _context->GetVulkanContext()->Device();
+    auto [result, vkPipeline] = device.createComputePipeline(nullptr, computePipelineCreateInfo, nullptr);
 
     util::VK_ASSERT(result, "Failed creating compute pipeline!");
 

@@ -6,7 +6,7 @@
 #include "file_io.hpp"
 #include "lib/include_fastgltf.hpp"
 
-#include "math_util.hpp"
+#include "math.hpp"
 #include "physics/shape_factory.hpp"
 #include "resource_management/image_resource_manager.hpp"
 #include "resource_management/mesh_resource_manager.hpp"

@@ -181,19 +181,21 @@ GPUImage::GPUImage(const CPUImage& creation, ResourceHandle<Sampler> textureSamp
     viewCreateInfo.subresourceRange.baseArrayLayer = 0;
     viewCreateInfo.subresourceRange.layerCount = 1;
 
+    vk::Device device = _context->Device();
+
     for (size_t i = 0; i < imageCreateInfo.arrayLayers; ++i)
     {
         viewCreateInfo.subresourceRange.levelCount = creation.mips;
         viewCreateInfo.subresourceRange.baseMipLevel = 0;
         viewCreateInfo.subresourceRange.baseArrayLayer = i;
         Layer& layer = layerViews.emplace_back();
-        layer.view = _context->Device().createImageView(viewCreateInfo);
+        layer.view = device.createImageView(viewCreateInfo);
 
         for (size_t j = 0; j < imageCreateInfo.mipLevels; ++j)
         {
             viewCreateInfo.subresourceRange.levelCount = 1;
             viewCreateInfo.subresourceRange.baseMipLevel = j;
-            layer.mipViews.emplace_back(_context->Device().createImageView(viewCreateInfo));
+            layer.mipViews.emplace_back(device.createImageView(viewCreateInfo));
         }
     }
     view = layerViews.begin()->view;
@@ -210,7 +212,7 @@ GPUImage::GPUImage(const CPUImage& creation, ResourceHandle<Sampler> textureSamp
         cubeViewCreateInfo.subresourceRange.baseArrayLayer = 0;
         cubeViewCreateInfo.subresourceRange.layerCount = 6;
 
-        util::VK_ASSERT(_context->Device().createImageView(&cubeViewCreateInfo, nullptr, &view), "Failed creating image view!");
+        util::VK_ASSERT(device.createImageView(&cubeViewCreateInfo, nullptr, &view), "Failed creating image view!");
     }
 
     if (creation.initialData.data())
@@ -232,7 +234,7 @@ GPUImage::GPUImage(const CPUImage& creation, ResourceHandle<Sampler> textureSamp
 
         {
             ZoneScopedN("Image buffer allocation");
-            util::CreateBuffer(_context, imageSize, vk::BufferUsageFlagBits::eTransferSrc, stagingBuffer, true, stagingBufferAllocation, VMA_MEMORY_USAGE_CPU_ONLY, "Texture staging buffer");
+            util::CreateBuffer(*_context, imageSize, vk::BufferUsageFlagBits::eTransferSrc, stagingBuffer, true, stagingBufferAllocation, VMA_MEMORY_USAGE_CPU_ONLY, "Texture staging buffer");
             vmaCopyMemoryToAllocation(_context->MemoryAllocator(), creation.initialData.data(), stagingBufferAllocation, 0, imageSize);
         }
 
@@ -341,7 +343,8 @@ GPUImage::GPUImage(const CPUImage& creation, ResourceHandle<Sampler> textureSamp
             ss << "[IMAGE] ";
             ss << creation.name;
             std::string imageStr = ss.str();
-            util::NameObject(image, imageStr, _context);
+
+            _context->DebugSetObjectName(image, imageStr.c_str());
             ss.str("");
 
             for (size_t i = 0; i < imageCreateInfo.arrayLayers; ++i)
@@ -349,7 +352,7 @@ GPUImage::GPUImage(const CPUImage& creation, ResourceHandle<Sampler> textureSamp
                 ss << "[VIEW " << i << "] ";
                 ss << creation.name;
                 std::string viewStr = ss.str();
-                util::NameObject(layerViews[i].view, viewStr, _context);
+                _context->DebugSetObjectName(layerViews[i].view, viewStr.c_str());
                 ss.str("");
             }
 
@@ -372,17 +375,21 @@ GPUImage::~GPUImage()
         return;
     }
 
+    vk::Device device = _context->Device();
     util::vmaDestroyImage(_context->MemoryAllocator(), image, allocation);
+
     for (auto& layer : layerViews)
     {
-        _context->Device().destroy(layer.view);
+        device.destroy(layer.view);
         for (auto& mipView : layer.mipViews)
         {
-            _context->Device().destroy(mipView);
+            device.destroy(mipView);
         }
     }
     if (type == ImageType::eCubeMap)
-        _context->Device().destroy(view);
+    {
+        device.destroy(view);
+    }
 }
 
 GPUImage::GPUImage(GPUImage&& other) noexcept

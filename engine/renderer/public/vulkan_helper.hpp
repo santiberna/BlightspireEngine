@@ -2,10 +2,13 @@
 
 #include "spirv_reflect.h"
 #include "vertex.hpp"
+#include "vma_include.hpp"
 #include "vulkan_context.hpp"
 #include <glm/glm.hpp>
 #include <magic_enum.hpp>
 #include <spdlog/spdlog.h>
+
+#include "vulkan_include.hpp"
 
 namespace util
 {
@@ -44,7 +47,7 @@ bool HasStencilComponent(vk::Format format);
 std::optional<vk::Format> FindSupportedFormat(const vk::PhysicalDevice physicalDevice, const std::vector<vk::Format>& candidates, vk::ImageTiling tiling,
     vk::FormatFeatureFlags features);
 uint32_t FindMemoryType(vk::PhysicalDevice physicalDevice, uint32_t typeFilter, vk::MemoryPropertyFlags properties);
-void CreateBuffer(std::shared_ptr<VulkanContext> context, vk::DeviceSize size, vk::BufferUsageFlags usage, vk::Buffer& buffer, bool mappable, VmaAllocation& allocation, VmaMemoryUsage memoryUsage, std::string_view name);
+void CreateBuffer(VulkanContext& context, vk::DeviceSize size, vk::BufferUsageFlags usage, vk::Buffer& buffer, bool mappable, VmaAllocation& allocation, VmaMemoryUsage memoryUsage, const char* name);
 vk::CommandBuffer BeginSingleTimeCommands(std::shared_ptr<VulkanContext> context);
 void EndSingleTimeCommands(std::shared_ptr<VulkanContext> context, vk::CommandBuffer commandBuffer);
 void CopyBuffer(vk::CommandBuffer commandBuffer, vk::Buffer srcBuffer, vk::Buffer dstBuffer, vk::DeviceSize size, uint32_t offset = 0);
@@ -59,38 +62,15 @@ vk::ImageAspectFlags GetImageAspectFlags(vk::Format format);
 
 void BeginLabel(vk::CommandBuffer commandBuffer,
     std::string_view label,
-    glm::vec3 color,
-    const bb::VulkanDispatchLoader& dldi);
+    glm::vec3 color);
 
-void EndLabel(vk::CommandBuffer commandBuffer, const bb::VulkanDispatchLoader& dldi);
+void EndLabel(vk::CommandBuffer commandBuffer);
 
 void BeginQueueLabel(
     vk::Queue queue,
     std::string_view label,
-    glm::vec3 color,
-    const bb::VulkanDispatchLoader& dldi);
+    glm::vec3 color);
 
-void EndQueueLabel(vk::Queue queue, const bb::VulkanDispatchLoader& dldi);
-
-template <typename T>
-static void NameObject(T object, std::string_view label, std::shared_ptr<VulkanContext> context)
-{
-#if BB_DEVELOPMENT
-    vk::DebugUtilsObjectNameInfoEXT nameInfo {};
-
-    nameInfo.pObjectName = label.data();
-    nameInfo.objectType = object.objectType;
-    nameInfo.objectHandle = reinterpret_cast<uint64_t>(static_cast<typename T::CType>(object));
-
-    vk::Result result = context->Device().setDebugUtilsObjectNameEXT(&nameInfo, context->Dldi());
-    if (result != vk::Result::eSuccess)
-        spdlog::warn("Failed debug naming object!");
-#else
-    (void)object;
-    (void)label;
-    (void)context;
-#endif
-}
-
+void EndQueueLabel(vk::Queue queue);
 uint32_t FormatSize(vk::Format format);
 }

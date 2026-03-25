@@ -30,8 +30,9 @@ SkydomePass::SkydomePass(const std::shared_ptr<GraphicsContext>& context, Resour
 
 SkydomePass::~SkydomePass()
 {
-    _context->VulkanContext()->Device().destroy(_pipelineLayout);
-    _context->VulkanContext()->Device().destroy(_pipeline);
+    vk::Device device = _context->GetVulkanContext()->Device();
+    device.destroy(_pipelineLayout);
+    device.destroy(_pipeline);
 }
 
 void SkydomePass::RecordCommands(vk::CommandBuffer commandBuffer, uint32_t currentFrame, const RenderSceneDescription& scene)
@@ -72,7 +73,7 @@ void SkydomePass::RecordCommands(vk::CommandBuffer commandBuffer, uint32_t curre
     renderingInfo.pDepthAttachment = &depthAttachmentInfo;
     renderingInfo.pStencilAttachment = util::HasStencilComponent(_gBuffers.DepthFormat()) ? &stencilAttachmentInfo : nullptr;
 
-    commandBuffer.beginRenderingKHR(&renderingInfo, _context->VulkanContext()->Dldi());
+    commandBuffer.beginRenderingKHR(&renderingInfo);
 
     commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, _pipeline);
 
@@ -93,7 +94,7 @@ void SkydomePass::RecordCommands(vk::CommandBuffer commandBuffer, uint32_t curre
 
     _context->GetDrawStats().Draw(sphere->count);
 
-    commandBuffer.endRenderingKHR(_context->VulkanContext()->Dldi());
+    commandBuffer.endRenderingKHR();
 }
 
 void SkydomePass::CreatePipeline()

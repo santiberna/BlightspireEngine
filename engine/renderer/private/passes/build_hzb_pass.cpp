@@ -4,7 +4,7 @@
 #include "gpu_scene.hpp"
 #include "graphics_context.hpp"
 #include "graphics_resources.hpp"
-#include "math_util.hpp"
+#include "math.hpp"
 #include "pipeline_builder.hpp"
 #include "resource_management/image_resource_manager.hpp"
 #include "resource_management/sampler_resource_manager.hpp"
@@ -26,11 +26,11 @@ BuildHzbPass::BuildHzbPass(const std::shared_ptr<GraphicsContext>& context, Came
 
 BuildHzbPass::~BuildHzbPass()
 {
-    const auto& vkContext = _context->VulkanContext();
+    vk::Device device = _context->GetVulkanContext()->Device();
 
-    vkContext->Device().destroy(_buildHzbPipelineLayout);
-    vkContext->Device().destroy(_buildHzbPipeline);
-    vkContext->Device().destroy(_hzbUpdateTemplate);
+    device.destroy(_buildHzbPipelineLayout);
+    device.destroy(_buildHzbPipeline);
+    device.destroy(_hzbUpdateTemplate);
 }
 
 void BuildHzbPass::RecordCommands(vk::CommandBuffer commandBuffer, [[maybe_unused]] uint32_t currentFrame, [[maybe_unused]] const RenderSceneDescription& scene)
@@ -60,7 +60,7 @@ void BuildHzbPass::RecordCommands(vk::CommandBuffer commandBuffer, [[maybe_unuse
             .imageLayout = vk::ImageLayout::eGeneral,
         };
 
-        commandBuffer.pushDescriptorSetWithTemplateKHR<std::array<vk::DescriptorImageInfo, 2>>(_hzbUpdateTemplate, _buildHzbPipelineLayout, 0, { inputImageInfo, outputImageInfo }, _context->VulkanContext()->Dldi());
+        commandBuffer.pushDescriptorSetWithTemplateKHR<std::array<vk::DescriptorImageInfo, 2>>(_hzbUpdateTemplate, _buildHzbPipelineLayout, 0, { inputImageInfo, outputImageInfo });
 
         commandBuffer.bindPipeline(vk::PipelineBindPoint::eCompute, _buildHzbPipeline);
 
@@ -135,5 +135,6 @@ void BuildHzbPass::CreateUpdateTemplate()
         .set = 0
     };
 
-    _hzbUpdateTemplate = _context->VulkanContext()->Device().createDescriptorUpdateTemplate(updateTemplateInfo);
+    vk::Device device = _context->GetVulkanContext()->Device();
+    _hzbUpdateTemplate = device.createDescriptorUpdateTemplate(updateTemplateInfo);
 }

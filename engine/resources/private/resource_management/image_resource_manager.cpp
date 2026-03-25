@@ -14,6 +14,11 @@ ResourceHandle<GPUImage> ImageResourceManager::Create(const CPUImage& cpuImage, 
     return ResourceManager::Create(GPUImage { cpuImage, sampler, _context, commands });
 }
 
+ResourceHandle<GPUImage> ImageResourceManager::Create(const bb::Image& cpuImage, ResourceHandle<Sampler> sampler, VkImageUsageFlags usage, const char* name, SingleTimeCommands* const commands)
+{
+    return ResourceManager::Create(GPUImage { cpuImage, sampler, _context, name, usage, commands });
+}
+
 vk::ImageType ImageResourceManager::ImageTypeConversion(ImageType type)
 {
     switch (type)

@@ -86,21 +86,6 @@ VkResult util::vmaCreateImage(VmaAllocator allocator, const VkImageCreateInfo* p
 
     auto result = ::vmaCreateImage(allocator, pImageCreateInfo, pAllocationCreateInfo, pImage, pAllocation, pAllocationInfo);
 
-    if (result == VK_SUCCESS)
-    {
-        spdlog::info("-------------- Image Allocation {} --------------");
-        spdlog::info("Size: {}", pAllocationInfo->size);
-        spdlog::info("Format: {:#034b}", static_cast<uint32_t>(pImageCreateInfo->format));
-        spdlog::info("Usage: {:#034b}", static_cast<uint32_t>(pImageCreateInfo->usage));
-        spdlog::info("Type: {:#034b}", static_cast<uint32_t>(pImageCreateInfo->imageType));
-        spdlog::info("Tiling: {:#034b}", static_cast<uint32_t>(pImageCreateInfo->tiling));
-        spdlog::info("Extent: {}x{}x{}", pImageCreateInfo->extent.width, pImageCreateInfo->extent.height, pImageCreateInfo->extent.depth);
-        spdlog::info("Mip Levels: {}", pImageCreateInfo->mipLevels);
-        spdlog::info("Array Layers: {}", pImageCreateInfo->arrayLayers);
-        spdlog::info("Memory Usage: {:#034b}", static_cast<uint32_t>(pAllocationCreateInfo->usage));
-        spdlog::info("Mappable: {}", (pAllocationInfo->pMappedData != nullptr) ? "true" : "false");
-    }
-
 #ifdef TRACY_ENABLE
     if (result == VK_SUCCESS)
     {

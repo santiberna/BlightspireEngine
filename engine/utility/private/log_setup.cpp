@@ -3,7 +3,6 @@
 #include <ctime>
 #include <spdlog/sinks/rotating_file_sink.h>
 
-
 #if BB_PLATFORM == BB_WINDOWS
 #include <windows.h>
 #elif BB_PLATFORM == BB_LINUX
@@ -46,7 +45,7 @@ std::string bb::getOsName()
 #endif
 }
 
-std::string SerializeTimePoint(const std::chrono::system_clock::time_point& time, const std::string& format)
+static std::string SerializeTimePoint(const std::chrono::system_clock::time_point& time, const std::string& format)
 {
     std::time_t tt = std::chrono::system_clock::to_time_t(time);
     std::tm tm {};

@@ -459,6 +459,453 @@ GPUImage::GPUImage(const CPUImage& creation, ResourceHandle<Sampler> textureSamp
     }
 }
 
+namespace
+{
+vk::Format toVkFormat(bb::ImageFormat format)
+{
+    switch (format)
+    {
+    // Color sRGB
+    case bb::ImageFormat::R8G8B8A8_SRGB:
+        return vk::Format::eR8G8B8A8Srgb;
+    case bb::ImageFormat::R8G8B8_SRGB:
+        return vk::Format::eR8G8B8Srgb;
+    case bb::ImageFormat::R8G8_SRGB:
+        return vk::Format::eR8G8Srgb;
+    case bb::ImageFormat::R8_SRGB:
+        return vk::Format::eR8Srgb;
+
+    // Linear UNORM
+    case bb::ImageFormat::R8G8B8A8_UNORM:
+        return vk::Format::eR8G8B8A8Unorm;
+    case bb::ImageFormat::R8G8B8_UNORM:
+        return vk::Format::eR8G8B8Unorm;
+    case bb::ImageFormat::R8G8_UNORM:
+        return vk::Format::eR8G8Unorm;
+    case bb::ImageFormat::R8_UNORM:
+        return vk::Format::eR8Unorm;
+    case bb::ImageFormat::R16_UNORM:
+        return vk::Format::eR16Unorm;
+    case bb::ImageFormat::R16G16_UNORM:
+        return vk::Format::eR16G16Unorm;
+
+    // HDR / floating point
+    case bb::ImageFormat::R32G32B32A32_SFLOAT:
+        return vk::Format::eR32G32B32A32Sfloat;
+    case bb::ImageFormat::R32G32B32_SFLOAT:
+        return vk::Format::eR32G32B32Sfloat;
+    case bb::ImageFormat::R32G32_SFLOAT:
+        return vk::Format::eR32G32Sfloat;
+    case bb::ImageFormat::R32_SFLOAT:
+        return vk::Format::eR32Sfloat;
+    case bb::ImageFormat::R16G16B16A16_SFLOAT:
+        return vk::Format::eR16G16B16A16Sfloat;
+    case bb::ImageFormat::R16G16B16_SFLOAT:
+        return vk::Format::eR16G16B16Sfloat;
+    case bb::ImageFormat::R16G16_SFLOAT:
+        return vk::Format::eR16G16Sfloat; // likely a typo — no R16G16B
+
+    // Depth
+    case bb::ImageFormat::D32_SFLOAT:
+        return vk::Format::eD32Sfloat;
+    case bb::ImageFormat::D24_UNORM_S8_UINT:
+        return vk::Format::eD24UnormS8Uint;
+    case bb::ImageFormat::D16_UNORM:
+        return vk::Format::eD16Unorm;
+
+    // BC compressed sRGB
+    case bb::ImageFormat::BC1_RGB_SRGB:
+        return vk::Format::eBc1RgbSrgbBlock;
+    case bb::ImageFormat::BC3_SRGB:
+        return vk::Format::eBc3SrgbBlock;
+    case bb::ImageFormat::BC7_SRGB:
+        return vk::Format::eBc7SrgbBlock;
+
+    // BC compressed linear
+    case bb::ImageFormat::BC5_UNORM:
+        return vk::Format::eBc5UnormBlock;
+    case bb::ImageFormat::BC7_UNORM:
+        return vk::Format::eBc7UnormBlock;
+
+    case bb::ImageFormat::NONE:
+    default:
+        assert(false && "Invalid bb::ImageFormat");
+        return vk::Format::eUndefined;
+    }
+}
+
+vk::ImageType toVkImageType(bb::ImageType type)
+{
+    switch (type)
+    {
+    case bb::ImageType::IMAGE_2D:
+    case bb::ImageType::IMAGE_2D_ARRAY:
+    case bb::ImageType::IMAGE_CUBEMAP:
+        return vk::ImageType::e2D;
+    case bb::ImageType::IMAGE_3D:
+        return vk::ImageType::e3D;
+
+    case bb::ImageType::NONE:
+    default:
+        assert(false && "Invalid bb::ImageType");
+        return vk::ImageType::e2D;
+    }
+}
+
+vk::ImageViewType toVkImageViewType(bb::ImageType type)
+{
+    switch (type)
+    {
+    case bb::ImageType::IMAGE_2D:
+        return vk::ImageViewType::e2D;
+    case bb::ImageType::IMAGE_2D_ARRAY:
+        return vk::ImageViewType::e2DArray;
+    case bb::ImageType::IMAGE_CUBEMAP:
+        return vk::ImageViewType::eCube;
+    case bb::ImageType::IMAGE_3D:
+        return vk::ImageViewType::e3D;
+
+    case bb::ImageType::NONE:
+    default:
+        assert(false && "Invalid bb::ImageType");
+        return vk::ImageViewType::e2D;
+    }
+}
+
+uint32_t formatStride(bb::ImageFormat format)
+{
+    switch (format)
+    {
+    // Color sRGB
+    case bb::ImageFormat::R8G8B8A8_SRGB:
+        return 4;
+    case bb::ImageFormat::R8G8B8_SRGB:
+        return 3;
+    case bb::ImageFormat::R8G8_SRGB:
+        return 2;
+    case bb::ImageFormat::R8_SRGB:
+        return 1;
+
+    // Linear UNORM
+    case bb::ImageFormat::R8G8B8A8_UNORM:
+        return 4;
+    case bb::ImageFormat::R8G8B8_UNORM:
+        return 3;
+    case bb::ImageFormat::R8G8_UNORM:
+        return 2;
+    case bb::ImageFormat::R8_UNORM:
+        return 1;
+    case bb::ImageFormat::R16_UNORM:
+        return 2;
+    case bb::ImageFormat::R16G16_UNORM:
+        return 4;
+
+    // HDR / floating point
+    case bb::ImageFormat::R32G32B32A32_SFLOAT:
+        return 16;
+    case bb::ImageFormat::R32G32B32_SFLOAT:
+        return 12;
+    case bb::ImageFormat::R32G32_SFLOAT:
+        return 8;
+    case bb::ImageFormat::R32_SFLOAT:
+        return 4;
+    case bb::ImageFormat::R16G16B16A16_SFLOAT:
+        return 8;
+    case bb::ImageFormat::R16G16B16_SFLOAT:
+        return 6;
+    case bb::ImageFormat::R16G16_SFLOAT:
+        return 4;
+
+    // Depth
+    case bb::ImageFormat::D32_SFLOAT:
+        return 4;
+    case bb::ImageFormat::D24_UNORM_S8_UINT:
+        return 4;
+    case bb::ImageFormat::D16_UNORM:
+        return 2;
+
+    // BC compressed — these are block formats, stride is per block not per pixel
+    // each block covers 4x4 pixels
+    case bb::ImageFormat::BC1_RGB_SRGB:
+        return 8; // 8 bytes per 4x4 block
+    case bb::ImageFormat::BC3_SRGB:
+        return 16; // 16 bytes per 4x4 block
+    case bb::ImageFormat::BC7_SRGB:
+        return 16; // 16 bytes per 4x4 block
+    case bb::ImageFormat::BC5_UNORM:
+        return 16; // 16 bytes per 4x4 block
+    case bb::ImageFormat::BC7_UNORM:
+        return 16; // 16 bytes per 4x4 block
+
+    case bb::ImageFormat::NONE:
+    default:
+        assert(false && "Invalid bb::ImageFormat");
+        return 0;
+    }
+}
+}
+
+GPUImage::GPUImage(const bb::Image& creation, ResourceHandle<Sampler> textureSampler, const std::shared_ptr<VulkanContext>& context, const char* given_name, VkImageUsageFlags flags, SingleTimeCommands* const commands)
+    : _context(context)
+{
+    width = creation.width;
+    height = creation.height;
+
+    if (creation.type == bb::ImageType::IMAGE_3D)
+    {
+        layers = 1;
+        depth = creation.depth;
+    }
+    else if (creation.type == bb::ImageType::IMAGE_CUBEMAP)
+    {
+        depth = 1;
+        layers = 6;
+    }
+    else
+    {
+        layers = creation.depth;
+        depth = 1;
+    }
+
+    format = toVkFormat(creation.format);
+    mips = std::min<uint16_t>(creation.mips, std::floor(std::log2(std::max(width, height))) + 1);
+    name = given_name;
+
+    isHDR = creation.format == bb::ImageFormat::R32G32B32_SFLOAT;
+    sampler = textureSampler;
+
+    vk::ImageCreateInfo imageCreateInfo {};
+    imageCreateInfo.imageType = toVkImageType(creation.type);
+    imageCreateInfo.extent.width = creation.width;
+    imageCreateInfo.extent.height = creation.height;
+    imageCreateInfo.extent.depth = creation.depth;
+    imageCreateInfo.mipLevels = mips;
+    imageCreateInfo.arrayLayers = layers;
+    imageCreateInfo.format = format;
+    imageCreateInfo.tiling = vk::ImageTiling::eOptimal;
+    imageCreateInfo.initialLayout = vk::ImageLayout::eUndefined;
+    imageCreateInfo.sharingMode = vk::SharingMode::eExclusive;
+    imageCreateInfo.samples = vk::SampleCountFlagBits::e1;
+
+    imageCreateInfo.usage = vk::ImageUsageFlags(flags);
+
+    if (creation.data != nullptr)
+    {
+        imageCreateInfo.usage |= vk::ImageUsageFlagBits::eTransferDst;
+        imageCreateInfo.usage |= vk::ImageUsageFlagBits::eTransferSrc;
+    }
+    if (creation.type == bb::ImageType::IMAGE_CUBEMAP)
+    {
+        imageCreateInfo.flags |= vk::ImageCreateFlagBits::eCubeCompatible;
+    }
+
+    {
+        ZoneScopedN("VMA Image allocation");
+        VmaAllocationCreateInfo allocCreateInfo {};
+        allocCreateInfo.usage = VMA_MEMORY_USAGE_GPU_ONLY;
+
+        util::vmaCreateImage(_context->MemoryAllocator(), reinterpret_cast<VkImageCreateInfo*>(&imageCreateInfo), &allocCreateInfo, reinterpret_cast<VkImage*>(&image), &allocation, nullptr);
+        std::string allocName = std::string(name) + " texture allocation";
+        vmaSetAllocationName(_context->MemoryAllocator(), allocation, allocName.c_str());
+    }
+
+    vk::ImageViewCreateInfo viewCreateInfo {};
+    viewCreateInfo.image = image;
+    viewCreateInfo.viewType = vk::ImageViewType::e2D;
+    viewCreateInfo.format = format;
+    viewCreateInfo.subresourceRange.aspectMask = util::GetImageAspectFlags(format);
+    viewCreateInfo.subresourceRange.baseMipLevel = 0;
+    viewCreateInfo.subresourceRange.levelCount = creation.mips;
+    viewCreateInfo.subresourceRange.baseArrayLayer = 0;
+    viewCreateInfo.subresourceRange.layerCount = 1;
+
+    vk::Device device = _context->Device();
+
+    for (size_t i = 0; i < imageCreateInfo.arrayLayers; ++i)
+    {
+        viewCreateInfo.subresourceRange.levelCount = creation.mips;
+        viewCreateInfo.subresourceRange.baseMipLevel = 0;
+        viewCreateInfo.subresourceRange.baseArrayLayer = i;
+        Layer& layer = layerViews.emplace_back();
+        layer.view = device.createImageView(viewCreateInfo);
+
+        for (size_t j = 0; j < imageCreateInfo.mipLevels; ++j)
+        {
+            viewCreateInfo.subresourceRange.levelCount = 1;
+            viewCreateInfo.subresourceRange.baseMipLevel = j;
+            layer.mipViews.emplace_back(device.createImageView(viewCreateInfo));
+        }
+    }
+    view = layerViews.begin()->view;
+
+    if (creation.type == bb::ImageType::IMAGE_CUBEMAP)
+    {
+        vk::ImageViewCreateInfo cubeViewCreateInfo {};
+        cubeViewCreateInfo.image = image;
+        cubeViewCreateInfo.viewType = vk::ImageViewType(VK_IMAGE_VIEW_TYPE_CUBE);
+        cubeViewCreateInfo.format = format;
+        cubeViewCreateInfo.subresourceRange.aspectMask = util::GetImageAspectFlags(format);
+        cubeViewCreateInfo.subresourceRange.baseMipLevel = 0;
+        cubeViewCreateInfo.subresourceRange.levelCount = creation.mips;
+        cubeViewCreateInfo.subresourceRange.baseArrayLayer = 0;
+        cubeViewCreateInfo.subresourceRange.layerCount = 6;
+
+        util::VK_ASSERT(device.createImageView(&cubeViewCreateInfo, nullptr, &view), "Failed creating image view!");
+    }
+
+    if (creation.data != nullptr)
+    {
+        ZoneScopedN("Image data Upload");
+        vk::DeviceSize imageSize = width * height * depth * 4;
+
+        if (format == vk::Format::eR8Unorm)
+        {
+            imageSize = width * height * depth;
+        }
+        if (isHDR)
+        {
+            imageSize *= sizeof(float);
+        }
+
+        vk::Buffer stagingBuffer;
+        VmaAllocation stagingBufferAllocation;
+
+        {
+            ZoneScopedN("Image buffer allocation");
+            util::CreateBuffer(*_context, imageSize, vk::BufferUsageFlagBits::eTransferSrc, stagingBuffer, true, stagingBufferAllocation, VMA_MEMORY_USAGE_CPU_ONLY, "Texture staging buffer");
+            vmaCopyMemoryToAllocation(_context->MemoryAllocator(), creation.data.get(), stagingBufferAllocation, 0, imageSize);
+        }
+
+        vk::ImageLayout oldLayout = vk::ImageLayout::eTransferDstOptimal;
+
+        if (commands)
+        {
+            ZoneScopedN("Command upload dispatch");
+            const vk::CommandBuffer& commandBuffer = commands->CommandBuffer();
+
+            util::TransitionImageLayout(commandBuffer, image, format, vk::ImageLayout::eUndefined, oldLayout);
+
+            util::CopyBufferToImage(commandBuffer, stagingBuffer, image, width, height);
+
+            if (creation.mips > 1)
+            {
+                ZoneScopedN("Mip creation dispatch");
+                util::TransitionImageLayout(commandBuffer, image, format, vk::ImageLayout::eTransferDstOptimal, vk::ImageLayout::eTransferSrcOptimal, 1, 0, 1);
+
+                for (uint32_t i = 1; i < creation.mips; ++i)
+                {
+                    vk::ImageBlit blit {};
+                    blit.srcSubresource.aspectMask = vk::ImageAspectFlagBits::eColor;
+                    blit.srcSubresource.layerCount = 1;
+                    blit.srcSubresource.mipLevel = i - 1;
+                    blit.srcOffsets[1].x = width >> (i - 1);
+                    blit.srcOffsets[1].y = height >> (i - 1);
+                    blit.srcOffsets[1].z = 1;
+
+                    blit.dstSubresource.aspectMask = vk::ImageAspectFlagBits::eColor;
+                    blit.dstSubresource.layerCount = 1;
+                    blit.dstSubresource.mipLevel = i;
+                    blit.dstOffsets[1].x = width >> i;
+                    blit.dstOffsets[1].y = height >> i;
+                    blit.dstOffsets[1].z = 1;
+
+                    util::TransitionImageLayout(commandBuffer, image, format, vk::ImageLayout::eUndefined, vk::ImageLayout::eTransferDstOptimal, 1, i);
+
+                    commandBuffer.blitImage(image, vk::ImageLayout::eTransferSrcOptimal, image, vk::ImageLayout::eTransferDstOptimal, 1, &blit, vk::Filter::eLinear);
+
+                    util::TransitionImageLayout(commandBuffer, image, format, vk::ImageLayout::eTransferDstOptimal, vk::ImageLayout::eTransferSrcOptimal, 1, i);
+                }
+                oldLayout = vk::ImageLayout::eTransferSrcOptimal;
+            }
+
+            util::TransitionImageLayout(commandBuffer, image, format, oldLayout, vk::ImageLayout::eShaderReadOnlyOptimal, 1, 0, mips);
+
+            commands->TrackAllocation(stagingBufferAllocation, stagingBuffer);
+        }
+        else
+        {
+            ZoneScopedN("Command upload dispatch");
+            vk::CommandBuffer commandBuffer = util::BeginSingleTimeCommands(_context);
+
+            util::TransitionImageLayout(commandBuffer, image, format, vk::ImageLayout::eUndefined, oldLayout);
+
+            util::CopyBufferToImage(commandBuffer, stagingBuffer, image, width, height);
+
+            if (creation.mips > 1)
+            {
+                ZoneScopedN("Mip creation dispatch");
+                util::TransitionImageLayout(commandBuffer, image, format, vk::ImageLayout::eTransferDstOptimal, vk::ImageLayout::eTransferSrcOptimal, 1, 0, 1);
+
+                for (uint32_t i = 1; i < creation.mips; ++i)
+                {
+                    vk::ImageBlit blit {};
+                    blit.srcSubresource.aspectMask = vk::ImageAspectFlagBits::eColor;
+                    blit.srcSubresource.layerCount = 1;
+                    blit.srcSubresource.mipLevel = i - 1;
+                    blit.srcOffsets[1].x = width >> (i - 1);
+                    blit.srcOffsets[1].y = height >> (i - 1);
+                    blit.srcOffsets[1].z = 1;
+
+                    blit.dstSubresource.aspectMask = vk::ImageAspectFlagBits::eColor;
+                    blit.dstSubresource.layerCount = 1;
+                    blit.dstSubresource.mipLevel = i;
+                    blit.dstOffsets[1].x = width >> i;
+                    blit.dstOffsets[1].y = height >> i;
+                    blit.dstOffsets[1].z = 1;
+
+                    util::TransitionImageLayout(commandBuffer, image, format, vk::ImageLayout::eUndefined, vk::ImageLayout::eTransferDstOptimal, 1, i);
+
+                    commandBuffer.blitImage(image, vk::ImageLayout::eTransferSrcOptimal, image, vk::ImageLayout::eTransferDstOptimal, 1, &blit, vk::Filter::eLinear);
+
+                    util::TransitionImageLayout(commandBuffer, image, format, vk::ImageLayout::eTransferDstOptimal, vk::ImageLayout::eTransferSrcOptimal, 1, i);
+                }
+                oldLayout = vk::ImageLayout::eTransferSrcOptimal;
+            }
+
+            util::TransitionImageLayout(commandBuffer, image, format, oldLayout, vk::ImageLayout::eShaderReadOnlyOptimal, 1, 0, mips);
+
+            {
+                ZoneScopedN("Waiting Image upload");
+                util::EndSingleTimeCommands(_context, commandBuffer);
+            }
+
+            util::vmaDestroyBuffer(_context->MemoryAllocator(), stagingBuffer, stagingBufferAllocation);
+        }
+    }
+
+    {
+        ZoneScopedN("Name Settings");
+        if (!name.empty())
+        {
+            std::stringstream ss {};
+            ss << "[IMAGE] ";
+            ss << name;
+            std::string imageStr = ss.str();
+
+            _context->DebugSetObjectName(image, imageStr.c_str());
+            ss.str("");
+
+            for (size_t i = 0; i < imageCreateInfo.arrayLayers; ++i)
+            {
+                ss << "[VIEW " << i << "] ";
+                ss << name;
+                std::string viewStr = ss.str();
+                _context->DebugSetObjectName(layerViews[i].view, viewStr.c_str());
+                ss.str("");
+            }
+
+            ss << "[ALLOCATION] ";
+            ss << name;
+            std::string str = ss.str();
+            vmaSetAllocationName(_context->MemoryAllocator(), allocation, str.c_str());
+        }
+        else
+        {
+            spdlog::warn("Creating an unnamed image!");
+        }
+    }
+}
+
 GPUImage::~GPUImage()
 {
     if (!_context)

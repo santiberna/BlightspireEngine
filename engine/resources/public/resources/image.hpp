@@ -121,6 +121,8 @@ struct CPUImage
 struct GPUImage
 {
     GPUImage(const CPUImage& data, ResourceHandle<Sampler> textureSampler, const std::shared_ptr<VulkanContext>& context, SingleTimeCommands* const commands = nullptr);
+    GPUImage(const bb::Image& data, ResourceHandle<Sampler> textureSampler, const std::shared_ptr<VulkanContext>& context, const char* name, VkImageUsageFlags flags, SingleTimeCommands* const commands = nullptr);
+
     ~GPUImage();
 
     GPUImage(GPUImage&& other) noexcept;

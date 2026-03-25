@@ -1,5 +1,5 @@
 #pragma once
-#include "serialization_helpers.hpp"
+#include "serialization.hpp"
 
 struct GameSettings
 {
@@ -20,4 +20,4 @@ struct GameSettings
 constexpr const char* GAME_SETTINGS_FILE = "game_settings.json";
 
 VISITABLE_STRUCT(GameSettings, framerateCounter, aimSensitivity, fov, gammaSlider, vsync, aimAssist, masterVolume, sfxVolume, musicVolume);
-CLASS_SERIALIZE_VERSION(GameSettings, 1);
+CLASS_SERIALIZE(GameSettings);

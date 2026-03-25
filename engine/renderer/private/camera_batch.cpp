@@ -3,7 +3,7 @@
 #include "gpu_scene.hpp"
 #include "graphics_context.hpp"
 #include "graphics_resources.hpp"
-#include "math_util.hpp"
+#include "math.hpp"
 #include "pipeline_builder.hpp"
 #include "resource_management/buffer_resource_manager.hpp"
 #include "resource_management/image_resource_manager.hpp"

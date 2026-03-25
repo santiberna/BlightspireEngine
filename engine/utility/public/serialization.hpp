@@ -19,21 +19,7 @@
             { archive(cereal::make_nvp(name, value)); });                     \
     }
 
-#define CLASS_SERIALIZE_VERSION(Type, Version)                                           \
-    CEREAL_CLASS_VERSION(Type, Version)                                                  \
-    template <class Archive>                                                             \
-    void serialize(Archive& archive, Type& obj, const uint32_t version)                  \
-    {                                                                                    \
-        if (version != Version)                                                          \
-        {                                                                                \
-            spdlog::warn("Outdated serialization for: {}", visit_struct::get_name(obj)); \
-            return;                                                                      \
-        }                                                                                \
-                                                                                         \
-        visit_struct::for_each(obj, [&archive](const char* name, auto& value)            \
-            { archive(cereal::make_nvp(name, value)); });                                \
-    }
-
+// NOLINTBEGIN
 VISITABLE_STRUCT(glm::vec2, x, y);
 VISITABLE_STRUCT(glm::vec3, x, y, z);
 VISITABLE_STRUCT(glm::vec4, x, y, z, w);
@@ -49,6 +35,7 @@ VISITABLE_STRUCT(glm::dvec4, x, y, z, w);
 VISITABLE_STRUCT(glm::quat, w, x, y, z);
 VISITABLE_STRUCT(glm::dquat, w, x, y, z);
 
+// NOLINTEND
 namespace glm
 {
 CLASS_SERIALIZE(glm::vec2);
@@ -70,12 +57,7 @@ CLASS_SERIALIZE(glm::dquat);
 template <typename Archive, typename T, size_t S>
 void serialize(Archive& archive, std::array<T, S>& m)
 {
-    cereal::size_type s = S;
-    archive(cereal::make_size_tag(s));
-    if (s != S)
-    {
-        throw std::runtime_error("array has incorrect length");
-    }
+    archive(cereal::make_size_tag(S));
     for (auto& i : m)
     {
         archive(i);

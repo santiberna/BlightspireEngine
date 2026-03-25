@@ -1,7 +1,7 @@
 #pragma once
 #include <vector>
 
-#include "math_util.hpp"
+#include "math.hpp"
 #include "resources/material.hpp"
 #include "resources/mesh.hpp"
 

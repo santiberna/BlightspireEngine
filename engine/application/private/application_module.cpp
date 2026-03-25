@@ -52,8 +52,19 @@ ModuleTickOrder ApplicationModule::Init(Engine& engine)
 
     auto stream = fileIO::OpenReadStream("assets/textures/icon.png");
     int32_t width, height, nrChannels;
-    stbi_uc* pixels = fileIO::LoadImageFromIfstream(stream.value(), &width, &height, &nrChannels, 4);
-    if (pixels)
+    stbi_uc* pixels = nullptr;
+
+    if (stream.has_value())
+    {
+        auto bytes = fileIO::DumpStreamIntoBytes(stream.value());
+        pixels = stbi_load_from_memory(
+            (stbi_uc*)bytes.data(),
+            (int)bytes.size(),
+            &width, &height,
+            &nrChannels, 4);
+    }
+
+    if (pixels != nullptr)
     {
         SDL_Surface* icon = SDL_CreateSurfaceFrom(
             width,
@@ -61,7 +72,6 @@ ModuleTickOrder ApplicationModule::Init(Engine& engine)
             SDL_PIXELFORMAT_RGBA32,
             pixels, width * 4);
         SDL_SetWindowIcon(_window, icon);
-
         SDL_DestroySurface(icon);
     }
     else

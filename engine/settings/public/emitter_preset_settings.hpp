@@ -1,6 +1,6 @@
 #pragma once
 
-#include "serialization_helpers.hpp"
+#include "serialization.hpp"
 
 struct ParticleBurst
 {
@@ -39,10 +39,10 @@ struct EmitterPresetSettings
 };
 
 VISITABLE_STRUCT(ParticleBurst, startTime, count, cycles, maxInterval, currentInterval, loop);
-CLASS_SERIALIZE_VERSION(ParticleBurst, 0);
+CLASS_SERIALIZE(ParticleBurst);
 
 VISITABLE_STRUCT(EmitterPreset, size, mass, rotationVelocity, maxLife, emitDelay, count, materialIndex, spawnRandomness, flags, velocityRandomness, startingVelocity, spriteDimensions, frameCount, frameRate, color, bursts, imageName);
-CLASS_SERIALIZE_VERSION(EmitterPreset, 0);
+CLASS_SERIALIZE(EmitterPreset);
 
 VISITABLE_STRUCT(EmitterPresetSettings, emitterPresets);
-CLASS_SERIALIZE_VERSION(EmitterPresetSettings, 0);
+CLASS_SERIALIZE(EmitterPresetSettings);

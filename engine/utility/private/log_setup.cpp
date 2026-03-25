@@ -1,6 +1,8 @@
 #include "log_setup.hpp"
+
+#include <ctime>
 #include <spdlog/sinks/rotating_file_sink.h>
-#include <time.h>
+
 
 #if BB_PLATFORM == BB_WINDOWS
 #include <windows.h>

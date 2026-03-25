@@ -2,7 +2,7 @@
 
 #include "animation.hpp"
 #include "components/animation_channel_component.hpp"
-#include "math_util.hpp"
+#include "math.hpp"
 #include "vertex.hpp"
 
 #include "resources/hierarchy.hpp"

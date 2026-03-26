@@ -14,7 +14,7 @@ struct Texture
 {
     static std::optional<Texture> fromImage(
         SingleTimeCommands& upload_commands,
-        const Image& image,
+        const Image2D& image,
         ResourceHandle<Sampler> sampler,
         VulkanFlags usage_flags,
         const char* name);

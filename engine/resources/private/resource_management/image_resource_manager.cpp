@@ -14,7 +14,7 @@ ResourceHandle<GPUImage> ImageResourceManager::Create(const CPUImage& cpuImage, 
     return ResourceManager::Create(GPUImage { cpuImage, sampler, _context, commands });
 }
 
-ResourceHandle<GPUImage> ImageResourceManager::Create(const bb::Image& cpuImage, ResourceHandle<Sampler> sampler, VkImageUsageFlags usage, const char* name, SingleTimeCommands* const commands)
+ResourceHandle<GPUImage> ImageResourceManager::Create(const bb::Image2D& cpuImage, ResourceHandle<Sampler> sampler, VkImageUsageFlags usage, const char* name, SingleTimeCommands* const commands)
 {
     return ResourceManager::Create(GPUImage { cpuImage, sampler, _context, name, usage, commands });
 }

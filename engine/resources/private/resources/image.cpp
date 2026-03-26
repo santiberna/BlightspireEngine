@@ -6,7 +6,7 @@
 #include <stb_image.h>
 #include <tracy/Tracy.hpp>
 
-std::optional<bb::Image> bb::Image::fromFile(std::string_view path, bool is_srgb)
+std::optional<bb::Image2D> bb::Image2D::fromFile(std::string_view path, bool is_srgb)
 {
     auto data = fileIO::OpenReadStream(std::string(path));
     if (!data)
@@ -17,7 +17,7 @@ std::optional<bb::Image> bb::Image::fromFile(std::string_view path, bool is_srgb
     return fromMemory(mem, is_srgb);
 }
 
-std::optional<bb::Image> bb::Image::fromMemory(std::span<std::byte> data, bool is_srgb)
+std::optional<bb::Image2D> bb::Image2D::fromMemory(std::span<std::byte> data, bool is_srgb)
 {
     stbi_uc* mem_start = std::bit_cast<stbi_uc*>(data.data());
     int mem_size = static_cast<int>(data.size());
@@ -31,31 +31,16 @@ std::optional<bb::Image> bb::Image::fromMemory(std::span<std::byte> data, bool i
     bool is_float = stbi_is_hdr_from_memory(mem_start, mem_size) != 0;
     if (is_float)
     {
+        // HDR maps with less than 4 channels are poorly supported, hence we force 4 channels in stbi
         bytes = std::bit_cast<std::byte*>(
-            stbi_loadf_from_memory(mem_start, mem_size, &w, &h, &channels, 0));
+            stbi_loadf_from_memory(mem_start, mem_size, &w, &h, &channels, 4));
 
         if (bytes == nullptr)
         {
             return std::nullopt;
         }
 
-        switch (channels)
-        {
-        case 4:
-            format = ImageFormat::R32G32B32A32_SFLOAT;
-            break;
-        case 3:
-            format = ImageFormat::R32G32B32_SFLOAT;
-            break;
-        case 2:
-            format = ImageFormat::R32G32_SFLOAT;
-            break;
-        case 1:
-            format = ImageFormat::R32_SFLOAT;
-            break;
-        default:
-            return std::nullopt;
-        }
+        format = ImageFormat::R32G32B32A32_SFLOAT;
     }
     else
     {
@@ -86,8 +71,7 @@ std::optional<bb::Image> bb::Image::fromMemory(std::span<std::byte> data, bool i
         }
     }
 
-    bb::Image out;
-    out.depth = 1;
+    bb::Image2D out;
     out.format = format;
     out.type = ImageType::IMAGE_2D;
     out.height = static_cast<uint32_t>(h);
@@ -576,66 +560,34 @@ uint32_t formatStride(bb::ImageFormat format)
 {
     switch (format)
     {
-    // Color sRGB
-    case bb::ImageFormat::R8G8B8A8_SRGB:
-        return 4;
-    case bb::ImageFormat::R8G8B8_SRGB:
-        return 3;
-    case bb::ImageFormat::R8G8_SRGB:
-        return 2;
-    case bb::ImageFormat::R8_SRGB:
-        return 1;
-
-    // Linear UNORM
-    case bb::ImageFormat::R8G8B8A8_UNORM:
-        return 4;
-    case bb::ImageFormat::R8G8B8_UNORM:
-        return 3;
-    case bb::ImageFormat::R8G8_UNORM:
-        return 2;
-    case bb::ImageFormat::R8_UNORM:
-        return 1;
-    case bb::ImageFormat::R16_UNORM:
-        return 2;
-    case bb::ImageFormat::R16G16_UNORM:
-        return 4;
-
-    // HDR / floating point
     case bb::ImageFormat::R32G32B32A32_SFLOAT:
         return 16;
     case bb::ImageFormat::R32G32B32_SFLOAT:
         return 12;
     case bb::ImageFormat::R32G32_SFLOAT:
-        return 8;
-    case bb::ImageFormat::R32_SFLOAT:
-        return 4;
     case bb::ImageFormat::R16G16B16A16_SFLOAT:
         return 8;
     case bb::ImageFormat::R16G16B16_SFLOAT:
         return 6;
+    case bb::ImageFormat::R8G8B8A8_SRGB:
+    case bb::ImageFormat::R8G8B8A8_UNORM:
+    case bb::ImageFormat::R16G16_UNORM:
     case bb::ImageFormat::R16G16_SFLOAT:
-        return 4;
-
-    // Depth
     case bb::ImageFormat::D32_SFLOAT:
-        return 4;
     case bb::ImageFormat::D24_UNORM_S8_UINT:
+    case bb::ImageFormat::R32_SFLOAT:
         return 4;
+    case bb::ImageFormat::R8G8B8_SRGB:
+    case bb::ImageFormat::R8G8B8_UNORM:
+        return 3;
+    case bb::ImageFormat::R8G8_UNORM:
+    case bb::ImageFormat::R8G8_SRGB:
+    case bb::ImageFormat::R16_UNORM:
     case bb::ImageFormat::D16_UNORM:
         return 2;
-
-    // BC compressed — these are block formats, stride is per block not per pixel
-    // each block covers 4x4 pixels
-    case bb::ImageFormat::BC1_RGB_SRGB:
-        return 8; // 8 bytes per 4x4 block
-    case bb::ImageFormat::BC3_SRGB:
-        return 16; // 16 bytes per 4x4 block
-    case bb::ImageFormat::BC7_SRGB:
-        return 16; // 16 bytes per 4x4 block
-    case bb::ImageFormat::BC5_UNORM:
-        return 16; // 16 bytes per 4x4 block
-    case bb::ImageFormat::BC7_UNORM:
-        return 16; // 16 bytes per 4x4 block
+    case bb::ImageFormat::R8_SRGB:
+    case bb::ImageFormat::R8_UNORM:
+        return 1;
 
     case bb::ImageFormat::NONE:
     default:
@@ -645,40 +597,26 @@ uint32_t formatStride(bb::ImageFormat format)
 }
 }
 
-GPUImage::GPUImage(const bb::Image& creation, ResourceHandle<Sampler> textureSampler, const std::shared_ptr<VulkanContext>& context, const char* given_name, VkImageUsageFlags flags, SingleTimeCommands* const commands)
+GPUImage::GPUImage(const bb::Image2D& creation, ResourceHandle<Sampler> textureSampler, const std::shared_ptr<VulkanContext>& context, const char* given_name, VkImageUsageFlags inFlags, SingleTimeCommands* const commands)
     : _context(context)
 {
     width = creation.width;
     height = creation.height;
-
-    if (creation.type == bb::ImageType::IMAGE_3D)
-    {
-        layers = 1;
-        depth = creation.depth;
-    }
-    else if (creation.type == bb::ImageType::IMAGE_CUBEMAP)
-    {
-        depth = 1;
-        layers = 6;
-    }
-    else
-    {
-        layers = creation.depth;
-        depth = 1;
-    }
-
+    flags = vk::ImageUsageFlags(inFlags);
+    mips = 1; // std::floor(std::log2(std::max(width, height))) + 1;
+    depth = 1;
     format = toVkFormat(creation.format);
-    mips = std::min<uint16_t>(creation.mips, std::floor(std::log2(std::max(width, height))) + 1);
+    type = ImageType::e2D;
     name = given_name;
 
-    isHDR = creation.format == bb::ImageFormat::R32G32B32_SFLOAT;
+    isHDR = creation.format == bb::ImageFormat::R32G32B32A32_SFLOAT;
     sampler = textureSampler;
 
     vk::ImageCreateInfo imageCreateInfo {};
     imageCreateInfo.imageType = toVkImageType(creation.type);
-    imageCreateInfo.extent.width = creation.width;
-    imageCreateInfo.extent.height = creation.height;
-    imageCreateInfo.extent.depth = creation.depth;
+    imageCreateInfo.extent.width = width;
+    imageCreateInfo.extent.height = height;
+    imageCreateInfo.extent.depth = depth;
     imageCreateInfo.mipLevels = mips;
     imageCreateInfo.arrayLayers = layers;
     imageCreateInfo.format = format;
@@ -687,7 +625,7 @@ GPUImage::GPUImage(const bb::Image& creation, ResourceHandle<Sampler> textureSam
     imageCreateInfo.sharingMode = vk::SharingMode::eExclusive;
     imageCreateInfo.samples = vk::SampleCountFlagBits::e1;
 
-    imageCreateInfo.usage = vk::ImageUsageFlags(flags);
+    imageCreateInfo.usage = flags;
 
     if (creation.data != nullptr)
     {
@@ -704,9 +642,11 @@ GPUImage::GPUImage(const bb::Image& creation, ResourceHandle<Sampler> textureSam
         VmaAllocationCreateInfo allocCreateInfo {};
         allocCreateInfo.usage = VMA_MEMORY_USAGE_GPU_ONLY;
 
-        util::vmaCreateImage(_context->MemoryAllocator(), reinterpret_cast<VkImageCreateInfo*>(&imageCreateInfo), &allocCreateInfo, reinterpret_cast<VkImage*>(&image), &allocation, nullptr);
+        auto result = util::vmaCreateImage(_context->MemoryAllocator(), reinterpret_cast<VkImageCreateInfo*>(&imageCreateInfo), &allocCreateInfo, reinterpret_cast<VkImage*>(&image), &allocation, nullptr);
+        util::VK_ASSERT(result, "Failed to create texture");
+
         std::string allocName = std::string(name) + " texture allocation";
-        vmaSetAllocationName(_context->MemoryAllocator(), allocation, allocName.c_str());
+        // vmaSetAllocationName(_context->MemoryAllocator(), allocation, allocName.c_str());
     }
 
     vk::ImageViewCreateInfo viewCreateInfo {};
@@ -715,7 +655,7 @@ GPUImage::GPUImage(const bb::Image& creation, ResourceHandle<Sampler> textureSam
     viewCreateInfo.format = format;
     viewCreateInfo.subresourceRange.aspectMask = util::GetImageAspectFlags(format);
     viewCreateInfo.subresourceRange.baseMipLevel = 0;
-    viewCreateInfo.subresourceRange.levelCount = creation.mips;
+    viewCreateInfo.subresourceRange.levelCount = mips;
     viewCreateInfo.subresourceRange.baseArrayLayer = 0;
     viewCreateInfo.subresourceRange.layerCount = 1;
 
@@ -723,7 +663,7 @@ GPUImage::GPUImage(const bb::Image& creation, ResourceHandle<Sampler> textureSam
 
     for (size_t i = 0; i < imageCreateInfo.arrayLayers; ++i)
     {
-        viewCreateInfo.subresourceRange.levelCount = creation.mips;
+        viewCreateInfo.subresourceRange.levelCount = mips;
         viewCreateInfo.subresourceRange.baseMipLevel = 0;
         viewCreateInfo.subresourceRange.baseArrayLayer = i;
         Layer& layer = layerViews.emplace_back();
@@ -746,7 +686,7 @@ GPUImage::GPUImage(const bb::Image& creation, ResourceHandle<Sampler> textureSam
         cubeViewCreateInfo.format = format;
         cubeViewCreateInfo.subresourceRange.aspectMask = util::GetImageAspectFlags(format);
         cubeViewCreateInfo.subresourceRange.baseMipLevel = 0;
-        cubeViewCreateInfo.subresourceRange.levelCount = creation.mips;
+        cubeViewCreateInfo.subresourceRange.levelCount = mips;
         cubeViewCreateInfo.subresourceRange.baseArrayLayer = 0;
         cubeViewCreateInfo.subresourceRange.layerCount = 6;
 
@@ -756,16 +696,7 @@ GPUImage::GPUImage(const bb::Image& creation, ResourceHandle<Sampler> textureSam
     if (creation.data != nullptr)
     {
         ZoneScopedN("Image data Upload");
-        vk::DeviceSize imageSize = width * height * depth * 4;
-
-        if (format == vk::Format::eR8Unorm)
-        {
-            imageSize = width * height * depth;
-        }
-        if (isHDR)
-        {
-            imageSize *= sizeof(float);
-        }
+        vk::DeviceSize imageSize = width * height * depth * formatStride(creation.format);
 
         vk::Buffer stagingBuffer;
         VmaAllocation stagingBufferAllocation;
@@ -787,12 +718,12 @@ GPUImage::GPUImage(const bb::Image& creation, ResourceHandle<Sampler> textureSam
 
             util::CopyBufferToImage(commandBuffer, stagingBuffer, image, width, height);
 
-            if (creation.mips > 1)
+            if (mips > 1)
             {
                 ZoneScopedN("Mip creation dispatch");
                 util::TransitionImageLayout(commandBuffer, image, format, vk::ImageLayout::eTransferDstOptimal, vk::ImageLayout::eTransferSrcOptimal, 1, 0, 1);
 
-                for (uint32_t i = 1; i < creation.mips; ++i)
+                for (uint32_t i = 1; i < mips; ++i)
                 {
                     vk::ImageBlit blit {};
                     blit.srcSubresource.aspectMask = vk::ImageAspectFlagBits::eColor;
@@ -831,12 +762,12 @@ GPUImage::GPUImage(const bb::Image& creation, ResourceHandle<Sampler> textureSam
 
             util::CopyBufferToImage(commandBuffer, stagingBuffer, image, width, height);
 
-            if (creation.mips > 1)
+            if (mips > 1)
             {
                 ZoneScopedN("Mip creation dispatch");
                 util::TransitionImageLayout(commandBuffer, image, format, vk::ImageLayout::eTransferDstOptimal, vk::ImageLayout::eTransferSrcOptimal, 1, 0, 1);
 
-                for (uint32_t i = 1; i < creation.mips; ++i)
+                for (uint32_t i = 1; i < mips; ++i)
                 {
                     vk::ImageBlit blit {};
                     blit.srcSubresource.aspectMask = vk::ImageAspectFlagBits::eColor;

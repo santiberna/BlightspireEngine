@@ -188,235 +188,235 @@ uint32_t formatStride(bb::ImageFormat format)
 }
 }
 
-std::optional<bb::Texture> bb::Texture::fromImage(SingleTimeCommands& upload_commands, const Image& image, ResourceHandle<Sampler> sampler, VulkanFlags usage_flags, const char* name)
-{
-    Texture texture {};
-    texture.sampler = sampler;
-    texture.format = image.format;
-    texture.type = image.type;
-    texture.width = image.width;
-    texture.height = image.height;
-    texture.depth = image.depth;
+// std::optional<bb::Texture> bb::Texture::fromImage(SingleTimeCommands& upload_commands, const Image& image, ResourceHandle<Sampler> sampler, VulkanFlags usage_flags, const char* name)
+// {
+//     Texture texture {};
+//     texture.sampler = sampler;
+//     texture.format = image.format;
+//     texture.type = image.type;
+//     texture.width = image.width;
+//     texture.height = image.height;
+//     texture.depth = image.depth;
 
-    if (image.mips == 0)
-    {
-        uint32_t max_dim = std::max({ image.width, image.height, image.type == ImageType::IMAGE_3D ? image.depth : 1u });
-        texture.mips = static_cast<uint32_t>(std::floor(std::log2(max_dim)) + 1);
-    }
-    else
-    {
-        texture.mips = image.mips;
-    }
+//     if (image.mips == 0)
+//     {
+//         uint32_t max_dim = std::max({ image.width, image.height, image.type == ImageType::IMAGE_3D ? image.depth : 1u });
+//         texture.mips = static_cast<uint32_t>(std::floor(std::log2(max_dim)) + 1);
+//     }
+//     else
+//     {
+//         texture.mips = image.mips;
+//     }
 
-    // --- VkImage creation ---
-    vk::ImageCreateInfo texture_info {};
-    texture_info.imageType = toVkImageType(image.type);
+//     // --- VkImage creation ---
+//     vk::ImageCreateInfo texture_info {};
+//     texture_info.imageType = toVkImageType(image.type);
 
-    texture_info.extent
-        .setWidth(image.width)
-        .setHeight(image.height)
-        .setDepth(image.type == ImageType::IMAGE_3D ? image.depth : 1);
+//     texture_info.extent
+//         .setWidth(image.width)
+//         .setHeight(image.height)
+//         .setDepth(image.type == ImageType::IMAGE_3D ? image.depth : 1);
 
-    texture_info.mipLevels = texture.mips;
+//     texture_info.mipLevels = texture.mips;
 
-    if (image.type == ImageType::IMAGE_3D)
-    {
-        texture_info.arrayLayers = 1;
-    }
-    else if (image.type == ImageType::IMAGE_CUBEMAP)
-    {
-        texture_info.arrayLayers = 6;
-    }
-    else
-    {
-        texture_info.arrayLayers = image.depth;
-    }
+//     if (image.type == ImageType::IMAGE_3D)
+//     {
+//         texture_info.arrayLayers = 1;
+//     }
+//     else if (image.type == ImageType::IMAGE_CUBEMAP)
+//     {
+//         texture_info.arrayLayers = 6;
+//     }
+//     else
+//     {
+//         texture_info.arrayLayers = image.depth;
+//     }
 
-    texture_info.format = toVkFormat(image.format);
-    texture_info.tiling = vk::ImageTiling::eOptimal;
-    texture_info.initialLayout = vk::ImageLayout::eUndefined;
-    texture_info.sharingMode = vk::SharingMode::eExclusive;
-    texture_info.samples = vk::SampleCountFlagBits::e1;
-    texture_info.usage = vk::ImageUsageFlags(usage_flags);
+//     texture_info.format = toVkFormat(image.format);
+//     texture_info.tiling = vk::ImageTiling::eOptimal;
+//     texture_info.initialLayout = vk::ImageLayout::eUndefined;
+//     texture_info.sharingMode = vk::SharingMode::eExclusive;
+//     texture_info.samples = vk::SampleCountFlagBits::e1;
+//     texture_info.usage = vk::ImageUsageFlags(usage_flags);
 
-    if (image.data)
-    {
-        texture_info.usage |= vk::ImageUsageFlagBits::eTransferDst;
-        texture_info.usage |= vk::ImageUsageFlagBits::eTransferSrc;
-    }
-    if (image.type == bb::ImageType::IMAGE_CUBEMAP)
-    {
-        texture_info.flags |= vk::ImageCreateFlagBits::eCubeCompatible;
-    }
+//     if (image.data)
+//     {
+//         texture_info.usage |= vk::ImageUsageFlagBits::eTransferDst;
+//         texture_info.usage |= vk::ImageUsageFlagBits::eTransferSrc;
+//     }
+//     if (image.type == bb::ImageType::IMAGE_CUBEMAP)
+//     {
+//         texture_info.flags |= vk::ImageCreateFlagBits::eCubeCompatible;
+//     }
 
-    // --- VMA allocation ---
-    VmaAllocationCreateInfo alloc_info {};
-    alloc_info.usage = VMA_MEMORY_USAGE_AUTO;
+//     // --- VMA allocation ---
+//     VmaAllocationCreateInfo alloc_info {};
+//     alloc_info.usage = VMA_MEMORY_USAGE_AUTO;
 
-    VkResult result = util::vmaCreateImage(
-        upload_commands.GetContext().MemoryAllocator(),
-        reinterpret_cast<VkImageCreateInfo*>(&texture_info),
-        &alloc_info,
-        &texture.image,
-        &texture.allocation,
-        nullptr);
+//     VkResult result = util::vmaCreateImage(
+//         upload_commands.GetContext().MemoryAllocator(),
+//         reinterpret_cast<VkImageCreateInfo*>(&texture_info),
+//         &alloc_info,
+//         &texture.image,
+//         &texture.allocation,
+//         nullptr);
 
-    if (result != VK_SUCCESS)
-    {
-        spdlog::error("Failed to allocate image: {}", name ? name : "unnamed");
-        return std::nullopt;
-    }
+//     if (result != VK_SUCCESS)
+//     {
+//         spdlog::error("Failed to allocate image: {}", name ? name : "unnamed");
+//         return std::nullopt;
+//     }
 
-    // --- Image views ---
-    vk::ImageViewCreateInfo view_info {};
-    view_info.image = texture.image;
-    view_info.viewType = vk::ImageViewType::e2D;
-    view_info.format = texture_info.format;
-    view_info.subresourceRange.aspectMask = util::GetImageAspectFlags(texture_info.format);
-    view_info.subresourceRange.baseMipLevel = 0;
-    view_info.subresourceRange.levelCount = texture.mips;
-    view_info.subresourceRange.baseArrayLayer = 0;
-    view_info.subresourceRange.layerCount = 1;
+//     // --- Image views ---
+//     vk::ImageViewCreateInfo view_info {};
+//     view_info.image = texture.image;
+//     view_info.viewType = vk::ImageViewType::e2D;
+//     view_info.format = texture_info.format;
+//     view_info.subresourceRange.aspectMask = util::GetImageAspectFlags(texture_info.format);
+//     view_info.subresourceRange.baseMipLevel = 0;
+//     view_info.subresourceRange.levelCount = texture.mips;
+//     view_info.subresourceRange.baseArrayLayer = 0;
+//     view_info.subresourceRange.layerCount = 1;
 
-    vk::Device device = upload_commands.GetContext().Device();
+//     vk::Device device = upload_commands.GetContext().Device();
 
-    for (uint32_t i = 0; i < texture_info.arrayLayers; ++i)
-    {
-        view_info.subresourceRange.baseMipLevel = 0;
-        view_info.subresourceRange.levelCount = texture.mips;
-        view_info.subresourceRange.baseArrayLayer = i;
+//     for (uint32_t i = 0; i < texture_info.arrayLayers; ++i)
+//     {
+//         view_info.subresourceRange.baseMipLevel = 0;
+//         view_info.subresourceRange.levelCount = texture.mips;
+//         view_info.subresourceRange.baseArrayLayer = i;
 
-        LayerView& layer_view = texture.layers.emplace_back();
-        layer_view.view = device.createImageView(view_info);
+//         LayerView& layer_view = texture.layers.emplace_back();
+//         layer_view.view = device.createImageView(view_info);
 
-        for (uint32_t j = 0; j < texture.mips; ++j)
-        {
-            view_info.subresourceRange.baseMipLevel = j;
-            view_info.subresourceRange.levelCount = 1;
-            layer_view.mips.emplace_back(device.createImageView(view_info));
-        }
-    }
+//         for (uint32_t j = 0; j < texture.mips; ++j)
+//         {
+//             view_info.subresourceRange.baseMipLevel = j;
+//             view_info.subresourceRange.levelCount = 1;
+//             layer_view.mips.emplace_back(device.createImageView(view_info));
+//         }
+//     }
 
-    vk::ImageViewCreateInfo full_view {};
-    full_view.image = texture.image;
-    full_view.viewType = toVkImageViewType(image.type);
-    full_view.format = toVkFormat(image.format);
-    full_view.subresourceRange.aspectMask = util::GetImageAspectFlags(texture_info.format);
-    full_view.subresourceRange.baseMipLevel = 0;
-    full_view.subresourceRange.levelCount = texture.mips;
-    full_view.subresourceRange.baseArrayLayer = 0;
-    full_view.subresourceRange.layerCount = texture_info.arrayLayers;
+//     vk::ImageViewCreateInfo full_view {};
+//     full_view.image = texture.image;
+//     full_view.viewType = toVkImageViewType(image.type);
+//     full_view.format = toVkFormat(image.format);
+//     full_view.subresourceRange.aspectMask = util::GetImageAspectFlags(texture_info.format);
+//     full_view.subresourceRange.baseMipLevel = 0;
+//     full_view.subresourceRange.levelCount = texture.mips;
+//     full_view.subresourceRange.baseArrayLayer = 0;
+//     full_view.subresourceRange.layerCount = texture_info.arrayLayers;
 
-    texture.full_view = device.createImageView(full_view);
+//     texture.full_view = device.createImageView(full_view);
 
-    // --- Upload ---
-    if (image.data)
-    {
-        vk::DeviceSize imageSize = image.width * image.height * image.depth * formatStride(image.format);
+//     // --- Upload ---
+//     if (image.data)
+//     {
+//         vk::DeviceSize imageSize = image.width * image.height * image.depth * formatStride(image.format);
 
-        vk::Buffer stagingBuffer {};
-        VmaAllocation stagingAllocation {};
+//         vk::Buffer stagingBuffer {};
+//         VmaAllocation stagingAllocation {};
 
-        util::CreateBuffer(
-            upload_commands.GetContext(),
-            imageSize,
-            vk::BufferUsageFlagBits::eTransferSrc,
-            stagingBuffer,
-            true,
-            stagingAllocation,
-            VMA_MEMORY_USAGE_CPU_ONLY,
-            "Texture staging buffer");
+//         util::CreateBuffer(
+//             upload_commands.GetContext(),
+//             imageSize,
+//             vk::BufferUsageFlagBits::eTransferSrc,
+//             stagingBuffer,
+//             true,
+//             stagingAllocation,
+//             VMA_MEMORY_USAGE_CPU_ONLY,
+//             "Texture staging buffer");
 
-        vmaCopyMemoryToAllocation(
-            upload_commands.GetContext().MemoryAllocator(),
-            image.data.get(),
-            stagingAllocation,
-            0,
-            imageSize);
+//         vmaCopyMemoryToAllocation(
+//             upload_commands.GetContext().MemoryAllocator(),
+//             image.data.get(),
+//             stagingAllocation,
+//             0,
+//             imageSize);
 
-        const vk::CommandBuffer& cmd = upload_commands.CommandBuffer();
+//         const vk::CommandBuffer& cmd = upload_commands.CommandBuffer();
 
-        util::TransitionImageLayout(cmd, texture.image, toVkFormat(image.format),
-            vk::ImageLayout::eUndefined, vk::ImageLayout::eTransferDstOptimal);
+//         util::TransitionImageLayout(cmd, texture.image, toVkFormat(image.format),
+//             vk::ImageLayout::eUndefined, vk::ImageLayout::eTransferDstOptimal);
 
-        util::CopyBufferToImage(cmd, stagingBuffer, texture.image, image.width, image.height);
+//         util::CopyBufferToImage(cmd, stagingBuffer, texture.image, image.width, image.height);
 
-        vk::ImageLayout finalSrcLayout = vk::ImageLayout::eTransferDstOptimal;
+//         vk::ImageLayout finalSrcLayout = vk::ImageLayout::eTransferDstOptimal;
 
-        if (texture.mips > 1)
-        {
-            util::TransitionImageLayout(cmd, texture.image, toVkFormat(image.format),
-                vk::ImageLayout::eTransferDstOptimal, vk::ImageLayout::eTransferSrcOptimal, 1, 0, 1);
+//         if (texture.mips > 1)
+//         {
+//             util::TransitionImageLayout(cmd, texture.image, toVkFormat(image.format),
+//                 vk::ImageLayout::eTransferDstOptimal, vk::ImageLayout::eTransferSrcOptimal, 1, 0, 1);
 
-            for (uint32_t i = 1; i < texture.mips; ++i)
-            {
-                uint32_t src = i - 1;
-                uint32_t dst = i;
+//             for (uint32_t i = 1; i < texture.mips; ++i)
+//             {
+//                 uint32_t src = i - 1;
+//                 uint32_t dst = i;
 
-                auto mipSize = [](uint32_t v, uint32_t s)
-                {
-                    return std::max(static_cast<int32_t>(v >> s), 1);
-                };
+//                 auto mipSize = [](uint32_t v, uint32_t s)
+//                 {
+//                     return std::max(static_cast<int32_t>(v >> s), 1);
+//                 };
 
-                vk::ImageBlit blit {};
-                blit.srcSubresource.aspectMask = vk::ImageAspectFlagBits::eColor;
-                blit.srcSubresource.layerCount = 1;
-                blit.srcSubresource.mipLevel = src;
-                blit.srcOffsets[1] = {
-                    .x = mipSize(image.width, src),
-                    .y = mipSize(image.height, src),
-                    .z = texture.type == ImageType::IMAGE_3D ? mipSize(image.depth, src) : 1
-                };
+//                 vk::ImageBlit blit {};
+//                 blit.srcSubresource.aspectMask = vk::ImageAspectFlagBits::eColor;
+//                 blit.srcSubresource.layerCount = 1;
+//                 blit.srcSubresource.mipLevel = src;
+//                 blit.srcOffsets[1] = {
+//                     .x = mipSize(image.width, src),
+//                     .y = mipSize(image.height, src),
+//                     .z = texture.type == ImageType::IMAGE_3D ? mipSize(image.depth, src) : 1
+//                 };
 
-                blit.dstSubresource.aspectMask = vk::ImageAspectFlagBits::eColor;
-                blit.dstSubresource.layerCount = 1;
-                blit.dstSubresource.mipLevel = i;
-                blit.dstOffsets[1] = {
-                    .x = mipSize(image.width, dst),
-                    .y = mipSize(image.height, dst),
-                    .z = texture.type == ImageType::IMAGE_3D ? mipSize(image.depth, dst) : 1
-                };
+//                 blit.dstSubresource.aspectMask = vk::ImageAspectFlagBits::eColor;
+//                 blit.dstSubresource.layerCount = 1;
+//                 blit.dstSubresource.mipLevel = i;
+//                 blit.dstOffsets[1] = {
+//                     .x = mipSize(image.width, dst),
+//                     .y = mipSize(image.height, dst),
+//                     .z = texture.type == ImageType::IMAGE_3D ? mipSize(image.depth, dst) : 1
+//                 };
 
-                util::TransitionImageLayout(cmd, texture.image, toVkFormat(image.format),
-                    vk::ImageLayout::eUndefined, vk::ImageLayout::eTransferDstOptimal, 1, i);
+//                 util::TransitionImageLayout(cmd, texture.image, toVkFormat(image.format),
+//                     vk::ImageLayout::eUndefined, vk::ImageLayout::eTransferDstOptimal, 1, i);
 
-                cmd.blitImage(
-                    texture.image, vk::ImageLayout::eTransferSrcOptimal,
-                    texture.image, vk::ImageLayout::eTransferDstOptimal,
-                    1, &blit, vk::Filter::eLinear);
+//                 cmd.blitImage(
+//                     texture.image, vk::ImageLayout::eTransferSrcOptimal,
+//                     texture.image, vk::ImageLayout::eTransferDstOptimal,
+//                     1, &blit, vk::Filter::eLinear);
 
-                util::TransitionImageLayout(cmd, texture.image, toVkFormat(image.format),
-                    vk::ImageLayout::eTransferDstOptimal, vk::ImageLayout::eTransferSrcOptimal, 1, i);
-            }
+//                 util::TransitionImageLayout(cmd, texture.image, toVkFormat(image.format),
+//                     vk::ImageLayout::eTransferDstOptimal, vk::ImageLayout::eTransferSrcOptimal, 1, i);
+//             }
 
-            finalSrcLayout = vk::ImageLayout::eTransferSrcOptimal;
-        }
+//             finalSrcLayout = vk::ImageLayout::eTransferSrcOptimal;
+//         }
 
-        util::TransitionImageLayout(cmd, texture.image, toVkFormat(image.format),
-            finalSrcLayout, vk::ImageLayout::eShaderReadOnlyOptimal, 1, 0, texture.mips);
+//         util::TransitionImageLayout(cmd, texture.image, toVkFormat(image.format),
+//             finalSrcLayout, vk::ImageLayout::eShaderReadOnlyOptimal, 1, 0, texture.mips);
 
-        upload_commands.TrackAllocation(stagingAllocation, stagingBuffer);
-    }
+//         upload_commands.TrackAllocation(stagingAllocation, stagingBuffer);
+//     }
 
-    auto* context = &upload_commands.GetContext();
+//     auto* context = &upload_commands.GetContext();
 
-    std::string n = name;
-    context->DebugSetObjectName<vk::Image>(texture.image, ("[IMAGE] " + n).c_str());
-    context->DebugSetObjectName<vk::ImageView>(texture.full_view, ("[VIEW] " + n).c_str());
+//     std::string n = name;
+//     context->DebugSetObjectName<vk::Image>(texture.image, ("[IMAGE] " + n).c_str());
+//     context->DebugSetObjectName<vk::ImageView>(texture.full_view, ("[VIEW] " + n).c_str());
 
-    for (size_t i = 0; i < texture.layers.size(); ++i)
-    {
-        context->DebugSetObjectName<vk::ImageView>(texture.layers[i].view,
-            ("[VIEW " + std::to_string(i) + "] " + n).c_str());
-    }
+//     for (size_t i = 0; i < texture.layers.size(); ++i)
+//     {
+//         context->DebugSetObjectName<vk::ImageView>(texture.layers[i].view,
+//             ("[VIEW " + std::to_string(i) + "] " + n).c_str());
+//     }
 
-    vmaSetAllocationName(
-        context->MemoryAllocator(),
-        texture.allocation,
-        ("[ALLOCATION] " + n).c_str());
+//     vmaSetAllocationName(
+//         context->MemoryAllocator(),
+//         texture.allocation,
+//         ("[ALLOCATION] " + n).c_str());
 
-    return texture;
-}
+//     return texture;
+// }
 
 // void bb::Texture::destroy(VulkanContext& ctx)
 // {

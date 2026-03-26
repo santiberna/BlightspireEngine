@@ -577,23 +577,9 @@ void Renderer::InitializeSSAOTarget()
 }
 void Renderer::LoadEnvironmentMap()
 {
-    int32_t width, height, numChannels;
-    auto stream = fileIO::OpenReadStream("assets/hdri/kloofendal_misty_morning_puresky_2k copy.hdr");
-    float* stbiData = fileIO::LoadFloatImageFromIfstream(stream.value(), &width, &height, &numChannels, 4);
-
-    if (stbiData == nullptr)
-        throw std::runtime_error("Failed loading HDRI!");
-
-    std::vector<std::byte> data(width * height * 4 * sizeof(float));
-    std::memcpy(data.data(), stbiData, data.size());
-
-    stbi_image_free(stbiData);
-
-    CPUImage envMapCreation {};
-    envMapCreation.SetSize(width, height).SetFlags(vk::ImageUsageFlagBits::eSampled).SetName("Environment HDRI").SetData(std::move(data)).SetFormat(vk::Format::eR32G32B32A32Sfloat);
-    envMapCreation.isHDR = true;
-
-    _environmentMap = _context->Resources()->ImageResourceManager().Create(envMapCreation);
+    bb::Image2D environment_map = bb::Image2D::fromFile("assets/hdri/kloofendal_misty_morning_puresky_2k copy.hdr", false).value();
+    auto& textures = _context->Resources()->ImageResourceManager();
+    _environmentMap = textures.Create(environment_map, VK_IMAGE_USAGE_SAMPLED_BIT, "Environment HDRI");
 }
 
 void Renderer::UpdateBindless()

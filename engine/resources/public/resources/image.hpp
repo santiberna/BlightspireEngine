@@ -63,18 +63,16 @@ enum class ImageType
     IMAGE_3D,
 };
 
-struct Image
+struct Image2D
 {
-    static std::optional<Image> fromFile(std::string_view path, bool is_srgb);
-    static std::optional<Image> fromMemory(std::span<std::byte> data, bool is_srgb);
+    static std::optional<Image2D> fromFile(std::string_view path, bool is_srgb);
+    static std::optional<Image2D> fromMemory(std::span<std::byte> data, bool is_srgb);
 
     std::shared_ptr<std::byte[]> data {}; // Leave empty to create empty textures
     ImageFormat format {};
     ImageType type {};
     uint32_t width {};
     uint32_t height {};
-    uint32_t depth {};
-    uint32_t mips {}; // Leave as 0 to generate max amount of possible mips
 };
 
 }
@@ -121,7 +119,7 @@ struct CPUImage
 struct GPUImage
 {
     GPUImage(const CPUImage& data, ResourceHandle<Sampler> textureSampler, const std::shared_ptr<VulkanContext>& context, SingleTimeCommands* const commands = nullptr);
-    GPUImage(const bb::Image& data, ResourceHandle<Sampler> textureSampler, const std::shared_ptr<VulkanContext>& context, const char* name, VkImageUsageFlags flags, SingleTimeCommands* const commands = nullptr);
+    GPUImage(const bb::Image2D& data, ResourceHandle<Sampler> textureSampler, const std::shared_ptr<VulkanContext>& context, const char* name, VkImageUsageFlags inFlags, SingleTimeCommands* const commands = nullptr);
 
     ~GPUImage();
 

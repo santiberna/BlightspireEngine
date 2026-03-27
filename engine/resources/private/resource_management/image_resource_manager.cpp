@@ -4,19 +4,14 @@
 #include "vulkan_helper.hpp"
 
 ImageResourceManager::ImageResourceManager(const std::shared_ptr<VulkanContext>& context, ResourceHandle<Sampler> defaultSampler)
-    : _context(context)
-    , _defaultSampler(defaultSampler)
+    : _defaultSampler(defaultSampler)
+    , _context(context)
 {
 }
 
 ResourceHandle<GPUImage> ImageResourceManager::Create(const CPUImage& cpuImage, ResourceHandle<Sampler> sampler, SingleTimeCommands* const commands)
 {
     return ResourceManager::Create(GPUImage { cpuImage, sampler, _context, commands });
-}
-
-ResourceHandle<GPUImage> ImageResourceManager::Create(const bb::Image2D& cpuImage, ResourceHandle<Sampler> sampler, VkImageUsageFlags usage, const char* name, SingleTimeCommands* const commands)
-{
-    return ResourceManager::Create(GPUImage { cpuImage, sampler, _context, name, usage, commands });
 }
 
 vk::ImageType ImageResourceManager::ImageTypeConversion(ImageType type)

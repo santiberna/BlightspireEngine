@@ -48,8 +48,8 @@ std::optional<vk::Format> FindSupportedFormat(const vk::PhysicalDevice physicalD
     vk::FormatFeatureFlags features);
 uint32_t FindMemoryType(vk::PhysicalDevice physicalDevice, uint32_t typeFilter, vk::MemoryPropertyFlags properties);
 void CreateBuffer(VulkanContext& context, vk::DeviceSize size, vk::BufferUsageFlags usage, vk::Buffer& buffer, bool mappable, VmaAllocation& allocation, VmaMemoryUsage memoryUsage, const char* name);
-vk::CommandBuffer BeginSingleTimeCommands(std::shared_ptr<VulkanContext> context);
-void EndSingleTimeCommands(std::shared_ptr<VulkanContext> context, vk::CommandBuffer commandBuffer);
+vk::CommandBuffer BeginSingleTimeCommands(VulkanContext* context);
+void EndSingleTimeCommands(VulkanContext* context, vk::CommandBuffer commandBuffer);
 void CopyBuffer(vk::CommandBuffer commandBuffer, vk::Buffer srcBuffer, vk::Buffer dstBuffer, vk::DeviceSize size, uint32_t offset = 0);
 ImageLayoutTransitionState GetImageLayoutTransitionSourceState(vk::ImageLayout sourceLayout);
 ImageLayoutTransitionState GetImageLayoutTransitionDestinationState(vk::ImageLayout destinationLayout);

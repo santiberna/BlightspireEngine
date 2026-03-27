@@ -148,7 +148,7 @@ void util::CreateBuffer(VulkanContext& context, vk::DeviceSize size, vk::BufferU
     context.DebugSetObjectName(buffer, name);
 }
 
-vk::CommandBuffer util::BeginSingleTimeCommands(std::shared_ptr<VulkanContext> context)
+vk::CommandBuffer util::BeginSingleTimeCommands(VulkanContext* context)
 {
     vk::CommandBufferAllocateInfo allocateInfo {};
     allocateInfo.level = vk::CommandBufferLevel::ePrimary;
@@ -167,7 +167,7 @@ vk::CommandBuffer util::BeginSingleTimeCommands(std::shared_ptr<VulkanContext> c
     return commandBuffer;
 }
 
-void util::EndSingleTimeCommands(std::shared_ptr<VulkanContext> context, vk::CommandBuffer commandBuffer)
+void util::EndSingleTimeCommands(VulkanContext* context, vk::CommandBuffer commandBuffer)
 {
     commandBuffer.end();
 

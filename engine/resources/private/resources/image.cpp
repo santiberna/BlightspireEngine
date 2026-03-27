@@ -6,7 +6,7 @@
 #include <stb_image.h>
 #include <tracy/Tracy.hpp>
 
-std::optional<bb::Image2D> bb::Image2D::fromFile(std::string_view path, bool is_srgb)
+std::optional<bb::Image2D> bb::Image2D::fromFile(std::string_view path)
 {
     auto data = fileIO::OpenReadStream(std::string(path));
     if (!data)
@@ -14,10 +14,10 @@ std::optional<bb::Image2D> bb::Image2D::fromFile(std::string_view path, bool is_
         return std::nullopt;
     }
     auto mem = fileIO::DumpStreamIntoBytes(data.value());
-    return fromMemory(mem, is_srgb);
+    return fromMemory(mem);
 }
 
-std::optional<bb::Image2D> bb::Image2D::fromMemory(std::span<std::byte> data, bool is_srgb)
+std::optional<bb::Image2D> bb::Image2D::fromMemory(std::span<std::byte> data)
 {
     stbi_uc* mem_start = std::bit_cast<stbi_uc*>(data.data());
     int mem_size = static_cast<int>(data.size());
@@ -55,16 +55,16 @@ std::optional<bb::Image2D> bb::Image2D::fromMemory(std::span<std::byte> data, bo
         switch (channels)
         {
         case 4:
-            format = is_srgb ? ImageFormat::R8G8B8A8_SRGB : ImageFormat::R8G8B8A8_UNORM;
+            format = ImageFormat::R8G8B8A8_UNORM;
             break;
         case 3:
-            format = is_srgb ? ImageFormat::R8G8B8_SRGB : ImageFormat::R8G8B8_UNORM;
+            format = ImageFormat::R8G8B8_UNORM;
             break;
         case 2:
-            format = is_srgb ? ImageFormat::R8G8_SRGB : ImageFormat::R8G8_UNORM;
+            format = ImageFormat::R8G8_UNORM;
             break;
         case 1:
-            format = is_srgb ? ImageFormat::R8_SRGB : ImageFormat::R8_UNORM;
+            format = ImageFormat::R8_UNORM;
             break;
         default:
             return std::nullopt;
@@ -73,7 +73,6 @@ std::optional<bb::Image2D> bb::Image2D::fromMemory(std::span<std::byte> data, bo
 
     bb::Image2D out;
     out.format = format;
-    out.type = ImageType::IMAGE_2D;
     out.height = static_cast<uint32_t>(h);
     out.width = static_cast<uint32_t>(w);
     out.data = std::shared_ptr<std::byte[]>(bytes, stbi_image_free);
@@ -197,7 +196,7 @@ vk::ImageViewType ImageViewTypeConversion(ImageType type)
 }
 
 GPUImage::GPUImage(const CPUImage& creation, ResourceHandle<Sampler> textureSampler, const std::shared_ptr<VulkanContext>& context, SingleTimeCommands* const commands)
-    : _context(context)
+    : _context(context.get())
 {
     width = creation.width;
     height = creation.height;
@@ -241,13 +240,13 @@ GPUImage::GPUImage(const CPUImage& creation, ResourceHandle<Sampler> textureSamp
         VmaAllocationCreateInfo allocCreateInfo {};
         allocCreateInfo.usage = VMA_MEMORY_USAGE_GPU_ONLY;
 
-        util::vmaCreateImage(_context->MemoryAllocator(), reinterpret_cast<VkImageCreateInfo*>(&imageCreateInfo), &allocCreateInfo, reinterpret_cast<VkImage*>(&image), &allocation, nullptr);
-        std::string allocName = creation.name + " texture allocation";
+        util::vmaCreateImage(_context->MemoryAllocator(), reinterpret_cast<VkImageCreateInfo*>(&imageCreateInfo), &allocCreateInfo, reinterpret_cast<VkImage*>(&handle), &allocation, nullptr);
+        std::string allocName = creation.name + " handle allocation";
         vmaSetAllocationName(_context->MemoryAllocator(), allocation, allocName.c_str());
     }
 
     vk::ImageViewCreateInfo viewCreateInfo {};
-    viewCreateInfo.image = image;
+    viewCreateInfo.image = handle;
     viewCreateInfo.viewType = vk::ImageViewType::e2D;
     viewCreateInfo.format = creation.format;
     viewCreateInfo.subresourceRange.aspectMask = util::GetImageAspectFlags(format);
@@ -278,7 +277,7 @@ GPUImage::GPUImage(const CPUImage& creation, ResourceHandle<Sampler> textureSamp
     if (creation.type == ImageType::eCubeMap)
     {
         vk::ImageViewCreateInfo cubeViewCreateInfo {};
-        cubeViewCreateInfo.image = image;
+        cubeViewCreateInfo.image = handle;
         cubeViewCreateInfo.viewType = ImageViewTypeConversion(creation.type);
         cubeViewCreateInfo.format = creation.format;
         cubeViewCreateInfo.subresourceRange.aspectMask = util::GetImageAspectFlags(format);
@@ -320,14 +319,14 @@ GPUImage::GPUImage(const CPUImage& creation, ResourceHandle<Sampler> textureSamp
             ZoneScopedN("Command upload dispatch");
             const vk::CommandBuffer& commandBuffer = commands->CommandBuffer();
 
-            util::TransitionImageLayout(commandBuffer, image, format, vk::ImageLayout::eUndefined, oldLayout);
+            util::TransitionImageLayout(commandBuffer, handle, format, vk::ImageLayout::eUndefined, oldLayout);
 
-            util::CopyBufferToImage(commandBuffer, stagingBuffer, image, width, height);
+            util::CopyBufferToImage(commandBuffer, stagingBuffer, handle, width, height);
 
             if (creation.mips > 1)
             {
                 ZoneScopedN("Mip creation dispatch");
-                util::TransitionImageLayout(commandBuffer, image, format, vk::ImageLayout::eTransferDstOptimal, vk::ImageLayout::eTransferSrcOptimal, 1, 0, 1);
+                util::TransitionImageLayout(commandBuffer, handle, format, vk::ImageLayout::eTransferDstOptimal, vk::ImageLayout::eTransferSrcOptimal, 1, 0, 1);
 
                 for (uint32_t i = 1; i < creation.mips; ++i)
                 {
@@ -346,16 +345,16 @@ GPUImage::GPUImage(const CPUImage& creation, ResourceHandle<Sampler> textureSamp
                     blit.dstOffsets[1].y = height >> i;
                     blit.dstOffsets[1].z = 1;
 
-                    util::TransitionImageLayout(commandBuffer, image, format, vk::ImageLayout::eUndefined, vk::ImageLayout::eTransferDstOptimal, 1, i);
+                    util::TransitionImageLayout(commandBuffer, handle, format, vk::ImageLayout::eUndefined, vk::ImageLayout::eTransferDstOptimal, 1, i);
 
-                    commandBuffer.blitImage(image, vk::ImageLayout::eTransferSrcOptimal, image, vk::ImageLayout::eTransferDstOptimal, 1, &blit, vk::Filter::eLinear);
+                    commandBuffer.blitImage(handle, vk::ImageLayout::eTransferSrcOptimal, handle, vk::ImageLayout::eTransferDstOptimal, 1, &blit, vk::Filter::eLinear);
 
-                    util::TransitionImageLayout(commandBuffer, image, format, vk::ImageLayout::eTransferDstOptimal, vk::ImageLayout::eTransferSrcOptimal, 1, i);
+                    util::TransitionImageLayout(commandBuffer, handle, format, vk::ImageLayout::eTransferDstOptimal, vk::ImageLayout::eTransferSrcOptimal, 1, i);
                 }
                 oldLayout = vk::ImageLayout::eTransferSrcOptimal;
             }
 
-            util::TransitionImageLayout(commandBuffer, image, format, oldLayout, vk::ImageLayout::eShaderReadOnlyOptimal, 1, 0, mips);
+            util::TransitionImageLayout(commandBuffer, handle, format, oldLayout, vk::ImageLayout::eShaderReadOnlyOptimal, 1, 0, mips);
 
             commands->TrackAllocation(stagingBufferAllocation, stagingBuffer);
         }
@@ -364,14 +363,14 @@ GPUImage::GPUImage(const CPUImage& creation, ResourceHandle<Sampler> textureSamp
             ZoneScopedN("Command upload dispatch");
             vk::CommandBuffer commandBuffer = util::BeginSingleTimeCommands(_context);
 
-            util::TransitionImageLayout(commandBuffer, image, format, vk::ImageLayout::eUndefined, oldLayout);
+            util::TransitionImageLayout(commandBuffer, handle, format, vk::ImageLayout::eUndefined, oldLayout);
 
-            util::CopyBufferToImage(commandBuffer, stagingBuffer, image, width, height);
+            util::CopyBufferToImage(commandBuffer, stagingBuffer, handle, width, height);
 
             if (creation.mips > 1)
             {
                 ZoneScopedN("Mip creation dispatch");
-                util::TransitionImageLayout(commandBuffer, image, format, vk::ImageLayout::eTransferDstOptimal, vk::ImageLayout::eTransferSrcOptimal, 1, 0, 1);
+                util::TransitionImageLayout(commandBuffer, handle, format, vk::ImageLayout::eTransferDstOptimal, vk::ImageLayout::eTransferSrcOptimal, 1, 0, 1);
 
                 for (uint32_t i = 1; i < creation.mips; ++i)
                 {
@@ -390,16 +389,16 @@ GPUImage::GPUImage(const CPUImage& creation, ResourceHandle<Sampler> textureSamp
                     blit.dstOffsets[1].y = height >> i;
                     blit.dstOffsets[1].z = 1;
 
-                    util::TransitionImageLayout(commandBuffer, image, format, vk::ImageLayout::eUndefined, vk::ImageLayout::eTransferDstOptimal, 1, i);
+                    util::TransitionImageLayout(commandBuffer, handle, format, vk::ImageLayout::eUndefined, vk::ImageLayout::eTransferDstOptimal, 1, i);
 
-                    commandBuffer.blitImage(image, vk::ImageLayout::eTransferSrcOptimal, image, vk::ImageLayout::eTransferDstOptimal, 1, &blit, vk::Filter::eLinear);
+                    commandBuffer.blitImage(handle, vk::ImageLayout::eTransferSrcOptimal, handle, vk::ImageLayout::eTransferDstOptimal, 1, &blit, vk::Filter::eLinear);
 
-                    util::TransitionImageLayout(commandBuffer, image, format, vk::ImageLayout::eTransferDstOptimal, vk::ImageLayout::eTransferSrcOptimal, 1, i);
+                    util::TransitionImageLayout(commandBuffer, handle, format, vk::ImageLayout::eTransferDstOptimal, vk::ImageLayout::eTransferSrcOptimal, 1, i);
                 }
                 oldLayout = vk::ImageLayout::eTransferSrcOptimal;
             }
 
-            util::TransitionImageLayout(commandBuffer, image, format, oldLayout, vk::ImageLayout::eShaderReadOnlyOptimal, 1, 0, mips);
+            util::TransitionImageLayout(commandBuffer, handle, format, oldLayout, vk::ImageLayout::eShaderReadOnlyOptimal, 1, 0, mips);
 
             {
                 ZoneScopedN("Waiting Image upload");
@@ -419,7 +418,7 @@ GPUImage::GPUImage(const CPUImage& creation, ResourceHandle<Sampler> textureSamp
             ss << creation.name;
             std::string imageStr = ss.str();
 
-            _context->DebugSetObjectName(image, imageStr.c_str());
+            _context->DebugSetObjectName(handle, imageStr.c_str());
             ss.str("");
 
             for (size_t i = 0; i < imageCreateInfo.arrayLayers; ++i)
@@ -454,11 +453,9 @@ vk::Format toVkFormat(bb::ImageFormat format)
         return vk::Format::eR8G8B8A8Srgb;
     case bb::ImageFormat::R8G8B8_SRGB:
         return vk::Format::eR8G8B8Srgb;
-    case bb::ImageFormat::R8G8_SRGB:
         return vk::Format::eR8G8Srgb;
     case bb::ImageFormat::R8_SRGB:
         return vk::Format::eR8Srgb;
-
     // Linear UNORM
     case bb::ImageFormat::R8G8B8A8_UNORM:
         return vk::Format::eR8G8B8A8Unorm;
@@ -468,91 +465,13 @@ vk::Format toVkFormat(bb::ImageFormat format)
         return vk::Format::eR8G8Unorm;
     case bb::ImageFormat::R8_UNORM:
         return vk::Format::eR8Unorm;
-    case bb::ImageFormat::R16_UNORM:
-        return vk::Format::eR16Unorm;
-    case bb::ImageFormat::R16G16_UNORM:
-        return vk::Format::eR16G16Unorm;
-
     // HDR / floating point
     case bb::ImageFormat::R32G32B32A32_SFLOAT:
         return vk::Format::eR32G32B32A32Sfloat;
-    case bb::ImageFormat::R32G32B32_SFLOAT:
-        return vk::Format::eR32G32B32Sfloat;
-    case bb::ImageFormat::R32G32_SFLOAT:
-        return vk::Format::eR32G32Sfloat;
-    case bb::ImageFormat::R32_SFLOAT:
-        return vk::Format::eR32Sfloat;
-    case bb::ImageFormat::R16G16B16A16_SFLOAT:
-        return vk::Format::eR16G16B16A16Sfloat;
-    case bb::ImageFormat::R16G16B16_SFLOAT:
-        return vk::Format::eR16G16B16Sfloat;
-    case bb::ImageFormat::R16G16_SFLOAT:
-        return vk::Format::eR16G16Sfloat; // likely a typo — no R16G16B
-
-    // Depth
-    case bb::ImageFormat::D32_SFLOAT:
-        return vk::Format::eD32Sfloat;
-    case bb::ImageFormat::D24_UNORM_S8_UINT:
-        return vk::Format::eD24UnormS8Uint;
-    case bb::ImageFormat::D16_UNORM:
-        return vk::Format::eD16Unorm;
-
-    // BC compressed sRGB
-    case bb::ImageFormat::BC1_RGB_SRGB:
-        return vk::Format::eBc1RgbSrgbBlock;
-    case bb::ImageFormat::BC3_SRGB:
-        return vk::Format::eBc3SrgbBlock;
-    case bb::ImageFormat::BC7_SRGB:
-        return vk::Format::eBc7SrgbBlock;
-
-    // BC compressed linear
-    case bb::ImageFormat::BC5_UNORM:
-        return vk::Format::eBc5UnormBlock;
-    case bb::ImageFormat::BC7_UNORM:
-        return vk::Format::eBc7UnormBlock;
-
     case bb::ImageFormat::NONE:
     default:
         assert(false && "Invalid bb::ImageFormat");
         return vk::Format::eUndefined;
-    }
-}
-
-vk::ImageType toVkImageType(bb::ImageType type)
-{
-    switch (type)
-    {
-    case bb::ImageType::IMAGE_2D:
-    case bb::ImageType::IMAGE_2D_ARRAY:
-    case bb::ImageType::IMAGE_CUBEMAP:
-        return vk::ImageType::e2D;
-    case bb::ImageType::IMAGE_3D:
-        return vk::ImageType::e3D;
-
-    case bb::ImageType::NONE:
-    default:
-        assert(false && "Invalid bb::ImageType");
-        return vk::ImageType::e2D;
-    }
-}
-
-vk::ImageViewType toVkImageViewType(bb::ImageType type)
-{
-    switch (type)
-    {
-    case bb::ImageType::IMAGE_2D:
-        return vk::ImageViewType::e2D;
-    case bb::ImageType::IMAGE_2D_ARRAY:
-        return vk::ImageViewType::e2DArray;
-    case bb::ImageType::IMAGE_CUBEMAP:
-        return vk::ImageViewType::eCube;
-    case bb::ImageType::IMAGE_3D:
-        return vk::ImageViewType::e3D;
-
-    case bb::ImageType::NONE:
-    default:
-        assert(false && "Invalid bb::ImageType");
-        return vk::ImageViewType::e2D;
     }
 }
 
@@ -562,58 +481,67 @@ uint32_t formatStride(bb::ImageFormat format)
     {
     case bb::ImageFormat::R32G32B32A32_SFLOAT:
         return 16;
-    case bb::ImageFormat::R32G32B32_SFLOAT:
-        return 12;
-    case bb::ImageFormat::R32G32_SFLOAT:
-    case bb::ImageFormat::R16G16B16A16_SFLOAT:
-        return 8;
-    case bb::ImageFormat::R16G16B16_SFLOAT:
-        return 6;
     case bb::ImageFormat::R8G8B8A8_SRGB:
     case bb::ImageFormat::R8G8B8A8_UNORM:
-    case bb::ImageFormat::R16G16_UNORM:
-    case bb::ImageFormat::R16G16_SFLOAT:
-    case bb::ImageFormat::D32_SFLOAT:
-    case bb::ImageFormat::D24_UNORM_S8_UINT:
-    case bb::ImageFormat::R32_SFLOAT:
         return 4;
     case bb::ImageFormat::R8G8B8_SRGB:
     case bb::ImageFormat::R8G8B8_UNORM:
         return 3;
     case bb::ImageFormat::R8G8_UNORM:
     case bb::ImageFormat::R8G8_SRGB:
-    case bb::ImageFormat::R16_UNORM:
-    case bb::ImageFormat::D16_UNORM:
         return 2;
     case bb::ImageFormat::R8_SRGB:
     case bb::ImageFormat::R8_UNORM:
         return 1;
-
     case bb::ImageFormat::NONE:
-    default:
-        assert(false && "Invalid bb::ImageFormat");
         return 0;
     }
 }
 }
 
-GPUImage::GPUImage(const bb::Image2D& creation, ResourceHandle<Sampler> textureSampler, const std::shared_ptr<VulkanContext>& context, const char* given_name, VkImageUsageFlags inFlags, SingleTimeCommands* const commands)
-    : _context(context)
+GPUImage::GPUImage(SingleTimeCommands& upload_commands, const bb::Image2D& image, ResourceHandle<Sampler> textureSampler, Flags<bb::TextureFlags> input_flags, std::string_view given_name)
+    : name(given_name)
+    , _context(&upload_commands.GetContext())
 {
-    width = creation.width;
-    height = creation.height;
-    flags = vk::ImageUsageFlags(inFlags);
-    mips = 1; // std::floor(std::log2(std::max(width, height))) + 1;
+    width = image.width;
+    height = image.height;
+    mips = 1;
     depth = 1;
-    format = toVkFormat(creation.format);
+    format = toVkFormat(image.format);
     type = ImageType::e2D;
-    name = given_name;
 
-    isHDR = creation.format == bb::ImageFormat::R32G32B32A32_SFLOAT;
+    isHDR = image.format == bb::ImageFormat::R32G32B32A32_SFLOAT;
     sampler = textureSampler;
 
+    flags = {};
+
+    if (input_flags.has(bb::TextureFlags::SAMPLED))
+    {
+        flags |= vk::ImageUsageFlagBits::eSampled;
+    }
+    if (input_flags.has(bb::TextureFlags::TRANSFER_DST))
+    {
+        flags |= vk::ImageUsageFlagBits::eTransferDst;
+    }
+    if (input_flags.has(bb::TextureFlags::TRANSFER_SRC))
+    {
+        flags |= vk::ImageUsageFlagBits::eTransferSrc;
+    }
+    if (input_flags.has(bb::TextureFlags::COLOR_ATTACH))
+    {
+        flags |= vk::ImageUsageFlagBits::eColorAttachment;
+    }
+    if (input_flags.has(bb::TextureFlags::DEPTH_ATTACH))
+    {
+        flags |= vk::ImageUsageFlagBits::eDepthStencilAttachment;
+    }
+    if (input_flags.has(bb::TextureFlags::GEN_MIPMAPS))
+    {
+        mips = static_cast<uint8_t>(std::floor(std::log2(std::max(width, height)))) + 1;
+    }
+
     vk::ImageCreateInfo imageCreateInfo {};
-    imageCreateInfo.imageType = toVkImageType(creation.type);
+    imageCreateInfo.imageType = vk::ImageType::e2D;
     imageCreateInfo.extent.width = width;
     imageCreateInfo.extent.height = height;
     imageCreateInfo.extent.depth = depth;
@@ -624,33 +552,29 @@ GPUImage::GPUImage(const bb::Image2D& creation, ResourceHandle<Sampler> textureS
     imageCreateInfo.initialLayout = vk::ImageLayout::eUndefined;
     imageCreateInfo.sharingMode = vk::SharingMode::eExclusive;
     imageCreateInfo.samples = vk::SampleCountFlagBits::e1;
-
     imageCreateInfo.usage = flags;
-
-    if (creation.data != nullptr)
-    {
-        imageCreateInfo.usage |= vk::ImageUsageFlagBits::eTransferDst;
-        imageCreateInfo.usage |= vk::ImageUsageFlagBits::eTransferSrc;
-    }
-    if (creation.type == bb::ImageType::IMAGE_CUBEMAP)
-    {
-        imageCreateInfo.flags |= vk::ImageCreateFlagBits::eCubeCompatible;
-    }
 
     {
         ZoneScopedN("VMA Image allocation");
         VmaAllocationCreateInfo allocCreateInfo {};
         allocCreateInfo.usage = VMA_MEMORY_USAGE_GPU_ONLY;
 
-        auto result = util::vmaCreateImage(_context->MemoryAllocator(), reinterpret_cast<VkImageCreateInfo*>(&imageCreateInfo), &allocCreateInfo, reinterpret_cast<VkImage*>(&image), &allocation, nullptr);
-        util::VK_ASSERT(result, "Failed to create texture");
+        auto result = util::vmaCreateImage(
+            _context->MemoryAllocator(),
+            reinterpret_cast<VkImageCreateInfo*>(&imageCreateInfo),
+            &allocCreateInfo,
+            reinterpret_cast<VkImage*>(&handle),
+            &allocation,
+            nullptr);
 
-        std::string allocName = std::string(name) + " texture allocation";
+        util::VK_ASSERT(result, "Failed to create handle");
+
+        std::string allocName = std::string(name) + " handle allocation";
         // vmaSetAllocationName(_context->MemoryAllocator(), allocation, allocName.c_str());
     }
 
     vk::ImageViewCreateInfo viewCreateInfo {};
-    viewCreateInfo.image = image;
+    viewCreateInfo.image = handle;
     viewCreateInfo.viewType = vk::ImageViewType::e2D;
     viewCreateInfo.format = format;
     viewCreateInfo.subresourceRange.aspectMask = util::GetImageAspectFlags(format);
@@ -678,25 +602,10 @@ GPUImage::GPUImage(const bb::Image2D& creation, ResourceHandle<Sampler> textureS
     }
     view = layerViews.begin()->view;
 
-    if (creation.type == bb::ImageType::IMAGE_CUBEMAP)
-    {
-        vk::ImageViewCreateInfo cubeViewCreateInfo {};
-        cubeViewCreateInfo.image = image;
-        cubeViewCreateInfo.viewType = vk::ImageViewType(VK_IMAGE_VIEW_TYPE_CUBE);
-        cubeViewCreateInfo.format = format;
-        cubeViewCreateInfo.subresourceRange.aspectMask = util::GetImageAspectFlags(format);
-        cubeViewCreateInfo.subresourceRange.baseMipLevel = 0;
-        cubeViewCreateInfo.subresourceRange.levelCount = mips;
-        cubeViewCreateInfo.subresourceRange.baseArrayLayer = 0;
-        cubeViewCreateInfo.subresourceRange.layerCount = 6;
-
-        util::VK_ASSERT(device.createImageView(&cubeViewCreateInfo, nullptr, &view), "Failed creating image view!");
-    }
-
-    if (creation.data != nullptr)
+    if (image.data != nullptr)
     {
         ZoneScopedN("Image data Upload");
-        vk::DeviceSize imageSize = width * height * depth * formatStride(creation.format);
+        vk::DeviceSize imageSize = width * height * depth * formatStride(image.format);
 
         vk::Buffer stagingBuffer;
         VmaAllocation stagingBufferAllocation;
@@ -704,104 +613,48 @@ GPUImage::GPUImage(const bb::Image2D& creation, ResourceHandle<Sampler> textureS
         {
             ZoneScopedN("Image buffer allocation");
             util::CreateBuffer(*_context, imageSize, vk::BufferUsageFlagBits::eTransferSrc, stagingBuffer, true, stagingBufferAllocation, VMA_MEMORY_USAGE_CPU_ONLY, "Texture staging buffer");
-            vmaCopyMemoryToAllocation(_context->MemoryAllocator(), creation.data.get(), stagingBufferAllocation, 0, imageSize);
+            vmaCopyMemoryToAllocation(_context->MemoryAllocator(), image.data.get(), stagingBufferAllocation, 0, imageSize);
         }
 
         vk::ImageLayout oldLayout = vk::ImageLayout::eTransferDstOptimal;
+        vk::CommandBuffer commandBuffer = upload_commands.CommandBuffer();
 
-        if (commands)
+        util::TransitionImageLayout(commandBuffer, handle, format, vk::ImageLayout::eUndefined, oldLayout);
+        util::CopyBufferToImage(commandBuffer, stagingBuffer, handle, width, height);
+
+        if (mips > 1)
         {
-            ZoneScopedN("Command upload dispatch");
-            const vk::CommandBuffer& commandBuffer = commands->CommandBuffer();
+            ZoneScopedN("Mip creation dispatch");
+            util::TransitionImageLayout(commandBuffer, handle, format, vk::ImageLayout::eTransferDstOptimal, vk::ImageLayout::eTransferSrcOptimal, 1, 0, 1);
 
-            util::TransitionImageLayout(commandBuffer, image, format, vk::ImageLayout::eUndefined, oldLayout);
-
-            util::CopyBufferToImage(commandBuffer, stagingBuffer, image, width, height);
-
-            if (mips > 1)
+            for (uint32_t i = 1; i < mips; ++i)
             {
-                ZoneScopedN("Mip creation dispatch");
-                util::TransitionImageLayout(commandBuffer, image, format, vk::ImageLayout::eTransferDstOptimal, vk::ImageLayout::eTransferSrcOptimal, 1, 0, 1);
+                vk::ImageBlit blit {};
+                blit.srcSubresource.aspectMask = vk::ImageAspectFlagBits::eColor;
+                blit.srcSubresource.layerCount = 1;
+                blit.srcSubresource.mipLevel = i - 1;
+                blit.srcOffsets[1].x = width >> (i - 1);
+                blit.srcOffsets[1].y = height >> (i - 1);
+                blit.srcOffsets[1].z = 1;
 
-                for (uint32_t i = 1; i < mips; ++i)
-                {
-                    vk::ImageBlit blit {};
-                    blit.srcSubresource.aspectMask = vk::ImageAspectFlagBits::eColor;
-                    blit.srcSubresource.layerCount = 1;
-                    blit.srcSubresource.mipLevel = i - 1;
-                    blit.srcOffsets[1].x = width >> (i - 1);
-                    blit.srcOffsets[1].y = height >> (i - 1);
-                    blit.srcOffsets[1].z = 1;
+                blit.dstSubresource.aspectMask = vk::ImageAspectFlagBits::eColor;
+                blit.dstSubresource.layerCount = 1;
+                blit.dstSubresource.mipLevel = i;
+                blit.dstOffsets[1].x = width >> i;
+                blit.dstOffsets[1].y = height >> i;
+                blit.dstOffsets[1].z = 1;
 
-                    blit.dstSubresource.aspectMask = vk::ImageAspectFlagBits::eColor;
-                    blit.dstSubresource.layerCount = 1;
-                    blit.dstSubresource.mipLevel = i;
-                    blit.dstOffsets[1].x = width >> i;
-                    blit.dstOffsets[1].y = height >> i;
-                    blit.dstOffsets[1].z = 1;
+                util::TransitionImageLayout(commandBuffer, handle, format, vk::ImageLayout::eUndefined, vk::ImageLayout::eTransferDstOptimal, 1, i);
 
-                    util::TransitionImageLayout(commandBuffer, image, format, vk::ImageLayout::eUndefined, vk::ImageLayout::eTransferDstOptimal, 1, i);
+                commandBuffer.blitImage(handle, vk::ImageLayout::eTransferSrcOptimal, handle, vk::ImageLayout::eTransferDstOptimal, 1, &blit, vk::Filter::eLinear);
 
-                    commandBuffer.blitImage(image, vk::ImageLayout::eTransferSrcOptimal, image, vk::ImageLayout::eTransferDstOptimal, 1, &blit, vk::Filter::eLinear);
-
-                    util::TransitionImageLayout(commandBuffer, image, format, vk::ImageLayout::eTransferDstOptimal, vk::ImageLayout::eTransferSrcOptimal, 1, i);
-                }
-                oldLayout = vk::ImageLayout::eTransferSrcOptimal;
+                util::TransitionImageLayout(commandBuffer, handle, format, vk::ImageLayout::eTransferDstOptimal, vk::ImageLayout::eTransferSrcOptimal, 1, i);
             }
-
-            util::TransitionImageLayout(commandBuffer, image, format, oldLayout, vk::ImageLayout::eShaderReadOnlyOptimal, 1, 0, mips);
-
-            commands->TrackAllocation(stagingBufferAllocation, stagingBuffer);
+            oldLayout = vk::ImageLayout::eTransferSrcOptimal;
         }
-        else
-        {
-            ZoneScopedN("Command upload dispatch");
-            vk::CommandBuffer commandBuffer = util::BeginSingleTimeCommands(_context);
 
-            util::TransitionImageLayout(commandBuffer, image, format, vk::ImageLayout::eUndefined, oldLayout);
-
-            util::CopyBufferToImage(commandBuffer, stagingBuffer, image, width, height);
-
-            if (mips > 1)
-            {
-                ZoneScopedN("Mip creation dispatch");
-                util::TransitionImageLayout(commandBuffer, image, format, vk::ImageLayout::eTransferDstOptimal, vk::ImageLayout::eTransferSrcOptimal, 1, 0, 1);
-
-                for (uint32_t i = 1; i < mips; ++i)
-                {
-                    vk::ImageBlit blit {};
-                    blit.srcSubresource.aspectMask = vk::ImageAspectFlagBits::eColor;
-                    blit.srcSubresource.layerCount = 1;
-                    blit.srcSubresource.mipLevel = i - 1;
-                    blit.srcOffsets[1].x = width >> (i - 1);
-                    blit.srcOffsets[1].y = height >> (i - 1);
-                    blit.srcOffsets[1].z = 1;
-
-                    blit.dstSubresource.aspectMask = vk::ImageAspectFlagBits::eColor;
-                    blit.dstSubresource.layerCount = 1;
-                    blit.dstSubresource.mipLevel = i;
-                    blit.dstOffsets[1].x = width >> i;
-                    blit.dstOffsets[1].y = height >> i;
-                    blit.dstOffsets[1].z = 1;
-
-                    util::TransitionImageLayout(commandBuffer, image, format, vk::ImageLayout::eUndefined, vk::ImageLayout::eTransferDstOptimal, 1, i);
-
-                    commandBuffer.blitImage(image, vk::ImageLayout::eTransferSrcOptimal, image, vk::ImageLayout::eTransferDstOptimal, 1, &blit, vk::Filter::eLinear);
-
-                    util::TransitionImageLayout(commandBuffer, image, format, vk::ImageLayout::eTransferDstOptimal, vk::ImageLayout::eTransferSrcOptimal, 1, i);
-                }
-                oldLayout = vk::ImageLayout::eTransferSrcOptimal;
-            }
-
-            util::TransitionImageLayout(commandBuffer, image, format, oldLayout, vk::ImageLayout::eShaderReadOnlyOptimal, 1, 0, mips);
-
-            {
-                ZoneScopedN("Waiting Image upload");
-                util::EndSingleTimeCommands(_context, commandBuffer);
-            }
-
-            util::vmaDestroyBuffer(_context->MemoryAllocator(), stagingBuffer, stagingBufferAllocation);
-        }
+        util::TransitionImageLayout(commandBuffer, handle, format, oldLayout, vk::ImageLayout::eShaderReadOnlyOptimal, 1, 0, mips);
+        upload_commands.TrackAllocation(stagingBufferAllocation, stagingBuffer);
     }
 
     {
@@ -813,7 +666,7 @@ GPUImage::GPUImage(const bb::Image2D& creation, ResourceHandle<Sampler> textureS
             ss << name;
             std::string imageStr = ss.str();
 
-            _context->DebugSetObjectName(image, imageStr.c_str());
+            _context->DebugSetObjectName(handle, imageStr.c_str());
             ss.str("");
 
             for (size_t i = 0; i < imageCreateInfo.arrayLayers; ++i)
@@ -845,7 +698,7 @@ GPUImage::~GPUImage()
     }
 
     vk::Device device = _context->Device();
-    util::vmaDestroyImage(_context->MemoryAllocator(), image, allocation);
+    util::vmaDestroyImage(_context->MemoryAllocator(), handle, allocation);
 
     for (auto& layer : layerViews)
     {
@@ -862,7 +715,7 @@ GPUImage::~GPUImage()
 }
 
 GPUImage::GPUImage(GPUImage&& other) noexcept
-    : image(other.image)
+    : handle(other.handle)
     , layerViews(std::move(other.layerViews))
     , view(other.view)
     , allocation(other.allocation)
@@ -880,7 +733,7 @@ GPUImage::GPUImage(GPUImage&& other) noexcept
     , name(std::move(other.name))
     , _context(other._context)
 {
-    other.image = nullptr;
+    other.handle = nullptr;
     other.view = nullptr;
     other.allocation = nullptr;
     other._context = nullptr;
@@ -893,7 +746,7 @@ GPUImage& GPUImage::operator=(GPUImage&& other) noexcept
         return *this;
     }
 
-    image = other.image;
+    handle = other.handle;
     layerViews = std::move(other.layerViews);
     view = other.view;
     allocation = other.allocation;
@@ -911,7 +764,7 @@ GPUImage& GPUImage::operator=(GPUImage&& other) noexcept
     name = std::move(other.name);
     _context = other._context;
 
-    other.image = nullptr;
+    other.handle = nullptr;
     other.view = nullptr;
     other.allocation = nullptr;
     other._context = nullptr;

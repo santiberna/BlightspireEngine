@@ -577,9 +577,14 @@ void Renderer::InitializeSSAOTarget()
 }
 void Renderer::LoadEnvironmentMap()
 {
-    bb::Image2D environment_map = bb::Image2D::fromFile("assets/hdri/kloofendal_misty_morning_puresky_2k copy.hdr", false).value();
     auto& textures = _context->Resources()->ImageResourceManager();
-    _environmentMap = textures.Create(environment_map, VK_IMAGE_USAGE_SAMPLED_BIT, "Environment HDRI");
+    auto sampler = textures._defaultSampler;
+
+    bb::Image2D environment_map = bb::Image2D::fromFile("assets/hdri/kloofendal_misty_morning_puresky_2k copy.hdr").value();
+    SingleTimeCommands upload_commands { *_context->GetVulkanContext() };
+    GPUImage texture { upload_commands, environment_map, sampler, bb::TextureFlags::COMMON_FLAGS, "Environment HDRI" };
+
+    _environmentMap = textures.Create(std::move(texture));
 }
 
 void Renderer::UpdateBindless()

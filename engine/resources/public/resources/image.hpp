@@ -2,6 +2,7 @@
 #include <string>
 #include <vector>
 
+#include "enum_utils.hpp"
 #include "resource_manager.hpp"
 #include "resources/sampler.hpp"
 #include "single_time_commands.hpp"
@@ -27,53 +28,34 @@ enum class ImageFormat
     R8G8_UNORM,
     R8_UNORM,
 
-    R16_UNORM,
-    R16G16_UNORM,
-
     // HDR / floating point
     R32G32B32A32_SFLOAT,
-    R32G32B32_SFLOAT,
-    R32G32_SFLOAT,
-    R32_SFLOAT,
-    R16G16B16A16_SFLOAT,
-    R16G16B16_SFLOAT,
-    R16G16_SFLOAT,
-
-    // Depth
-    D32_SFLOAT,
-    D24_UNORM_S8_UINT,
-    D16_UNORM,
-
-    // BC compressed sRGB
-    BC1_RGB_SRGB,
-    BC3_SRGB,
-    BC7_SRGB,
-
-    // BC compressed linear
-    BC5_UNORM,
-    BC7_UNORM,
-};
-
-enum class ImageType
-{
-    NONE,
-    IMAGE_2D,
-    IMAGE_2D_ARRAY,
-    IMAGE_CUBEMAP,
-    IMAGE_3D,
 };
 
 struct Image2D
 {
-    static std::optional<Image2D> fromFile(std::string_view path, bool is_srgb);
-    static std::optional<Image2D> fromMemory(std::span<std::byte> data, bool is_srgb);
+    static std::optional<Image2D> fromFile(std::string_view path);
+    static std::optional<Image2D> fromMemory(std::span<std::byte> data);
 
     std::shared_ptr<std::byte[]> data {}; // Leave empty to create empty textures
     ImageFormat format {};
-    ImageType type {};
     uint32_t width {};
     uint32_t height {};
 };
+
+enum class TextureFlags : uint8_t
+{
+    SAMPLED = 1 << 0,
+    TRANSFER_SRC = 1 << 1,
+    TRANSFER_DST = 1 << 2,
+    COLOR_ATTACH = 1 << 3,
+    DEPTH_ATTACH = 1 << 4,
+    GEN_MIPMAPS = 1 << 5,
+
+    COMMON_FLAGS = SAMPLED | TRANSFER_SRC | TRANSFER_DST | GEN_MIPMAPS,
+};
+
+// GENERATE_ENUM_FLAG_OPERATORS(TextureFlags);
 
 }
 
@@ -119,7 +101,7 @@ struct CPUImage
 struct GPUImage
 {
     GPUImage(const CPUImage& data, ResourceHandle<Sampler> textureSampler, const std::shared_ptr<VulkanContext>& context, SingleTimeCommands* const commands = nullptr);
-    GPUImage(const bb::Image2D& data, ResourceHandle<Sampler> textureSampler, const std::shared_ptr<VulkanContext>& context, const char* name, VkImageUsageFlags inFlags, SingleTimeCommands* const commands = nullptr);
+    GPUImage(SingleTimeCommands& upload_commands, const bb::Image2D& image, ResourceHandle<Sampler> textureSampler, Flags<bb::TextureFlags> flags, std::string_view name);
 
     ~GPUImage();
 
@@ -134,7 +116,7 @@ struct GPUImage
         std::vector<vk::ImageView> mipViews {};
     };
 
-    vk::Image image {};
+    vk::Image handle {};
     std::vector<Layer> layerViews {};
     vk::ImageView view; // Same as first view in view, or refers to a cubemap view
     VmaAllocation allocation {};
@@ -155,5 +137,5 @@ struct GPUImage
     std::string name;
 
 private:
-    std::shared_ptr<VulkanContext> _context;
+    VulkanContext* _context;
 };

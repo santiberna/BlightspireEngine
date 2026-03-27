@@ -6,11 +6,6 @@
 class UIImage : public UIElement
 {
 public:
-    UIImage(ResourceHandle<GPUImage> image)
-        : _image(image)
-    {
-    }
-
     UIImage(ResourceHandle<GPUImage> image, const glm::vec2& location, const glm::vec2& size)
         : _image(image)
     {

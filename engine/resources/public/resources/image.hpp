@@ -55,8 +55,6 @@ enum class TextureFlags : uint8_t
     COMMON_FLAGS = SAMPLED | TRANSFER_SRC | TRANSFER_DST | GEN_MIPMAPS,
 };
 
-// GENERATE_ENUM_FLAG_OPERATORS(TextureFlags);
-
 }
 
 enum class ImageType
@@ -101,7 +99,7 @@ struct CPUImage
 struct GPUImage
 {
     GPUImage(const CPUImage& data, ResourceHandle<Sampler> textureSampler, const std::shared_ptr<VulkanContext>& context, SingleTimeCommands* const commands = nullptr);
-    GPUImage(SingleTimeCommands& upload_commands, const bb::Image2D& image, ResourceHandle<Sampler> textureSampler, Flags<bb::TextureFlags> flags, std::string_view name);
+    GPUImage(SingleTimeCommands& upload_commands, const bb::Image2D& image, ResourceHandle<Sampler> textureSampler, bb::Flags<bb::TextureFlags> flags, std::string_view name);
 
     ~GPUImage();
 

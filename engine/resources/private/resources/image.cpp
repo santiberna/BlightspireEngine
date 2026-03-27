@@ -499,7 +499,7 @@ uint32_t formatStride(bb::ImageFormat format)
 }
 }
 
-GPUImage::GPUImage(SingleTimeCommands& upload_commands, const bb::Image2D& image, ResourceHandle<Sampler> textureSampler, Flags<bb::TextureFlags> input_flags, std::string_view given_name)
+GPUImage::GPUImage(SingleTimeCommands& upload_commands, const bb::Image2D& image, ResourceHandle<Sampler> textureSampler, bb::Flags<bb::TextureFlags> input_flags, std::string_view given_name)
     : name(given_name)
     , _context(&upload_commands.GetContext())
 {

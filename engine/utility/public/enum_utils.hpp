@@ -18,6 +18,9 @@ inline bool HasAnyFlags(EnumType lhs, EnumType rhs)
     return static_cast<int>(lhs & rhs) != 0;
 }
 
+namespace bb
+{
+
 template <typename E>
     requires std::is_enum_v<E>
 struct Flags
@@ -55,3 +58,5 @@ private:
     }
     Storage value {};
 };
+
+}

@@ -21,10 +21,15 @@ public:
         return Create(cpuImage, _defaultSampler, commands);
     }
 
-private:
-    std::shared_ptr<VulkanContext> _context;
+    ResourceHandle<GPUImage> Create(GPUImage texture)
+    {
+        return ResourceManager::Create(std::move(texture));
+    }
 
     ResourceHandle<Sampler> _defaultSampler;
+
+private:
+    std::shared_ptr<VulkanContext> _context;
 
     vk::ImageType ImageTypeConversion(ImageType type);
     vk::ImageViewType ImageViewTypeConversion(ImageType type);

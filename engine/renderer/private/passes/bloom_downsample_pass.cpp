@@ -30,7 +30,7 @@ void BloomDownsamplePass::RecordCommands(vk::CommandBuffer commandBuffer, [[mayb
     resolution *= 0.5f; // The first resolution we write to will be mip 1
 
     vk::ImageMemoryBarrier2 startBarrier {};
-    util::InitializeImageMemoryBarrier(startBarrier, image->image, image->format, vk::ImageLayout::eColorAttachmentOptimal, vk::ImageLayout::eGeneral, 1, 0, image->mips);
+    util::InitializeImageMemoryBarrier(startBarrier, image->handle, image->format, vk::ImageLayout::eColorAttachmentOptimal, vk::ImageLayout::eGeneral, 1, 0, image->mips);
     startBarrier.srcStageMask = vk::PipelineStageFlagBits2::eFragmentShader;
     startBarrier.dstStageMask = vk::PipelineStageFlagBits2::eFragmentShader;
     startBarrier.srcAccessMask = vk::AccessFlagBits2::eShaderWrite;
@@ -107,7 +107,7 @@ void BloomDownsamplePass::RecordCommands(vk::CommandBuffer commandBuffer, [[mayb
         mipBarrier.dstStageMask = vk::PipelineStageFlagBits2::eFragmentShader;
         mipBarrier.srcAccessMask = vk::AccessFlagBits2::eShaderWrite;
         mipBarrier.dstAccessMask = vk::AccessFlagBits2::eShaderRead;
-        mipBarrier.image = image->image;
+        mipBarrier.image = image->handle;
         mipBarrier.subresourceRange.aspectMask = vk::ImageAspectFlagBits::eColor;
         mipBarrier.subresourceRange.baseMipLevel = nextMip; // Sync only next mip for reading
         mipBarrier.subresourceRange.levelCount = 1;
@@ -123,7 +123,7 @@ void BloomDownsamplePass::RecordCommands(vk::CommandBuffer commandBuffer, [[mayb
 
     // Make sure frame graph can transition properly
     vk::ImageMemoryBarrier2 endBarrier {};
-    util::InitializeImageMemoryBarrier(endBarrier, image->image, image->format, vk::ImageLayout::eGeneral, vk::ImageLayout::eColorAttachmentOptimal, 1, 0, image->mips);
+    util::InitializeImageMemoryBarrier(endBarrier, image->handle, image->format, vk::ImageLayout::eGeneral, vk::ImageLayout::eColorAttachmentOptimal, 1, 0, image->mips);
     endBarrier.srcStageMask = vk::PipelineStageFlagBits2::eFragmentShader;
     endBarrier.dstStageMask = vk::PipelineStageFlagBits2::eFragmentShader;
     endBarrier.srcAccessMask = vk::AccessFlagBits2::eShaderWrite;

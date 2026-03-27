@@ -2,11 +2,62 @@
 #include <string>
 #include <vector>
 
+#include "enum_utils.hpp"
 #include "resource_manager.hpp"
 #include "resources/sampler.hpp"
 #include "single_time_commands.hpp"
 #include "vulkan_context.hpp"
 #include "vulkan_include.hpp"
+
+namespace bb
+{
+
+enum class ImageFormat
+{
+    NONE,
+
+    // Color sRGB
+    R8G8B8A8_SRGB,
+    R8G8B8_SRGB,
+    R8G8_SRGB,
+    R8_SRGB,
+
+    // Linear UNORM
+    R8G8B8A8_UNORM,
+    R8G8B8_UNORM,
+    R8G8_UNORM,
+    R8_UNORM,
+
+    // HDR / floating point
+    R32G32B32A32_SFLOAT,
+};
+
+struct Image2D
+{
+    static std::optional<Image2D> fromFile(std::string_view path);
+    static std::optional<Image2D> fromMemory(std::span<std::byte> data);
+
+    std::shared_ptr<std::byte[]> data {}; // Leave empty to create empty textures
+    ImageFormat format {};
+    uint32_t width {};
+    uint32_t height {};
+};
+
+enum class TextureFlags : uint8_t
+{
+    SAMPLED = 1 << 0,
+    TRANSFER_SRC = 1 << 1,
+    TRANSFER_DST = 1 << 2,
+    COLOR_ATTACH = 1 << 3,
+    DEPTH_ATTACH = 1 << 4,
+    GEN_MIPMAPS = 1 << 5,
+
+    COMMON_FLAGS = SAMPLED | TRANSFER_SRC | TRANSFER_DST | GEN_MIPMAPS,
+};
+
+// GENERATE_ENUM_FLAG_OPERATORS(TextureFlags);
+
+}
 
 enum class ImageType
 {
@@ -50,6 +101,8 @@ struct CPUImage
 struct GPUImage
 {
     GPUImage(const CPUImage& data, ResourceHandle<Sampler> textureSampler, const std::shared_ptr<VulkanContext>& context, SingleTimeCommands* const commands = nullptr);
+    GPUImage(SingleTimeCommands& upload_commands, const bb::Image2D& image, ResourceHandle<Sampler> textureSampler, Flags<bb::TextureFlags> flags, std::string_view name);
+
     ~GPUImage();
 
     GPUImage(GPUImage&& other) noexcept;
@@ -63,7 +116,7 @@ struct GPUImage
         std::vector<vk::ImageView> mipViews {};
     };
 
-    vk::Image image {};
+    vk::Image handle {};
     std::vector<Layer> layerViews {};
     vk::ImageView view; // Same as first view in view, or refers to a cubemap view
     VmaAllocation allocation {};
@@ -84,5 +137,5 @@ struct GPUImage
     std::string name;
 
 private:
-    std::shared_ptr<VulkanContext> _context;
+    VulkanContext* _context;
 };

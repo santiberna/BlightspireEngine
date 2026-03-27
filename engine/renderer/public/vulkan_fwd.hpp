@@ -1,6 +1,8 @@
 
 #pragma once
 
+#include <cstdint>
+
 // WARNING: this will completely break on x32 systems (not supported)
 #define BB_VULKAN_FWD(handle) \
     struct handle##_T;        \
@@ -18,3 +20,7 @@ BB_VULKAN_FWD(VmaAllocation);
 BB_VULKAN_FWD(VkCommandBuffer);
 BB_VULKAN_FWD(VkBuffer);
 BB_VULKAN_FWD(VkFence);
+BB_VULKAN_FWD(VkImage);
+
+using VulkanFlags = uint32_t;
+using VulkanEnum = uint32_t;

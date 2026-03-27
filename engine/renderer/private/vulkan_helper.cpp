@@ -2,7 +2,7 @@
 
 #include "tracy/Tracy.hpp"
 #include "vulkan_include.hpp"
-#include <vma/vk_mem_alloc.h>
+#include <vma_include.hpp>
 
 void util::VK_ASSERT(vk::Result result, std::string_view message)
 {
@@ -148,7 +148,7 @@ void util::CreateBuffer(VulkanContext& context, vk::DeviceSize size, vk::BufferU
     context.DebugSetObjectName(buffer, name);
 }
 
-vk::CommandBuffer util::BeginSingleTimeCommands(std::shared_ptr<VulkanContext> context)
+vk::CommandBuffer util::BeginSingleTimeCommands(VulkanContext* context)
 {
     vk::CommandBufferAllocateInfo allocateInfo {};
     allocateInfo.level = vk::CommandBufferLevel::ePrimary;
@@ -167,7 +167,7 @@ vk::CommandBuffer util::BeginSingleTimeCommands(std::shared_ptr<VulkanContext> c
     return commandBuffer;
 }
 
-void util::EndSingleTimeCommands(std::shared_ptr<VulkanContext> context, vk::CommandBuffer commandBuffer)
+void util::EndSingleTimeCommands(VulkanContext* context, vk::CommandBuffer commandBuffer)
 {
     commandBuffer.end();
 

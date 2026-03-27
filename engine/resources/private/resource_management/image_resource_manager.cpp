@@ -4,8 +4,8 @@
 #include "vulkan_helper.hpp"
 
 ImageResourceManager::ImageResourceManager(const std::shared_ptr<VulkanContext>& context, ResourceHandle<Sampler> defaultSampler)
-    : _context(context)
-    , _defaultSampler(defaultSampler)
+    : _defaultSampler(defaultSampler)
+    , _context(context)
 {
 }
 

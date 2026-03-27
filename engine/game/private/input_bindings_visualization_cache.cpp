@@ -51,15 +51,20 @@ ResourceHandle<GPUImage> InputBindingsVisualizationCache::GetGlyph(const std::st
         return it->second;
     }
 
-    CPUImage commonImageData;
-    commonImageData.format = vk::Format::eR8G8B8A8Unorm;
-    commonImageData.SetFlags(vk::ImageUsageFlagBits::eSampled);
-    commonImageData.isHDR = false;
+    auto glyphImage = bb::Image2D::fromFile(path);
+
+    if (!glyphImage.has_value())
+    {
+        return ResourceHandle<GPUImage>::Null();
+    }
 
     auto& imageResourceManager = _graphicsContext.Resources()->ImageResourceManager();
-    auto image = imageResourceManager.Create(commonImageData.FromPNG(path));
-    _graphicsContext.UpdateBindlessSet();
 
+    SingleTimeCommands upload { *_graphicsContext.GetVulkanContext() };
+    GPUImage texture { upload, glyphImage.value(), imageResourceManager._defaultSampler, bb::TextureFlags::COMMON_FLAGS, nullptr };
+    auto image = imageResourceManager.Create(std::move(texture));
+
+    _graphicsContext.UpdateBindlessSet();
     _glyphCache.emplace(path, image);
     return image;
 }

@@ -3,7 +3,7 @@
 #include <glm/vec4.hpp>
 #include <optional>
 
-#include "resources/image.hpp"
+#include "resources/texture.hpp"
 
 // For now this is only meant to be used in combination with an owning CPUModel.
 struct CPUMaterial

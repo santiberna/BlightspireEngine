@@ -3,6 +3,8 @@
 #include "resources/image.hpp"
 #include "ui_element.hpp"
 
+#include "resources/texture.hpp"
+
 #include <functional>
 
 class UISlider : public UIElement

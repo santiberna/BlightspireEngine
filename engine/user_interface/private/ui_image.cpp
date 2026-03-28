@@ -1,6 +1,7 @@
 #include "ui_image.hpp"
 #include "quad_draw_info.hpp"
 
+#include "resources/texture.hpp"
 #include <glm/gtc/matrix_transform.hpp>
 
 void UIImage::SubmitDrawInfo(std::vector<QuadDrawInfo>& drawList) const

@@ -1,6 +1,7 @@
 #include "game_settings.hpp"
-#include "file_io.hpp"
+
 #include <cereal/archives/json.hpp>
+#include <fstream>
 
 GameSettings GameSettings::FromFile(const std::string& path)
 {

@@ -34,7 +34,6 @@
 #include "ui_module.hpp"
 #include "ui_text.hpp"
 
-
 #include <magic_enum.hpp>
 
 Achievement CreateAchievement(SteamAchievementEnum achievements)
@@ -46,7 +45,7 @@ Stat CreateStat(SteamStatEnum stats, EStatTypes type)
 {
     return Stat {
         static_cast<int32_t>(stats),
-        type, magic_enum::enum_name(stats)
+        type, std::string(magic_enum::enum_name(stats))
     };
 }
 

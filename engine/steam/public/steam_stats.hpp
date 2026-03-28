@@ -1,13 +1,9 @@
 ﻿#pragma once
 #include "steam_include.hpp"
-#include <cstdint>
-#include <optional>
+
 #include <span>
 #include <string>
-#include <string_view>
 #include <vector>
-
-#define _STAT_ID(id, type, name) { id, type, name, 0, 0, 0, 0 }
 
 enum class EStatTypes
 {
@@ -18,10 +14,10 @@ enum class EStatTypes
 
 struct Stat
 {
-    Stat(int32_t id, EStatTypes type, std::string_view name)
+    Stat(int32_t id, EStatTypes type, std::string name)
         : id(id)
         , type(type)
-        , name(name)
+        , name(std::move(name))
     {
     }
 
@@ -29,7 +25,7 @@ struct Stat
 
     int32_t id = 0;
     EStatTypes type = EStatTypes::STAT_INT;
-    std::string name = "";
+    std::string name;
     int value = 0;
     float floatValue = 0.0f;
     float floatAvgNumerator = 0.0f;
@@ -49,7 +45,7 @@ public:
     ~SteamStatManager() = default;
 
     bool StoreStats();
-    std::optional<Stat*> GetStat(std::string_view name);
+    Stat* GetStat(std::string_view name);
 
     STEAM_CALLBACK(SteamStatManager, OnUserStatsReceived, UserStatsReceived_t,
         _callbackUserStatsReceived);

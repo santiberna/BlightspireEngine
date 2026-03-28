@@ -1,9 +1,9 @@
 #include "steam_module.hpp"
-#include "achievements.hpp"
-#include "steam_include.hpp"
+
+#include "engine.hpp"
+#include "time_module.hpp"
 
 #include <spdlog/spdlog.h>
-#include <time_module.hpp>
 
 void DebugCallback(int severity, const char* message)
 {
@@ -75,12 +75,12 @@ void SteamModule::Tick([[maybe_unused]] Engine& engine)
     SteamAPI_RunCallbacks();
 
     // Let's save stats once every X seconds
-    if (_statsCounterMs > _statsCounterMaxMs)
+    if (_statsCounterMs > STATS_MAX_COUNTER)
     {
-        _statsCounterMs = 0;
+        _statsCounterMs = {};
         SaveStats();
     }
-    _statsCounterMs += engine.GetModule<TimeModule>().GetRealDeltatime().count();
+    _statsCounterMs += engine.GetModule<TimeModule>().GetRealDeltatime();
 }
 
 void SteamModule::Shutdown([[maybe_unused]] Engine& engine)
@@ -98,7 +98,7 @@ void SteamModule::InitSteamStats(std::span<Stat> stats)
 
 bool SteamModule::RequestCurrentStats()
 {
-    if (auto stats = SteamUserStats())
+    if (auto* stats = SteamUserStats())
     {
         return stats->RequestCurrentStats();
     }

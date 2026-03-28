@@ -1,13 +1,16 @@
 #pragma once
+#include "module_interface.hpp"
+
 #include "achievements.hpp"
 #include "steam_stats.hpp"
-#include <engine.hpp>
+#include "time.hpp"
+
 #include <memory>
-#include <span>
-#include <string>
 
 class SteamModule : public ModuleInterface
 {
+    static constexpr DeltaMS STATS_MAX_COUNTER = DeltaMS { 5000.0f };
+
     ModuleTickOrder Init([[maybe_unused]] Engine& engine) override;
 
     void Tick([[maybe_unused]] Engine& engine) override;
@@ -15,8 +18,7 @@ class SteamModule : public ModuleInterface
 
     bool _steamAvailable = false;
     bool _steamInputAvailable = false;
-    float _statsCounterMs = 0;
-    const float _statsCounterMaxMs = 5000;
+    DeltaMS _statsCounterMs {};
     std::unique_ptr<SteamAchievementManager> _steamAchievements = nullptr;
     std::unique_ptr<SteamStatManager> _steamStats = nullptr;
 

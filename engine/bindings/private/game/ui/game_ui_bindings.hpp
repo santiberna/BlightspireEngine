@@ -1,4 +1,4 @@
 #pragma once
-#include "wren_common.hpp"
+#include "wren_include.hpp"
 
 void BindGameUI(wren::ForeignModule& module);

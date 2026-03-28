@@ -1,6 +1,7 @@
 #include "ecs_module.hpp"
-#include "wren_common.hpp"
 #include "wren_entity.hpp"
+#include "wren_include.hpp"
+
 
 #include "animation.hpp"
 #include "audio_emitter_component.hpp"

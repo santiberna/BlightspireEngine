@@ -1,8 +1,10 @@
 #pragma once
 #include "common.hpp"
-#include "engine.hpp"
+
 #include "time.hpp"
-#include "wren_common.hpp"
+#include "wren_include.hpp"
+
+class Engine;
 
 class MainScript
 {

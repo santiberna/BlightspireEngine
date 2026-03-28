@@ -1,7 +1,8 @@
 #pragma once
 
-#include "wren_common.hpp"
 #include "wren_entity.hpp"
+#include "wren_include.hpp"
+
 
 #include <functional>
 #include <spdlog/spdlog.h>

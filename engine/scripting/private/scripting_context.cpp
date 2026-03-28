@@ -4,7 +4,7 @@
 #include <filesystem>
 #include <tracy/Tracy.hpp>
 
-namespace detail
+namespace
 {
 std::string ResolveImport(
     const std::vector<std::string>& paths,
@@ -84,7 +84,7 @@ void ScriptingContext::Reset()
         _vmInitConfig.initialHeapSize,
         _vmInitConfig.minHeapSize,
         _vmInitConfig.heapGrowthPercent,
-        detail::ReallocFn);
+        ReallocFn);
 
     auto logHandler = [this](const char* message)
     {
@@ -95,8 +95,8 @@ void ScriptingContext::Reset()
 
     _vm->setPrintFunc(logHandler);
 
-    _vm->setPathResolveFunc(detail::ResolveImport);
-    _vm->setLoadFileFunc(detail::LoadFile);
+    _vm->setPathResolveFunc(ResolveImport);
+    _vm->setLoadFileFunc(LoadFile);
 }
 
 std::optional<std::string> ScriptingContext::RunScript(const std::string& path)
@@ -104,7 +104,7 @@ std::optional<std::string> ScriptingContext::RunScript(const std::string& path)
     try
     {
         _vm->runFromModule(path);
-        return detail::ResolveImport(_vmInitConfig.includePaths, "", path);
+        return ResolveImport(_vmInitConfig.includePaths, "", path);
     }
     catch (const wren::Exception& e)
     {

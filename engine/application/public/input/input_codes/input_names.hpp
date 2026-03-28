@@ -1,10 +1,11 @@
 #pragma once
 #include "keys.hpp"
 #include "mousebuttons.hpp"
+
 #include <string>
 #include <unordered_map>
 
-const std::unordered_map<KeyboardCode, std::string> KEYBOARD_KEY_NAMES = {
+const std::unordered_map<KeyboardCode, const char*> KEYBOARD_KEY_NAMES = {
     { KeyboardCode::eESCAPE, "Escape" },
     { KeyboardCode::eE, "E" },
     { KeyboardCode::eLSHIFT, "Left Shift" },
@@ -17,7 +18,7 @@ const std::unordered_map<KeyboardCode, std::string> KEYBOARD_KEY_NAMES = {
     { KeyboardCode::eF, "F" },
 };
 
-const std::unordered_map<MouseButton, std::string> MOUSE_BUTTON_NAMES = {
+const std::unordered_map<MouseButton, const char*> MOUSE_BUTTON_NAMES = {
     { MouseButton::eBUTTON_LEFT, "Left Mouse" },
     { MouseButton::eBUTTON_MIDDLE, "Middle Mouse" },
     { MouseButton::eBUTTON_RIGHT, "Right Mouse" },

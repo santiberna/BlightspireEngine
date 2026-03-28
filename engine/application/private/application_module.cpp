@@ -1,16 +1,16 @@
 #include "application_module.hpp"
+
 #include "engine.hpp"
+#include "file_io.hpp"
 #include "input/sdl/sdl_action_manager.hpp"
 #include "input/sdl/sdl_input_device_manager.hpp"
 #include "input/steam/steam_action_manager.hpp"
 #include "input/steam/steam_input_device_manager.hpp"
 #include "steam_module.hpp"
 
-#include <spdlog/spdlog.h>
-
 #include <SDL3/SDL.h>
-#include <file_io.hpp>
 #include <imgui_sdl_include.hpp>
+#include <spdlog/spdlog.h>
 #include <stb_image.h>
 
 ModuleTickOrder ApplicationModule::Init(Engine& engine)

@@ -3,6 +3,8 @@
 #include "resources/image.hpp"
 #include "ui_element.hpp"
 
+struct GPUImage;
+
 class UIImage : public UIElement
 {
 public:

@@ -4,6 +4,8 @@
 #include "resources/image.hpp"
 #include "ui_element.hpp"
 
+#include "resources/texture.hpp"
+
 #include <functional>
 
 class UIButton : public UIElement

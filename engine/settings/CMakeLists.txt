@@ -1,12 +1,11 @@
-module_declare(STATIC)
+module_declare(OBJECT)
 
 target_link_libraries(settings
-        PUBLIC utility
-
-        PRIVATE cereal
-        PUBLIC glm::glm
+    PUBLIC 
+        utility
 )
 
 target_include_directories(settings
-        PUBLIC "${PROJECT_SOURCE_DIR}/external/visit_struct/include"
+    PUBLIC
+        "${PROJECT_SOURCE_DIR}/external/visit_struct/include"
 )

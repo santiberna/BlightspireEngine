@@ -3,6 +3,7 @@
 
 #include "audio_common.hpp"
 #include "module_interface.hpp"
+
 #include <glm/vec3.hpp>
 #include <queue>
 #include <unordered_map>

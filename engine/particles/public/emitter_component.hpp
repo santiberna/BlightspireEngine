@@ -1,9 +1,10 @@
 #pragma once
 
 #include "emitter_preset_settings.hpp"
-#include "imgui_entt_entity_editor.hpp"
 #include "particle_util.hpp"
 #include <entt/entity/registry.hpp>
+#include <imgui_entt_entity_editor.hpp>
+
 
 enum class EmitterPresetID : uint8_t;
 

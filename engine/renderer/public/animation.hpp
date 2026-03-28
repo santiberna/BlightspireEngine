@@ -1,15 +1,16 @@
 #pragma once
 
-#include "imgui_entt_entity_editor.hpp"
 #include <algorithm>
 #include <cassert>
 #include <cstdint>
 #include <entt/entity/registry.hpp>
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
+#include <imgui_entt_entity_editor.hpp>
 #include <optional>
 #include <string>
 #include <vector>
+
 
 using Translation = glm::vec3;
 using Rotation = glm::quat;

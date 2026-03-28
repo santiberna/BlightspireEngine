@@ -16,6 +16,7 @@
 #include "components/transform_helpers.hpp"
 #include "cpu_resources.hpp"
 #include "ecs_module.hpp"
+#include "engine.hpp"
 #include "model_loading.hpp"
 #include "physics/collision.hpp"
 #include "renderer.hpp"
@@ -24,6 +25,7 @@
 #include "resource_management/model_resource_manager.hpp"
 #include "systems/physics_system.hpp"
 #include "thread_module.hpp"
+
 
 #include <entt/entity/entity.hpp>
 #include <tracy/Tracy.hpp>

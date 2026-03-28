@@ -1,7 +1,7 @@
 #pragma once
 #include "common.hpp"
+
 #include <string_view>
-#include <type_traits>
 
 class ECSModule;
 
@@ -19,6 +19,3 @@ public:
     virtual void Inspect() { };
     virtual std::string_view GetName() = 0;
 };
-
-template <typename T>
-concept IsSystem = std::is_base_of<SystemInterface, T>::value;

@@ -2,10 +2,13 @@
 
 #include "audio_system.hpp"
 #include "ecs_module.hpp"
+#include "engine.hpp"
 #include "fmod_debug.hpp"
 #include "fmod_include.hpp"
+#include "physics_module.hpp"
 
 #include <glm/glm.hpp>
+#include <spdlog/spdlog.h>
 
 inline FMOD_VECTOR GLMToFMOD(const glm::vec3& v)
 {

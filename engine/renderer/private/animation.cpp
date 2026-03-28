@@ -1,6 +1,8 @@
 #include "animation.hpp"
 
 #include <algorithm>
+#include <spdlog/spdlog.h>
+
 
 void AnimationControlComponent::PlayByIndex(uint32_t animationIndex, float speed, bool looping, float blendTime, bool blendMatch)
 {

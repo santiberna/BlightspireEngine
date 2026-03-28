@@ -1,15 +1,12 @@
 #pragma once
 
-#include <entt/entity/registry.hpp>
 #include <imgui_entt_entity_editor.hpp>
-#include <string_view>
+#include <string>
 
-
-class NameComponent
+struct NameComponent
 {
 public:
-    std::string name;
-
+    std::string name = "Unnamed Entity";
     static std::string_view GetDisplayName(const entt::registry& registry, entt::entity entity);
 };
 

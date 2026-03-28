@@ -1,7 +1,6 @@
 #pragma once
+#include <glm/mat4x4.hpp>
 #include <imgui_entt_entity_editor.hpp>
-
-#include <glm/glm.hpp>
 
 struct WorldMatrixComponent
 {

@@ -1,5 +1,6 @@
 #include "components/camera_component.hpp"
 #include <glm/gtc/type_ptr.hpp>
+#include <spdlog/spdlog.h>
 
 namespace EnttEditor
 {

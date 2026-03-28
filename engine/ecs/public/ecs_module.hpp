@@ -1,13 +1,12 @@
 #pragma once
 #include "common.hpp"
-#include "engine.hpp"
 
+#include "module_interface.hpp"
 #include "system_interface.hpp"
 #include "utility/entity_serializer.hpp"
 
 #include <cassert>
 #include <entt/entity/registry.hpp>
-#include <spdlog/spdlog.h>
 
 struct DeleteTag
 {
@@ -38,12 +37,24 @@ public:
 
     template <typename T, typename... Args>
     void AddSystem(Args&&... args)
-        requires IsSystem<T>;
+        requires std::is_base_of_v<SystemInterface, T>
+    {
+        systems.emplace_back(std::make_unique<T>(std::forward<Args>(args)...));
+    }
 
     // Returns nullptr if no System T is found
     template <typename T>
     T* GetSystem()
-        requires IsSystem<T>;
+        requires std::is_base_of_v<SystemInterface, T>
+    {
+        for (auto& s : systems)
+        {
+            if (auto* found = dynamic_cast<T*>(s.get()))
+                return found;
+        }
+        assert(false && "Could not find system");
+        return nullptr;
+    }
 
     template <typename A>
     void save(A& archive, [[maybe_unused]] uint32_t version) const;
@@ -52,27 +63,6 @@ private:
     entt::registry registry {};
     std::vector<std::unique_ptr<SystemInterface>> systems {};
 };
-
-template <typename T, typename... Args>
-void ECSModule::AddSystem(Args&&... args)
-    requires IsSystem<T>
-{
-    systems.emplace_back(std::make_unique<T>(std::forward<Args>(args)...));
-    spdlog::info("{}, created", typeid(T).name());
-}
-
-template <typename T>
-T* ECSModule::GetSystem()
-    requires IsSystem<T>
-{
-    for (auto& s : systems)
-    {
-        if (auto* found = dynamic_cast<T*>(s.get()))
-            return found;
-    }
-    assert(false && "Could not find system");
-    return nullptr;
-}
 
 template <typename A>
 void ECSModule::save(A& archive, [[maybe_unused]] uint32_t version) const

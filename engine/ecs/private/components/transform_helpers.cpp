@@ -1,4 +1,5 @@
 #include "components/transform_helpers.hpp"
+
 #include "components/name_component.hpp"
 #include "components/relationship_component.hpp"
 #include "components/rigidbody_component.hpp"
@@ -10,7 +11,7 @@
 #include <glm/gtx/matrix_decompose.hpp>
 #include <glm/gtx/quaternion.hpp>
 
-bool CheckPhysicsAssert(entt::registry& reg, entt::entity entity)
+static bool CheckPhysicsAssert(entt::registry& reg, entt::entity entity)
 {
     if (reg.all_of<RigidbodyComponent>(entity))
     {

@@ -1,5 +1,4 @@
 #include "components/point_light_component.hpp"
-#include "glm/gtc/type_ptr.hpp"
 
 namespace EnttEditor
 {

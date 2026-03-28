@@ -13,11 +13,13 @@
 
 #include "components/rigidbody_component.hpp"
 #include "ecs_module.hpp"
+#include "engine.hpp"
 #include "passes/debug_pass.hpp"
 #include "renderer.hpp"
 #include "renderer_module.hpp"
 #include "systems/physics_system.hpp"
 #include "time_module.hpp"
+
 
 #include <glm/gtx/rotate_vector.hpp>
 

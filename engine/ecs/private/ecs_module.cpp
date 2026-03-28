@@ -1,12 +1,10 @@
 #include "ecs_module.hpp"
 
-#include "components/name_component.hpp"
 #include "components/relationship_component.hpp"
 #include "components/relationship_helpers.hpp"
 #include "components/skeleton_component.hpp"
 #include "components/transform_helpers.hpp"
-#include "scripting_module.hpp"
-#include "systems/physics_system.hpp"
+#include "engine.hpp"
 #include "time_module.hpp"
 
 #include <tracy/Tracy.hpp>

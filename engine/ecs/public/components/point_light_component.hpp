@@ -1,9 +1,7 @@
 #pragma once
 
-#include <entt/entity/registry.hpp>
-#include <glm/glm.hpp>
+#include <glm/vec3.hpp>
 #include <imgui_entt_entity_editor.hpp>
-
 
 struct PointLightComponent
 {

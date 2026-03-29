@@ -1,7 +1,7 @@
 #include "input/sdl/sdl_input_device_manager.hpp"
 #include "hashmap_utils.hpp"
 
-#include <SDL3/SDL.h>
+#include <SDL3/SDL_events.h>
 #include <spdlog/spdlog.h>
 
 SDLInputDeviceManager::SDLInputDeviceManager()

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <string_view>
+#include <string>
 
 struct FMOD_SYSTEM;
 struct FMOD_STUDIO_SYSTEM;
@@ -23,7 +23,7 @@ using SoundID = BaseID;
 struct SoundInfo
 {
     SoundInfo() = default;
-    std::string_view path {};
+    std::string path {};
     SoundID uid = -1;
 
     bool isLoop = false;

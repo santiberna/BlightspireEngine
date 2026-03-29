@@ -88,8 +88,8 @@ public:
     PathfindingModule();
     ~PathfindingModule();
 
-    NON_COPYABLE(PathfindingModule)
-    NON_MOVABLE(PathfindingModule)
+    NON_COPYABLE(PathfindingModule);
+    NON_MOVABLE(PathfindingModule);
 
     int32_t SetNavigationMesh(std::string_view filePath);
     ComputedPath FindPath(glm::vec3 startPos, glm::vec3 endPos);

@@ -1,5 +1,6 @@
 #include "input/action_manager.hpp"
 #include "input/input_codes/input_names.hpp"
+#include "input/input_device_manager.hpp"
 
 #include <algorithm>
 #include <spdlog/spdlog.h>
@@ -283,13 +284,13 @@ struct DigitalActionVisitor
     void operator()(KeyboardCode code)
     {
         BindingOriginVisual& visual = out.emplace_back();
-        visual.bindingInputName = KEYBOARD_KEY_NAMES.at(code) + " Key";
+        visual.bindingInputName = std::string(KEYBOARD_KEY_NAMES.at(code)) + " Key";
     }
 
     void operator()(MouseButton code)
     {
         BindingOriginVisual& visual = out.emplace_back();
-        visual.bindingInputName = MOUSE_BUTTON_NAMES.at(code) + " Button";
+        visual.bindingInputName = std::string(MOUSE_BUTTON_NAMES.at(code)) + " Button";
     }
 
     void operator()([[maybe_unused]] GamepadButton notUsed) { }
@@ -315,7 +316,7 @@ struct AnalogActionVisitor
     void operator()(KeyboardAnalog code)
     {
         BindingOriginVisual& visual = out.emplace_back();
-        visual.bindingInputName = KEYBOARD_KEY_NAMES.at(code.up) + KEYBOARD_KEY_NAMES.at(code.left) + KEYBOARD_KEY_NAMES.at(code.down) + KEYBOARD_KEY_NAMES.at(code.right);
+        visual.bindingInputName = std::string(KEYBOARD_KEY_NAMES.at(code.up)) + KEYBOARD_KEY_NAMES.at(code.left) + KEYBOARD_KEY_NAMES.at(code.down) + KEYBOARD_KEY_NAMES.at(code.right);
     }
 
     void operator()([[maybe_unused]] MouseAnalog notUsed)

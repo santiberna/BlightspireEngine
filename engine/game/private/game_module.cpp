@@ -14,6 +14,7 @@
 #include "graphics_context.hpp"
 #include "input/action_manager.hpp"
 #include "input/input_device_manager.hpp"
+#include "main_script.hpp"
 #include "particle_module.hpp"
 #include "passes/debug_pass.hpp"
 #include "passes/particle_pass.hpp"
@@ -24,6 +25,7 @@
 #include "renderer.hpp"
 #include "renderer_module.hpp"
 #include "scene/model_loader.hpp"
+#include "scripting_context.hpp"
 #include "scripting_module.hpp"
 #include "steam_module.hpp"
 #include "systems/lifetime_system.hpp"
@@ -43,7 +45,7 @@ Stat CreateStat(SteamStatEnum stats, EStatTypes type)
 {
     return Stat {
         static_cast<int32_t>(stats),
-        type, magic_enum::enum_name(stats)
+        type, std::string(magic_enum::enum_name(stats))
     };
 }
 

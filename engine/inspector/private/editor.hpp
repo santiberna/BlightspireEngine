@@ -5,7 +5,7 @@
 #include "common.hpp"
 #include "ecs_module.hpp"
 
-#include "imgui_entt_entity_editor.hpp"
+#include <imgui_entt_entity_editor.hpp>
 
 class PerformanceTracker;
 class BloomSettings;

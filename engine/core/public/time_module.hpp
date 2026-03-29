@@ -1,5 +1,7 @@
 #pragma once
-#include "engine.hpp"
+#include "common.hpp"
+
+#include "module_interface.hpp"
 #include "time.hpp"
 
 class TimeModule : public ModuleInterface

@@ -1,10 +1,14 @@
 #include "scripting_module.hpp"
+
 #include "bytes.hpp"
 #include "file_io.hpp"
+#include "main_script.hpp"
+#include "scripting_context.hpp"
 #include "time_module.hpp"
 #include "wren_bindings.hpp"
 
 #include <tracy/Tracy.hpp>
+
 void ScriptingModule::ResetVM()
 {
     _mainModule.reset();
@@ -30,6 +34,11 @@ void ScriptingModule::GenerateEngineBindingsFile()
     }
 }
 
+wren::ForeignModule& ScriptingModule::GetForeignAPI() const
+{
+    return _context->GetVM().module(_engineBindingsPath);
+}
+
 ModuleTickOrder ScriptingModule::Init([[maybe_unused]] Engine& engine)
 {
     VMInitConfig config {};
@@ -47,6 +56,9 @@ ModuleTickOrder ScriptingModule::Init([[maybe_unused]] Engine& engine)
 
     return ModuleTickOrder::ePreTick;
 }
+
+ScriptingModule::ScriptingModule() = default;
+ScriptingModule::~ScriptingModule() = default;
 
 void ScriptingModule::Tick(Engine& engine)
 {

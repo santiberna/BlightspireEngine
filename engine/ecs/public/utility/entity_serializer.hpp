@@ -1,5 +1,4 @@
 #pragma once
-#include "common.hpp"
 #include <cereal/cereal.hpp>
 #include <entt/entity/registry.hpp>
 

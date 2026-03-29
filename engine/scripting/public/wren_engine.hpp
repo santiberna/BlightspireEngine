@@ -1,6 +1,7 @@
 #pragma once
 #include "engine.hpp"
-#include "wren_common.hpp"
+
+#include <optional>
 
 // Wrapper class for Accessing the engine
 struct WrenEngine

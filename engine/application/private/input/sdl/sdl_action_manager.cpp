@@ -1,7 +1,7 @@
 #include "input/sdl/sdl_action_manager.hpp"
+
 #include "input/sdl/sdl_input_device_manager.hpp"
 
-#include <algorithm>
 #include <magic_enum.hpp>
 #include <spdlog/spdlog.h>
 

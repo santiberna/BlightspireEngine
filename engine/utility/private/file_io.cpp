@@ -1,6 +1,6 @@
 #include "file_io.hpp"
+
 #include <bit>
-#include <filesystem>
 #include <spdlog/spdlog.h>
 #include <stb_image.h>
 
@@ -112,7 +112,7 @@ float* fileIO::LoadFloatImageFromIfstream(PhysFS::ifstream& file, int32_t* x, in
     return stbi_loadf_from_callbacks(&callbacks, &ctx, x, y, channels_in_file, desired_channels);
 }
 
-stbi_uc* fileIO::LoadImageFromIfstream(PhysFS::ifstream& file, int32_t* x, int32_t* y, int32_t* channels_in_file, int32_t desired_channels)
+std::byte* fileIO::LoadImageFromIfstream(PhysFS::ifstream& file, int32_t* x, int32_t* y, int32_t* channels_in_file, int32_t desired_channels)
 {
     STBIStreamContext ctx { &file };
 
@@ -122,7 +122,7 @@ stbi_uc* fileIO::LoadImageFromIfstream(PhysFS::ifstream& file, int32_t* x, int32
         stbi_eof
     };
 
-    return stbi_load_from_callbacks(&callbacks, &ctx, x, y, channels_in_file, desired_channels);
+    return std::bit_cast<std::byte*>(stbi_load_from_callbacks(&callbacks, &ctx, x, y, channels_in_file, desired_channels));
 }
 void fileIO::Init(bool useStandard)
 {

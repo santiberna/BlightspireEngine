@@ -1,9 +1,11 @@
 #include "ui_module.hpp"
 #include "application_module.hpp"
 #include "canvas.hpp"
+#include "input/input_device_manager.hpp"
 #include "renderer.hpp"
 #include "renderer_module.hpp"
 #include "time_module.hpp"
+
 
 ModuleTickOrder UIModule::Init(Engine& engine)
 {

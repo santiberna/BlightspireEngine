@@ -1,8 +1,6 @@
 #include "fmod_debug.hpp"
-#include "common.hpp"
 #include "fmod_include.hpp"
 
-#include <iostream>
 #include <spdlog/spdlog.h>
 
 void FMOD_CHECKRESULT_fn(FMOD_RESULT result, [[maybe_unused]] const char* file, int line)
@@ -21,16 +19,16 @@ FMOD_RESULT DebugCallback(FMOD_DEBUG_FLAGS flags, [[maybe_unused]] const char* f
     switch (flags)
     {
     case FMOD_DEBUG_LEVEL_LOG:
-        std::cout << "[FMOD INFO] : " << line << " ( " << func << " ) - " << message << std::flush;
+        spdlog::info("[FMOD] {} ({}) - {}", message, func, line);
         break;
     case FMOD_DEBUG_LEVEL_WARNING:
-        std::cout << "[FMOD WARN] : " << line << " ( " << func << " ) - " << message << std::flush;
+        spdlog::warn("[FMOD] {} ({}) - {}", message, func, line);
         break;
     case FMOD_DEBUG_LEVEL_ERROR:
-        std::cout << "[FMOD ERROR] : " << line << " ( " << func << " ) - " << message << std::flush;
+        spdlog::error("[FMOD] {} ({}) - {}", message, func, line);
         break;
     default:
-        std::cout << "[FMOD OTHER] : " << line << " ( " << func << " ) - " << message << std::flush;
+        spdlog::debug("[FMOD] {} ({}) - {}", message, func, line);
         break;
     }
 

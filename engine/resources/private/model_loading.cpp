@@ -542,7 +542,7 @@ CPUImage ProcessImage(const fastgltf::Image& gltfImage, const fastgltf::Asset& g
 
                        const std::string path(filePath.uri.path().begin(), filePath.uri.path().end()); // Thanks C++.
                        auto stream = fileIO::OpenReadStream(path);
-                       stbi_uc* stbiData = fileIO::LoadImageFromIfstream(stream.value(), &width, &height, &nrChannels, 4);
+                       auto* stbiData = fileIO::LoadImageFromIfstream(stream.value(), &width, &height, &nrChannels, 4);
                        if (!stbiData)
                            spdlog::error("Failed loading data from STBI at path: {}", path);
 

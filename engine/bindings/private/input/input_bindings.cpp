@@ -2,6 +2,7 @@
 #include "application_module.hpp"
 #include "input/action_manager.hpp"
 #include "input/input_codes/keys.hpp"
+#include "input/input_device_manager.hpp"
 #include "utility/enum_bind.hpp"
 
 namespace bindings

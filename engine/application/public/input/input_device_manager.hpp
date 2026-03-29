@@ -1,5 +1,6 @@
 #pragma once
 #include "common.hpp"
+
 #include "input/input_codes/gamepad.hpp"
 #include "input_codes/keys.hpp"
 #include "input_codes/mousebuttons.hpp"
@@ -14,6 +15,9 @@ class InputDeviceManager
 public:
     InputDeviceManager();
     virtual ~InputDeviceManager() = default;
+
+    NON_COPYABLE(InputDeviceManager);
+    NON_MOVABLE(InputDeviceManager);
 
     virtual void Update();
     virtual void UpdateEvent(const SDL_Event& event);

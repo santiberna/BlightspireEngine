@@ -1,12 +1,11 @@
 #pragma once
-
 #include "common.hpp"
-#include "wren_common.hpp"
-#include <spdlog/spdlog.h>
+
+#include "wren_include.hpp"
 
 #include <cstdint>
-#include <iostream>
 #include <optional>
+#include <spdlog/spdlog.h>
 #include <string>
 #include <vector>
 

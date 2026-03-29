@@ -1,6 +1,7 @@
 ﻿#pragma once
-#include "imgui_entt_entity_editor.hpp"
 #include <entt/entity/registry.hpp>
+#include <imgui_entt_entity_editor.hpp>
+
 
 // Add more variables for cheats here
 struct CheatsComponent

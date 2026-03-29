@@ -1,12 +1,14 @@
 #pragma once
 #include "common.hpp"
-#include "engine.hpp"
 
-#include "main_script.hpp"
-#include "scripting_context.hpp"
 #include "wren_engine.hpp"
+#include "wren_include.hpp"
 
 #include <memory>
+#include <string>
+
+class ScriptingContext;
+class MainScript;
 
 class ScriptingModule : public ModuleInterface
 {
@@ -18,8 +20,8 @@ public:
     NON_COPYABLE(ScriptingModule);
     NON_MOVABLE(ScriptingModule);
 
-    ScriptingModule() = default;
-    ~ScriptingModule() override = default;
+    ScriptingModule();
+    ~ScriptingModule() override;
 
     void ResetVM();
 
@@ -40,11 +42,7 @@ public:
         return _mainEngineScript;
     }
 
-    wren::ForeignModule& GetForeignAPI() const
-    {
-        return _context->GetVM().module(_engineBindingsPath);
-    }
-
+    wren::ForeignModule& GetForeignAPI() const;
     ScriptingContext& GetContext() const
     {
         return *_context;

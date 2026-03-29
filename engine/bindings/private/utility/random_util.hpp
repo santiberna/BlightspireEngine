@@ -1,7 +1,7 @@
 #pragma once
 
 #include "perlin_noise.hpp"
-#include "wren_common.hpp"
+#include "wren_include.hpp"
 #include <glm/glm.hpp>
 #include <glm/gtc/constants.hpp>
 

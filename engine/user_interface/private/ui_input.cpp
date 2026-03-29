@@ -1,6 +1,8 @@
 #include "ui_input.hpp"
 #include "input/action_manager.hpp"
 
+#include <glm/glm.hpp>
+
 UINavigationDirection UIInputContext::GetDirection(const ActionManager& actionManager)
 {
     glm::vec2 actionValue = actionManager.GetAnalogAction(_navigationActionName);

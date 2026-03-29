@@ -1,9 +1,14 @@
 #pragma once
 #include "common.hpp"
+
 #include "enum_utils.hpp"
-#include "input_device_manager.hpp"
-#include <glm/glm.hpp>
+#include "input/input_codes/gamepad.hpp"
+#include "input/input_codes/keys.hpp"
+#include "input/input_codes/mousebuttons.hpp"
+
+#include <glm/vec2.hpp>
 #include <string>
+#include <unordered_map>
 #include <variant>
 #include <vector>
 
@@ -96,6 +101,9 @@ class ActionManager
 public:
     ActionManager(const InputDeviceManager& inputDeviceManager);
     virtual ~ActionManager() = default;
+
+    NON_COPYABLE(ActionManager);
+    NON_MOVABLE(ActionManager);
 
     virtual void Update() { }
 

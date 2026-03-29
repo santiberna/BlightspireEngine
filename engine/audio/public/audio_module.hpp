@@ -1,12 +1,11 @@
 #pragma once
+#include "common.hpp"
 
 #include "audio_common.hpp"
-#include "common.hpp"
 #include "module_interface.hpp"
-#include <glm/glm.hpp>
+
+#include <glm/vec3.hpp>
 #include <queue>
-#include <string>
-#include <string_view>
 #include <unordered_map>
 #include <vector>
 
@@ -21,6 +20,9 @@ class AudioModule final : public ModuleInterface
 public:
     AudioModule() = default;
     ~AudioModule() override = default;
+
+    NON_COPYABLE(AudioModule);
+    NON_MOVABLE(AudioModule);
 
     // Resets all playing audio
     void Reset();

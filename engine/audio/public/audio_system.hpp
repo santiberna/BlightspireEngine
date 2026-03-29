@@ -1,11 +1,11 @@
 #pragma once
-
 #include "common.hpp"
+
 #include "system_interface.hpp"
 
-#include "physics_module.hpp"
-
 class AudioModule;
+class ECSModule;
+
 class AudioSystem final : public SystemInterface
 {
 public:

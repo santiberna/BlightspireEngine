@@ -5,7 +5,7 @@
 
 std::string_view NameComponent::GetDisplayName(const entt::registry& registry, entt::entity entity)
 {
-    if (auto* ptr = registry.try_get<NameComponent>(entity))
+    if (const auto* ptr = registry.try_get<NameComponent>(entity))
     {
         return std::string_view { ptr->name };
     }

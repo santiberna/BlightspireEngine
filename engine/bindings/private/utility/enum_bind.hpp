@@ -1,5 +1,5 @@
 #pragma once
-#include "wren_common.hpp"
+#include "wren_include.hpp"
 #include <magic_enum.hpp>
 
 namespace detail

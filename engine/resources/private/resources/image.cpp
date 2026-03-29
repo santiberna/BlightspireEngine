@@ -2,6 +2,7 @@
 
 #include "vulkan_helper.hpp"
 #include <file_io.hpp>
+#include <fstream>
 #include <spdlog/spdlog.h>
 #include <stb_image.h>
 #include <tracy/Tracy.hpp>

@@ -9,7 +9,7 @@ SteamStatManager::SteamStatManager(std::span<Stat> stats)
     , _callbackUserStatsReceived(this, &SteamStatManager::OnUserStatsReceived)
     , _callbackUserStatsStored(this, &SteamStatManager::OnUserStatsStored)
 {
-    if (auto utils = SteamUtils())
+    if (auto* utils = SteamUtils())
     {
         _appID = utils->GetAppID();
 
@@ -72,17 +72,17 @@ bool SteamStatManager::StoreStats()
     return false;
 }
 
-std::optional<Stat*> SteamStatManager::GetStat(std::string_view name)
+Stat* SteamStatManager::GetStat(std::string_view name)
 {
     if (!_initialized)
     {
-        return std::nullopt;
+        return nullptr;
     }
 
     auto result = std::find_if(_stats.begin(), _stats.end(), [&name](const auto& val)
         { return val.name == name; });
     if (result == _stats.end())
-        return std::nullopt;
+        return nullptr;
 
     return &*result;
 }

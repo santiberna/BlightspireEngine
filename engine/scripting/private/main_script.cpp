@@ -1,6 +1,7 @@
 #include "main_script.hpp"
 
 #include "wren_engine.hpp"
+
 #include <spdlog/spdlog.h>
 #include <tracy/Tracy.hpp>
 

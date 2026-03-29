@@ -32,6 +32,9 @@ target_compile_definitions(VulkanAPI
     INTERFACE
         VK_NO_PROTOTYPES
         VULKAN_HPP_NO_CONSTRUCTORS
+        # VULKAN_HPP_NO_SPACESHIP_OPERATOR
+        # VULKAN_HPP_NO_TO_STRING
+        # VULKAN_HPP_NO_EXCEPTIONS
 )
 
 # FastGLTF

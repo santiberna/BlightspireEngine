@@ -1,12 +1,10 @@
 #include "fonts.hpp"
 #include "graphics_context.hpp"
-#include "graphics_resources.hpp"
-#include "resource_management/image_resource_manager.hpp"
 #include "ui/ui_menus.hpp"
 #include "ui_image.hpp"
 #include "ui_text.hpp"
 
-std::shared_ptr<LoadingScreen> LoadingScreen::Create(GraphicsContext& graphicsContext, InputBindingsVisualizationCache& inputVisualizationsCache, const glm::uvec2& screenResolution, std::shared_ptr<UIFont> font)
+std::shared_ptr<LoadingScreen> LoadingScreen::Create(const bb::UIResources& resources, InputBindingsVisualizationCache& inputVisualizationsCache, const glm::uvec2& screenResolution, std::shared_ptr<UIFont> font)
 {
     auto loading = std::make_shared<LoadingScreen>(screenResolution, inputVisualizationsCache);
 
@@ -15,22 +13,8 @@ std::shared_ptr<LoadingScreen> LoadingScreen::Create(GraphicsContext& graphicsCo
     loading->anchorPoint = UIElement::AnchorPoint::eMiddle;
     loading->SetAbsoluteTransform(loading->GetAbsoluteLocation(), screenResolution);
 
-    {
-        // common image data.
-        CPUImage commonImageData;
-        commonImageData.format = vk::Format::eR8G8B8A8Unorm;
-        commonImageData.SetFlags(vk::ImageUsageFlagBits::eSampled);
-        commonImageData.isHDR = false;
-        commonImageData.name = "BlackBackdrop";
-
-        constexpr std::byte black = {};
-        constexpr std::byte white = static_cast<std::byte>(255);
-        commonImageData.initialData = { black, black, black, white };
-
-        auto backdropImage = graphicsContext.Resources()->ImageResourceManager().Create(commonImageData);
-        auto image = loading->AddChild<UIImage>(backdropImage, glm::vec2(), glm::vec2());
-        image->anchorPoint = UIElement::AnchorPoint::eFill;
-    }
+    auto image = loading->AddChild<UIImage>(resources.full_black_bg, glm::vec2(), glm::vec2());
+    image->anchorPoint = UIElement::AnchorPoint::eFill;
 
     loading->_continueTextLeft = loading->AddChild<UITextElement>(loading->_font.lock(), "Press", glm::vec2(380.0f, 30.0f), _textSize / 2.0f);
     std::shared_ptr<UITextElement> contLeftText = loading->_continueTextLeft.lock();
@@ -45,8 +29,6 @@ std::shared_ptr<LoadingScreen> LoadingScreen::Create(GraphicsContext& graphicsCo
     contGlyph->anchorPoint = UIElement::AnchorPoint::eBottomRight;
 
     loading->UpdateAllChildrenAbsoluteTransform();
-    graphicsContext.UpdateBindlessSet();
-
     return loading;
 }
 

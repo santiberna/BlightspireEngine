@@ -5,6 +5,9 @@
 #include "ui_button.hpp"
 #include "ui_slider.hpp"
 #include "ui_toggle.hpp"
+
+#include "ui/resources.hpp"
+
 #include <array>
 
 class UIImage;
@@ -18,7 +21,7 @@ inline constexpr size_t MAX_DASH_CHARGE_COUNT = 3;
 class HUD : public Canvas
 {
 public:
-    static std::shared_ptr<HUD> Create(GraphicsContext& graphicsContext, const glm::uvec2& screenResolution, std::shared_ptr<UIFont> font);
+    static std::shared_ptr<HUD> Create(const bb::UIResources& resources, const glm::uvec2& screenResolution, std::shared_ptr<UIFont> font);
 
     HUD(const glm::uvec2& screenResolution)
         : Canvas(screenResolution)
@@ -56,7 +59,7 @@ public:
 class MainMenu : public Canvas
 {
 public:
-    static std::shared_ptr<MainMenu> Create(GraphicsContext& graphicsContext, const glm::uvec2& screenResolution, std::shared_ptr<UIFont> font);
+    static std::shared_ptr<MainMenu> Create(const bb::UIResources& resources, const glm::uvec2& screenResolution, std::shared_ptr<UIFont> font);
 
     MainMenu(const glm::uvec2& screenResolution)
         : Canvas(screenResolution)
@@ -74,7 +77,7 @@ public:
 class GameVersionVisualization : public Canvas
 {
 public:
-    static std::shared_ptr<GameVersionVisualization> Create(GraphicsContext& graphicsContext, const glm::uvec2& screenResolution, std::shared_ptr<UIFont> font, const std::string& text);
+    static std::shared_ptr<GameVersionVisualization> Create(const glm::uvec2& screenResolution, std::shared_ptr<UIFont> font, const std::string& text);
 
     GameVersionVisualization(const glm::uvec2& screenResolution)
         : Canvas(screenResolution)
@@ -105,7 +108,7 @@ class LoadingScreen : public Canvas
     static constexpr uint32_t MAX_LINE_BREAKS = 5;
 
 public:
-    static std::shared_ptr<LoadingScreen> Create(GraphicsContext& graphicsContext, InputBindingsVisualizationCache& inputVisualizationsCache, const glm::uvec2& screenResolution, std::shared_ptr<UIFont> font);
+    static std::shared_ptr<LoadingScreen> Create(const bb::UIResources& resources, InputBindingsVisualizationCache& inputVisualizationsCache, const glm::uvec2& screenResolution, std::shared_ptr<UIFont> font);
 
     LoadingScreen(const glm::uvec2& screenResolution, InputBindingsVisualizationCache& inputVisualizationsCache)
         : Canvas(screenResolution)
@@ -133,7 +136,7 @@ private:
 class PauseMenu : public Canvas
 {
 public:
-    static std::shared_ptr<PauseMenu> Create(GraphicsContext& graphicsContext, const glm::uvec2& screenResolution, std::shared_ptr<UIFont> font);
+    static std::shared_ptr<PauseMenu> Create(const bb::UIResources& resources, const glm::uvec2& screenResolution, std::shared_ptr<UIFont> font);
 
     PauseMenu(const glm::uvec2& screenResolution)
         : Canvas(screenResolution)
@@ -149,7 +152,7 @@ public:
 class GameOverMenu : public Canvas
 {
 public:
-    static std::shared_ptr<GameOverMenu> Create(GraphicsContext& graphicsContext, const glm::uvec2& screenResolution, std::shared_ptr<UIFont> font);
+    static std::shared_ptr<GameOverMenu> Create(const bb::UIResources& resources, const glm::uvec2& screenResolution, std::shared_ptr<UIFont> font);
 
     GameOverMenu(const glm::uvec2& screenResolution)
         : Canvas(screenResolution)
@@ -165,7 +168,7 @@ class Engine;
 class ControlsMenu : public Canvas
 {
 public:
-    static std::shared_ptr<ControlsMenu> Create(const glm::uvec2& screenResolution, GraphicsContext& graphicsContext, InputBindingsVisualizationCache& inputVisualizationsCache, ActionManager& actionManager, std::shared_ptr<UIFont> font);
+    static std::shared_ptr<ControlsMenu> Create(const glm::uvec2& screenResolution, const bb::UIResources& resources, GraphicsContext& graphicsContext, InputBindingsVisualizationCache& inputVisualizationsCache, ActionManager& actionManager, std::shared_ptr<UIFont> font);
 
     ControlsMenu(const glm::uvec2& screenResolution, const glm::ivec2 canvasResolution, GraphicsContext& graphicsContext, InputBindingsVisualizationCache& inputVisualizationsCache, ActionManager& actionManager, std::shared_ptr<UIFont> font)
         : Canvas(screenResolution)
@@ -220,7 +223,7 @@ private:
 class CreditsMenu : public Canvas
 {
 public:
-    static std::shared_ptr<CreditsMenu> Create(Engine& engine, GraphicsContext& graphicsContext, const glm::uvec2& screenResolution, std::shared_ptr<UIFont> font);
+    static std::shared_ptr<CreditsMenu> Create(Engine& engine, const bb::UIResources& resources, const glm::uvec2& screenResolution, std::shared_ptr<UIFont> font);
 
     CreditsMenu(const glm::uvec2& screenResolution)
         : Canvas(screenResolution)
@@ -233,7 +236,7 @@ public:
 class SettingsMenu : public Canvas
 {
 public:
-    static std::shared_ptr<SettingsMenu> Create(Engine& engine, GraphicsContext& graphicsContext, const glm::uvec2& screenResolution, std::shared_ptr<UIFont> font);
+    static std::shared_ptr<SettingsMenu> Create(Engine& engine, const bb::UIResources& resources, const glm::uvec2& screenResolution, std::shared_ptr<UIFont> font);
 
     SettingsMenu(const glm::uvec2& screenResolution)
         : Canvas(screenResolution)

@@ -17,6 +17,7 @@ enum class ImageFormat
     NONE,
 
     // Color sRGB
+    // sRGB is not used in the renderer as things are gamma corrected in the pipeline
     R8G8B8A8_SRGB,
     R8G8B8_SRGB,
     R8G8_SRGB,

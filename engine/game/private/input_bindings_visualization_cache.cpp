@@ -59,10 +59,7 @@ ResourceHandle<GPUImage> InputBindingsVisualizationCache::GetGlyph(const std::st
     }
 
     auto& imageResourceManager = _graphicsContext.Resources()->ImageResourceManager();
-
-    SingleTimeCommands upload { *_graphicsContext.GetVulkanContext() };
-    GPUImage texture { upload, glyphImage.value(), imageResourceManager._defaultSampler, bb::TextureFlags::COMMON_FLAGS, nullptr };
-    auto image = imageResourceManager.Create(std::move(texture));
+    auto image = imageResourceManager.Create(glyphImage.value(), bb::TextureFlags::COMMON_FLAGS, path);
 
     _graphicsContext.UpdateBindlessSet();
     _glyphCache.emplace(path, image);

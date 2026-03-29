@@ -1,8 +1,9 @@
 #pragma once
-#include "common.hpp"
-#include "engine.hpp"
+#include "module_interface.hpp"
+
 #include <memory>
 #include <string>
+#include <unordered_map>
 
 class Editor;
 class ImGuiBackend;

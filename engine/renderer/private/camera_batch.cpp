@@ -55,7 +55,7 @@ vk::DescriptorSet CameraBatch::Draw::CreateDescriptor(const std::shared_ptr<Grap
     };
 
     vk::Device device = context->GetVulkanContext()->Device();
-    vk::DescriptorSet descriptor = device.allocateDescriptorSets(allocateInfo).front();
+    vk::DescriptorSet descriptor = device.allocateDescriptorSets(allocateInfo).value.front();
 
     vk::DescriptorBufferInfo bufferInfo {
         .buffer = context->Resources()->BufferResourceManager().Access(buffer)->buffer,

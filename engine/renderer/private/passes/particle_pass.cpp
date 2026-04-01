@@ -409,7 +409,7 @@ void ParticlePass::CreatePipelines()
         pipelineLayoutCreateInfo.pSetLayouts = layouts.data();
         pipelineLayoutCreateInfo.pushConstantRangeCount = 0;
 
-        _pipelineLayouts[static_cast<uint32_t>(ShaderStages::eKickOff)] = device.createPipelineLayout(pipelineLayoutCreateInfo);
+        _pipelineLayouts[static_cast<uint32_t>(ShaderStages::eKickOff)] = device.createPipelineLayout(pipelineLayoutCreateInfo).value;
 
         std::vector<std::byte> byteCode = shader::ReadFile("shaders/bin/kick_off.comp.spv");
 
@@ -448,7 +448,7 @@ void ParticlePass::CreatePipelines()
         pipelineLayoutCreateInfo.pushConstantRangeCount = 1;
         pipelineLayoutCreateInfo.pPushConstantRanges = &pcRange;
 
-        _pipelineLayouts[static_cast<uint32_t>(ShaderStages::eEmit)] = device.createPipelineLayout(pipelineLayoutCreateInfo);
+        _pipelineLayouts[static_cast<uint32_t>(ShaderStages::eEmit)] = device.createPipelineLayout(pipelineLayoutCreateInfo).value;
 
         auto byteCode = shader::ReadFile("shaders/bin/emit.comp.spv");
 
@@ -487,7 +487,7 @@ void ParticlePass::CreatePipelines()
         pipelineLayoutCreateInfo.pushConstantRangeCount = 1;
         pipelineLayoutCreateInfo.pPushConstantRanges = &pcRange;
 
-        _pipelineLayouts[static_cast<uint32_t>(ShaderStages::eSimulate)] = device.createPipelineLayout(pipelineLayoutCreateInfo);
+        _pipelineLayouts[static_cast<uint32_t>(ShaderStages::eSimulate)] = device.createPipelineLayout(pipelineLayoutCreateInfo).value;
 
         std::vector<std::byte> byteCode = shader::ReadFile("shaders/bin/simulate.comp.spv");
 

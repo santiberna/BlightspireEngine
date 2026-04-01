@@ -41,7 +41,7 @@ private:
     std::shared_ptr<GraphicsContext> _context;
     ResourceHandle<GPUImage> _outputTarget;
     const SwapChain& _swapChain;
-    vk::UniqueSampler _sampler;
+    vk::Sampler _sampler;
 
     void CreatePipeLine();
 };

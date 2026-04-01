@@ -10,56 +10,25 @@
 #include <glm/glm.hpp>
 #include <resource_management/sampler_resource_manager.hpp>
 
-std::shared_ptr<MainMenu> MainMenu::Create(GraphicsContext& graphicsContext, const glm::uvec2& screenResolution, std::shared_ptr<UIFont> font)
+std::shared_ptr<MainMenu> MainMenu::Create(const bb::UIResources& resources, const glm::uvec2& screenResolution, std::shared_ptr<UIFont> font)
 {
     auto main = std::make_shared<MainMenu>(screenResolution);
 
     main->anchorPoint = UIElement::AnchorPoint::eTopLeft;
     main->SetAbsoluteTransform(main->GetAbsoluteLocation(), screenResolution);
 
-    SamplerCreation samplerCreation;
-    samplerCreation.minFilter = vk::Filter::eNearest;
-    samplerCreation.magFilter = vk::Filter::eNearest;
-    static ResourceHandle<Sampler> sampler = graphicsContext.Resources()->SamplerResourceManager().Create(samplerCreation);
-
-    // resource loading.
-    auto loadButtonStyle = [&graphicsContext]()
-    {
-        // common image data.
-        CPUImage commonImageData;
-        commonImageData.format = vk::Format::eR8G8B8A8Unorm;
-        commonImageData.SetFlags(vk::ImageUsageFlagBits::eSampled);
-        commonImageData.isHDR = false;
-
-        UIButton::ButtonStyle buttonStyle {
-            .normalImage = graphicsContext.Resources()->ImageResourceManager().Create(commonImageData.FromPNG("assets/textures/ui/button.png"), sampler),
-            .hoveredImage = graphicsContext.Resources()->ImageResourceManager().Create(commonImageData.FromPNG("assets/textures/ui/button_2.png"), sampler),
-            .pressedImage = graphicsContext.Resources()->ImageResourceManager().Create(commonImageData.FromPNG("assets/textures/ui/button_selected.png"), sampler)
-        };
-        return buttonStyle;
-    };
-
-    UIButton::ButtonStyle buttonStyle = loadButtonStyle();
-    glm::vec2 screenResFloat = { 1920, 1080 };
+    glm::vec2 screenResFloat = screenResolution;
 
     // Title
     {
-        CPUImage commonImageData;
-        commonImageData.format = vk::Format::eR8G8B8A8Unorm;
-        commonImageData.SetFlags(vk::ImageUsageFlagBits::eSampled);
-        commonImageData.FromPNG("assets/textures/blightspire_logo.png");
-
         glm::vec2 pos = glm::vec2(screenResFloat.y * 0.1f);
-        glm::vec2 size = glm::vec2((static_cast<float>(commonImageData.width) / static_cast<float>(commonImageData.height)), 1.0f) * (0.5f * screenResFloat.y);
+        glm::vec2 size = glm::vec2(2.0f, 1.0f) * screenResFloat.y * 0.5f;
 
-        ResourceHandle<GPUImage> logo = graphicsContext.Resources()->ImageResourceManager().Create(commonImageData, sampler);
-
-        auto logoElement = main->AddChild<UIImage>(logo, pos, size);
+        auto logoElement = main->AddChild<UIImage>(resources.menu_title, pos, size);
         logoElement->anchorPoint = UIElement::AnchorPoint::eTopLeft;
     }
 
     // Buttons
-
     auto buttonPanel = main->AddChild<Canvas>(glm::vec2 { 0.0f, 0.0f });
 
     {
@@ -73,36 +42,36 @@ std::shared_ptr<MainMenu> MainMenu::Create(GraphicsContext& graphicsContext, con
         constexpr glm::vec2 buttonBaseSize = glm::vec2(87, 22) * 6.0f;
         constexpr float textSize = 60;
 
-        auto openLinkButton = main->AddChild<UIButton>(buttonStyle, glm::vec2(0), buttonBaseSize);
+        auto openLinkButton = main->AddChild<UIButton>(resources.button_style, glm::vec2(0), buttonBaseSize);
         openLinkButton->anchorPoint = UIElement::AnchorPoint::eBottomRight;
         openLinkButton->AddChild<UITextElement>(font, "Check out our Discord!", 50);
         main->openLinkButton = openLinkButton;
 
-        auto playButton = buttonPanel->AddChild<UIButton>(buttonStyle, buttonPos, buttonBaseSize);
+        auto playButton = buttonPanel->AddChild<UIButton>(resources.button_style, buttonPos, buttonBaseSize);
         playButton->anchorPoint = UIElement::AnchorPoint::eTopLeft;
         auto text = playButton->AddChild<UITextElement>(font, "Play", textSize);
 
         buttonPos += increment;
 
-        auto controlsButton = buttonPanel->AddChild<UIButton>(buttonStyle, buttonPos, buttonBaseSize);
+        auto controlsButton = buttonPanel->AddChild<UIButton>(resources.button_style, buttonPos, buttonBaseSize);
         controlsButton->anchorPoint = UIElement::AnchorPoint::eTopLeft;
         controlsButton->AddChild<UITextElement>(font, "Controls", textSize);
 
         buttonPos += increment;
 
-        auto settingsButton = buttonPanel->AddChild<UIButton>(buttonStyle, buttonPos, buttonBaseSize);
+        auto settingsButton = buttonPanel->AddChild<UIButton>(resources.button_style, buttonPos, buttonBaseSize);
         settingsButton->anchorPoint = UIElement::AnchorPoint::eTopLeft;
         settingsButton->AddChild<UITextElement>(font, "Settings", textSize);
 
         buttonPos += increment;
 
-        auto creditsButton = buttonPanel->AddChild<UIButton>(buttonStyle, buttonPos, buttonBaseSize);
+        auto creditsButton = buttonPanel->AddChild<UIButton>(resources.button_style, buttonPos, buttonBaseSize);
         creditsButton->anchorPoint = UIElement::AnchorPoint::eTopLeft;
         creditsButton->AddChild<UITextElement>(font, "Credits", textSize);
 
         buttonPos += increment;
 
-        auto quitButton = buttonPanel->AddChild<UIButton>(buttonStyle, buttonPos, buttonBaseSize);
+        auto quitButton = buttonPanel->AddChild<UIButton>(resources.button_style, buttonPos, buttonBaseSize);
         quitButton->anchorPoint = UIElement::AnchorPoint::eTopLeft;
         quitButton->AddChild<UITextElement>(font, "Quit", textSize);
 
@@ -131,10 +100,6 @@ std::shared_ptr<MainMenu> MainMenu::Create(GraphicsContext& graphicsContext, con
         main->openLinkButton.lock()->navigationTargets.up = main->quitButton;
 
         main->UpdateAllChildrenAbsoluteTransform();
-        void(0);
     }
-
-    graphicsContext.UpdateBindlessSet();
-
     return main;
 }

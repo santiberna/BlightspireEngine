@@ -874,7 +874,7 @@ void GPUScene::CreateObjectInstancesDescriptorSets()
     allocateInfo.pSetLayouts = layouts.data();
 
     vk::Device device = _context->GetVulkanContext()->Device();
-    std::vector<vk::DescriptorSet> descriptorSets = device.allocateDescriptorSets(allocateInfo);
+    std::vector<vk::DescriptorSet> descriptorSets = device.allocateDescriptorSets(allocateInfo).value;
 
     for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
     {
@@ -1276,7 +1276,7 @@ void GPUScene::InitializeIndirectDrawDescriptor()
     allocateInfo.pSetLayouts = layouts.data();
 
     vk::Device device = vkContext->Device();
-    std::vector<vk::DescriptorSet> descriptorSets = device.allocateDescriptorSets(allocateInfo);
+    std::vector<vk::DescriptorSet> descriptorSets = device.allocateDescriptorSets(allocateInfo).value;
 
     std::array<vk::DescriptorBufferInfo, MAX_FRAMES_IN_FLIGHT> bufferInfos;
     std::array<vk::WriteDescriptorSet, MAX_FRAMES_IN_FLIGHT> bufferWrites;
@@ -1298,7 +1298,7 @@ void GPUScene::InitializeIndirectDrawDescriptor()
     }
 
     device.updateDescriptorSets(bufferWrites, {});
-    descriptorSets = device.allocateDescriptorSets(allocateInfo);
+    descriptorSets = device.allocateDescriptorSets(allocateInfo).value;
 
     for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
     {

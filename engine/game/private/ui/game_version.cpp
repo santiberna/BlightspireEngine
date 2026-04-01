@@ -1,9 +1,8 @@
 #include "fonts.hpp"
-#include "graphics_context.hpp"
 #include "ui/ui_menus.hpp"
 #include "ui_text.hpp"
 
-std::shared_ptr<GameVersionVisualization> GameVersionVisualization::Create(GraphicsContext& graphicsContext, const glm::uvec2& screenResolution, std::shared_ptr<UIFont> font, const std::string& text)
+std::shared_ptr<GameVersionVisualization> GameVersionVisualization::Create(const glm::uvec2& screenResolution, std::shared_ptr<UIFont> font, const std::string& text)
 {
     auto visualization = std::make_shared<GameVersionVisualization>(screenResolution);
 
@@ -18,7 +17,6 @@ std::shared_ptr<GameVersionVisualization> GameVersionVisualization::Create(Graph
     visualization->text.lock()->display_color = glm::vec4(0.75f, 0.75f, 0.75f, 0.75f);
 
     visualization->UpdateAllChildrenAbsoluteTransform();
-    graphicsContext.UpdateBindlessSet();
 
     return visualization;
 }

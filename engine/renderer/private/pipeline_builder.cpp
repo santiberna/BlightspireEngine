@@ -63,7 +63,7 @@ vk::DescriptorSetLayout PipelineBuilder::CacheDescriptorSetLayout(const VulkanCo
                 .pBindings = bindings.data(),
             };
         }
-        vk::DescriptorSetLayout layout { device.createDescriptorSetLayout(createInfo.value(), nullptr) };
+        vk::DescriptorSetLayout layout { device.createDescriptorSetLayout(createInfo.value(), nullptr).value };
 
         _cacheDescriptorSetLayouts[hash] = layout;
     }
@@ -182,7 +182,7 @@ void PipelineBuilder::ReflectDescriptorLayouts(const PipelineBuilder::ShaderStag
             };
 
             vk::Device device = _context->GetVulkanContext()->Device();
-            vk::DescriptorSetLayout layout { device.createDescriptorSetLayout(layoutInfo, nullptr) };
+            vk::DescriptorSetLayout layout { device.createDescriptorSetLayout(layoutInfo, nullptr).value };
 
             _descriptorSetLayouts[set->set] = layout;
             _cacheDescriptorSetLayouts[hash] = _descriptorSetLayouts[set->set];
@@ -200,7 +200,7 @@ vk::PipelineLayout PipelineBuilder::CreatePipelineLayout()
     };
 
     vk::Device device = _context->GetVulkanContext()->Device();
-    return device.createPipelineLayout(createInfo, nullptr);
+    return device.createPipelineLayout(createInfo, nullptr).value;
 }
 
 vk::ShaderModule PipelineBuilder::CreateShaderModule(const std::vector<std::byte>& spirvBytes)
@@ -211,7 +211,7 @@ vk::ShaderModule PipelineBuilder::CreateShaderModule(const std::vector<std::byte
     };
 
     vk::Device device = _context->GetVulkanContext()->Device();
-    return device.createShaderModule(createInfo, nullptr);
+    return device.createShaderModule(createInfo, nullptr).value;
 }
 
 size_t PipelineBuilder::HashBindings(const std::vector<vk::DescriptorSetLayoutBinding>& bindings, const std::vector<std::string_view>& names)

@@ -105,7 +105,7 @@ VKAPI_ATTR VkBool32 VKAPI_CALL VulkanDebugCallback(
 
 bool ExtensionsSupported(vk::PhysicalDevice deviceToCheckSupport)
 {
-    std::vector<vk::ExtensionProperties> availableExtensions = deviceToCheckSupport.enumerateDeviceExtensionProperties();
+    std::vector<vk::ExtensionProperties> availableExtensions = deviceToCheckSupport.enumerateDeviceExtensionProperties().value;
     std::set<std::string> requiredExtensions { DEVICE_EXTENSIONS.begin(), DEVICE_EXTENSIONS.end() };
     for (const auto& extension : availableExtensions)
         requiredExtensions.erase(extension.extensionName);
@@ -224,7 +224,7 @@ VulkanContext::VulkanContext(SDL_Window* window)
     m_impl = std::make_unique<Impl>();
     VULKAN_HPP_DEFAULT_DISPATCHER.init();
 
-    auto loader_version = vk::enumerateInstanceVersion();
+    auto loader_version = vk::enumerateInstanceVersion().value;
     if (loader_version < VULKAN_API_VERSION)
     {
         spdlog::error("VulkanContext: Requires version {}.{}, but max supported by loader is {}.{}",
@@ -238,7 +238,7 @@ VulkanContext::VulkanContext(SDL_Window* window)
         return;
     }
 
-    auto layers = vk::enumerateInstanceLayerProperties();
+    auto layers = vk::enumerateInstanceLayerProperties().value;
 
     std::vector<std::string_view> layer_names;
     for (const auto& layer : layers)
@@ -263,7 +263,7 @@ VulkanContext::VulkanContext(SDL_Window* window)
     const char* const* extension_array = SDL_Vulkan_GetInstanceExtensions(&sdl_extensions_count);
     requested_extensions.insert(requested_extensions.end(), extension_array, extension_array + sdl_extensions_count);
 
-    auto instance_extensions = vk::enumerateInstanceExtensionProperties();
+    auto instance_extensions = vk::enumerateInstanceExtensionProperties().value;
 
     std::vector<std::string_view> extension_names;
     for (const auto& extension : instance_extensions)
@@ -334,7 +334,7 @@ VulkanContext::VulkanContext(SDL_Window* window)
     }
     m_impl->surface = window_surface;
 
-    std::vector<vk::PhysicalDevice> devices = m_impl->instance.enumeratePhysicalDevices();
+    std::vector<vk::PhysicalDevice> devices = m_impl->instance.enumeratePhysicalDevices().value;
     if (devices.empty())
         throw std::runtime_error("No GPU's with Vulkan support available!");
 
@@ -441,7 +441,7 @@ VulkanContext::VulkanContext(SDL_Window* window)
     spdlog::info("##### SYSTEM INFO #####");
     spdlog::info("Operating System: {}", bb::getOsName());
 
-    uint32_t apiVersion = vk::enumerateInstanceVersion();
+    uint32_t apiVersion = vk::enumerateInstanceVersion().value;
     uint32_t major = VK_VERSION_MAJOR(apiVersion);
     uint32_t minor = VK_VERSION_MINOR(apiVersion);
     uint32_t patch = VK_VERSION_PATCH(apiVersion);

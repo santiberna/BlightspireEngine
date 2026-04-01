@@ -6,9 +6,8 @@
 #include "graphics_context.hpp"
 #include "graphics_resources.hpp"
 #include "resource_management/image_resource_manager.hpp"
-#include "resource_management/sampler_resource_manager.hpp"
 
-std::shared_ptr<ControlsMenu> ControlsMenu::Create(const glm::uvec2& screenResolution, GraphicsContext& graphicsContext, InputBindingsVisualizationCache& inputVisualizationsCache, ActionManager& actionManager, std::shared_ptr<UIFont> font)
+std::shared_ptr<ControlsMenu> ControlsMenu::Create(const glm::uvec2& screenResolution, const bb::UIResources& resources, GraphicsContext& graphicsContext, InputBindingsVisualizationCache& inputVisualizationsCache, ActionManager& actionManager, std::shared_ptr<UIFont> font)
 {
     constexpr glm::ivec2 popupResolution(423.0f * 5, 233.0f * 5);
 
@@ -16,47 +15,16 @@ std::shared_ptr<ControlsMenu> ControlsMenu::Create(const glm::uvec2& screenResol
     menu->anchorPoint = UIElement::AnchorPoint::eMiddle;
     menu->SetAbsoluteTransform(menu->GetAbsoluteLocation(), screenResolution);
 
-    SamplerCreation samplerCreation;
-    samplerCreation.minFilter = vk::Filter::eNearest;
-    samplerCreation.magFilter = vk::Filter::eNearest;
-    menu->sampler = graphicsContext.Resources()->SamplerResourceManager().Create(samplerCreation);
-
     {
-        // common image data.
-        CPUImage commonImageData;
-        commonImageData.format = vk::Format::eR8G8B8A8Unorm;
-        commonImageData.SetFlags(vk::ImageUsageFlagBits::eSampled);
-        commonImageData.isHDR = false;
-        commonImageData.name = "BlackBackdrop";
-
-        constexpr std::byte black = {};
-        constexpr std::byte transparent = static_cast<std::byte>(150);
-        commonImageData.initialData = { black, black, black, transparent };
-
-        auto backdropImage = graphicsContext.Resources()->ImageResourceManager().Create(commonImageData);
-        auto image = menu->AddChild<UIImage>(backdropImage, glm::vec2(), glm::vec2());
+        auto image = menu->AddChild<UIImage>(resources.partial_black_bg, glm::vec2(), glm::vec2());
         image->anchorPoint = UIElement::AnchorPoint::eFill;
-    }
-
-    // Button Style
-    UIButton::ButtonStyle buttonStyle {};
-    {
-        // common image data.
-        CPUImage commonImageData;
-        commonImageData.format = vk::Format::eR8G8B8A8Unorm;
-        commonImageData.SetFlags(vk::ImageUsageFlagBits::eSampled);
-        commonImageData.isHDR = false;
-
-        buttonStyle.normalImage = graphicsContext.Resources()->ImageResourceManager().Create(commonImageData.FromPNG("assets/textures/ui/button.png"), menu->sampler);
-        buttonStyle.hoveredImage = graphicsContext.Resources()->ImageResourceManager().Create(commonImageData.FromPNG("assets/textures/ui/button_2.png"), menu->sampler);
-        buttonStyle.pressedImage = graphicsContext.Resources()->ImageResourceManager().Create(commonImageData.FromPNG("assets/textures/ui/button_selected.png"), menu->sampler);
     }
 
     glm::vec2 buttonPos = { 50.0f, 100.0f };
     constexpr glm::vec2 buttonBaseSize = glm::vec2(87, 22) * 3.0f;
     constexpr float buttonTextSize = 60.0f;
 
-    auto backButton = menu->AddChild<UIButton>(buttonStyle, buttonPos, buttonBaseSize);
+    auto backButton = menu->AddChild<UIButton>(resources.button_style, buttonPos, buttonBaseSize);
     backButton->anchorPoint = UIElement::AnchorPoint::eBottomLeft;
     backButton->AddChild<UITextElement>(font, "Back", buttonTextSize);
     menu->backButton = backButton;
@@ -66,12 +34,7 @@ std::shared_ptr<ControlsMenu> ControlsMenu::Create(const glm::uvec2& screenResol
     popupPanel->SetLocation(glm::vec2(0.0f, -80.0f));
 
     {
-        CPUImage commonImageData;
-        commonImageData.format = vk::Format::eR8G8B8A8Unorm;
-        commonImageData.SetFlags(vk::ImageUsageFlagBits::eSampled);
-        commonImageData.isHDR = false;
-
-        auto image = popupPanel->AddChild<UIImage>(graphicsContext.Resources()->ImageResourceManager().Create(commonImageData.FromPNG("assets/textures/ui/popup_background.png"), menu->sampler), glm::vec2(0.0f), glm::vec2(0.0f));
+        auto image = popupPanel->AddChild<UIImage>(resources.controls_bg, glm::vec2(0.0f), glm::vec2(0.0f));
         image->anchorPoint = UIElement::AnchorPoint::eFill;
     }
 

@@ -12,7 +12,11 @@ namespace bindings
 {
 std::optional<Stat*> GetStat(SteamModule& self, SteamStatEnum stats)
 {
-    return self.GetStats().GetStat(magic_enum::enum_name(stats));
+    if (auto* ptr = self.GetStats().GetStat(magic_enum::enum_name(stats)))
+    {
+        return ptr;
+    }
+    return std::nullopt;
 }
 Achievement* GetAchievement(SteamModule& self, SteamAchievementEnum achievements)
 {

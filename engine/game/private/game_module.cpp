@@ -25,11 +25,11 @@
 #include "renderer.hpp"
 #include "renderer_module.hpp"
 #include "scene/model_loader.hpp"
-#include "scripting_context.hpp"
 #include "scripting_module.hpp"
 #include "steam_module.hpp"
 #include "systems/lifetime_system.hpp"
 #include "time_module.hpp"
+#include "ui/resources.hpp"
 #include "ui/ui_menus.hpp"
 #include "ui_module.hpp"
 #include "ui_text.hpp"
@@ -104,25 +104,25 @@ ModuleTickOrder GameModule::Init(Engine& engine)
     font->metrics.charSpacing = 0;
 
     std::string gameVersionText {};
+    gameSettings = GameSettings::FromFile(GAME_SETTINGS_FILE);
+    auto ui_resources = bb::UIResources::Load(graphicsContext);
+    ApplySettings(engine);
+
     if (auto versionFile = fileIO::OpenReadStream("version.txt"))
     {
         gameVersionText = fileIO::DumpStreamIntoString(versionFile.value());
-        viewport.AddElement(GameVersionVisualization::Create(graphicsContext, viewportSize, font, gameVersionText));
+        viewport.AddElement(GameVersionVisualization::Create(viewportSize, font, gameVersionText));
     }
-    _gameVersionVisual = viewport.AddElement(GameVersionVisualization::Create(graphicsContext, viewportSize, font, gameVersionText));
+    _gameVersionVisual = viewport.AddElement(GameVersionVisualization::Create(viewportSize, font, gameVersionText));
 
-    _mainMenu = viewport.AddElement(MainMenu::Create(graphicsContext, viewportSize, font));
-    _hud = viewport.AddElement(HUD::Create(graphicsContext, viewportSize, font));
-    _loadingScreen = viewport.AddElement(LoadingScreen::Create(graphicsContext, *_bindingsVisualizationCache, viewportSize, font));
-    _pauseMenu = viewport.AddElement(PauseMenu::Create(graphicsContext, viewportSize, font));
-    _gameOver = viewport.AddElement(GameOverMenu::Create(graphicsContext, viewportSize, font));
-    _controlsMenu = viewport.AddElement(ControlsMenu::Create(viewportSize, graphicsContext, *_bindingsVisualizationCache, actionManager, font));
-    _creditsMenu = viewport.AddElement(CreditsMenu::Create(engine, graphicsContext, viewportSize, font));
-
-    gameSettings = GameSettings::FromFile(GAME_SETTINGS_FILE);
-
-    ApplySettings(engine);
-    _settingsMenu = viewport.AddElement(SettingsMenu::Create(engine, graphicsContext, viewportSize, font));
+    _mainMenu = viewport.AddElement(MainMenu::Create(ui_resources, viewportSize, font));
+    _hud = viewport.AddElement(HUD::Create(ui_resources, viewportSize, font));
+    _loadingScreen = viewport.AddElement(LoadingScreen::Create(ui_resources, *_bindingsVisualizationCache, viewportSize, font));
+    _pauseMenu = viewport.AddElement(PauseMenu::Create(ui_resources, viewportSize, font));
+    _gameOver = viewport.AddElement(GameOverMenu::Create(ui_resources, viewportSize, font));
+    _controlsMenu = viewport.AddElement(ControlsMenu::Create(viewportSize, ui_resources, graphicsContext, *_bindingsVisualizationCache, actionManager, font));
+    _creditsMenu = viewport.AddElement(CreditsMenu::Create(engine, ui_resources, viewportSize, font));
+    _settingsMenu = viewport.AddElement(SettingsMenu::Create(engine, ui_resources, viewportSize, font));
 
     // Set all UI menus invisible
 

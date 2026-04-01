@@ -40,7 +40,7 @@ Sampler::Sampler(const SamplerCreation& creation, const std::shared_ptr<VulkanCo
     createInfo.magFilter = creation.magFilter;
 
     vk::Device device = _context->Device();
-    sampler = device.createSampler(createInfo);
+    sampler = device.createSampler(createInfo).value;
 
     _context->DebugSetObjectName(sampler, creation.name.c_str());
 }

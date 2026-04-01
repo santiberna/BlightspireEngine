@@ -537,13 +537,13 @@ GPUImage::GPUImage(const CPUImage& creation, ResourceHandle<Sampler> textureSamp
         viewCreateInfo.subresourceRange.baseMipLevel = 0;
         viewCreateInfo.subresourceRange.baseArrayLayer = i;
         Layer& layer = layerViews.emplace_back();
-        layer.view = device.createImageView(viewCreateInfo);
+        layer.view = device.createImageView(viewCreateInfo).value;
 
         for (size_t j = 0; j < imageCreateInfo.mipLevels; ++j)
         {
             viewCreateInfo.subresourceRange.levelCount = 1;
             viewCreateInfo.subresourceRange.baseMipLevel = j;
-            layer.mipViews.emplace_back(device.createImageView(viewCreateInfo));
+            layer.mipViews.emplace_back(device.createImageView(viewCreateInfo).value);
         }
     }
     view = layerViews.begin()->view;
@@ -865,13 +865,13 @@ GPUImage::GPUImage(SingleTimeCommands& upload_commands, const bb::Image2D& image
         viewCreateInfo.subresourceRange.baseMipLevel = 0;
         viewCreateInfo.subresourceRange.baseArrayLayer = i;
         Layer& layer = layerViews.emplace_back();
-        layer.view = device.createImageView(viewCreateInfo);
+        layer.view = device.createImageView(viewCreateInfo).value;
 
         for (size_t j = 0; j < imageCreateInfo.mipLevels; ++j)
         {
             viewCreateInfo.subresourceRange.levelCount = 1;
             viewCreateInfo.subresourceRange.baseMipLevel = j;
-            layer.mipViews.emplace_back(device.createImageView(viewCreateInfo));
+            layer.mipViews.emplace_back(device.createImageView(viewCreateInfo).value);
         }
     }
     view = layerViews.begin()->view;

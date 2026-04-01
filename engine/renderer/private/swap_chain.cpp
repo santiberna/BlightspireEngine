@@ -67,7 +67,7 @@ void SwapChain::CreateSwapChain(const glm::uvec2& screenSize)
 
     vkContext->DebugSetObjectName(_swapChain, "Main Swapchain");
 
-    _images = device.getSwapchainImagesKHR(_swapChain);
+    _images = device.getSwapchainImagesKHR(_swapChain).value;
     _format = surfaceFormat.format;
     _extent = extent;
 
@@ -140,8 +140,8 @@ SwapChain::SupportDetails SwapChain::QuerySupport(vk::PhysicalDevice device, vk:
 
     util::VK_ASSERT(device.getSurfaceCapabilitiesKHR(surface, &details.capabilities), "Failed getting surface capabilities from physical device!");
 
-    details.formats = device.getSurfaceFormatsKHR(surface);
-    details.presentModes = device.getSurfacePresentModesKHR(surface);
+    details.formats = device.getSurfaceFormatsKHR(surface).value;
+    details.presentModes = device.getSurfacePresentModesKHR(surface).value;
 
     return details;
 }

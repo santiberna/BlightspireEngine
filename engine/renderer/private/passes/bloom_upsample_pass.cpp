@@ -40,9 +40,9 @@ void BloomUpsamplePass::RecordCommands(vk::CommandBuffer commandBuffer, uint32_t
     startBarrier.dstAccessMask = vk::AccessFlagBits2::eShaderWrite;
 
     vk::DependencyInfo startDependencyInfo {};
-    startDependencyInfo.setImageMemoryBarrierCount(1)
-        .setPImageMemoryBarriers(&startBarrier);
 
+    startDependencyInfo.imageMemoryBarrierCount = 1;
+    startDependencyInfo.pImageMemoryBarriers = &startBarrier;
     commandBuffer.pipelineBarrier2(startDependencyInfo);
 
     for (uint32_t mip = image->mips - 1; mip > 0; --mip)
@@ -115,8 +115,9 @@ void BloomUpsamplePass::RecordCommands(vk::CommandBuffer commandBuffer, uint32_t
         mipBarrier.subresourceRange.layerCount = 1;
 
         vk::DependencyInfo mipDependencyInfo {};
-        mipDependencyInfo.setImageMemoryBarrierCount(1)
-            .setPImageMemoryBarriers(&mipBarrier);
+
+        mipDependencyInfo.imageMemoryBarrierCount = 1;
+        mipDependencyInfo.pImageMemoryBarriers = &mipBarrier;
 
         commandBuffer.pipelineBarrier2(mipDependencyInfo);
     }
@@ -130,8 +131,8 @@ void BloomUpsamplePass::RecordCommands(vk::CommandBuffer commandBuffer, uint32_t
     endBarrier.dstAccessMask = vk::AccessFlagBits2::eShaderWrite;
 
     vk::DependencyInfo endDependencyInfo {};
-    endDependencyInfo.setImageMemoryBarrierCount(1)
-        .setPImageMemoryBarriers(&endBarrier);
+    endDependencyInfo.imageMemoryBarrierCount = 1;
+    endDependencyInfo.pImageMemoryBarriers = &endBarrier;
 
     commandBuffer.pipelineBarrier2(endDependencyInfo);
 }

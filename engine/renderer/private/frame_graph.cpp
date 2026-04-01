@@ -329,10 +329,11 @@ void FrameGraph::CreateMemoryBarriers()
         }
 
         // Compile all barriers into dependency info to run them in a batch
-        node.dependencyInfo.setImageMemoryBarrierCount(node.imageMemoryBarriers.size())
-            .setPImageMemoryBarriers(node.imageMemoryBarriers.data())
-            .setBufferMemoryBarrierCount(node.bufferMemoryBarriers.size())
-            .setPBufferMemoryBarriers(node.bufferMemoryBarriers.data());
+        node.dependencyInfo.imageMemoryBarrierCount = node.imageMemoryBarriers.size();
+        node.dependencyInfo.pImageMemoryBarriers = node.imageMemoryBarriers.data();
+
+        node.dependencyInfo.bufferMemoryBarrierCount = node.bufferMemoryBarriers.size();
+        node.dependencyInfo.pBufferMemoryBarriers = node.bufferMemoryBarriers.data();
     }
 }
 

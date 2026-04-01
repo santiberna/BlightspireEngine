@@ -136,5 +136,5 @@ void BuildHzbPass::CreateUpdateTemplate()
     };
 
     vk::Device device = _context->GetVulkanContext()->Device();
-    _hzbUpdateTemplate = device.createDescriptorUpdateTemplate(updateTemplateInfo);
+    _hzbUpdateTemplate = device.createDescriptorUpdateTemplate(updateTemplateInfo).value;
 }

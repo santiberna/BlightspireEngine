@@ -17,11 +17,9 @@ namespace
 {
 constexpr uint32_t VULKAN_API_VERSION = vk::makeApiVersion(0, 1, 4, 0);
 
-constexpr const char* INSTANCE_LAYERS[] = {
 #if BB_DEVELOPMENT
-    "VK_LAYER_KHRONOS_validation"
+constexpr const char* VALIDATION_LAYER = "VK_LAYER_KHRONOS_validation";
 #endif
-};
 
 constexpr const char* INSTANCE_EXTENSIONS[] = {
 #if BB_DEVELOPMENT
@@ -246,18 +244,20 @@ VulkanContext::VulkanContext(SDL_Window* window)
         layer_names.push_back(std::string_view(layer.layerName));
     }
 
-    for (std::string_view requested_layer : INSTANCE_LAYERS)
+#if BB_DEVELOPMENT
+    if (std::ranges::find(layer_names, VALIDATION_LAYER) == layer_names.end())
     {
-        if (std::ranges::find(layer_names, requested_layer) == layer_names.end())
-        {
-            spdlog::error("VulkanContext: Requested layer {} not supported!", requested_layer);
-            assert(false);
-            return;
-        }
+        spdlog::error("VulkanContext: Requested layer {} not supported!", VALIDATION_LAYER);
+        assert(false);
+        return;
     }
+#endif
 
     std::vector<const char*> requested_extensions;
+
+#if BB_DEVELOPMENT || BB_PLATFORM == BB_LINUX
     requested_extensions.insert(requested_extensions.end(), std::begin(INSTANCE_EXTENSIONS), std::end(INSTANCE_EXTENSIONS));
+#endif
 
     uint32_t sdl_extensions_count = 0;
     const char* const* extension_array = SDL_Vulkan_GetInstanceExtensions(&sdl_extensions_count);
@@ -289,14 +289,17 @@ VulkanContext::VulkanContext(SDL_Window* window)
         .apiVersion = VULKAN_API_VERSION,
     };
 
-    vk::InstanceCreateInfo instance_info {
-        .flags = vk::InstanceCreateFlags {},
-        .pApplicationInfo = &appInfo,
-        .enabledLayerCount = static_cast<uint32_t>(std::size(INSTANCE_LAYERS)),
-        .ppEnabledLayerNames = INSTANCE_LAYERS,
-        .enabledExtensionCount = static_cast<uint32_t>(requested_extensions.size()),
-        .ppEnabledExtensionNames = requested_extensions.data() // Extensions.
-    };
+    vk::InstanceCreateInfo instance_info {};
+    instance_info.flags = vk::InstanceCreateFlags {};
+    instance_info.pApplicationInfo = &appInfo;
+
+    instance_info.enabledExtensionCount = static_cast<uint32_t>(requested_extensions.size());
+    instance_info.ppEnabledExtensionNames = requested_extensions.data(); // Extensions.
+
+#if BB_DEVELOPMENT
+    instance_info.enabledLayerCount = 1;
+    instance_info.ppEnabledLayerNames = &VALIDATION_LAYER;
+#endif
 
 #if BB_DEVELOPMENT
     vk::DebugUtilsMessengerCreateInfoEXT debug_messenger_info {};

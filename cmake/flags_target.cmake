@@ -2,7 +2,10 @@
 add_library(CompilerFlags INTERFACE)
 
 target_compile_options(CompilerFlags
-        INTERFACE -Wall INTERFACE -Wextra INTERFACE -Wno-unknown-pragmas)
+    INTERFACE
+        -Wall 
+        -Wextra
+        -Wno-unknown-pragmas)
 
 if (WARNINGS_AS_ERRORS)
     target_compile_options(CompilerFlags INTERFACE -Werror)

@@ -50,6 +50,10 @@ add_subdirectory(external)
 # Add engine library
 add_subdirectory(engine)
 
+if (DEVELOPER_BUILD)
+    add_subdirectory(tools)
+endif ()
+
 set(APP_ICON_RESOURCE_WINDOWS "${CMAKE_CURRENT_SOURCE_DIR}/icon.rc")
 if (EXISTS "${APP_ICON_RESOURCE_WINDOWS}")
     message(STATUS "App icon resource found")

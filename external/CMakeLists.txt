@@ -227,6 +227,11 @@ FetchContent_Declare(
         GIT_PROGRESS TRUE
 )
 
+# STB
+add_library(stb)
+target_include_directories(stb PUBLIC "stb")
+target_sources(stb PRIVATE "stb_impl.cpp")
+
 override_option(PHYSFS_ARCHIVE_ZIP ON)
 override_option(PHYSFS_ARCHIVE_7Z ON)
 override_option(PHYSFS_ARCHIVE_GRP OFF)

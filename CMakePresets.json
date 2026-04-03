@@ -17,21 +17,6 @@
       }
     },
     {
-      "name": "WSL",
-      "hidden": true,
-      "generator": "Ninja",
-      "binaryDir": "${sourceDir}/build/${presetName}",
-      "toolchainFile": "${sourceDir}/cmake/toolchain.cmake",
-      "vendor": {
-        "jetbrains.com/clion": {
-          "toolchain": "WSL"
-        }
-      },
-      "cacheVariables": {
-        "CMAKE_PRESET_NAME": "${presetName}"
-      }
-    },
-    {
       "name": "Win64-Debug",
       "inherits": "default",
       "cacheVariables": {
@@ -46,71 +31,11 @@
       }
     },
     {
-      "name": "Win64-RelWithDebInfo",
-      "inherits": "default",
-      "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "RelWithDebInfo"
-      }
-    },
-    {
       "name": "Win64-Distribution",
       "inherits": "default",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release",
         "DEVELOPER_BUILD": false
-      }
-    },
-    {
-      "name": "CI-CD",
-      "inherits": "default",
-      "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Debug",
-        "WARNINGS_AS_ERRORS": true,
-        "COMPILE_SHADERS": true,
-        "ENABLE_PCH": false,
-        "ENABLE_UNITY": false
-      }
-    },
-    {
-      "name": "WSL-Debug",
-      "inherits": "WSL",
-      "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Debug"
-      }
-    },
-    {
-      "name": "WSL-Release",
-      "inherits": "WSL",
-      "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Release"
-      }
-    },
-    {
-      "name": "WSL-RelWithDebInfo",
-      "inherits": "WSL",
-      "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "RelWithDebInfo"
-      }
-    },
-    {
-      "name": "WSL-Distribution",
-      "inherits": "WSL",
-      "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Release",
-        "DEVELOPER_BUILD": false
-      }
-    }
-  ],
-  "testPresets": [
-    {
-      "name": "Test Win64-Debug",
-      "configurePreset": "Win64-Debug",
-      "execution": {
-        "stopOnFailure": false
-      },
-      "output": {
-        "outputOnFailure": true,
-        "verbosity": "verbose"
       }
     }
   ]

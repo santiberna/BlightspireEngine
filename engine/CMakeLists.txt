@@ -8,7 +8,7 @@ endif ()
 message(STATUS "### Linking Engine Modules:")
 
 target_add_module(Engine core)
-target_add_module(Engine reflection)
+# target_add_module(Engine reflection)
 target_add_module(Engine utility)
 target_add_module(Engine application)
 target_add_module(Engine particles)

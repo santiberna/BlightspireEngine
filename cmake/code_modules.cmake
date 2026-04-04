@@ -9,7 +9,7 @@ function(module_declare type)
     file(GLOB_RECURSE private_headers CONFIGURE_DEPENDS "private/*.hpp")
 
     add_library(${module} ${type})
-    target_sources(${module} PUBLIC ${public_files} PRIVATE ${private_headers} PRIVATE ${private_sources})
+    target_sources(${module} PUBLIC ${public_headers} PRIVATE ${private_headers} ${private_sources})
     target_include_directories(${module} PUBLIC "public" PRIVATE "private")
 
     target_link_libraries(${module} PRIVATE CompilerFlags)
@@ -23,9 +23,11 @@ function(module_declare type)
         file(GLOB_RECURSE test_sources CONFIGURE_DEPENDS "tests/*.cpp")
 
         if (test_sources)
-            target_sources(${module} PRIVATE ${test_sources})
-            target_link_libraries(${module} PRIVATE GTest::gtest)
-            target_link_libraries(UnitTests PRIVATE ${module})
+            add_library(${module}Tests OBJECT)
+            target_sources(${module}Tests PRIVATE ${test_sources})
+            target_link_libraries(${module}Tests PRIVATE ${module} GTest::gtest)
+            target_include_directories(${module}Tests PRIVATE "private")
+            target_link_libraries(UnitTests PRIVATE ${module}Tests)
         endif ()
 
     endif ()

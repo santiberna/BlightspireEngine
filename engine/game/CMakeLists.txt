@@ -9,4 +9,5 @@ target_link_libraries(game
         PUBLIC steam
         PRIVATE audio
         PRIVATE pathfinding
+        PUBLIC ImGui
 )

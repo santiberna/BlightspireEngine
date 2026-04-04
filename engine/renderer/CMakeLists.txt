@@ -11,6 +11,7 @@ target_link_libraries(renderer
         physics
         VulkanAPI
         spirv-reflect-static
+        ImGui
 
     PRIVATE
         SDL3::SDL3-static

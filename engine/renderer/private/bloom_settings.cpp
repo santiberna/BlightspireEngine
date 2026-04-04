@@ -1,7 +1,5 @@
 #include "bloom_settings.hpp"
 
-#include <imgui_include.hpp>
-
 #include "graphics_context.hpp"
 #include "graphics_resources.hpp"
 #include "pipeline_builder.hpp"

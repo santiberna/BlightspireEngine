@@ -10,7 +10,7 @@ project(BlightspireEngine)
 ### COMPILATION SETTINGS ###
 
 option(WARNINGS_AS_ERRORS "Enable warnings as errors" OFF)
-option(DEVELOPER_BUILD "Enable debug/development functionality" ON)
+option(BB_DEVELOPMENT "Enable debug/development functionality" ON)
 option(COMPILE_TESTS "Compile with Unit Tests" ON)
 option(COMPILE_SHADERS "Compile all GLSL shaders as part of build step" ON)
 
@@ -59,7 +59,7 @@ else ()
 endif ()
 
 # Add executable with settings based on configuration used
-if (NOT DEVELOPER_BUILD AND WIN32)
+if (NOT BB_DEVELOPMENT AND WIN32)
     add_executable(Blightspire WIN32 "engine/main.cpp" ${APP_ICON_RESOURCE_WINDOWS})
 else ()
     add_executable(Blightspire "engine/main.cpp")

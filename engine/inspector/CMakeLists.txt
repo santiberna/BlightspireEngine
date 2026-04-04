@@ -9,7 +9,7 @@ target_link_libraries(inspector
         PRIVATE pathfinding
         PRIVATE audio
 
-        PUBLIC ImGui
+        PRIVATE ImGui
 )
 
 target_include_directories(inspector

@@ -38,10 +38,6 @@ void RendererModule::Shutdown([[maybe_unused]] Engine& engine)
     vk::Device device = _context->GetVulkanContext()->Device();
     device.waitIdle();
     _renderer.reset();
-
-    ImPlot::DestroyContext();
-    ImGui::DestroyContext();
-
     _context.reset();
 }
 

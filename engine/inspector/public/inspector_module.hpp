@@ -1,4 +1,5 @@
 #pragma once
+#include "enum_utils.hpp"
 #include "module_interface.hpp"
 
 #include <memory>
@@ -9,6 +10,14 @@ class Editor;
 class ImGuiBackend;
 class PerformanceTracker;
 class ParticleEditor;
+
+union SDL_Event;
+
+enum class InputCaptureBits
+{
+    KEYBOARD = 1 << 0,
+    MOUSE = 1 << 1,
+};
 
 class InspectorModule : public ModuleInterface
 {
@@ -22,6 +31,8 @@ public:
 
     NON_MOVABLE(InspectorModule);
     NON_COPYABLE(InspectorModule);
+
+    bb::Flags<InputCaptureBits> ProcessInput(const SDL_Event& event);
 
 private:
     std::unique_ptr<Editor> _editor;

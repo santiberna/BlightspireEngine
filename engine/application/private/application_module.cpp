@@ -9,9 +9,12 @@
 #include "steam_module.hpp"
 
 #include <SDL3/SDL.h>
-#include <imgui_sdl_include.hpp>
 #include <spdlog/spdlog.h>
 #include <stb_image.h>
+
+#if BB_DEVELOPMENT
+#include "inspector_module.hpp"
+#endif
 
 ModuleTickOrder ApplicationModule::Init(Engine& engine)
 {
@@ -113,20 +116,36 @@ void ApplicationModule::Tick(Engine& engine)
     SDL_Event event;
     while (SDL_PollEvent(&event))
     {
-        _inputDeviceManager->UpdateEvent(event);
-
-        if (_mouseHidden == false)
-        {
-            _inputDeviceManager->SetMousePositionToAbsoluteMousePosition();
-        }
-
-        ImGui_ImplSDL3_ProcessEvent(&event);
-
         if (event.type == SDL_EventType::SDL_EVENT_QUIT)
         {
             engine.RequestShutdown(0);
             break;
         }
+
+#if BB_DEVELOPMENT
+        auto captureInput = engine.GetModule<InspectorModule>().ProcessInput(event);
+
+        bool isKeys = event.type == SDL_EventType::SDL_EVENT_KEY_DOWN;
+        if (isKeys && captureInput.has(InputCaptureBits::KEYBOARD))
+        {
+            continue;
+        }
+
+        bool isMouse = event.type == SDL_EventType::SDL_EVENT_MOUSE_BUTTON_DOWN
+            || event.type == SDL_EventType::SDL_EVENT_MOUSE_BUTTON_UP
+            || event.type == SDL_EventType::SDL_EVENT_MOUSE_MOTION;
+
+        if (isMouse && captureInput.has(InputCaptureBits::MOUSE))
+        {
+            continue;
+        }
+#endif
+        _inputDeviceManager->UpdateEvent(event);
+    }
+
+    if (_mouseHidden == false)
+    {
+        _inputDeviceManager->SetMousePositionToAbsoluteMousePosition();
     }
 
     _actionManager->Update();

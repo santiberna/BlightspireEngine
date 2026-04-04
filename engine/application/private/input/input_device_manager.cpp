@@ -4,7 +4,6 @@
 
 #include <SDL3/SDL.h>
 #include <glm/glm.hpp>
-#include <imgui_include.hpp>
 
 InputDeviceManager::InputDeviceManager()
 {
@@ -72,32 +71,32 @@ void InputDeviceManager::UpdateEvent(const SDL_Event& event)
 
 bool InputDeviceManager::IsKeyPressed(KeyboardCode key) const
 {
-    return !ImGui::GetIO().WantCaptureKeyboard && UnorderedMapGetOr(_keyboard.inputPressed, key, false);
+    return UnorderedMapGetOr(_keyboard.inputPressed, key, false);
 }
 
 bool InputDeviceManager::IsKeyHeld(KeyboardCode key) const
 {
-    return !ImGui::GetIO().WantCaptureKeyboard && UnorderedMapGetOr(_keyboard.inputHeld, key, false);
+    return UnorderedMapGetOr(_keyboard.inputHeld, key, false);
 }
 
 bool InputDeviceManager::IsKeyReleased(KeyboardCode key) const
 {
-    return !ImGui::GetIO().WantCaptureKeyboard && UnorderedMapGetOr(_keyboard.inputReleased, key, false);
+    return UnorderedMapGetOr(_keyboard.inputReleased, key, false);
 }
 
 bool InputDeviceManager::IsMouseButtonPressed(MouseButton button) const
 {
-    return !ImGui::GetIO().WantCaptureMouse && UnorderedMapGetOr(_mouse.inputPressed, button, false);
+    return UnorderedMapGetOr(_mouse.inputPressed, button, false);
 }
 
 bool InputDeviceManager::IsMouseButtonHeld(MouseButton button) const
 {
-    return !ImGui::GetIO().WantCaptureMouse && UnorderedMapGetOr(_mouse.inputHeld, button, false);
+    return UnorderedMapGetOr(_mouse.inputHeld, button, false);
 }
 
 bool InputDeviceManager::IsMouseButtonReleased(MouseButton button) const
 {
-    return !ImGui::GetIO().WantCaptureMouse && UnorderedMapGetOr(_mouse.inputReleased, button, false);
+    return UnorderedMapGetOr(_mouse.inputReleased, button, false);
 }
 void InputDeviceManager::SetMousePositionToAbsoluteMousePosition()
 {

@@ -27,6 +27,8 @@
 #include "components/static_mesh_component.hpp"
 #include "components/wants_shadows_updated.hpp"
 
+#include "imgui_sdl_include.hpp"
+
 InspectorModule::InspectorModule() = default;
 
 InspectorModule::~InspectorModule()
@@ -45,6 +47,26 @@ void DrawShadowMapInspect(Engine& engine, ImGuiBackend& imguiBackend);
 
 inline void SetupImGuiStyle();
 
+bb::Flags<InputCaptureBits> InspectorModule::ProcessInput(const SDL_Event& event)
+{
+    ImGui_ImplSDL3_ProcessEvent(&event);
+
+    auto& io = ImGui::GetIO();
+    bb::Flags<InputCaptureBits> capture {};
+
+    if (io.WantCaptureKeyboard)
+    {
+        capture.set(InputCaptureBits::KEYBOARD);
+    }
+
+    if (io.WantCaptureMouse)
+    {
+        capture.set(InputCaptureBits::MOUSE);
+    }
+
+    return capture;
+}
+
 ModuleTickOrder InspectorModule::Init(Engine& engine)
 {
     ImGui::CreateContext();
@@ -52,16 +74,13 @@ ModuleTickOrder InspectorModule::Init(Engine& engine)
 
     SetupImGuiStyle();
 
-    ImGuiIO& io
-        = ImGui::GetIO();
-    (void)io;
+    ImGuiIO& io = ImGui::GetIO();
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard; // Enable Keyboard Controls
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad; // Enable Gamepad Controls
 
     io.Fonts->AddFontFromFileTTF("assets/fonts/Roboto-Medium.ttf", 16.0f);
 
-    auto& ecs
-        = engine.GetModule<ECSModule>();
+    auto& ecs = engine.GetModule<ECSModule>();
     auto& renderer = engine.GetModule<RendererModule>();
     auto& window = engine.GetModule<ApplicationModule>();
 
@@ -79,11 +98,10 @@ ModuleTickOrder InspectorModule::Init(Engine& engine)
 
 void InspectorModule::Shutdown(Engine& engine)
 {
-    if (auto* ptr = engine.TryGetModule<RendererModule>())
-    {
-        ptr->GetRenderer()->FlushCommands();
-    }
-    _editor.reset();
+    engine.GetModule<RendererModule>().GetRenderer()->FlushCommands();
+    _imguiBackend.reset();
+    ImPlot::DestroyContext();
+    ImGui::DestroyContext();
 }
 
 void InspectorModule::Tick([[maybe_unused]] Engine& engine)
@@ -91,7 +109,6 @@ void InspectorModule::Tick([[maybe_unused]] Engine& engine)
     _imguiBackend->NewFrame();
     ImGui::NewFrame();
 
-#if BB_DEVELOPMENT
     _performanceTracker->Update();
 
     if (ImGui::BeginMainMenuBar())
@@ -278,7 +295,6 @@ void InspectorModule::Tick([[maybe_unused]] Engine& engine)
             }
         }
     }
-#endif
 
     {
         ZoneNamedN(zz, "ImGui Render", true);

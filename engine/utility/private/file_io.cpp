@@ -141,12 +141,9 @@ void fileIO::Init(bool useStandard)
             spdlog::error("Failed mounting PhysFS!\n{}", PHYSFS_getErrorByCode(PHYSFS_getLastErrorCode()));
         }
     }
-    else
+    if (!PhysFS::mount("./", "/", true))
     {
-        if (!PhysFS::mount("./", "/", true))
-        {
-            spdlog::error("Failed mounting PhysFS!\n{}", PHYSFS_getErrorByCode(PHYSFS_getLastErrorCode()));
-        }
+        spdlog::error("Failed mounting PhysFS!\n{}", PHYSFS_getErrorByCode(PHYSFS_getLastErrorCode()));
     }
 }
 void fileIO::Deinit()

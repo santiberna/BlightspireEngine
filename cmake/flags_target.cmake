@@ -12,6 +12,6 @@ if (WARNINGS_AS_ERRORS)
 endif ()
 
 # Define if it's the distribution config
-if (DEVELOPER_BUILD)
+if (BB_DEVELOPMENT)
     target_compile_definitions(CompilerFlags INTERFACE BB_DEVELOPMENT)
 endif ()

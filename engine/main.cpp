@@ -2,7 +2,6 @@
 #include "audio_module.hpp"
 #include "ecs_module.hpp"
 #include "game_module.hpp"
-#include "inspector_module.hpp"
 #include "main_engine.hpp"
 #include "particle_module.hpp"
 #include "pathfinding_module.hpp"
@@ -15,6 +14,10 @@
 #include "time_module.hpp"
 #include "ui_module.hpp"
 #include <log_setup.hpp>
+
+#if BB_DEVELOPMENT
+#include "inspector_module.hpp"
+#endif
 
 int Main()
 {
@@ -46,7 +49,9 @@ int Main()
                 .AddModule<UIModule>()
                 .AddModule<ParticleModule>()
                 .AddModule<GameModule>()
+#if BB_DEVELOPMENT
                 .AddModule<InspectorModule>()
+#endif
                 .AddModule<ScriptingModule>();
         }
 

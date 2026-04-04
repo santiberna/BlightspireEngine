@@ -8,5 +8,5 @@ target_link_libraries(ecs
 
         PUBLIC EnTT::EnTT
         PUBLIC cereal
-        PUBLIC ImGui
+        PRIVATE ImGui
 )

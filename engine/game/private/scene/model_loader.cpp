@@ -1,6 +1,7 @@
 #include "scene/model_loader.hpp"
 
 #include "animation.hpp"
+#include "components/animation_channel_component.hpp"
 #include "components/animation_transform_component.hpp"
 #include "components/directional_light_component.hpp"
 #include "components/is_static_draw.hpp"
@@ -14,7 +15,6 @@
 #include "components/static_mesh_component.hpp"
 #include "components/transform_component.hpp"
 #include "components/transform_helpers.hpp"
-#include "cpu_resources.hpp"
 #include "ecs_module.hpp"
 #include "engine.hpp"
 #include "model_loading.hpp"
@@ -23,12 +23,18 @@
 #include "renderer_module.hpp"
 #include "resource_management/mesh_resource_manager.hpp"
 #include "resource_management/model_resource_manager.hpp"
+#include "resources/hierarchy.hpp"
+#include "resources/mesh.hpp"
+#include "resources/model.hpp"
 #include "systems/physics_system.hpp"
 #include "thread_module.hpp"
 
-
 #include <entt/entity/entity.hpp>
+#include <glm/glm.hpp>
+#include <glm/mat4x4.hpp>
 #include <tracy/Tracy.hpp>
+#include <unordered_map>
+#include <vector>
 
 class RecursiveNodeLoader
 {

@@ -1,10 +1,7 @@
 #pragma once
 
-#include "components/animation_channel_component.hpp"
-#include "cpu_resources.hpp"
+#include "resources/model.hpp"
 #include "thread_pool.hpp"
-
-#include <vector>
 
 namespace ModelLoading
 {

@@ -4,6 +4,7 @@
 #include "resources/hierarchy.hpp"
 #include "resources/image.hpp"
 #include "resources/material.hpp"
+#include "vertex.hpp"
 
 #include <Jolt/Jolt.h>
 #include <Jolt/Physics/Collision/Shape/Shape.h>

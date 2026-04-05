@@ -1,14 +1,22 @@
 #pragma once
 
+#include <array>
 #include <cstdint>
-#include <entt/entt.hpp>
-#include <glm/gtc/matrix_transform.hpp>
+#include <entt/entity/entity.hpp>
 #include <glm/mat4x4.hpp>
 
 struct SkeletonNodeComponent
 {
     entt::entity parent { entt::null };
-    std::array<entt::entity, 7> children;
+    std::array<entt::entity, 7> children {
+        entt::null,
+        entt::null,
+        entt::null,
+        entt::null,
+        entt::null,
+        entt::null,
+        entt::null
+    };
 };
 
 struct SkeletonComponent
@@ -18,14 +26,14 @@ struct SkeletonComponent
 
 struct JointWorldTransformComponent
 {
-    glm::mat4 world { glm::identity<glm::mat4>() };
+    glm::mat4 world = glm::mat4(1.0f);
 };
 
 struct JointSkinDataComponent
 {
     glm::mat4 inverseBindMatrix {};
     uint32_t jointIndex {};
-    entt::entity skeletonEntity { entt::null };
+    entt::entity skeletonEntity {};
 };
 
 namespace SkeletonHelpers

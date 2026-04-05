@@ -2,7 +2,9 @@
 
 #include "tracy/Tracy.hpp"
 #include "vulkan_include.hpp"
-#include <vma_include.hpp>
+
+#include <magic_enum.hpp>
+#include <unordered_map>
 
 void util::VK_ASSERT(vk::Result result, std::string_view message)
 {

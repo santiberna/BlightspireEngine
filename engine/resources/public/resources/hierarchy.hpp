@@ -29,7 +29,7 @@ struct NodeMeshData
 struct NodeJointData
 {
     uint32_t index {};
-    glm::mat4 inverseBind = glm::identity<glm::mat4>();
+    glm::mat4 inverseBind = glm::mat4(1.0f);
 };
 
 struct NodePhysicsData

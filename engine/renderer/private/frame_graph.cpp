@@ -2,6 +2,7 @@
 
 #include <glm/gtc/random.hpp>
 #include <glm/gtx/range.hpp>
+#include <magic_enum.hpp>
 #include <tracy/TracyVulkan.hpp>
 
 #include "gpu_scene.hpp"

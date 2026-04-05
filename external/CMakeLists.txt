@@ -255,8 +255,7 @@ endif ()
 # Useful defines for vulkan
 if (WIN32)
     target_compile_options(VulkanAPI
-            INTERFACE -DVK_USE_PLATFORM_WIN32_KHR
-            INTERFACE -DNOMINMAX)
+            INTERFACE -DVK_USE_PLATFORM_WIN32_KHR)
 elseif (LINUX)
     target_compile_options(VulkanAPI
             INTERFACE -DVK_USE_PLATFORM_XLIB_KHR)

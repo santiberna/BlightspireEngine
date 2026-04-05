@@ -15,6 +15,7 @@
 #include "time_module.hpp"
 
 #include <filesystem>
+#include <spdlog/spdlog.h>
 
 ModuleTickOrder ParticleModule::Init(Engine& engine)
 {

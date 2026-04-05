@@ -3,9 +3,7 @@
 #include "wren_entity.hpp"
 #include "wren_include.hpp"
 
-
 #include <functional>
-#include <spdlog/spdlog.h>
 #include <variant>
 
 struct CollisionCallback
@@ -19,14 +17,7 @@ struct CollisionCallback
 
     CollisionCallback(wren::Variable wrenLambda)
     {
-        try
-        {
-            fn = wrenLambda.func("call(_,_)");
-        }
-        catch (const wren::Exception& e)
-        {
-            spdlog::warn("[WREN WARNING] could not bind wren lambda to callback: {}", e.what());
-        }
+        fn = wrenLambda.func("call(_,_)");
     }
 
 private:
@@ -37,14 +28,7 @@ private:
 
         void operator()(wren::Method& fn) const
         {
-            try
-            {
-                fn(a, b);
-            }
-            catch (wren::Exception& ex)
-            {
-                spdlog::error(ex.what());
-            }
+            fn(a, b);
         };
 
         WrenEntity a {};

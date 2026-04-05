@@ -2,6 +2,7 @@
 #include "audio_module.hpp"
 #include "ecs_module.hpp"
 #include "game_module.hpp"
+#include "log_setup.hpp"
 #include "main_engine.hpp"
 #include "particle_module.hpp"
 #include "pathfinding_module.hpp"
@@ -13,7 +14,8 @@
 #include "thread_module.hpp"
 #include "time_module.hpp"
 #include "ui_module.hpp"
-#include <log_setup.hpp>
+
+#include <spdlog/spdlog.h>
 
 #if BB_DEVELOPMENT
 #include "inspector_module.hpp"

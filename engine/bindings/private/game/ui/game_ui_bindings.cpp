@@ -9,6 +9,8 @@
 #include "ui_text.hpp"
 #include "wren_engine.hpp"
 
+#include <spdlog/fmt/fmt.h>
+
 namespace bindings
 {
 void ButtonOnPress(UIButton& self, wren::Variable fn) { self.OnPress(fn); }

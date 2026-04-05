@@ -2,6 +2,7 @@
 #include "file_io.hpp"
 
 #include <filesystem>
+#include <spdlog/logger.h>
 #include <tracy/Tracy.hpp>
 
 namespace
@@ -108,8 +109,13 @@ std::optional<std::string> ScriptingContext::RunScript(const std::string& path)
     }
     catch (const wren::Exception& e)
     {
-        spdlog::error(e.what());
+        _wrenOutStream->error(e.what());
     }
 
     return std::nullopt;
+}
+
+void ScriptingContext::FlushOutputStream()
+{
+    _wrenOutStream->flush();
 }

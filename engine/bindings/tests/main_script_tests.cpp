@@ -1,9 +1,9 @@
 #include <gtest/gtest.h>
 #include <spdlog/sinks/ostream_sink.h>
+#include <spdlog/spdlog.h>
 #include <sstream>
 
 #include "file_io.hpp"
-
 #include "main_script.hpp"
 #include "scripting_context.hpp"
 #include "time_module.hpp"

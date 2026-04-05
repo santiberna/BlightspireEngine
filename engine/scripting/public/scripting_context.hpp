@@ -5,7 +5,7 @@
 
 #include <cstdint>
 #include <optional>
-#include <spdlog/spdlog.h>
+#include <spdlog/fwd.h>
 #include <string>
 #include <vector>
 
@@ -35,7 +35,7 @@ public:
 
     // Sets the output stream for system log calls
     void SetScriptingOutputStream(std::shared_ptr<spdlog::logger> stream) { _wrenOutStream = stream; }
-    void FlushOutputStream() { _wrenOutStream->flush(); }
+    void FlushOutputStream();
 
 private:
     VMInitConfig _vmInitConfig {};

@@ -29,7 +29,7 @@
 #include <Jolt/Physics/Collision/Shape/ScaledShape.h>
 #include <Jolt/Physics/Collision/Shape/SphereShape.h>
 #include <components/skinned_mesh_component.hpp>
-
+#include <spdlog/spdlog.h>
 #include <tracy/Tracy.hpp>
 
 PhysicsSystem::PhysicsSystem(ECSModule& ecs, PhysicsModule& physicsModule)

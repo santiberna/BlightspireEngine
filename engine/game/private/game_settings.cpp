@@ -2,6 +2,7 @@
 
 #include <cereal/archives/json.hpp>
 #include <fstream>
+#include <spdlog/spdlog.h>
 
 GameSettings GameSettings::FromFile(const std::string& path)
 {

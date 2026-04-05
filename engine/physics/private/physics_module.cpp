@@ -20,8 +20,8 @@
 #include "systems/physics_system.hpp"
 #include "time_module.hpp"
 
-
 #include <glm/gtx/rotate_vector.hpp>
+#include <spdlog/spdlog.h>
 
 PhysicsModule::PhysicsModule() { }
 PhysicsModule::~PhysicsModule() { }

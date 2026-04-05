@@ -4,6 +4,7 @@
 #include <filesystem>
 #include <gtest/gtest.h>
 #include <physfs.hpp>
+#include <spdlog/logger.h>
 #include <spdlog/sinks/ostream_sink.h>
 
 // Every test will initialize a wren virtual machine, better keep memory requirements low

@@ -15,3 +15,7 @@ endif ()
 if (BB_DEVELOPMENT)
     target_compile_definitions(CompilerFlags INTERFACE BB_DEVELOPMENT)
 endif ()
+
+if(WIN32)
+    target_compile_definitions(CompilerFlags INTERFACE WIN32_LEAN_AND_MEAN NOMINMAX)
+endif()

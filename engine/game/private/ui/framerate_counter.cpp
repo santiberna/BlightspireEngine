@@ -2,6 +2,8 @@
 #include "ui/ui_menus.hpp"
 #include "ui_text.hpp"
 
+#include <spdlog/fmt/fmt.h>
+
 std::shared_ptr<FrameCounter> FrameCounter::Create(const glm::uvec2& screenResolution, std::shared_ptr<UIFont> font)
 {
     auto counter = std::make_shared<FrameCounter>(screenResolution);

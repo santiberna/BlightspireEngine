@@ -44,7 +44,7 @@ void RendererModule::Shutdown([[maybe_unused]] Engine& engine)
 void RendererModule::Tick([[maybe_unused]] Engine& engine)
 {
     auto dt = engine.GetModule<TimeModule>().GetDeltatime();
-    _renderer->Render(dt.count());
+    _renderer->Render(dt.value);
 }
 
 std::vector<ResourceHandle<GPUModel>> RendererModule::LoadModels(const std::vector<CPUModel>& cpuModels)

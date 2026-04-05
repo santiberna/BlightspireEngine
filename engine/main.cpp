@@ -33,7 +33,7 @@ int Main()
     int result;
     {
         MainEngine instance;
-        Stopwatch startupTimer {};
+        bb::Stopwatch startupTimer {};
 
         {
             ZoneScopedN("Engine Module Initialization");
@@ -68,7 +68,8 @@ int Main()
             instance.GetModule<TimeModule>().ResetTimer();
         }
 
-        spdlog::info("{}ms taken for complete startup!", startupTimer.GetElapsed().count());
+        auto time = bb::durationCast<bb::MillisecondsF32>(startupTimer.getElapsed());
+        spdlog::info("{}ms taken for complete startup!", time.value);
 
         int* exit = nullptr;
         while (exit == nullptr)

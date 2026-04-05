@@ -91,7 +91,6 @@ private:
     void TransitionScene(Engine& engine);
 
     // UI
-
     std::stack<std::weak_ptr<Canvas>> _menuStack {};
     std::stack<std::weak_ptr<UIElement>> _focusedElementStack {};
 
@@ -107,11 +106,9 @@ private:
     std::weak_ptr<GameVersionVisualization> _gameVersionVisual {};
 
     // Scene
-
     std::string _nextSceneToExecute {};
 
     // Settings
-
     GameSettings gameSettings {};
 
     // Gameplay elements

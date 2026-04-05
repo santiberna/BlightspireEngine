@@ -27,7 +27,7 @@ public:
     NON_COPYABLE(MainScript);
 
     // Calls the scripts main update function
-    void Update(DeltaMS deltatime);
+    void Update(bb::MillisecondsF32 deltatime);
 
     // Checks if the script can be run without running into an error
     // Either the script is not set or the previous run threw an exception

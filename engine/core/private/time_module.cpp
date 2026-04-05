@@ -7,7 +7,8 @@ ModuleTickOrder TimeModule::Init([[maybe_unused]] Engine& e)
 
 void TimeModule::Tick([[maybe_unused]] Engine& e)
 {
-    _currentDeltaTime = _deltaTimer.GetElapsed();
-    _deltaTimer.Reset();
-    _totalTime += _currentDeltaTime;
+    auto nanos = _deltaTimer.getElapsed();
+    _currentDeltaTime = bb::durationCast<bb::MillisecondsF32>(nanos);
+    _deltaTimer = {};
+    _totalTime.value += _currentDeltaTime.value;
 }

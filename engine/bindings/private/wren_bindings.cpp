@@ -36,12 +36,12 @@ namespace bindings
 
 float TimeModuleGetDeltatime(TimeModule& self)
 {
-    return self.GetDeltatime().count();
+    return self.GetDeltatime().value;
 }
 
 float TimeModuleGetRealDeltatime(TimeModule& self)
 {
-    return self.GetRealDeltatime().count();
+    return self.GetRealDeltatime().value;
 }
 
 void TransitionToScript(WrenEngine& engine, const std::string& path)

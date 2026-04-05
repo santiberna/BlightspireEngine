@@ -16,9 +16,10 @@ public:
 
     TimeModule() = default;
     ~TimeModule() override = default;
-    DeltaMS GetDeltatime() const { return _currentDeltaTime * _deltaTimeScale; }
-    DeltaMS GetRealDeltatime() const { return _currentDeltaTime; }
-    DeltaMS GetTotalTime() const { return _totalTime; }
+
+    [[nodiscard]] bb::MillisecondsF32 GetDeltatime() const { return { _currentDeltaTime.value * _deltaTimeScale }; }
+    [[nodiscard]] bb::MillisecondsF32 GetRealDeltatime() const { return _currentDeltaTime; }
+    [[nodiscard]] bb::MillisecondsF32 GetTotalTime() const { return _totalTime; }
 
     void SetDeltatimeScale(float scale)
     {
@@ -27,15 +28,15 @@ public:
 
     void ResetTimer()
     {
-        _deltaTimer.Reset();
+        _deltaTimer = {};
         _currentDeltaTime = {};
     }
 
 private:
     float _deltaTimeScale = 1.0f;
 
-    DeltaMS _currentDeltaTime {};
-    DeltaMS _totalTime {};
+    bb::MillisecondsF32 _currentDeltaTime {};
+    bb::MillisecondsF32 _totalTime {};
 
-    Stopwatch _deltaTimer {};
+    bb::Stopwatch _deltaTimer {};
 };

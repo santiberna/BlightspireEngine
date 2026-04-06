@@ -24,7 +24,7 @@ bool IsVisible(ECSModule& ecs, PhysicsModule& physics, const glm::vec3& origin, 
     return false;
 }
 
-glm::vec3 AimAssist::GetAimAssistDirection(ECSModule& ecs, PhysicsModule& physics, const glm::vec3 position, const glm::vec3& forward, float range, float minAngle)
+glm::vec3 AimAssist::GetAimAssistDirection(ECSModule& ecs, PhysicsModule& physics, const glm::vec3& position, const glm::vec3& forward, float range, float minAngle)
 {
     glm::vec3 result = forward;
     float closestParallel = minAngle;

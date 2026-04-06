@@ -1,5 +1,8 @@
 #pragma once
+#include "components/animation_channel_component.hpp"
 #include "resources/mesh.hpp"
+
+
 #include <glm/mat4x4.hpp>
 #include <glm/vec3.hpp>
 
@@ -29,7 +32,7 @@ struct NodeMeshData
 struct NodeJointData
 {
     uint32_t index {};
-    glm::mat4 inverseBind = glm::identity<glm::mat4>();
+    glm::mat4 inverseBind = glm::mat4(1.0f);
 };
 
 struct NodePhysicsData

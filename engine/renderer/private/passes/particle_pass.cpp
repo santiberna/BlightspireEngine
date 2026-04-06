@@ -13,6 +13,7 @@
 #include "resource_management/image_resource_manager.hpp"
 #include "shaders/shader_loader.hpp"
 #include "single_time_commands.hpp"
+#include "vertex.hpp"
 #include "vulkan_context.hpp"
 #include "vulkan_helper.hpp"
 

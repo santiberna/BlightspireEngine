@@ -1,15 +1,17 @@
 module_declare(STATIC)
 
 target_link_libraries(inspector
-        PUBLIC renderer
-        PRIVATE particles
-        PUBLIC game
-        PUBLIC settings
-        PRIVATE physics
-        PRIVATE pathfinding
-        PRIVATE audio
-
-        PRIVATE ImGui
+    PUBLIC
+        renderer
+        game
+        settings
+        
+    PRIVATE
+        pathfinding
+        audio
+        physics
+        particles
+        ImGui
 )
 
 target_include_directories(inspector

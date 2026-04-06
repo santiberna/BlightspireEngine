@@ -2,7 +2,6 @@
 
 #include "physfs.hpp"
 
-#include <chrono>
 #include <optional>
 #include <string>
 #include <vector>
@@ -15,8 +14,6 @@ constexpr auto DEFAULT_WRITE_FLAGS = std::ios::out | std::ios::trunc | std::ios:
 
 constexpr auto TEXT_READ_FLAGS = std::ios::in;
 constexpr auto TEXT_WRITE_FLAGS = std::ios::out | std::ios::trunc;
-
-using FileTime = std::chrono::time_point<std::chrono::file_clock>;
 
 /// <summary>
 /// Open a file stream for reading. Specify 0 or std::ios::flags

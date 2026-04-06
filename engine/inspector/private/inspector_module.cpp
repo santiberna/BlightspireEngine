@@ -29,6 +29,8 @@
 
 #include "imgui_sdl_include.hpp"
 
+#include <spdlog/spdlog.h>
+
 InspectorModule::InspectorModule() = default;
 
 InspectorModule::~InspectorModule()

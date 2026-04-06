@@ -1,15 +1,23 @@
 #pragma once
 
+#include "animation.hpp"
 #include "batch_buffer.hpp"
 #include "common.hpp"
-#include "cpu_resources.hpp"
+#include "components/animation_channel_component.hpp"
+#include "math.hpp"
 #include "resource_manager.hpp"
+#include "resources/hierarchy.hpp"
+#include "resources/mesh.hpp"
+#include "resources/model.hpp"
 #include "single_time_commands.hpp"
 #include "vertex.hpp"
 #include "vulkan_context.hpp"
 
 #include <glm/glm.hpp>
+#include <glm/mat4x4.hpp>
 #include <memory>
+#include <unordered_map>
+#include <vector>
 
 class MaterialResourceManager;
 

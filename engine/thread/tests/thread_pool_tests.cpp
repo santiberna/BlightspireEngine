@@ -66,10 +66,10 @@ TEST(ThreadPoolTests, TaskParallelism)
         pool.QueueWork(WaitTask { WAIT_TIME });
     }
 
-    Stopwatch t {};
+    bb::Stopwatch t {};
     pool.Start();
     pool.FinishPendingWork();
-    auto elapsed = t.GetElapsed().count();
+    auto elapsed = bb::durationCast<bb::MillisecondsF32>(t.getElapsed()).value;
 
     EXPECT_LT(elapsed, WAIT_TIME * THREAD_COUNT);
 }

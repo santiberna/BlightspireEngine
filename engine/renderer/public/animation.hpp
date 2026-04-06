@@ -11,7 +11,6 @@
 #include <string>
 #include <vector>
 
-
 using Translation = glm::vec3;
 using Rotation = glm::quat;
 using Scale = glm::vec3;

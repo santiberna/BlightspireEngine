@@ -2,6 +2,7 @@
 #include "audio_module.hpp"
 #include "ecs_module.hpp"
 #include "game_module.hpp"
+#include "log_setup.hpp"
 #include "main_engine.hpp"
 #include "particle_module.hpp"
 #include "pathfinding_module.hpp"
@@ -13,7 +14,8 @@
 #include "thread_module.hpp"
 #include "time_module.hpp"
 #include "ui_module.hpp"
-#include <log_setup.hpp>
+
+#include <spdlog/spdlog.h>
 
 #if BB_DEVELOPMENT
 #include "inspector_module.hpp"
@@ -31,7 +33,7 @@ int Main()
     int result;
     {
         MainEngine instance;
-        Stopwatch startupTimer {};
+        bb::Stopwatch startupTimer {};
 
         {
             ZoneScopedN("Engine Module Initialization");
@@ -66,7 +68,8 @@ int Main()
             instance.GetModule<TimeModule>().ResetTimer();
         }
 
-        spdlog::info("{}ms taken for complete startup!", startupTimer.GetElapsed().count());
+        auto time = bb::durationCast<bb::MillisecondsF32>(startupTimer.getElapsed());
+        spdlog::info("{}ms taken for complete startup!", time.value);
 
         int* exit = nullptr;
         while (exit == nullptr)

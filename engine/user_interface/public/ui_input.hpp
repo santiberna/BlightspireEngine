@@ -32,7 +32,7 @@ public:
     UINavigationDirection GetDirection(const ActionManager& actionManager);
     std::string_view GetPressActionName() { return _pressActionName; }
 
-    DeltaMS deltatime {};
+    bb::MillisecondsF32 deltatime {};
     float _inputDeadZone = 0.4f;
 
 private:

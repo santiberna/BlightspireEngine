@@ -2,7 +2,7 @@
 
 #include "system_interface.hpp"
 
-#include <entt/entt.hpp>
+#include <entt/entity/fwd.hpp>
 #include <glm/mat4x4.hpp>
 
 struct SkeletonComponent;

@@ -51,14 +51,14 @@ MainScript::~MainScript()
     }
 }
 
-void MainScript::Update(DeltaMS deltatime)
+void MainScript::Update(bb::MillisecondsF32 deltatime)
 {
     if (valid == false)
         return;
 
     try
     {
-        mainUpdate(WrenEngine { engine }, deltatime.count());
+        mainUpdate(WrenEngine { engine }, deltatime.value);
     }
     catch (wren::Exception& ex)
     {

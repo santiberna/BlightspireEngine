@@ -2,7 +2,6 @@
 
 #include "wren_include.hpp"
 
-#include <spdlog/spdlog.h>
 #include <variant>
 
 struct Callback
@@ -16,14 +15,7 @@ struct Callback
 
     Callback(wren::Variable wrenLambda)
     {
-        try
-        {
-            fn = wrenLambda.func("call()");
-        }
-        catch (const wren::Exception& e)
-        {
-            spdlog::warn("[WREN WARNING] could not bind wren lambda to callback: {}", e.what());
-        }
+        fn = wrenLambda.func("call()");
     }
 
 private:
@@ -34,14 +26,7 @@ private:
 
         void operator()(wren::Method& fn) const
         {
-            try
-            {
-                fn();
-            }
-            catch (wren::Exception& ex)
-            {
-                spdlog::error(ex.what());
-            }
+            fn();
         };
     };
 

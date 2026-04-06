@@ -2,9 +2,11 @@
 
 #include <ctime>
 #include <spdlog/sinks/rotating_file_sink.h>
+#include <spdlog/spdlog.h>
 
 #if BB_PLATFORM == BB_WINDOWS
 #include <windows.h>
+#include <winternl.h>
 #elif BB_PLATFORM == BB_LINUX
 #include <sys/utsname.h>
 #else

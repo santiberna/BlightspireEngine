@@ -1,11 +1,13 @@
 module_declare(STATIC)
 
 target_link_libraries(resources
-        PUBLIC core
-        PUBLIC renderer
-        PUBLIC thread
+    PUBLIC 
+        core
+        renderer
+        thread
 
-        PRIVATE fastgltf::fastgltf
+    PRIVATE
+        fastgltf::fastgltf
 )
 
 target_include_directories(resources

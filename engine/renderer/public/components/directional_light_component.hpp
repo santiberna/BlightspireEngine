@@ -1,9 +1,9 @@
 #pragma once
 
-#include <entt/entity/registry.hpp>
-#include <glm/glm.hpp>
+#include <entt/entity/fwd.hpp>
+#include <glm/mat4x4.hpp>
+#include <glm/vec3.hpp>
 #include <imgui_entt_entity_editor.hpp>
-
 
 struct DirectionalLightComponent
 {

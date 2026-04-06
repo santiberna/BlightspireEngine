@@ -35,6 +35,7 @@
 #include "ui_text.hpp"
 
 #include <magic_enum.hpp>
+#include <spdlog/spdlog.h>
 
 Achievement CreateAchievement(SteamAchievementEnum achievements)
 {
@@ -251,8 +252,8 @@ void GameModule::ApplySettings(Engine& engine)
             counter->visibility = UIElement::VisibilityState::eUpdatedAndVisible;
             auto dt = engine.GetModule<TimeModule>().GetRealDeltatime();
 
-            if (dt.count() != 0.0f)
-                counter->SetVal(1000.0f / dt.count());
+            if (dt.value != 0.0f)
+                counter->SetVal(1000.0f / dt.value);
         }
         else
         {

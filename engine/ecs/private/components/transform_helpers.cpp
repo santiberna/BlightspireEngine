@@ -10,6 +10,7 @@
 #include <entt/entity/registry.hpp>
 #include <glm/gtx/matrix_decompose.hpp>
 #include <glm/gtx/quaternion.hpp>
+#include <spdlog/spdlog.h>
 
 static bool CheckPhysicsAssert(entt::registry& reg, entt::entity entity)
 {

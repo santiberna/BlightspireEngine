@@ -1,8 +1,7 @@
 #pragma once
 
 #include <entt/entity/fwd.hpp>
-#include <glm/glm.hpp>
-#include <glm/gtc/quaternion.hpp>
+#include <glm/fwd.hpp>
 
 struct WorldMatrixComponent;
 struct TransformComponent;

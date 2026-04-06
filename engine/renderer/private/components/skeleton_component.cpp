@@ -1,5 +1,7 @@
 #include "components/skeleton_component.hpp"
 
+#include <entt/entity/registry.hpp>
+
 void SkeletonHelpers::AttachChild(entt::registry& registry, entt::entity parent, entt::entity child)
 {
     auto& parentNode = registry.get<SkeletonNodeComponent>(parent);

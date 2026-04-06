@@ -3,7 +3,7 @@
 #include "graphics_context.hpp"
 #include "vulkan_helper.hpp"
 
-#include "graphics_context.hpp"
+#include <spdlog/spdlog.h>
 
 std::unordered_map<size_t, vk::DescriptorSetLayout> PipelineBuilder::_cacheDescriptorSetLayouts {};
 

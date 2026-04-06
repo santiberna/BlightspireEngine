@@ -1,12 +1,15 @@
 #include "resource_management/model_resource_manager.hpp"
 
 #include "batch_buffer.hpp"
-#include "cpu_resources.hpp"
 #include "resource_management/image_resource_manager.hpp"
 #include "resource_management/material_resource_manager.hpp"
 #include "resource_management/mesh_resource_manager.hpp"
+#include "resources/model.hpp"
 
+#include <glm/glm.hpp>
+#include <glm/mat4x4.hpp>
 #include <tracy/Tracy.hpp>
+#include <vector>
 
 ModelResourceManager::ModelResourceManager(std::shared_ptr<VulkanContext> vkContext, std::shared_ptr<ImageResourceManager> imageResourceManager, std::shared_ptr<MaterialResourceManager> materialResourceManager, std::shared_ptr<MeshResourceManager> meshResourceManager)
     : _imageResourceManager(imageResourceManager)

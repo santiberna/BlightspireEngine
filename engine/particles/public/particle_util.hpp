@@ -1,8 +1,12 @@
 #pragma once
 
 #include "enum_utils.hpp"
+
 #include <cstdint>
-#include <glm/glm.hpp>
+
+#include <glm/vec2.hpp>
+#include <glm/vec3.hpp>
+#include <glm/vec4.hpp>
 
 // temporary values for testing/progress
 static constexpr uint32_t MAX_EMITTERS = 512;

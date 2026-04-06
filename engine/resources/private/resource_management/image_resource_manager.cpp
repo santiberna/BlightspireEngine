@@ -3,6 +3,8 @@
 #include "vulkan_context.hpp"
 #include "vulkan_helper.hpp"
 
+#include <stdexcept>
+
 ImageResourceManager::ImageResourceManager(const std::shared_ptr<VulkanContext>& context, ResourceHandle<Sampler> defaultSampler)
     : _defaultSampler(defaultSampler)
     , _context(context)

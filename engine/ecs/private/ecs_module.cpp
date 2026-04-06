@@ -25,7 +25,7 @@ void ECSModule::Shutdown([[maybe_unused]] Engine& engine)
 
 void ECSModule::Tick(Engine& engine)
 {
-    auto dt = engine.GetModule<TimeModule>().GetDeltatime().count();
+    auto dt = engine.GetModule<TimeModule>().GetDeltatime().value;
 
     RemovedDestroyed();
     UpdateSystems(dt);

@@ -1,14 +1,11 @@
 #pragma once
 
-#include "spirv_reflect.h"
-#include "vertex.hpp"
 #include "vma_include.hpp"
 #include "vulkan_context.hpp"
-#include <glm/glm.hpp>
-#include <magic_enum.hpp>
-#include <spdlog/spdlog.h>
-
 #include "vulkan_include.hpp"
+
+#include <glm/vec3.hpp>
+#include <spirv_reflect.h>
 
 namespace util
 {

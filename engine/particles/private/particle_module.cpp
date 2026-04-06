@@ -15,6 +15,7 @@
 #include "time_module.hpp"
 
 #include <filesystem>
+#include <spdlog/spdlog.h>
 
 ModuleTickOrder ParticleModule::Init(Engine& engine)
 {
@@ -69,7 +70,7 @@ void ParticleModule::Tick([[maybe_unused]] Engine& engine)
         }
 
         // update timers
-        const float deltaTime = static_cast<double>(engine.GetModule<TimeModule>().GetDeltatime().count() * 1e-3);
+        const float deltaTime = static_cast<double>(engine.GetModule<TimeModule>().GetDeltatime().value * 1e-3);
         emitter.currentEmitDelay -= deltaTime;
         for (auto& burst : emitter.bursts)
         {

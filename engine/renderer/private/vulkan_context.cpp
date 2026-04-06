@@ -1,15 +1,15 @@
 #include "vulkan_context.hpp"
 
-#include <map>
-#include <set>
-#include <unordered_set>
-
+#include "log_setup.hpp"
 #include "pipeline_builder.hpp"
 #include "swap_chain.hpp"
 #include "vulkan_helper.hpp"
-#include <log_setup.hpp>
 
 #include <SDL3/SDL_vulkan.h>
+#include <map>
+#include <set>
+#include <spdlog/spdlog.h>
+#include <unordered_set>
 
 VULKAN_HPP_DEFAULT_DISPATCH_LOADER_DYNAMIC_STORAGE
 

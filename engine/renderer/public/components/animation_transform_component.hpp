@@ -2,10 +2,9 @@
 
 #include <imgui_entt_entity_editor.hpp>
 
-#include <entt/entt.hpp>
+#include <entt/entity/fwd.hpp>
 #include <glm/gtc/quaternion.hpp>
 #include <glm/vec3.hpp>
-
 struct AnimationTransformComponent
 {
     glm::vec3 position;

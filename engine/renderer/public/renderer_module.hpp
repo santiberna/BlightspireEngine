@@ -1,7 +1,9 @@
 #pragma once
 
-#include "cpu_resources.hpp"
 #include "module_interface.hpp"
+#include "resources/model.hpp"
+
+#include <memory>
 
 class Renderer;
 class ImGuiBackend;

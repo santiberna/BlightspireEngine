@@ -2,7 +2,6 @@
 #include "keys.hpp"
 #include "mousebuttons.hpp"
 
-#include <string>
 #include <unordered_map>
 
 const std::unordered_map<KeyboardCode, const char*> KEYBOARD_KEY_NAMES = {

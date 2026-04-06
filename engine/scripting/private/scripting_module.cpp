@@ -7,6 +7,7 @@
 #include "time_module.hpp"
 #include "wren_bindings.hpp"
 
+#include <spdlog/spdlog.h>
 #include <tracy/Tracy.hpp>
 
 void ScriptingModule::ResetVM()

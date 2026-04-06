@@ -20,8 +20,8 @@
 #include "systems/physics_system.hpp"
 #include "time_module.hpp"
 
-
 #include <glm/gtx/rotate_vector.hpp>
+#include <spdlog/spdlog.h>
 
 PhysicsModule::PhysicsModule() { }
 PhysicsModule::~PhysicsModule() { }
@@ -83,7 +83,7 @@ void PhysicsModule::Shutdown([[maybe_unused]] Engine& engine)
 
 void PhysicsModule::Tick([[maybe_unused]] Engine& engine)
 {
-    float deltatimeSeconds = glm::min(engine.GetModule<TimeModule>().GetDeltatime().count(), PHYSICS_MAX_DT) * 0.001f;
+    float deltatimeSeconds = glm::min(engine.GetModule<TimeModule>().GetDeltatime().value, PHYSICS_MAX_DT) * 0.001f;
 
     // This is being optimistic: we always do one collision step no matter how small the dt
     const int updatesNeeded = std::min(static_cast<int>(glm::ceil(deltatimeSeconds / PHYSICS_STEPS_PER_SECOND)), PHYSICS_MAX_STEPS_PER_FRAME);

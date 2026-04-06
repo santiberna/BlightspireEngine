@@ -37,7 +37,7 @@ void UISlider::Update(const InputManagers& inputManagers, UIInputContext& inputC
         {
             constexpr float SLIDER_SPEED = 0.001f;
 
-            value += movement.x * SLIDER_SPEED * inputContext.deltatime.count();
+            value += movement.x * SLIDER_SPEED * inputContext.deltatime.value;
             value = std::clamp(value, 0.0f, 1.0f);
 
             if (_callback)

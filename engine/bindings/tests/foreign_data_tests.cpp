@@ -13,6 +13,7 @@
 #include "wren_engine.hpp"
 
 #include <file_io.hpp>
+#include <spdlog/spdlog.h>
 
 namespace bind
 {

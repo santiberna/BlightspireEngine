@@ -10,6 +10,7 @@
 #include "physics/shape_factory.hpp"
 #include "resource_management/image_resource_manager.hpp"
 #include "resource_management/mesh_resource_manager.hpp"
+#include "thread_pool.hpp"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -18,12 +19,10 @@
 #include <stb_image.h>
 #include <tracy/Tracy.hpp>
 
-
+namespace
+{
 constexpr static auto DEFAULT_LOAD_FLAGS = fastgltf::Options::DecomposeNodeMatrices | fastgltf::Options::LoadExternalBuffers | fastgltf::Options::LoadExternalImages;
 static fastgltf::Parser parser = fastgltf::Parser(fastgltf::Extensions::KHR_lights_punctual | fastgltf::Extensions::KHR_texture_transform);
-
-namespace detail
-{
 
 glm::vec3 ToVec3(const fastgltf::math::nvec3& gltf_vec)
 {
@@ -137,59 +136,6 @@ fastgltf::Asset LoadFastGLTFAsset(std::string_view path)
     return gltf;
 }
 
-CPUImage ProcessImage(const fastgltf::Asset& asset, const fastgltf::Image& gltfImage)
-{
-    ZoneScopedN("Image Loading");
-
-    CPUImage out {};
-    out
-        .SetFlags(vk::ImageUsageFlagBits::eSampled)
-        .SetFormat(vk::Format::eR8G8B8A8Unorm)
-        .SetName(gltfImage.name);
-
-    if (auto* view = std::get_if<fastgltf::sources::BufferView>(&gltfImage.data))
-    {
-        auto& bufferView = asset.bufferViews[view->bufferViewIndex];
-        auto& buffer = asset.buffers[bufferView.bufferIndex];
-
-        if (auto* imageData = std::get_if<fastgltf::sources::Array>(&buffer.data))
-        {
-            int32_t width, height, nrChannels;
-            stbi_uc* stbiData = nullptr;
-            {
-                ZoneScopedN("STB Image step");
-                stbiData = stbi_load_from_memory(
-                    reinterpret_cast<const stbi_uc*>(imageData->bytes.data() + bufferView.byteOffset),
-                    static_cast<int32_t>(bufferView.byteLength), &width, &height, &nrChannels,
-                    4);
-            }
-
-            {
-                ZoneScopedN("Copy data step");
-                std::vector<std::byte> data = std::vector<std::byte>(width * height * 4);
-                std::memcpy(data.data(), std::bit_cast<std::byte*>(stbiData), data.size());
-
-                out
-                    .SetSize(width, height)
-                    .SetData(std::move(data))
-                    .SetMips(std::floor(std::log2(std::max(width, height))));
-            }
-
-            stbi_image_free(stbiData);
-        }
-        else
-        {
-            throw std::runtime_error("Unhandled image gltf type");
-        }
-    }
-    else
-    {
-        throw std::runtime_error("Unhandled image gltf type");
-    }
-
-    return out;
-}
-
 // Uses mesh colliders from Jolt
 JPH::ShapeRefC ProcessMeshIntoCollider(const CPUMesh<Vertex>& mesh)
 {
@@ -200,46 +146,6 @@ JPH::ShapeRefC ProcessMeshIntoCollider(const CPUMesh<Vertex>& mesh)
     }
 
     return ShapeFactory::MakeMeshHullShape(vertices, mesh.indices);
-}
-
-}
-
-CPUModel ProcessModel(const fastgltf::Asset& gltf, const std::string_view name);
-
-CPUModel ModelLoading::LoadGLTF(std::string_view path)
-{
-    ZoneScoped;
-
-    std::string zone = std::string(path) + " Model Extraction";
-    ZoneName(zone.c_str(), 128);
-
-    detail::IfstreamDataGetter fileStream { path };
-
-    // if (!fileStream.isOpen())
-    //   throw std::runtime_error("Path not found!");
-
-#if BB_DEVELOPEMENT
-    std::string_view directory = path.substr(0, path.find_last_of('/'));
-#else
-    std::string_view directory = "./";
-#endif
-
-    auto loadedGltf = parser.loadGltf(fileStream, directory, DEFAULT_LOAD_FLAGS);
-    if (!loadedGltf)
-    {
-        spdlog::error("error in gltf");
-        throw std::runtime_error(getErrorMessage(loadedGltf.error()).data());
-    }
-
-    auto gltf = std::move(loadedGltf.get());
-
-    size_t offset = path.find_last_of('/') + 1;
-    std::string_view name = path.substr(offset, path.find_last_of('.') - offset);
-
-    if (gltf.scenes.size() > 1)
-        spdlog::warn("GLTF contains more than one scene, but we only load one scene!");
-
-    return ProcessModel(gltf, name);
 }
 
 glm::vec4 CalculateTangent(glm::vec3 p0, glm::vec3 p1, glm::vec3 p2, glm::vec2 uv0, glm::vec2 uv1, glm::vec2 uv2,
@@ -527,10 +433,11 @@ CPUMesh<T> ProcessPrimitive(const fastgltf::Primitive& gltfPrimitive, const fast
     return mesh;
 }
 
-CPUImage ProcessImage(const fastgltf::Image& gltfImage, const fastgltf::Asset& gltf, std::vector<std::byte>& data,
-    std::string_view name)
+CPUImage ProcessImage(const fastgltf::Image& gltfImage, const fastgltf::Asset& gltf)
 {
     CPUImage cpuImage {};
+    auto& name = gltfImage.name;
+
     ZoneScopedN("Image Loading");
 
     std::visit(fastgltf::visitor {
@@ -548,7 +455,7 @@ CPUImage ProcessImage(const fastgltf::Image& gltfImage, const fastgltf::Asset& g
                        if (!stbiData)
                            spdlog::error("Failed loading data from STBI at path: {}", path);
 
-                       data = std::vector<std::byte>(width * height * 4);
+                       auto data = std::vector<std::byte>(width * height * 4);
                        std::memcpy(data.data(), reinterpret_cast<std::byte*>(stbiData), data.size());
 
                        cpuImage
@@ -568,7 +475,7 @@ CPUImage ProcessImage(const fastgltf::Image& gltfImage, const fastgltf::Asset& g
                            static_cast<int32_t>(vector.bytes.size()), &width, &height,
                            &nrChannels, 4);
 
-                       data = std::vector<std::byte>(width * height * 4);
+                       auto data = std::vector<std::byte>(width * height * 4);
                        std::memcpy(data.data(), reinterpret_cast<std::byte*>(stbiData), data.size());
 
                        cpuImage
@@ -598,7 +505,7 @@ CPUImage ProcessImage(const fastgltf::Image& gltfImage, const fastgltf::Asset& g
                                        static_cast<int32_t>(bufferView.byteLength), &width, &height, &nrChannels,
                                        4);
 
-                                   data = std::vector<std::byte>(width * height * 4);
+                                   auto data = std::vector<std::byte>(width * height * 4);
                                    std::memcpy(data.data(), reinterpret_cast<std::byte*>(stbiData), data.size());
 
                                    cpuImage
@@ -771,11 +678,11 @@ CPUMaterial ProcessMaterial(const fastgltf::Material& gltfMaterial, const std::v
         material.emissiveMap = textureIndex;
     }
 
-    material.albedoFactor = detail::ToVec4(gltfMaterial.pbrData.baseColorFactor);
+    material.albedoFactor = ToVec4(gltfMaterial.pbrData.baseColorFactor);
     material.metallicFactor = gltfMaterial.pbrData.metallicFactor;
     material.roughnessFactor = gltfMaterial.pbrData.roughnessFactor;
     material.normalScale = gltfMaterial.normalTexture.has_value() ? gltfMaterial.normalTexture.value().scale : 0.0f;
-    material.emissiveFactor = detail::ToVec3(gltfMaterial.emissiveFactor);
+    material.emissiveFactor = ToVec3(gltfMaterial.emissiveFactor);
     material.occlusionStrength = gltfMaterial.occlusionTexture.has_value()
         ? gltfMaterial.occlusionTexture.value().strength
         : 1.0f;
@@ -813,7 +720,7 @@ uint32_t RecurseHierarchy(const fastgltf::Node& gltfNode,
 
     // Set transform and name.
     fastgltf::math::fmat4x4 gltfTransform = fastgltf::getTransformMatrix(gltfNode);
-    model.hierarchy.nodes[nodeIndex].transform = detail::ToMat4(gltfTransform);
+    model.hierarchy.nodes[nodeIndex].transform = ToMat4(gltfTransform);
     model.hierarchy.nodes[nodeIndex].name = gltfNode.name;
 
     // If we have an animation channel that should be used on this node, we apply it.
@@ -855,7 +762,7 @@ uint32_t RecurseHierarchy(const fastgltf::Node& gltfNode,
         const auto& light = gltf.lights[gltfNode.lightIndex.value()];
 
         NodeLightData lightData;
-        lightData.color = detail::ToVec3(light.color);
+        lightData.color = ToVec3(light.color);
         lightData.range = light.range.has_value() ? light.range.value() * 1000 : NodeLightData::DEFAULT_LIGHT_RANGE;
         lightData.intensity = light.intensity;
         switch (light.type)
@@ -886,168 +793,14 @@ uint32_t RecurseHierarchy(const fastgltf::Node& gltfNode,
     return nodeIndex;
 }
 
-CPUModel ProcessModel(const fastgltf::Asset& gltf, const std::string_view name)
-{
-    ZoneScoped;
-
-    std::string zone = std::string(name) + " data processing";
-    ZoneName(zone.c_str(), 128);
-
-    CPUModel model {};
-    model.name = name;
-
-    // Extract texture data
-    std::vector<std::vector<std::byte>> textureData(gltf.images.size());
-
-    for (size_t i = 0; i < gltf.images.size(); ++i)
-    {
-        model.textures.emplace_back(ProcessImage(gltf.images[i], gltf, textureData[i], name));
-    }
-
-    // Extract material data
-    for (auto& gltfMaterial : gltf.materials)
-    {
-        const CPUMaterial material = ProcessMaterial(gltfMaterial, gltf.textures);
-        model.materials.emplace_back(material);
-    }
-
-    // Tracks gltf mesh index to our engine mesh index.
-    std::unordered_multimap<uint32_t, std::pair<MeshType, uint32_t>> meshLUT {};
-
-    // Extract mesh data
-    {
-        ZoneScopedN("Mesh Loading");
-
-        uint32_t counter { 0 };
-        for (auto& gltfMesh : gltf.meshes)
-        {
-            for (const auto& gltfPrimitive : gltfMesh.primitives)
-            {
-                if (gltf.skins.size() > 0 && gltfPrimitive.findAttribute("WEIGHTS_0") != gltfPrimitive.attributes.cend() && gltfPrimitive.findAttribute("JOINTS_0") != gltfPrimitive.attributes.cend())
-                {
-                    CPUMesh<SkinnedVertex> primitive = ProcessPrimitive<SkinnedVertex>(gltfPrimitive, gltf);
-                    model.skinnedMeshes.emplace_back(primitive);
-
-                    meshLUT.insert({ counter, std::pair(MeshType::eSKINNED, model.skinnedMeshes.size() - 1) });
-                }
-                else
-                {
-                    CPUMesh<Vertex> primitive = ProcessPrimitive<Vertex>(gltfPrimitive, gltf);
-                    model.meshes.emplace_back(primitive);
-
-                    meshLUT.insert({ counter, std::pair(MeshType::eSTATIC, model.meshes.size() - 1) });
-                }
-            }
-            ++counter;
-        }
-    }
-
-    StagingAnimationChannels animations {};
-    if (!gltf.animations.empty())
-    {
-        animations = LoadAnimations(gltf);
-        model.animations = animations.animations;
-    }
-
-    model.hierarchy.nodes.emplace_back(Node {});
-    uint32_t baseNodeIndex = model.hierarchy.nodes.size() - 1;
-    model.hierarchy.nodes[baseNodeIndex].name = name;
-
-    model.hierarchy.root = model.hierarchy.nodes.size() - 1;
-
-    std::unordered_map<uint32_t, uint32_t> nodeLUT {};
-
-    for (size_t i = 0; i < gltf.scenes[0].nodeIndices.size(); ++i)
-    {
-        uint32_t index = gltf.scenes[0].nodeIndices[i];
-        const auto& gltfNode { gltf.nodes[index] };
-
-        uint32_t result = RecurseHierarchy(gltfNode, index, model, gltf, animations, meshLUT, nodeLUT);
-        model.hierarchy.nodes[baseNodeIndex].childrenIndices.emplace_back(result);
-    }
-
-    for (size_t i = 0; i < gltf.skins.size(); ++i)
-    {
-        const auto& skin = gltf.skins[i];
-
-        std::function<bool(Node&, uint32_t)> traverse = [&model, &skin, &nodeLUT, &traverse](Node& node, uint32_t nodeIndex)
-        {
-            auto it = std::find_if(skin.joints.begin(), skin.joints.end(), [&nodeLUT, nodeIndex](uint32_t index)
-                { return nodeLUT[index] == nodeIndex; });
-
-            if (it != skin.joints.end())
-            {
-                return true;
-            }
-
-            std::vector<uint32_t> baseJoints {};
-            for (size_t i = 0; i < node.childrenIndices.size(); ++i)
-            {
-                if (traverse(model.hierarchy.nodes[node.childrenIndices[i]], node.childrenIndices[i]))
-                {
-                    baseJoints.emplace_back(node.childrenIndices[i]);
-                }
-            }
-
-            if (baseJoints.size() > 0)
-            {
-                Node& skeletonNode = model.hierarchy.nodes.emplace_back();
-                model.hierarchy.skeletonRoot = model.hierarchy.nodes.size() - 1;
-                skeletonNode.name = "Skeleton Node";
-                std::copy(baseJoints.begin(), baseJoints.end(), std::back_inserter(skeletonNode.childrenIndices));
-                std::erase_if(node.childrenIndices, [&baseJoints](auto index)
-                    { return std::find(baseJoints.begin(), baseJoints.end(), index) != baseJoints.end(); });
-
-                return false;
-            }
-
-            return false;
-        };
-
-        traverse(model.hierarchy.nodes[model.hierarchy.root], model.hierarchy.root);
-    }
-
-    // After instantiating hierarchy, we do another pass to apply missing child references.
-    // In this case we match all the skeleton indices.
-    // Note, that we have to account for expanding the primitives into their own nodes.
-    for (size_t i = 0; i < gltf.nodes.size(); ++i)
-    {
-        const auto& gltfNode = gltf.nodes[i];
-        auto& node = model.hierarchy.nodes[nodeLUT[i]];
-
-        // Skins and meshes come together, we can assume here there is also a skinned mesh.
-        if (gltfNode.skinIndex.has_value())
-        {
-            // Iterate over all the children of the matched node, since we expanded the primitives.
-            for (auto childIndex : node.childrenIndices)
-            {
-                // Apply the skeleton node using the node LUT.
-                model.hierarchy.nodes[childIndex].skeletonNode = model.hierarchy.skeletonRoot;
-            }
-        }
-    }
-
-    // Moves the animation from the model root to the skeleton root
-    if (model.hierarchy.skeletonRoot.has_value())
-    {
-        auto& firstChild = model.hierarchy.nodes[model.hierarchy.nodes[model.hierarchy.root].childrenIndices[0]];
-        if (!firstChild.animationSplines.empty())
-        {
-            model.hierarchy.nodes[model.hierarchy.skeletonRoot.value()].animationSplines = firstChild.animationSplines;
-            firstChild.animationSplines = {};
-            firstChild.transform = {};
-        }
-    }
-
-    return model;
 }
 
-CPUModel ModelLoading::LoadGLTFFast(ThreadPool& scheduler, std::string_view path, bool genCollision)
+CPUModel ModelLoading::LoadGLTF(ThreadPool* scheduler, std::string_view path, bool genCollision)
 {
     size_t offset = path.find_last_of('/') + 1;
     std::string_view name = path.substr(offset, path.find_last_of('.') - offset);
 
-    auto gltf = detail::LoadFastGLTFAsset(path);
+    auto gltf = LoadFastGLTFAsset(path);
 
     CPUModel model {};
     model.name = name;
@@ -1056,9 +809,19 @@ CPUModel ModelLoading::LoadGLTFFast(ThreadPool& scheduler, std::string_view path
 
     for (const auto& image : gltf.images)
     {
-        auto future = scheduler.QueueWork([&gltf, &image]()
-            { return detail::ProcessImage(gltf, image); });
-        imageLoadResults.emplace_back(std::move(future));
+        auto proc = [&gltf, &image]()
+        {
+            return ProcessImage(image, gltf);
+        };
+
+        if (scheduler != nullptr)
+        {
+            imageLoadResults.push_back(scheduler->QueueWork(proc));
+        }
+        else
+        {
+            imageLoadResults.push_back(std::async(std::launch::deferred, proc));
+        }
     }
 
     // Extract material data
@@ -1094,7 +857,7 @@ CPUModel ModelLoading::LoadGLTFFast(ThreadPool& scheduler, std::string_view path
 
                     if (genCollision)
                     {
-                        model.colliders.emplace_back(detail::ProcessMeshIntoCollider(primitive));
+                        model.colliders.emplace_back(ProcessMeshIntoCollider(primitive));
                     }
 
                     model.meshes.emplace_back(primitive);

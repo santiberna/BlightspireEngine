@@ -61,7 +61,7 @@ PathfindingModule::~PathfindingModule()
 
 int32_t PathfindingModule::SetNavigationMesh(std::string_view filePath)
 {
-    CPUModel navmesh = ModelLoading::LoadGLTF(filePath);
+    CPUModel navmesh = ModelLoading::LoadGLTF(nullptr, filePath, false);
     uint32_t meshIndex = std::numeric_limits<uint32_t>::max();
     glm::mat4 transform = glm::mat4(1.0f);
 

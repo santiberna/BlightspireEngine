@@ -296,7 +296,7 @@ std::shared_ptr<ModelData> ModelLoader::LoadModel(Engine& engine, std::string_vi
         std::string zone = std::string(path) + " CPU parsing";
         ZoneName(zone.c_str(), 128);
 
-        cpuData = ModelLoading::LoadGLTFFast(threadPool, path, genCollision);
+        cpuData = ModelLoading::LoadGLTF(&threadPool, path, genCollision);
     }
 
     auto& rendererModule = engine.GetModule<RendererModule>();

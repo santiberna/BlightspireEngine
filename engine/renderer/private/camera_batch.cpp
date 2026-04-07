@@ -84,20 +84,21 @@ CameraBatch::CameraBatch(const std::shared_ptr<GraphicsContext>& context, const 
     , _skinnedDraw(context, "Skinned" + name, MAX_SKINNED_INSTANCES, drawDSL, visibilityDSL, redirectDSL)
 {
     const auto* depthImageAccess = _context->Resources()->ImageResourceManager().Access(_depthImage);
-
     uint16_t hzbSize = math::RoundUpToPowerOfTwo(std::max(depthImageAccess->width, depthImageAccess->height));
-    SamplerCreation samplerCreation {
-        .name = name + " HZB Sampler",
-        .minFilter = vk::Filter::eLinear,
-        .magFilter = vk::Filter::eLinear,
-        .anisotropyEnable = false,
-        .borderColor = vk::BorderColor::eFloatOpaqueBlack,
-        .mipmapMode = vk::SamplerMipmapMode::eNearest,
-        .minLod = 0.0f,
-        .maxLod = static_cast<float>(std::floor(std::log2(hzbSize))),
-        .reductionMode = _camera.UsesReverseZ() ? vk::SamplerReductionMode::eMin : vk::SamplerReductionMode::eMax,
-    };
-    samplerCreation.SetGlobalAddressMode(vk::SamplerAddressMode::eClampToBorder);
+
+    bb::SamplerCreation samplerCreation {};
+    samplerCreation.name = name + " HZB Sampler";
+    samplerCreation.minFilter = bb::SamplerFilter::LINEAR;
+    samplerCreation.magFilter = bb::SamplerFilter::LINEAR;
+    samplerCreation.anisotropyEnable = false;
+    samplerCreation.borderColor = bb::SamplerBorderColor::OPAQUE_BLACK_INT;
+    samplerCreation.mipmapMode = bb::SamplerFilter::LINEAR;
+    samplerCreation.minLod = 0.0f;
+    samplerCreation.maxLod = static_cast<float>(std::floor(std::log2(hzbSize)));
+    samplerCreation.reductionMode = _camera.UsesReverseZ() ? bb::SamplerReductionMode::MIN : bb::SamplerReductionMode::MAX;
+    samplerCreation.addressModeU = bb::SamplerAddressMode::CLAMP_TO_BORDER;
+    samplerCreation.addressModeW = bb::SamplerAddressMode::CLAMP_TO_BORDER;
+    samplerCreation.addressModeV = bb::SamplerAddressMode::CLAMP_TO_BORDER;
 
     _hzbSampler = _context->Resources()->SamplerResourceManager().Create(samplerCreation);
 

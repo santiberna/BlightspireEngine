@@ -78,16 +78,18 @@ void BuildHzbPass::RecordCommands(vk::CommandBuffer commandBuffer, [[maybe_unuse
 void BuildHzbPass::CreateSampler()
 {
     auto& samplerResourceManager = _context->Resources()->SamplerResourceManager();
-    SamplerCreation samplerCreation {
-        .name = "HZB Sampler",
-        .minFilter = vk::Filter::eLinear,
-        .magFilter = vk::Filter::eLinear,
-        .anisotropyEnable = false,
-        .minLod = 0.0f,
-        .maxLod = 0.0f,
-        .reductionMode = _cameraBatch.Camera().UsesReverseZ() ? vk::SamplerReductionMode::eMin : vk::SamplerReductionMode::eMax,
-    };
-    samplerCreation.SetGlobalAddressMode(vk::SamplerAddressMode::eClampToEdge);
+
+    bb::SamplerCreation samplerCreation {};
+    samplerCreation.name = "HZB Sampler",
+    samplerCreation.minFilter = bb::SamplerFilter::LINEAR;
+    samplerCreation.magFilter = bb::SamplerFilter::LINEAR;
+    samplerCreation.anisotropyEnable = false,
+    samplerCreation.minLod = 0.0f;
+    samplerCreation.maxLod = 0.0f;
+    samplerCreation.reductionMode = _cameraBatch.Camera().UsesReverseZ() ? bb::SamplerReductionMode::MIN : bb::SamplerReductionMode::MAX;
+    samplerCreation.addressModeU = bb::SamplerAddressMode::CLAMP_TO_EDGE;
+    samplerCreation.addressModeW = bb::SamplerAddressMode::CLAMP_TO_EDGE;
+    samplerCreation.addressModeV = bb::SamplerAddressMode::CLAMP_TO_EDGE;
 
     _hzbSampler = samplerResourceManager.Create(samplerCreation);
 }

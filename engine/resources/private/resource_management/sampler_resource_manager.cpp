@@ -8,7 +8,7 @@ SamplerResourceManager::SamplerResourceManager(const std::shared_ptr<VulkanConte
 {
 }
 
-ResourceHandle<Sampler> SamplerResourceManager::Create(const SamplerCreation& creation)
+ResourceHandle<Sampler> SamplerResourceManager::Create(const bb::SamplerCreation& creation)
 {
     return ResourceManager::Create(Sampler { creation, _context });
 }

@@ -186,25 +186,23 @@ void SSAOPass::CreateBuffers()
         .SetFormat(vk::Format::eR32G32B32A32Sfloat);
     noiseImage.isHDR = true;
 
-    SamplerCreation noiseSampler {};
+    bb::SamplerCreation noiseSampler {};
     noiseSampler.name = "SSAO_Noise_Sampler";
-    noiseSampler.addressModeU = vk::SamplerAddressMode::eRepeat;
-    noiseSampler.addressModeV = vk::SamplerAddressMode::eRepeat;
-    noiseSampler.addressModeW = vk::SamplerAddressMode::eRepeat;
+    noiseSampler.addressModeU = bb::SamplerAddressMode::REPEAT;
+    noiseSampler.addressModeV = bb::SamplerAddressMode::REPEAT;
+    noiseSampler.addressModeW = bb::SamplerAddressMode::REPEAT;
 
-    noiseSampler.minFilter = vk::Filter::eNearest;
-    noiseSampler.magFilter = vk::Filter::eNearest;
-    noiseSampler.mipmapMode = vk::SamplerMipmapMode::eNearest;
+    noiseSampler.minFilter = bb::SamplerFilter::NEAREST;
+    noiseSampler.magFilter = bb::SamplerFilter::NEAREST;
+    noiseSampler.mipmapMode = bb::SamplerFilter::NEAREST;
 
     noiseSampler.useMaxAnisotropy = false;
     noiseSampler.anisotropyEnable = false;
     noiseSampler.minLod = 0.0f;
     noiseSampler.maxLod = 0.0f; // No mipmaps
 
-    noiseSampler.compareEnable = false;
-    noiseSampler.compareOp = vk::CompareOp::eAlways;
     noiseSampler.unnormalizedCoordinates = false;
-    noiseSampler.borderColor = vk::BorderColor::eIntOpaqueBlack;
+    noiseSampler.borderColor = bb::SamplerBorderColor::OPAQUE_BLACK_INT;
 
     _noiseSampler = _context->Resources()->SamplerResourceManager().Create(noiseSampler);
     _ssaoNoise = _context->Resources()->ImageResourceManager().Create(noiseImage, _noiseSampler);

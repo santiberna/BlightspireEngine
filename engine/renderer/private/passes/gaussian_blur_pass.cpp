@@ -21,12 +21,16 @@ GaussianBlurPass::GaussianBlurPass(const std::shared_ptr<GraphicsContext>& conte
     _targets[1] = target;
     CreateVerticalTarget();
 
-    SamplerCreation createInfo {
+    bb::SamplerCreation createInfo {
         .name = "Gaussian blur sampler",
-        .borderColor = vk::BorderColor::eFloatOpaqueBlack,
+        .borderColor = bb::SamplerBorderColor::OPAQUE_BLACK_FLOAT,
         .maxLod = 1.0f,
     };
-    createInfo.SetGlobalAddressMode(vk::SamplerAddressMode::eClampToBorder);
+
+    createInfo.addressModeU = bb::SamplerAddressMode::CLAMP_TO_BORDER;
+    createInfo.addressModeW = bb::SamplerAddressMode::CLAMP_TO_BORDER;
+    createInfo.addressModeV = bb::SamplerAddressMode::CLAMP_TO_BORDER;
+
     _sampler = _context->Resources()->SamplerResourceManager().Create(createInfo);
     CreateDescriptorSetLayout();
     CreatePipeline();

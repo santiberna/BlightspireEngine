@@ -490,25 +490,23 @@ void Renderer::CreateSyncObjects()
 
 void Renderer::InitializeHDRTarget()
 {
-    SamplerCreation nearestSampler {};
+    bb::SamplerCreation nearestSampler {};
     nearestSampler.name = "Nearest_Sampler";
-    nearestSampler.addressModeU = vk::SamplerAddressMode::eClampToEdge;
-    nearestSampler.addressModeV = vk::SamplerAddressMode::eClampToEdge;
-    nearestSampler.addressModeW = vk::SamplerAddressMode::eClampToEdge;
+    nearestSampler.addressModeU = bb::SamplerAddressMode::CLAMP_TO_EDGE;
+    nearestSampler.addressModeV = bb::SamplerAddressMode::CLAMP_TO_EDGE;
+    nearestSampler.addressModeW = bb::SamplerAddressMode::CLAMP_TO_EDGE;
 
-    nearestSampler.minFilter = vk::Filter::eNearest;
-    nearestSampler.magFilter = vk::Filter::eNearest;
-    nearestSampler.mipmapMode = vk::SamplerMipmapMode::eNearest;
+    nearestSampler.minFilter = bb::SamplerFilter::NEAREST;
+    nearestSampler.magFilter = bb::SamplerFilter::NEAREST;
+    nearestSampler.mipmapMode = bb::SamplerFilter::NEAREST;
 
     nearestSampler.useMaxAnisotropy = false;
     nearestSampler.anisotropyEnable = false;
     nearestSampler.minLod = 0.0f;
     nearestSampler.maxLod = vk::LodClampNone;
 
-    nearestSampler.compareEnable = false;
-    nearestSampler.compareOp = vk::CompareOp::eAlways;
     nearestSampler.unnormalizedCoordinates = false;
-    nearestSampler.borderColor = vk::BorderColor::eIntOpaqueBlack;
+    nearestSampler.borderColor = bb::SamplerBorderColor::OPAQUE_BLACK_INT;
     _nearestSampler = _context->Resources()->SamplerResourceManager().Create(nearestSampler);
     auto size = _swapChain->GetImageSize();
 
@@ -521,13 +519,16 @@ void Renderer::InitializeHDRTarget()
 void Renderer::InitializeBloomTargets()
 {
     auto& samplerResourceManager = _context->Resources()->SamplerResourceManager();
-    SamplerCreation samplerCreation {
-        .name = "Bloom Sampler",
-        .mipmapMode = vk::SamplerMipmapMode::eLinear,
-        .minLod = 0.0f,
-        .maxLod = vk::LodClampNone,
-    };
-    samplerCreation.SetGlobalAddressMode(vk::SamplerAddressMode::eClampToEdge);
+
+    bb::SamplerCreation samplerCreation {};
+    samplerCreation.name = "Bloom Sampler",
+    samplerCreation.minLod = 0.0f,
+    samplerCreation.maxLod = vk::LodClampNone;
+    samplerCreation.mipmapMode = bb::SamplerFilter::LINEAR,
+    samplerCreation.addressModeU = bb::SamplerAddressMode::CLAMP_TO_EDGE;
+    samplerCreation.addressModeW = bb::SamplerAddressMode::CLAMP_TO_EDGE;
+    samplerCreation.addressModeV = bb::SamplerAddressMode::CLAMP_TO_EDGE;
+
     _bloomSampler = samplerResourceManager.Create(samplerCreation);
 
     auto size = _swapChain->GetImageSize();

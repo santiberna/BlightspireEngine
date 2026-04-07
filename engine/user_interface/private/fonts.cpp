@@ -180,9 +180,9 @@ std::shared_ptr<UIFont> LoadFromFile(const std::string& path, uint16_t character
     image.SetFlags(vk::ImageUsageFlagBits::eSampled);
     image.isHDR = false;
 
-    SamplerCreation samplerCreation;
-    samplerCreation.minFilter = vk::Filter::eNearest;
-    samplerCreation.magFilter = vk::Filter::eNearest;
+    bb::SamplerCreation samplerCreation;
+    samplerCreation.minFilter = bb::SamplerFilter::NEAREST;
+    samplerCreation.magFilter = bb::SamplerFilter::NEAREST;
     static ResourceHandle<Sampler> sampler = context.Resources()->SamplerResourceManager().Create(samplerCreation);
 
     font->fontAtlas = context.Resources()->ImageResourceManager().Create(image, sampler);

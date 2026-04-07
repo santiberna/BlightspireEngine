@@ -15,8 +15,8 @@ bb::UIResources bb::UIResources::Load(GraphicsContext& context)
     // Sampler for UI images
     {
         SamplerCreation info;
-        info.minFilter = vk::Filter::eNearest;
-        info.magFilter = vk::Filter::eNearest;
+        info.minFilter = bb::SamplerFilter::NEAREST;
+        info.magFilter = bb::SamplerFilter::NEAREST;
         out.ui_sampler = sampler_manager.Create(info);
     }
 

@@ -53,7 +53,7 @@ ImGuiBackend::ImGuiBackend(const std::shared_ptr<GraphicsContext>& context, cons
 
     ImGui_ImplSDL3_InitForVulkan(applicationModule.GetWindowHandle());
 
-    _basicSampler = _context->Resources()->SamplerResourceManager().Create(SamplerCreation { .name = "ImGui sampler" });
+    _basicSampler = _context->Resources()->SamplerResourceManager().Create(bb::SamplerCreation { .name = "ImGui sampler" });
 }
 
 ImGuiBackend::~ImGuiBackend()

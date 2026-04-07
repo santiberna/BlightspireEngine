@@ -146,7 +146,7 @@ void GraphicsContext::UpdateBindlessImages()
 
         if (_sampler.IsNull())
         {
-            SamplerCreation createInfo {
+            bb::SamplerCreation createInfo {
                 .name = "Graphics context sampler",
                 .maxLod = static_cast<float>(image->mips),
             };

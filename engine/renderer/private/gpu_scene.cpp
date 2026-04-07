@@ -1334,15 +1334,17 @@ void GPUScene::WriteDraws(uint32_t frameIndex)
 
 void GPUScene::CreateShadowMapResources()
 {
-    SamplerCreation shadowSamplerInfo {
-        .name = "Shadow sampler",
-        .minFilter = vk::Filter::eLinear,
-        .magFilter = vk::Filter::eLinear,
-        .borderColor = vk::BorderColor::eFloatOpaqueWhite,
-        .compareEnable = true,
-        .compareOp = vk::CompareOp::eLessOrEqual,
-    };
-    shadowSamplerInfo.SetGlobalAddressMode(vk::SamplerAddressMode::eClampToBorder);
+    bb::SamplerCreation shadowSamplerInfo {};
+    shadowSamplerInfo.name = "Shadow sampler";
+    shadowSamplerInfo.minFilter = bb::SamplerFilter::LINEAR;
+    shadowSamplerInfo.magFilter = bb::SamplerFilter::LINEAR;
+    shadowSamplerInfo.borderColor = bb::SamplerBorderColor::OPAQUE_WHITE_FLOAT;
+    shadowSamplerInfo.compareOp = bb::SamplerCompareOp::LESS_OR_EQUAL;
+
+    shadowSamplerInfo.addressModeU = bb::SamplerAddressMode::CLAMP_TO_BORDER;
+    shadowSamplerInfo.addressModeW = bb::SamplerAddressMode::CLAMP_TO_BORDER;
+    shadowSamplerInfo.addressModeV = bb::SamplerAddressMode::CLAMP_TO_BORDER;
+
     _shadowSampler = _context->Resources()->SamplerResourceManager().Create(shadowSamplerInfo);
 
     CPUImage shadowCreationStatic {};

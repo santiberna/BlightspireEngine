@@ -14,12 +14,14 @@ IBLPass::IBLPass(const std::shared_ptr<GraphicsContext>& context, ResourceHandle
     : _context(context)
     , _environmentMap(environmentMap)
 {
-    SamplerCreation createInfo {
+    bb::SamplerCreation createInfo {
         .name = "IBL sampler",
         .maxLod = 6.0f,
     };
 
-    createInfo.SetGlobalAddressMode(vk::SamplerAddressMode::eClampToEdge);
+    createInfo.addressModeU = bb::SamplerAddressMode::CLAMP_TO_EDGE;
+    createInfo.addressModeW = bb::SamplerAddressMode::CLAMP_TO_EDGE;
+    createInfo.addressModeV = bb::SamplerAddressMode::CLAMP_TO_EDGE;
 
     _sampler = _context->Resources()->SamplerResourceManager().Create(createInfo);
 

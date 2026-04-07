@@ -1,18 +1,14 @@
 #pragma once
+#include <memory>
+#include <optional>
+#include <span>
 #include <string>
 #include <vector>
-
-#include "enum_utils.hpp"
-#include "resource_manager.hpp"
-#include "resources/sampler.hpp"
-#include "single_time_commands.hpp"
-#include "vulkan_context.hpp"
-#include "vulkan_include.hpp"
 
 namespace bb
 {
 
-enum class ImageFormat
+enum class ImageFormat : uint8_t
 {
     NONE,
 
@@ -65,6 +61,8 @@ enum class ImageType
     eCubeMap,
     eShadowMap
 };
+
+#include <vulkan_include.hpp>
 
 struct CPUImage
 {

@@ -1,9 +1,14 @@
 #pragma once
 #include "common.hpp"
 #include "resources/image.hpp"
+#include "resources/sampler.hpp"
 #include "vulkan_fwd.hpp"
 
+#include "enum_utils.hpp"
+#include "resource_manager.hpp"
 #include "vulkan_include.hpp"
+
+
 #include <optional>
 
 class SingleTimeCommands;

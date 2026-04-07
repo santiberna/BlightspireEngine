@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cstdint>
+
 namespace bb
 {
 
@@ -20,12 +22,14 @@ public:
     explicit operator bool() const { return version != 0; }
 
 private:
-    size_t index {};
-    size_t version {};
+    uint32_t index {};
+    uint32_t version {};
 
     friend SlotMap<T>;
     friend SlotMapIterator<T>;
     friend SlotMapConstIterator<T>;
 };
+
+static_assert(sizeof(SlotHandle<struct Dummy>) == 8);
 
 }

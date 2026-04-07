@@ -3,7 +3,6 @@
 
 #include "math.hpp"
 #include "resources/material.hpp"
-#include "resources/mesh.hpp"
 
 enum class MeshType : uint8_t
 {

@@ -1,7 +1,11 @@
 #pragma once
 
-#include "vulkan_context.hpp"
-#include "vulkan_include.hpp"
+#include "common.hpp"
+#include "vulkan_fwd.hpp"
+
+#include <string>
+
+class VulkanContext;
 
 namespace bb
 {
@@ -69,7 +73,7 @@ struct SamplerCreation
 
 struct Sampler
 {
-    Sampler(const bb::SamplerCreation& creation, const std::shared_ptr<VulkanContext>& context);
+    Sampler(const bb::SamplerCreation& creation, const VulkanContext* context);
     ~Sampler();
 
     Sampler(Sampler&& other) noexcept;
@@ -77,8 +81,8 @@ struct Sampler
 
     NON_COPYABLE(Sampler);
 
-    vk::Sampler sampler;
+    VkSampler sampler;
 
 private:
-    std::shared_ptr<VulkanContext> _context;
+    const VulkanContext* _context;
 };

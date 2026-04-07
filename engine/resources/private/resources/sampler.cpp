@@ -1,5 +1,6 @@
 #include "resources/sampler.hpp"
-#include "vulkan_helper.hpp"
+#include "vulkan_context.hpp"
+#include "vulkan_include.hpp"
 
 namespace
 {
@@ -80,7 +81,7 @@ vk::BorderColor toVkBorderColor(bb::SamplerBorderColor color)
 
 }
 
-Sampler::Sampler(const bb::SamplerCreation& creation, const std::shared_ptr<VulkanContext>& context)
+Sampler::Sampler(const bb::SamplerCreation& creation, const VulkanContext* context)
     : _context(context)
 {
     vk::StructureChain<vk::SamplerCreateInfo, vk::SamplerReductionModeCreateInfo> structureChain {};
@@ -120,7 +121,7 @@ Sampler::Sampler(const bb::SamplerCreation& creation, const std::shared_ptr<Vulk
     vk::Device device = _context->Device();
     sampler = device.createSampler(createInfo).value;
 
-    _context->DebugSetObjectName(sampler, creation.name.c_str());
+    _context->DebugSetObjectName(vk::Sampler(sampler), creation.name.c_str());
 }
 
 Sampler::~Sampler()

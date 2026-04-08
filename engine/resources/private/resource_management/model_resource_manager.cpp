@@ -30,7 +30,14 @@ ResourceHandle<GPUModel> ModelResourceManager::Create(const CPUModel& data, Batc
             ZoneScopedN("Texture upload dispatch");
             for (const auto& image : data.textures)
             {
-                model.textures.emplace_back(_imageResourceManager->Create(image, &commands));
+                auto handle = _imageResourceManager->Create(
+                    commands,
+                    image.image,
+                    _imageResourceManager->_defaultSampler,
+                    bb::TextureFlags::COMMON_FLAGS,
+                    image.name);
+
+                model.textures.emplace_back(handle);
             }
         }
 

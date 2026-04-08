@@ -433,97 +433,55 @@ CPUMesh<T> ProcessPrimitive(const fastgltf::Primitive& gltfPrimitive, const fast
     return mesh;
 }
 
-CPUImage ProcessImage(const fastgltf::Image& gltfImage, const fastgltf::Asset& gltf)
+ModelImage ProcessImage(const fastgltf::Image& gltfImage, const fastgltf::Asset& gltf)
 {
-    CPUImage cpuImage {};
-    auto& name = gltfImage.name;
-
     ZoneScopedN("Image Loading");
 
-    std::visit(fastgltf::visitor {
-                   []([[maybe_unused]] auto& arg) {},
-                   [&](const fastgltf::sources::URI& filePath)
-                   {
-                       assert(filePath.fileByteOffset == 0); // We don't support offsets with stbi.
-                       assert(filePath.uri.isLocalPath()); // We're only capable of loading local files.
+    fastgltf::visitor image_visitor {
+        [](const fastgltf::sources::URI& filePath) -> bb::Image2D
+        {
+            assert(filePath.fileByteOffset == 0); // We don't support offsets with stbi.
+            assert(filePath.uri.isLocalPath()); // We're only capable of loading local files.
 
-                       int32_t width, height, nrChannels;
+            return bb::Image2D::fromFile(filePath.uri.path()).value();
+        },
+        [](const fastgltf::sources::Array& vector) -> bb::Image2D
+        {
+            std::span<const std::byte> span = { vector.bytes.data(), vector.bytes.size() };
+            return bb::Image2D::fromMemory(span).value();
+        },
+        [&gltf](const fastgltf::sources::BufferView& view) -> bb::Image2D
+        {
+            const auto& bufferView = gltf.bufferViews[view.bufferViewIndex];
+            const auto& buffer = gltf.buffers[bufferView.bufferIndex];
 
-                       const std::string path(filePath.uri.path().begin(), filePath.uri.path().end()); // Thanks C++.
-                       auto stream = fileIO::OpenReadStream(path);
-                       auto* stbiData = fileIO::LoadImageFromIfstream(stream.value(), &width, &height, &nrChannels, 4);
-                       if (!stbiData)
-                           spdlog::error("Failed loading data from STBI at path: {}", path);
+            fastgltf::visitor buffer_visitor {
+                []([[maybe_unused]] auto& arg) -> bb::Image2D
+                {
+                    spdlog::error("Unhandled image type found!");
+                    return {};
+                },
+                [&](const fastgltf::sources::Array& vector) -> bb::Image2D
+                {
+                    std::span<const std::byte> span = {
+                        vector.bytes.data() + bufferView.byteOffset,
+                        bufferView.byteLength
+                    };
+                    return bb::Image2D::fromMemory(span).value();
+                }
+            };
 
-                       auto data = std::vector<std::byte>(width * height * 4);
-                       std::memcpy(data.data(), reinterpret_cast<std::byte*>(stbiData), data.size());
+            return std::visit(buffer_visitor, buffer.data);
+        },
+        []([[maybe_unused]] const auto& catch_all) -> bb::Image2D
+        {
+            spdlog::error("Unhandled image type found!");
+            return {};
+        }
+    };
 
-                       cpuImage
-                           .SetName(name)
-                           .SetSize(width, height)
-                           .SetData(std::move(data))
-                           .SetFlags(vk::ImageUsageFlagBits::eSampled)
-                           .SetFormat(vk::Format::eR8G8B8A8Unorm)
-                           .SetMips(std::floor(std::log2(std::max(width, height))));
-
-                       stbi_image_free(stbiData);
-                   },
-                   [&](const fastgltf::sources::Array& vector)
-                   {
-                       int32_t width, height, nrChannels;
-                       stbi_uc* stbiData = stbi_load_from_memory(reinterpret_cast<const stbi_uc*>(vector.bytes.data()),
-                           static_cast<int32_t>(vector.bytes.size()), &width, &height,
-                           &nrChannels, 4);
-
-                       auto data = std::vector<std::byte>(width * height * 4);
-                       std::memcpy(data.data(), reinterpret_cast<std::byte*>(stbiData), data.size());
-
-                       cpuImage
-                           .SetName(name)
-                           .SetSize(width, height)
-                           .SetData(std::move(data))
-                           .SetFlags(vk::ImageUsageFlagBits::eSampled)
-                           .SetFormat(vk::Format::eR8G8B8A8Unorm)
-                           .SetMips(std::floor(std::log2(std::max(width, height))));
-
-                       stbi_image_free(stbiData);
-                   },
-                   [&](const fastgltf::sources::BufferView& view)
-                   {
-                       auto& bufferView = gltf.bufferViews[view.bufferViewIndex];
-                       auto& buffer = gltf.buffers[bufferView.bufferIndex];
-
-                       std::visit(
-                           fastgltf::visitor { // We only care about VectorWithMime here, because we specify LoadExternalBuffers, meaning
-                               // all buffers are already loaded into a vector.
-                               []([[maybe_unused]] auto& arg) {},
-                               [&](const fastgltf::sources::Array& vector)
-                               {
-                                   int32_t width, height, nrChannels;
-                                   stbi_uc* stbiData = stbi_load_from_memory(
-                                       reinterpret_cast<const stbi_uc*>(vector.bytes.data() + bufferView.byteOffset),
-                                       static_cast<int32_t>(bufferView.byteLength), &width, &height, &nrChannels,
-                                       4);
-
-                                   auto data = std::vector<std::byte>(width * height * 4);
-                                   std::memcpy(data.data(), reinterpret_cast<std::byte*>(stbiData), data.size());
-
-                                   cpuImage
-                                       .SetName(name)
-                                       .SetSize(width, height)
-                                       .SetData(std::move(data))
-                                       .SetFlags(vk::ImageUsageFlagBits::eSampled)
-                                       .SetFormat(vk::Format::eR8G8B8A8Unorm)
-                                       .SetMips(std::floor(std::log2(std::max(width, height))));
-
-                                   stbi_image_free(stbiData);
-                               } },
-                           buffer.data);
-                   },
-               },
-        gltfImage.data);
-
-    return cpuImage;
+    auto image = std::visit(image_visitor, gltfImage.data);
+    return { image, gltfImage.name.c_str() };
 }
 
 struct StagingAnimationChannels
@@ -805,7 +763,7 @@ CPUModel ModelLoading::LoadGLTF(ThreadPool* scheduler, std::string_view path, bo
     CPUModel model {};
     model.name = name;
 
-    std::vector<std::future<CPUImage>> imageLoadResults {};
+    std::vector<std::future<ModelImage>> imageLoadResults {};
 
     for (const auto& image : gltf.images)
     {

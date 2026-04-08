@@ -32,7 +32,7 @@ enum class ImageFormat : uint8_t
 struct Image2D
 {
     static std::optional<Image2D> fromFile(std::string_view path);
-    static std::optional<Image2D> fromMemory(std::span<std::byte> data);
+    static std::optional<Image2D> fromMemory(std::span<const std::byte> data);
 
     std::shared_ptr<std::byte[]> data {}; // Leave empty to create empty textures
     ImageFormat format {};

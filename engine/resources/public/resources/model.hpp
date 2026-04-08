@@ -9,6 +9,12 @@
 #include <Jolt/Jolt.h>
 #include <Jolt/Physics/Collision/Shape/Shape.h>
 
+struct ModelImage
+{
+    bb::Image2D image;
+    std::string name;
+};
+
 struct CPUModel
 {
     std::string name {};
@@ -18,7 +24,7 @@ struct CPUModel
     std::vector<CPUMesh<SkinnedVertex>> skinnedMeshes {};
 
     std::vector<CPUMaterial> materials {};
-    std::vector<CPUImage> textures {};
+    std::vector<ModelImage> textures {};
     std::vector<Animation> animations {};
     std::vector<JPH::ShapeRefC> colliders {};
 };

@@ -19,7 +19,7 @@ std::optional<bb::Image2D> bb::Image2D::fromFile(std::string_view path)
     return fromMemory(mem);
 }
 
-std::optional<bb::Image2D> bb::Image2D::fromMemory(std::span<std::byte> data)
+std::optional<bb::Image2D> bb::Image2D::fromMemory(std::span<const std::byte> data)
 {
     stbi_uc* mem_start = std::bit_cast<stbi_uc*>(data.data());
     int mem_size = static_cast<int>(data.size());
@@ -47,30 +47,14 @@ std::optional<bb::Image2D> bb::Image2D::fromMemory(std::span<std::byte> data)
     else
     {
         bytes = std::bit_cast<std::byte*>(
-            stbi_load_from_memory(mem_start, mem_size, &w, &h, &channels, 0));
+            stbi_load_from_memory(mem_start, mem_size, &w, &h, &channels, 4));
 
         if (bytes == nullptr)
         {
             return std::nullopt;
         }
 
-        switch (channels)
-        {
-        case 4:
-            format = ImageFormat::R8G8B8A8_UNORM;
-            break;
-        case 3:
-            format = ImageFormat::R8G8B8_UNORM;
-            break;
-        case 2:
-            format = ImageFormat::R8G8_UNORM;
-            break;
-        case 1:
-            format = ImageFormat::R8_UNORM;
-            break;
-        default:
-            return std::nullopt;
-        }
+        format = ImageFormat::R8G8B8A8_UNORM;
     }
 
     bb::Image2D out;

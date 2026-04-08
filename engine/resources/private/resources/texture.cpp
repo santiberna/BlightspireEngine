@@ -744,9 +744,13 @@ vk::Format toVkFormat(bb::ImageFormat format)
     // HDR / floating point
     case bb::ImageFormat::R32G32B32A32_SFLOAT:
         return vk::Format::eR32G32B32A32Sfloat;
+    // Depth
+    case bb::ImageFormat::D16_UNORM:
+        return vk::Format::eD16Unorm;
+    case bb::ImageFormat::D32_SFLOAT:
+        return vk::Format::eD32Sfloat;
+
     case bb::ImageFormat::NONE:
-    default:
-        assert(false && "Invalid bb::ImageFormat");
         return vk::Format::eUndefined;
     }
 }

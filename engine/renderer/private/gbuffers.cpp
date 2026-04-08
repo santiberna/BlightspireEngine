@@ -11,19 +11,6 @@ GBuffers::GBuffers(const std::shared_ptr<GraphicsContext>& context, glm::uvec2 s
     : _context(context)
     , _size(size)
 {
-    auto supportedDepthFormat = util::FindSupportedFormat(_context->GetVulkanContext()->PhysicalDevice(), { vk::Format::eD32Sfloat, vk::Format::eD32SfloatS8Uint, vk::Format::eD24UnormS8Uint },
-        vk::ImageTiling::eOptimal,
-        vk::FormatFeatureFlagBits::eDepthStencilAttachment);
-
-    if (supportedDepthFormat.has_value())
-    {
-        _depthFormat = supportedDepthFormat.value();
-    }
-    else
-    {
-        assert(false && "No supported depth format!");
-    }
-
     CreateGBuffers();
     CreateDepthResources();
     CreateViewportAndScissor();
@@ -90,9 +77,18 @@ void GBuffers::CreateDepthResources()
     depthSampler.borderColor = bb::SamplerBorderColor::OPAQUE_BLACK_INT;
     _depthSampler = _context->Resources()->SamplerResourceManager().Create(depthSampler);
 
-    CPUImage depthImageData {};
-    depthImageData.SetFormat(_depthFormat).SetType(ImageType::eDepth).SetSize(_size.x, _size.y).SetName("Depth image").SetFlags(vk::ImageUsageFlagBits::eSampled | vk::ImageUsageFlagBits::eDepthStencilAttachment);
-    _depthImage = _context->Resources()->ImageResourceManager().Create(depthImageData);
+    bb::Flags<bb::TextureFlags> flags;
+
+    flags.set(bb::TextureFlags::DEPTH_ATTACH);
+    flags.set(bb::TextureFlags::SAMPLED);
+
+    bb::Image2D g_buffer_spec;
+    g_buffer_spec.width = _size.x;
+    g_buffer_spec.height = _size.y;
+    g_buffer_spec.format = bb::ImageFormat::D32_SFLOAT;
+
+    _depthFormat = vk::Format::eD32Sfloat;
+    _depthImage = _context->Resources()->ImageResourceManager().Create(g_buffer_spec, flags, "Depth GBuffer");
 }
 
 void GBuffers::CleanUp()

@@ -12,6 +12,10 @@ enum class ImageFormat : uint8_t
 {
     NONE,
 
+    // Depth
+    D16_UNORM,
+    D32_SFLOAT,
+
     // Color sRGB
     // sRGB is not used in the renderer as things are gamma corrected in the pipeline
     R8G8B8A8_SRGB,

@@ -31,6 +31,7 @@ enum class ImageFormat : uint8_t
 
     // HDR / floating point
     R32G32B32A32_SFLOAT,
+    R32_SFLOAT,
 };
 
 struct Image2D
@@ -52,6 +53,7 @@ enum class TextureFlags : uint8_t
     COLOR_ATTACH = 1 << 3,
     DEPTH_ATTACH = 1 << 4,
     GEN_MIPMAPS = 1 << 5,
+    STORAGE_ACCESS = 1 << 6,
 
     COMMON_FLAGS = SAMPLED | TRANSFER_SRC | TRANSFER_DST | GEN_MIPMAPS,
 };

@@ -102,20 +102,17 @@ CameraBatch::CameraBatch(const std::shared_ptr<GraphicsContext>& context, const 
 
     _hzbSampler = _context->Resources()->SamplerResourceManager().Create(samplerCreation);
 
-    CPUImage hzbImage {
-        .initialData = {},
-        .width = hzbSize,
-        .height = hzbSize,
-        .depth = 1,
-        .layers = 1,
-        .mips = static_cast<uint8_t>(std::log2(hzbSize)),
-        .flags = vk::ImageUsageFlagBits::eStorage | vk::ImageUsageFlagBits::eSampled,
-        .isHDR = false,
-        .format = vk::Format::eR32Sfloat,
-        .type = ImageType::e2D,
-        .name = name + " HZB Image",
-    };
-    _hzbImage = _context->Resources()->ImageResourceManager().Create(hzbImage, _hzbSampler);
+    bb::Image2D hzb_image {};
+    hzb_image.width = hzbSize;
+    hzb_image.height = hzbSize;
+    hzb_image.format = bb::ImageFormat::R32_SFLOAT;
+
+    bb::Flags<bb::TextureFlags> flags {};
+    flags.set(bb::TextureFlags::SAMPLED);
+    flags.set(bb::TextureFlags::GEN_MIPMAPS);
+    flags.set(bb::TextureFlags::STORAGE_ACCESS);
+
+    _hzbImage = _context->Resources()->ImageResourceManager().Create(hzb_image, flags, name + " HZB Image");
 }
 
 CameraBatch::~CameraBatch() = default;

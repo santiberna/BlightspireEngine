@@ -729,6 +729,7 @@ vk::Format toVkFormat(bb::ImageFormat format)
         return vk::Format::eR8G8B8A8Srgb;
     case bb::ImageFormat::R8G8B8_SRGB:
         return vk::Format::eR8G8B8Srgb;
+    case bb::ImageFormat::R8G8_SRGB:
         return vk::Format::eR8G8Srgb;
     case bb::ImageFormat::R8_SRGB:
         return vk::Format::eR8Srgb;
@@ -744,6 +745,8 @@ vk::Format toVkFormat(bb::ImageFormat format)
     // HDR / floating point
     case bb::ImageFormat::R32G32B32A32_SFLOAT:
         return vk::Format::eR32G32B32A32Sfloat;
+    case bb::ImageFormat::R32_SFLOAT:
+        return vk::Format::eR32Sfloat;
     // Depth
     case bb::ImageFormat::D16_UNORM:
         return vk::Format::eD16Unorm;
@@ -763,12 +766,15 @@ uint32_t formatStride(bb::ImageFormat format)
         return 16;
     case bb::ImageFormat::R8G8B8A8_SRGB:
     case bb::ImageFormat::R8G8B8A8_UNORM:
+    case bb::ImageFormat::R32_SFLOAT:
+    case bb::ImageFormat::D32_SFLOAT:
         return 4;
     case bb::ImageFormat::R8G8B8_SRGB:
     case bb::ImageFormat::R8G8B8_UNORM:
         return 3;
     case bb::ImageFormat::R8G8_UNORM:
     case bb::ImageFormat::R8G8_SRGB:
+    case bb::ImageFormat::D16_UNORM:
         return 2;
     case bb::ImageFormat::R8_SRGB:
     case bb::ImageFormat::R8_UNORM:
@@ -814,6 +820,10 @@ GPUImage::GPUImage(SingleTimeCommands& upload_commands, const bb::Image2D& image
     if (input_flags.has(bb::TextureFlags::DEPTH_ATTACH))
     {
         flags |= vk::ImageUsageFlagBits::eDepthStencilAttachment;
+    }
+    if (input_flags.has(bb::TextureFlags::STORAGE_ACCESS))
+    {
+        flags |= vk::ImageUsageFlagBits::eStorage;
     }
     if (input_flags.has(bb::TextureFlags::GEN_MIPMAPS))
     {

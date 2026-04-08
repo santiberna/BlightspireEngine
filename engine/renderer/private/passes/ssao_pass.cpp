@@ -164,27 +164,25 @@ void SSAOPass::CreateBuffers()
         cmdBuffer.CopyIntoLocalBuffer(ssaoKernel, 0, resources->BufferResourceManager().Access(_sampleKernelBuffer)->buffer);
     }
 
-    std::vector<std::byte> byteData;
-    byteData.reserve(ssaoNoise.size() * sizeof(float) * 4);
+    std::shared_ptr<std::byte[]> byteData = std::make_shared<std::byte[]>(ssaoNoise.size() * sizeof(float) * 4);
 
-    for (const auto& color : ssaoNoise)
+    for (size_t i = 0; i < ssaoNoise.size(); i++)
     {
         // No clamping, store raw floats (including negative)
+        const auto& color = ssaoNoise[i];
         float components[4] = { color.r, color.g, color.b, color.a };
 
         // Push raw float bytes directly
         const std::byte* rawBytes = reinterpret_cast<const std::byte*>(components);
-        byteData.insert(byteData.end(), rawBytes, rawBytes + sizeof(components));
+        auto* dest = byteData.get() + (i * sizeof(float) * 4);
+        std::memcpy(dest, rawBytes, 4 * sizeof(float));
     }
 
-    // Use a float format
-    CPUImage noiseImage {};
-    noiseImage.SetName("SSAO_Noise_Image")
-        .SetSize(4, 4, 1)
-        .SetData(std::move(byteData))
-        .SetFlags(vk::ImageUsageFlagBits::eSampled)
-        .SetFormat(vk::Format::eR32G32B32A32Sfloat);
-    noiseImage.isHDR = true;
+    bb::Image2D noiseImage {};
+    noiseImage.data = byteData;
+    noiseImage.height = 4;
+    noiseImage.width = 4;
+    noiseImage.format = bb::ImageFormat::R32G32B32A32_SFLOAT;
 
     bb::SamplerCreation noiseSampler {};
     noiseSampler.name = "SSAO_Noise_Sampler";
@@ -204,8 +202,10 @@ void SSAOPass::CreateBuffers()
     noiseSampler.unnormalizedCoordinates = false;
     noiseSampler.borderColor = bb::SamplerBorderColor::OPAQUE_BLACK_INT;
 
+    SingleTimeCommands commands { *_context->GetVulkanContext() };
+
     _noiseSampler = _context->Resources()->SamplerResourceManager().Create(noiseSampler);
-    _ssaoNoise = _context->Resources()->ImageResourceManager().Create(noiseImage, _noiseSampler);
+    _ssaoNoise = _context->Resources()->ImageResourceManager().Create(commands, noiseImage, _noiseSampler, bb::TextureFlags::COMMON_FLAGS, "SSAO Noise Image");
     _pushConstants.ssaoNoiseIndex = _ssaoNoise.Index();
 }
 void SSAOPass::CreateDescriptorSetLayouts()

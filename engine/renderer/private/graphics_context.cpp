@@ -22,18 +22,13 @@ GraphicsContext::GraphicsContext(SDL_Window* window)
     CreateBindlessMaterialBuffer();
     CreateBindlessDescriptorSet();
 
-    const uint32_t size { 2 };
-    std::vector<std::byte> data;
-    data.assign(size * size * 4, std::byte {});
-    CPUImage imageData {};
-    imageData
-        .SetSize(size, size)
-        .SetFlags(vk::ImageUsageFlagBits::eSampled)
-        .SetFormat(vk::Format::eR8G8B8A8Unorm)
-        .SetData(data)
-        .SetName("Fallback texture");
+    bb::Image2D fallback {};
+    fallback.data = std::make_shared<std::byte[]>(2 * 2 * 4);
+    fallback.height = 2;
+    fallback.width = 2;
+    fallback.format = bb::ImageFormat::R8G8B8A8_UNORM;
 
-    _fallbackImage = _graphicsResources->ImageResourceManager().Create(imageData);
+    _fallbackImage = _graphicsResources->ImageResourceManager().Create(fallback, bb::TextureFlags::COMMON_FLAGS, "Fallback Texture");
 }
 
 GraphicsContext::~GraphicsContext()

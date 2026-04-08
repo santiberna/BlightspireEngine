@@ -52,16 +52,21 @@ void GBuffers::CreateGBuffers()
 {
     auto resources { _context->Resources() };
 
-    CPUImage imageData {};
-    imageData
-        .SetSize(_size.x, _size.y)
-        .SetFlags(vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled);
+    bb::Flags<bb::TextureFlags> flags;
 
-    imageData.SetFormat(vk::Format::eR8G8B8A8Unorm).SetName("Albedo Metallic Roughness");
-    _attachments[0] = resources->ImageResourceManager().Create(imageData);
+    flags.set(bb::TextureFlags::COLOR_ATTACH);
+    flags.set(bb::TextureFlags::SAMPLED);
 
-    imageData.SetFormat(vk::Format::eR8G8Unorm).SetName("Normal");
-    _attachments[1] = resources->ImageResourceManager().Create(imageData);
+    bb::Image2D g_buffer_spec;
+    g_buffer_spec.width = _size.x;
+    g_buffer_spec.height = _size.y;
+    g_buffer_spec.format = bb::ImageFormat::R8G8B8A8_UNORM;
+
+    _attachments[0] = resources->ImageResourceManager().Create(g_buffer_spec, flags, "Albedo Metallic Roughness GBuffer");
+
+    g_buffer_spec.format = bb::ImageFormat::R8G8_UNORM;
+
+    _attachments[1] = resources->ImageResourceManager().Create(g_buffer_spec, flags, "Normal GBuffer");
 }
 
 void GBuffers::CreateDepthResources()

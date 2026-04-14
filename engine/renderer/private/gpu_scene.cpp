@@ -519,15 +519,12 @@ ResourceHandle<GPUImage>& GPUScene::GetDecalImage(std::string fileName)
 
     if (got == _decalImages.end())
     {
-        if (fileIO::Exists("assets/textures/decals/" + fileName))
+        std::string path = "assets/textures/decals/" + fileName;
+        if (fileIO::Exists(path))
         {
-            CPUImage creation;
-            creation.SetFlags(vk::ImageUsageFlagBits::eSampled);
-            creation.SetName(fileName);
-            creation.FromPNG("assets/textures/decals/" + fileName);
-            creation.isHDR = false;
-            auto image = _context->Resources()->ImageResourceManager().Create(creation);
-            auto& resource = _decalImages.emplace(fileName, image).first->second;
+            bb::Image2D image = bb::Image2D::fromFile(path).value();
+            auto handle = _context->Resources()->ImageResourceManager().Create(image, bb::TextureFlags::COMMON_FLAGS, path);
+            auto& resource = _decalImages.emplace(fileName, handle).first->second;
             _context->UpdateBindlessSet();
             return resource;
         }
@@ -1347,21 +1344,25 @@ void GPUScene::CreateShadowMapResources()
 
     _shadowSampler = _context->Resources()->SamplerResourceManager().Create(shadowSamplerInfo);
 
-    CPUImage shadowCreationStatic {};
-    shadowCreationStatic
-        .SetFormat(vk::Format::eD32Sfloat)
-        .SetType(ImageType::eShadowMap)
-        .SetSize(2048, 2048)
-        .SetName("Static shadow image")
-        .SetFlags(vk::ImageUsageFlagBits::eDepthStencilAttachment | vk::ImageUsageFlagBits::eSampled);
-    _staticShadowImage = _context->Resources()->ImageResourceManager().Create(shadowCreationStatic, _shadowSampler);
+    bb::Image2D shadowCreationStatic {};
+    shadowCreationStatic.format = bb::ImageFormat::D32_SFLOAT;
+    shadowCreationStatic.height = 2048;
+    shadowCreationStatic.width = 2048;
 
-    CPUImage shadowCreationDynamic {};
-    shadowCreationDynamic
-        .SetFormat(vk::Format::eD32Sfloat)
-        .SetType(ImageType::eShadowMap)
-        .SetSize(2048, 2048)
-        .SetName("Dynamic shadow image")
-        .SetFlags(vk::ImageUsageFlagBits::eDepthStencilAttachment | vk::ImageUsageFlagBits::eSampled);
-    _dynamicShadowImage = _context->Resources()->ImageResourceManager().Create(shadowCreationDynamic, _shadowSampler);
+    auto& textures = _context->Resources()->ImageResourceManager();
+    SingleTimeCommands commands { *_context->GetVulkanContext() };
+
+    bb::Flags<bb::TextureFlags> flags = { bb::TextureFlags::DEPTH_ATTACH, bb::TextureFlags::SAMPLED };
+
+    _staticShadowImage = textures.Create(
+        commands,
+        shadowCreationStatic,
+        _shadowSampler, flags,
+        "Static Shadow Map");
+
+    _dynamicShadowImage = textures.Create(
+        commands,
+        shadowCreationStatic,
+        _shadowSampler, flags,
+        "Dynamic Shadow Map");
 }

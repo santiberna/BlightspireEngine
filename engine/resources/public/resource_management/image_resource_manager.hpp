@@ -38,6 +38,12 @@ public:
         std::string_view name,
         SingleTimeCommands* upload_commands);
 
+    ResourceHandle<GPUImage> Create(
+        const bb::Cubemap& cubemap,
+        ResourceHandle<Sampler> sampler,
+        bb::Flags<bb::TextureFlags> flags,
+        std::string_view name);
+
     // TODO remove this
     ResourceHandle<GPUImage> Create(
         const bb::Image2D& image,

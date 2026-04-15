@@ -31,6 +31,7 @@ enum class ImageFormat : uint8_t
 
     // HDR / floating point
     R32G32B32A32_SFLOAT,
+    R16G16B16A16_SFLOAT,
     R32_SFLOAT,
 };
 

@@ -12,36 +12,54 @@ class VulkanContext;
 class ImageResourceManager final : public ResourceManager<GPUImage>
 {
 public:
-    explicit ImageResourceManager(const std::shared_ptr<VulkanContext>& context, ResourceHandle<Sampler> defaultSampler);
+    ImageResourceManager(const std::shared_ptr<VulkanContext>& context, ResourceHandle<Sampler> defaultSampler)
+        : _defaultSampler(defaultSampler)
+        , _context(context)
+    {
+    }
 
-    ResourceHandle<GPUImage> Create(const CPUImage& cpuImage, ResourceHandle<Sampler> sampler, SingleTimeCommands* const commands = nullptr);
+    ResourceHandle<GPUImage> Create(
+        const CPUImage& cpuImage,
+        ResourceHandle<Sampler> sampler,
+        SingleTimeCommands* commands = nullptr);
 
-    // Create an image with the default sampler
-    ResourceHandle<GPUImage> Create(const CPUImage& cpuImage, SingleTimeCommands* commands = nullptr)
+    // TODO remove this
+    ResourceHandle<GPUImage> Create(
+        const CPUImage& cpuImage,
+        SingleTimeCommands* commands = nullptr)
     {
         return Create(cpuImage, _defaultSampler, commands);
     }
 
-    // NEW API
-    ResourceHandle<GPUImage> Create(SingleTimeCommands& upload_commands, const bb::Image2D& image, ResourceHandle<Sampler> textureSampler, bb::Flags<bb::TextureFlags> flags, std::string_view name)
+    ResourceHandle<GPUImage> Create(
+        const bb::Image2D& image,
+        ResourceHandle<Sampler> sampler,
+        bb::Flags<bb::TextureFlags> flags,
+        std::string_view name,
+        SingleTimeCommands* upload_commands);
+
+    // TODO remove this
+    ResourceHandle<GPUImage> Create(
+        const bb::Image2D& image,
+        bb::Flags<bb::TextureFlags> flags,
+        std::string_view name,
+        SingleTimeCommands* upload_commands)
     {
-        auto texture = GPUImage { upload_commands, image, textureSampler, flags, name };
-        return ResourceManager::Create(std::move(texture));
+        return Create(image, _defaultSampler, flags, name, upload_commands);
     }
 
-    // NEW API
-    ResourceHandle<GPUImage> Create(const bb::Image2D& image, bb::Flags<bb::TextureFlags> flags, std::string_view name)
+    // TODO remove this
+    ResourceHandle<GPUImage> Create(
+        const bb::Image2D& image,
+        bb::Flags<bb::TextureFlags> flags,
+        std::string_view name)
     {
         SingleTimeCommands commands { *_context };
-        auto texture = GPUImage { commands, image, _defaultSampler, flags, name };
-        return ResourceManager::Create(std::move(texture));
+        return Create(image, _defaultSampler, flags, name, &commands);
     }
 
     ResourceHandle<Sampler> _defaultSampler;
 
 private:
     std::shared_ptr<VulkanContext> _context;
-
-    vk::ImageType ImageTypeConversion(ImageType type);
-    vk::ImageViewType ImageViewTypeConversion(ImageType type);
 };

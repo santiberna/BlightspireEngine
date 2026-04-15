@@ -1355,14 +1355,14 @@ void GPUScene::CreateShadowMapResources()
     bb::Flags<bb::TextureFlags> flags = { bb::TextureFlags::DEPTH_ATTACH, bb::TextureFlags::SAMPLED };
 
     _staticShadowImage = textures.Create(
-        commands,
         shadowCreationStatic,
         _shadowSampler, flags,
-        "Static Shadow Map");
+        "Static Shadow Map",
+        &commands);
 
     _dynamicShadowImage = textures.Create(
-        commands,
         shadowCreationStatic,
         _shadowSampler, flags,
-        "Dynamic Shadow Map");
+        "Dynamic Shadow Map",
+        &commands);
 }

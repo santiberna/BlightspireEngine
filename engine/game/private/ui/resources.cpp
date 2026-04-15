@@ -33,18 +33,18 @@ bb::UIResources bb::UIResources::Load(GraphicsContext& context)
         background.data[3] = std::byte(150);
 
         out.partial_black_bg = texture_manager.Create(
-            upload, background, out.ui_sampler, TextureFlags::COMMON_FLAGS, "PartialBlackBackdrop");
+            background, out.ui_sampler, TextureFlags::COMMON_FLAGS, "PartialBlackBackdrop", &upload);
 
         background.data[3] = std::byte(255);
         out.full_black_bg = texture_manager.Create(
-            upload, background, out.ui_sampler, TextureFlags::COMMON_FLAGS, "FullBlackBackdrop");
+            background, out.ui_sampler, TextureFlags::COMMON_FLAGS, "FullBlackBackdrop", &upload);
     }
 
     auto load_texture = [&](std::string_view path)
     {
         auto image = bb::Image2D::fromFile(path).value();
         return texture_manager.Create(
-            upload, image, out.ui_sampler, TextureFlags::COMMON_FLAGS, path);
+            image, out.ui_sampler, TextureFlags::COMMON_FLAGS, path, &upload);
     };
 
     // Button Style

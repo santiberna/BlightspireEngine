@@ -205,7 +205,7 @@ void SSAOPass::CreateBuffers()
     SingleTimeCommands commands { *_context->GetVulkanContext() };
 
     _noiseSampler = _context->Resources()->GetSamplerResourceManager().Create(noiseSampler);
-    _ssaoNoise = _context->Resources()->GetImageResourceManager().Create(commands, noiseImage, _noiseSampler, bb::TextureFlags::COMMON_FLAGS, "SSAO Noise Image");
+    _ssaoNoise = _context->Resources()->GetImageResourceManager().Create(noiseImage, _noiseSampler, bb::TextureFlags::COMMON_FLAGS, "SSAO Noise Image", &commands);
     _pushConstants.ssaoNoiseIndex = _ssaoNoise.Index();
 }
 void SSAOPass::CreateDescriptorSetLayouts()

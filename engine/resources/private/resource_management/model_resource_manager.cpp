@@ -31,11 +31,10 @@ ResourceHandle<GPUModel> ModelResourceManager::Create(const CPUModel& data, Batc
             for (const auto& image : data.textures)
             {
                 auto handle = _imageResourceManager->Create(
-                    commands,
                     image.image,
-                    _imageResourceManager->_defaultSampler,
                     bb::TextureFlags::COMMON_FLAGS,
-                    image.name);
+                    image.name,
+                    &commands);
 
                 model.textures.emplace_back(handle);
             }

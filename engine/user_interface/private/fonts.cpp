@@ -184,7 +184,7 @@ std::shared_ptr<UIFont> LoadFromFile(const std::string& path, uint16_t character
 
     SingleTimeCommands commands { *context.GetVulkanContext() };
 
-    font->fontAtlas = context.Resources()->GetImageResourceManager().Create(commands, image, sampler, bb::TextureFlags::COMMON_FLAGS, path);
+    font->fontAtlas = context.Resources()->GetImageResourceManager().Create(image, sampler, bb::TextureFlags::COMMON_FLAGS, path, &commands);
     context.UpdateBindlessSet();
 
     FT_Done_Face(fontFace);

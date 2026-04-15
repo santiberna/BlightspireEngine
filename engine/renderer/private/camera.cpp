@@ -72,7 +72,7 @@ void CameraResource::CreateBuffers()
             .SetIsMappable(true)
             .SetName(name);
 
-        _buffers.at(i) = _context->Resources()->BufferResourceManager().Create(creation);
+        _buffers.at(i) = _context->Resources()->GetBufferResourceManager().Create(creation);
     }
 }
 
@@ -94,7 +94,7 @@ void CameraResource::CreateDescriptorSets()
 
     for (size_t i = 0; i < _descriptorSets.size(); ++i)
     {
-        const Buffer* buffer = _context->Resources()->BufferResourceManager().Access(_buffers[i]);
+        const Buffer* buffer = _context->Resources()->GetBufferResourceManager().Access(_buffers[i]);
 
         vk::DescriptorBufferInfo bufferInfo {
             .buffer = buffer->buffer,
@@ -174,7 +174,7 @@ void CameraResource::Update(uint32_t currentFrame, const CameraComponent& camera
     cameraBuffer.distanceCullingEnabled = true;
     cameraBuffer.cullingEnabled = true;
 
-    const Buffer* buffer = _context->Resources()->BufferResourceManager().Access(_buffers[currentFrame]);
+    const Buffer* buffer = _context->Resources()->GetBufferResourceManager().Access(_buffers[currentFrame]);
     std::memcpy(buffer->mappedPtr, &cameraBuffer, sizeof(cameraBuffer));
 }
 

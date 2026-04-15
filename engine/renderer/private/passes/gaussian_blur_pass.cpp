@@ -31,7 +31,7 @@ GaussianBlurPass::GaussianBlurPass(const std::shared_ptr<GraphicsContext>& conte
     createInfo.addressModeW = bb::SamplerAddressMode::CLAMP_TO_BORDER;
     createInfo.addressModeV = bb::SamplerAddressMode::CLAMP_TO_BORDER;
 
-    _sampler = _context->Resources()->SamplerResourceManager().Create(createInfo);
+    _sampler = _context->Resources()->GetSamplerResourceManager().Create(createInfo);
     CreateDescriptorSetLayout();
     CreatePipeline();
     CreateDescriptorSets();
@@ -49,7 +49,7 @@ void GaussianBlurPass::RecordCommands(vk::CommandBuffer commandBuffer, uint32_t 
 {
     TracyVkZone(scene.tracyContext, commandBuffer, "Gaussian Blur Pass");
     //  The verticalTargetData target is created by this pass, so we need to transition it from undefined layout
-    const GPUImage* verticalTarget = _context->Resources()->ImageResourceManager().Access(_targets[0]);
+    const GPUImage* verticalTarget = _context->Resources()->GetImageResourceManager().Access(_targets[0]);
     util::TransitionImageLayout(commandBuffer, verticalTarget->handle, verticalTarget->format, vk::ImageLayout::eUndefined, vk::ImageLayout::eColorAttachmentOptimal);
 
     vk::DescriptorSet descriptorSet = _sourceDescriptorSets[currentFrame];
@@ -58,7 +58,7 @@ void GaussianBlurPass::RecordCommands(vk::CommandBuffer commandBuffer, uint32_t 
     for (uint32_t i = 0; i < blurPasses * 2; ++i)
     {
         uint32_t isVerticalPass = i % 2;
-        const GPUImage* target = _context->Resources()->ImageResourceManager().Access(_targets[isVerticalPass]);
+        const GPUImage* target = _context->Resources()->GetImageResourceManager().Access(_targets[isVerticalPass]);
 
         // We don't transition on first horizontal pass, since the first source are not either of the blur targets
         // We also don't need to update the descriptor set, since on the first horizontal pass we want to sample from the source
@@ -66,7 +66,7 @@ void GaussianBlurPass::RecordCommands(vk::CommandBuffer commandBuffer, uint32_t 
         {
             uint32_t horizontalTargetIndex = isVerticalPass ? 0 : 1;
             descriptorSet = _targetDescriptorSets[horizontalTargetIndex][currentFrame];
-            const GPUImage* source = _context->Resources()->ImageResourceManager().Access(_targets[horizontalTargetIndex]);
+            const GPUImage* source = _context->Resources()->GetImageResourceManager().Access(_targets[horizontalTargetIndex]);
 
             util::TransitionImageLayout(commandBuffer, source->handle, source->format, vk::ImageLayout::eColorAttachmentOptimal, vk::ImageLayout::eShaderReadOnlyOptimal);
 
@@ -126,7 +126,7 @@ void GaussianBlurPass::CreatePipeline()
         .pAttachments = &colorBlendAttachmentState,
     };
 
-    std::vector<vk::Format> formats { _context->Resources()->ImageResourceManager().Access(_source)->format };
+    std::vector<vk::Format> formats { _context->Resources()->GetImageResourceManager().Access(_source)->format };
 
     std::vector<std::byte> vertSpv = shader::ReadFile("shaders/bin/fullscreen.vert.spv");
     std::vector<std::byte> fragSpv = shader::ReadFile("shaders/bin/gaussian_blur.frag.spv");
@@ -179,8 +179,8 @@ void GaussianBlurPass::CreateDescriptorSets()
     for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
     {
         vk::DescriptorImageInfo imageInfo {
-            .sampler = _context->Resources()->SamplerResourceManager().Access(_sampler)->sampler,
-            .imageView = _context->Resources()->ImageResourceManager().Access(_source)->view,
+            .sampler = _context->Resources()->GetSamplerResourceManager().Access(_sampler)->sampler,
+            .imageView = _context->Resources()->GetImageResourceManager().Access(_source)->view,
             .imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal,
         };
 
@@ -203,8 +203,8 @@ void GaussianBlurPass::CreateDescriptorSets()
         for (size_t frame = 0; frame < MAX_FRAMES_IN_FLIGHT; ++frame)
         {
             vk::DescriptorImageInfo imageInfo {
-                .sampler = _context->Resources()->SamplerResourceManager().Access(_sampler)->sampler,
-                .imageView = _context->Resources()->ImageResourceManager().Access(_targets[i])->view,
+                .sampler = _context->Resources()->GetSamplerResourceManager().Access(_sampler)->sampler,
+                .imageView = _context->Resources()->GetImageResourceManager().Access(_targets[i])->view,
                 .imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal,
             };
 
@@ -223,11 +223,11 @@ void GaussianBlurPass::CreateDescriptorSets()
 
 void GaussianBlurPass::CreateVerticalTarget()
 {
-    const GPUImage* horizontalTargetAccess = _context->Resources()->ImageResourceManager().Access(_targets[1]);
+    const GPUImage* horizontalTargetAccess = _context->Resources()->GetImageResourceManager().Access(_targets[1]);
     std::string verticalTargetName = std::string(horizontalTargetAccess->name + " | vertical");
 
     CPUImage verticalTargetData {};
     verticalTargetData.SetName(verticalTargetName).SetSize(horizontalTargetAccess->width, horizontalTargetAccess->height).SetFormat(horizontalTargetAccess->format).SetFlags(horizontalTargetAccess->flags);
 
-    _targets[0] = _context->Resources()->ImageResourceManager().Create(verticalTargetData);
+    _targets[0] = _context->Resources()->GetImageResourceManager().Create(verticalTargetData);
 }

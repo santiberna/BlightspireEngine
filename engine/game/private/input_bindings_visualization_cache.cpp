@@ -58,7 +58,7 @@ ResourceHandle<GPUImage> InputBindingsVisualizationCache::GetGlyph(const std::st
         return ResourceHandle<GPUImage>::Null();
     }
 
-    auto& imageResourceManager = _graphicsContext.Resources()->ImageResourceManager();
+    auto& imageResourceManager = _graphicsContext.Resources()->GetImageResourceManager();
     auto image = imageResourceManager.Create(glyphImage.value(), bb::TextureFlags::COMMON_FLAGS, path);
 
     _graphicsContext.UpdateBindlessSet();

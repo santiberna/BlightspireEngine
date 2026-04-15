@@ -132,7 +132,7 @@ ControlsMenu::ActionControls ControlsMenu::AddActionVisualization(const std::str
         // Create glyph
         if (!origin.glyphImage.IsNull())
         {
-            const GPUImage* gpuImage = _graphicsContext.Resources()->ImageResourceManager().Access(origin.glyphImage);
+            const GPUImage* gpuImage = _graphicsContext.Resources()->GetImageResourceManager().Access(origin.glyphImage);
 
             glm::vec2 size = glm::vec2(gpuImage->width, gpuImage->height) * 0.15f;
             binding.glyph = action.canvas->AddChild<UIImage>(origin.glyphImage, glm::vec2(horizontalOffset, 0.0f), size);

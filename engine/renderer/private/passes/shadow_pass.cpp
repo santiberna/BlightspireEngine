@@ -66,7 +66,7 @@ void ShadowPass::CreateStaticPipeline(const GPUScene& gpuScene)
                       .SetDepthStencilState(depthStencilStateCreateInfo)
                       .SetRasterizationState(rasterizationStateCreateInfo)
                       .SetColorAttachmentFormats({})
-                      .SetDepthAttachmentFormat(_context->Resources()->ImageResourceManager().Access(gpuScene.StaticShadow())->format)
+                      .SetDepthAttachmentFormat(_context->Resources()->GetImageResourceManager().Access(gpuScene.StaticShadow())->format)
                       .BuildPipeline();
 
     _staticPipelineLayout = std::get<0>(result);
@@ -100,7 +100,7 @@ void ShadowPass::CreateSkinnedPipeline(const GPUScene& gpuScene)
                       .SetDepthStencilState(depthStencilStateCreateInfo)
                       .SetRasterizationState(rasterizationStateCreateInfo)
                       .SetColorAttachmentFormats({})
-                      .SetDepthAttachmentFormat(_context->Resources()->ImageResourceManager().Access(gpuScene.StaticShadow())->format)
+                      .SetDepthAttachmentFormat(_context->Resources()->GetImageResourceManager().Access(gpuScene.StaticShadow())->format)
                       .BuildPipeline();
 
     _skinnedPipelineLayout = std::get<0>(result);
@@ -112,8 +112,8 @@ void ShadowPass::DrawGeometry(vk::CommandBuffer commandBuffer, uint32_t currentF
     auto vkContext { _context->GetVulkanContext() };
     auto resources { _context->Resources() };
 
-    const auto* staticShadowImage = resources->ImageResourceManager().Access(scene.gpuScene->StaticShadow());
-    const auto* dynamicShadowImage = resources->ImageResourceManager().Access(scene.gpuScene->DynamicShadow());
+    const auto* staticShadowImage = resources->GetImageResourceManager().Access(scene.gpuScene->StaticShadow());
+    const auto* dynamicShadowImage = resources->GetImageResourceManager().Access(scene.gpuScene->DynamicShadow());
 
     if (scene.gpuScene->ShouldUpdateShadows() == true)
     {
@@ -142,10 +142,10 @@ void ShadowPass::DrawGeometry(vk::CommandBuffer commandBuffer, uint32_t currentF
             commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, _staticPipelineLayout, 1, { scene.gpuScene->GetSceneDescriptorSet(currentFrame) }, {});
             commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, _staticPipelineLayout, 2, { _cameraBatch.StaticDraw().redirectDescriptor }, {});
 
-            vk::Buffer vertexBuffer = resources->BufferResourceManager().Access(scene.staticBatchBuffer->VertexBuffer())->buffer;
-            vk::Buffer indexBuffer = resources->BufferResourceManager().Access(scene.staticBatchBuffer->IndexBuffer())->buffer;
-            vk::Buffer indirectDrawBuffer = resources->BufferResourceManager().Access(_cameraBatch.StaticDraw().drawBuffer)->buffer;
-            vk::Buffer countBuffer = resources->BufferResourceManager().Access(_cameraBatch.StaticDraw().redirectBuffer)->buffer;
+            vk::Buffer vertexBuffer = resources->GetBufferResourceManager().Access(scene.staticBatchBuffer->VertexBuffer())->buffer;
+            vk::Buffer indexBuffer = resources->GetBufferResourceManager().Access(scene.staticBatchBuffer->IndexBuffer())->buffer;
+            vk::Buffer indirectDrawBuffer = resources->GetBufferResourceManager().Access(_cameraBatch.StaticDraw().drawBuffer)->buffer;
+            vk::Buffer countBuffer = resources->GetBufferResourceManager().Access(_cameraBatch.StaticDraw().redirectBuffer)->buffer;
 
             commandBuffer.bindVertexBuffers(0, { vertexBuffer }, { 0 });
             commandBuffer.bindIndexBuffer(indexBuffer, 0, scene.staticBatchBuffer->IndexType());
@@ -190,10 +190,10 @@ void ShadowPass::DrawGeometry(vk::CommandBuffer commandBuffer, uint32_t currentF
             commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, _skinnedPipelineLayout, 2, { _cameraBatch.SkinnedDraw().redirectDescriptor }, {});
             commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, _skinnedPipelineLayout, 3, { scene.gpuScene->GetSkinDescriptorSet(currentFrame) }, {});
 
-            vk::Buffer vertexBuffer = _context->Resources()->BufferResourceManager().Access(scene.skinnedBatchBuffer->VertexBuffer())->buffer;
-            vk::Buffer indexBuffer = _context->Resources()->BufferResourceManager().Access(scene.skinnedBatchBuffer->IndexBuffer())->buffer;
-            vk::Buffer indirectDrawBuffer = _context->Resources()->BufferResourceManager().Access(_cameraBatch.SkinnedDraw().drawBuffer)->buffer;
-            vk::Buffer countBuffer = resources->BufferResourceManager().Access(_cameraBatch.SkinnedDraw().redirectBuffer)->buffer;
+            vk::Buffer vertexBuffer = _context->Resources()->GetBufferResourceManager().Access(scene.skinnedBatchBuffer->VertexBuffer())->buffer;
+            vk::Buffer indexBuffer = _context->Resources()->GetBufferResourceManager().Access(scene.skinnedBatchBuffer->IndexBuffer())->buffer;
+            vk::Buffer indirectDrawBuffer = _context->Resources()->GetBufferResourceManager().Access(_cameraBatch.SkinnedDraw().drawBuffer)->buffer;
+            vk::Buffer countBuffer = resources->GetBufferResourceManager().Access(_cameraBatch.SkinnedDraw().redirectBuffer)->buffer;
 
             commandBuffer.bindVertexBuffers(0, { vertexBuffer }, { 0 });
             commandBuffer.bindIndexBuffer(indexBuffer, 0, scene.skinnedBatchBuffer->IndexType());

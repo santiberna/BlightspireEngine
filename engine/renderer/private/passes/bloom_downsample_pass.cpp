@@ -25,7 +25,7 @@ void BloomDownsamplePass::RecordCommands(vk::CommandBuffer commandBuffer, [[mayb
 {
     TracyVkZone(scene.tracyContext, commandBuffer, "Bloom Downsample Pass");
 
-    const GPUImage* image = _context->Resources()->ImageResourceManager().Access(_bloomImage);
+    const GPUImage* image = _context->Resources()->GetImageResourceManager().Access(_bloomImage);
     glm::vec2 resolution = glm::vec2(image->width, image->height);
     resolution *= 0.5f; // The first resolution we write to will be mip 1
 
@@ -149,7 +149,7 @@ void BloomDownsamplePass::CreatPipeline()
         .pAttachments = &colorBlendAttachmentState,
     };
 
-    std::vector<vk::Format> formats { _context->Resources()->ImageResourceManager().Access(_bloomImage)->format };
+    std::vector<vk::Format> formats { _context->Resources()->GetImageResourceManager().Access(_bloomImage)->format };
 
     std::vector<std::byte> vertSpv = shader::ReadFile("shaders/bin/fullscreen.vert.spv");
     std::vector<std::byte> fragSpv = shader::ReadFile("shaders/bin/bloom_downsampling.frag.spv");

@@ -49,11 +49,11 @@ void GBuffers::CreateGBuffers()
     g_buffer_spec.height = _size.y;
     g_buffer_spec.format = bb::ImageFormat::R8G8B8A8_UNORM;
 
-    _attachments[0] = resources->ImageResourceManager().Create(g_buffer_spec, flags, "Albedo Metallic Roughness GBuffer");
+    _attachments[0] = resources->GetImageResourceManager().Create(g_buffer_spec, flags, "Albedo Metallic Roughness GBuffer");
 
     g_buffer_spec.format = bb::ImageFormat::R8G8_UNORM;
 
-    _attachments[1] = resources->ImageResourceManager().Create(g_buffer_spec, flags, "Normal GBuffer");
+    _attachments[1] = resources->GetImageResourceManager().Create(g_buffer_spec, flags, "Normal GBuffer");
 }
 
 void GBuffers::CreateDepthResources()
@@ -75,7 +75,7 @@ void GBuffers::CreateDepthResources()
 
     depthSampler.unnormalizedCoordinates = false;
     depthSampler.borderColor = bb::SamplerBorderColor::OPAQUE_BLACK_INT;
-    _depthSampler = _context->Resources()->SamplerResourceManager().Create(depthSampler);
+    _depthSampler = _context->Resources()->GetSamplerResourceManager().Create(depthSampler);
 
     bb::Flags<bb::TextureFlags> flags;
 
@@ -88,7 +88,7 @@ void GBuffers::CreateDepthResources()
     g_buffer_spec.format = bb::ImageFormat::D32_SFLOAT;
 
     _depthFormat = vk::Format::eD32Sfloat;
-    _depthImage = _context->Resources()->ImageResourceManager().Create(g_buffer_spec, flags, "Depth GBuffer");
+    _depthImage = _context->Resources()->GetImageResourceManager().Create(g_buffer_spec, flags, "Depth GBuffer");
 }
 
 void GBuffers::CleanUp()
@@ -108,7 +108,7 @@ void GBuffers::TransitionLayout(vk::CommandBuffer commandBuffer, vk::ImageLayout
 {
     for (const auto& attachment : _attachments)
     {
-        const GPUImage* image = _context->Resources()->ImageResourceManager().Access(attachment);
+        const GPUImage* image = _context->Resources()->GetImageResourceManager().Access(attachment);
 
         util::TransitionImageLayout(commandBuffer, image->handle, image->format, oldLayout, newLayout);
     }

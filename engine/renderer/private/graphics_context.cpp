@@ -28,7 +28,7 @@ GraphicsContext::GraphicsContext(SDL_Window* window)
     fallback.width = 2;
     fallback.format = bb::ImageFormat::R8G8B8A8_UNORM;
 
-    _fallbackImage = _graphicsResources->ImageResourceManager().Create(fallback, bb::TextureFlags::COMMON_FLAGS, "Fallback Texture");
+    _fallbackImage = _graphicsResources->GetImageResourceManager().Create(fallback, bb::TextureFlags::COMMON_FLAGS, "Fallback Texture");
 }
 
 GraphicsContext::~GraphicsContext()
@@ -114,7 +114,7 @@ void GraphicsContext::CreateBindlessMaterialBuffer()
         .SetUsageFlags(vk::BufferUsageFlagBits::eUniformBuffer)
         .SetName("Bindless material uniform buffer");
 
-    _bindlessMaterialBuffer = _graphicsResources->BufferResourceManager().Create(creation);
+    _bindlessMaterialBuffer = _graphicsResources->GetBufferResourceManager().Create(creation);
 }
 
 void GraphicsContext::UpdateBindlessSet()
@@ -125,7 +125,7 @@ void GraphicsContext::UpdateBindlessSet()
 
 void GraphicsContext::UpdateBindlessImages()
 {
-    ImageResourceManager& imageResourceManager { _graphicsResources->ImageResourceManager() };
+    ImageResourceManager& imageResourceManager { _graphicsResources->GetImageResourceManager() };
 
     for (uint32_t i = 0; i < MAX_BINDLESS_RESOURCES; ++i)
     {
@@ -146,13 +146,13 @@ void GraphicsContext::UpdateBindlessImages()
                 .maxLod = static_cast<float>(image->mips),
             };
 
-            _sampler = _graphicsResources->SamplerResourceManager().Create(createInfo);
+            _sampler = _graphicsResources->GetSamplerResourceManager().Create(createInfo);
         }
 
         _bindlessImageInfos.at(i).imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
         _bindlessImageInfos.at(i).imageView = image->view;
-        ResourceHandle<Sampler> samplerHandle = _graphicsResources->SamplerResourceManager().IsValid(image->sampler) ? image->sampler : _sampler;
-        _bindlessImageInfos.at(i).sampler = _graphicsResources->SamplerResourceManager().Access(samplerHandle)->sampler;
+        ResourceHandle<Sampler> samplerHandle = _graphicsResources->GetSamplerResourceManager().IsValid(image->sampler) ? image->sampler : _sampler;
+        _bindlessImageInfos.at(i).sampler = _graphicsResources->GetSamplerResourceManager().Access(samplerHandle)->sampler;
 
         _bindlessImageWrites.at(i).dstSet = _bindlessSet;
         _bindlessImageWrites.at(i).dstBinding = static_cast<uint32_t>(BindlessBinding::eImage);
@@ -168,8 +168,8 @@ void GraphicsContext::UpdateBindlessImages()
 
 void GraphicsContext::UpdateBindlessMaterials()
 {
-    MaterialResourceManager& materialResourceManager { _graphicsResources->MaterialResourceManager() };
-    BufferResourceManager& bufferResourceManager { _graphicsResources->BufferResourceManager() };
+    MaterialResourceManager& materialResourceManager { _graphicsResources->GetMaterialResourceManager() };
+    BufferResourceManager& bufferResourceManager { _graphicsResources->GetBufferResourceManager() };
 
     if (materialResourceManager.Resources().size() == 0)
     {

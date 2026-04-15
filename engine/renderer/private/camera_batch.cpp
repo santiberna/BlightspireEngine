@@ -37,9 +37,9 @@ CameraBatch::Draw::Draw(const std::shared_ptr<GraphicsContext>& context, const s
         .name = name + " visibility buffer"
     };
 
-    drawBuffer = context->Resources()->BufferResourceManager().Create(drawBufferCreation);
-    redirectBuffer = context->Resources()->BufferResourceManager().Create(redirectBufferCreation);
-    visibilityBuffer = context->Resources()->BufferResourceManager().Create(visibilityCreation);
+    drawBuffer = context->Resources()->GetBufferResourceManager().Create(drawBufferCreation);
+    redirectBuffer = context->Resources()->GetBufferResourceManager().Create(redirectBufferCreation);
+    visibilityBuffer = context->Resources()->GetBufferResourceManager().Create(visibilityCreation);
 
     drawDescriptor = CreateDescriptor(context, drawDSL, drawBuffer);
     redirectDescriptor = CreateDescriptor(context, redirectDSL, redirectBuffer);
@@ -58,7 +58,7 @@ vk::DescriptorSet CameraBatch::Draw::CreateDescriptor(const std::shared_ptr<Grap
     vk::DescriptorSet descriptor = device.allocateDescriptorSets(allocateInfo).value.front();
 
     vk::DescriptorBufferInfo bufferInfo {
-        .buffer = context->Resources()->BufferResourceManager().Access(buffer)->buffer,
+        .buffer = context->Resources()->GetBufferResourceManager().Access(buffer)->buffer,
         .offset = 0,
         .range = vk::WholeSize,
     };
@@ -83,7 +83,7 @@ CameraBatch::CameraBatch(const std::shared_ptr<GraphicsContext>& context, const 
     , _staticDraw(context, "Static " + name, MAX_STATIC_INSTANCES, drawDSL, visibilityDSL, redirectDSL)
     , _skinnedDraw(context, "Skinned" + name, MAX_SKINNED_INSTANCES, drawDSL, visibilityDSL, redirectDSL)
 {
-    const auto* depthImageAccess = _context->Resources()->ImageResourceManager().Access(_depthImage);
+    const auto* depthImageAccess = _context->Resources()->GetImageResourceManager().Access(_depthImage);
     uint16_t hzbSize = math::RoundUpToPowerOfTwo(std::max(depthImageAccess->width, depthImageAccess->height));
 
     bb::SamplerCreation samplerCreation {};
@@ -100,7 +100,7 @@ CameraBatch::CameraBatch(const std::shared_ptr<GraphicsContext>& context, const 
     samplerCreation.addressModeW = bb::SamplerAddressMode::CLAMP_TO_BORDER;
     samplerCreation.addressModeV = bb::SamplerAddressMode::CLAMP_TO_BORDER;
 
-    _hzbSampler = _context->Resources()->SamplerResourceManager().Create(samplerCreation);
+    _hzbSampler = _context->Resources()->GetSamplerResourceManager().Create(samplerCreation);
 
     bb::Image2D hzb_image {};
     hzb_image.width = hzbSize;
@@ -112,7 +112,7 @@ CameraBatch::CameraBatch(const std::shared_ptr<GraphicsContext>& context, const 
     flags.set(bb::TextureFlags::GEN_MIPMAPS);
     flags.set(bb::TextureFlags::STORAGE_ACCESS);
 
-    _hzbImage = _context->Resources()->ImageResourceManager().Create(hzb_image, flags, name + " HZB Image");
+    _hzbImage = _context->Resources()->GetImageResourceManager().Create(hzb_image, flags, name + " HZB Image");
 }
 
 CameraBatch::~CameraBatch() = default;

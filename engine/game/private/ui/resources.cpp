@@ -9,8 +9,8 @@ bb::UIResources bb::UIResources::Load(GraphicsContext& context)
     UIResources out {};
     SingleTimeCommands upload { *context.GetVulkanContext() };
 
-    auto& sampler_manager = context.Resources()->SamplerResourceManager();
-    auto& texture_manager = context.Resources()->ImageResourceManager();
+    auto& sampler_manager = context.Resources()->GetSamplerResourceManager();
+    auto& texture_manager = context.Resources()->GetImageResourceManager();
 
     // Sampler for UI images
     {

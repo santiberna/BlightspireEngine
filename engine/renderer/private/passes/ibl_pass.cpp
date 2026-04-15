@@ -23,7 +23,7 @@ IBLPass::IBLPass(const std::shared_ptr<GraphicsContext>& context, ResourceHandle
     createInfo.addressModeW = bb::SamplerAddressMode::CLAMP_TO_EDGE;
     createInfo.addressModeV = bb::SamplerAddressMode::CLAMP_TO_EDGE;
 
-    _sampler = _context->Resources()->SamplerResourceManager().Create(createInfo);
+    _sampler = _context->Resources()->GetSamplerResourceManager().Create(createInfo);
 
     CreateIrradianceCubemap();
     CreatePrefilterCubemap();
@@ -51,8 +51,8 @@ IBLPass::~IBLPass()
 
 void IBLPass::RecordCommands(vk::CommandBuffer commandBuffer)
 {
-    const GPUImage& irradianceMap = *_context->Resources()->ImageResourceManager().Access(_irradianceMap);
-    const GPUImage& prefilterMap = *_context->Resources()->ImageResourceManager().Access(_prefilterMap);
+    const GPUImage& irradianceMap = *_context->Resources()->GetImageResourceManager().Access(_irradianceMap);
+    const GPUImage& prefilterMap = *_context->Resources()->GetImageResourceManager().Access(_prefilterMap);
 
     util::BeginLabel(commandBuffer, "Irradiance pass", glm::vec3 { 17.0f, 138.0f, 178.0f } / 255.0f);
 
@@ -161,12 +161,12 @@ void IBLPass::RecordCommands(vk::CommandBuffer commandBuffer)
 
     util::EndLabel(commandBuffer);
 
-    const GPUImage* brdfLUT = _context->Resources()->ImageResourceManager().Access(_brdfLUT);
+    const GPUImage* brdfLUT = _context->Resources()->GetImageResourceManager().Access(_brdfLUT);
     util::BeginLabel(commandBuffer, "BRDF Integration pass", glm::vec3 { 17.0f, 138.0f, 178.0f } / 255.0f);
     util::TransitionImageLayout(commandBuffer, brdfLUT->handle, brdfLUT->format, vk::ImageLayout::eUndefined, vk::ImageLayout::eColorAttachmentOptimal);
 
     vk::RenderingAttachmentInfoKHR finalColorAttachmentInfo {
-        .imageView = _context->Resources()->ImageResourceManager().Access(_brdfLUT)->view,
+        .imageView = _context->Resources()->GetImageResourceManager().Access(_brdfLUT)->view,
         .imageLayout = vk::ImageLayout::eAttachmentOptimal,
         .loadOp = vk::AttachmentLoadOp::eClear,
         .storeOp = vk::AttachmentStoreOp::eStore,
@@ -218,7 +218,7 @@ void IBLPass::CreateIrradiancePipeline()
         .pAttachments = &colorBlendAttachmentState,
     };
 
-    std::vector<vk::Format> formats { _context->Resources()->ImageResourceManager().Access(_irradianceMap)->format };
+    std::vector<vk::Format> formats { _context->Resources()->GetImageResourceManager().Access(_irradianceMap)->format };
 
     std::vector<std::byte> vertSpv = shader::ReadFile("shaders/bin/fullscreen.vert.spv");
     std::vector<std::byte> fragSpv = shader::ReadFile("shaders/bin/irradiance.frag.spv");
@@ -248,7 +248,7 @@ void IBLPass::CreatePrefilterPipeline()
         .pAttachments = &colorBlendAttachmentState,
     };
 
-    std::vector<vk::Format> formats { _context->Resources()->ImageResourceManager().Access(_prefilterMap)->format };
+    std::vector<vk::Format> formats { _context->Resources()->GetImageResourceManager().Access(_prefilterMap)->format };
 
     std::vector<std::byte> vertSpv = shader::ReadFile("shaders/bin/fullscreen.vert.spv");
     std::vector<std::byte> fragSpv = shader::ReadFile("shaders/bin/prefilter.frag.spv");
@@ -278,7 +278,7 @@ void IBLPass::CreateBRDFLUTPipeline()
         .pAttachments = &colorBlendAttachmentState,
     };
 
-    std::vector<vk::Format> formats { _context->Resources()->ImageResourceManager().Access(_brdfLUT)->format };
+    std::vector<vk::Format> formats { _context->Resources()->GetImageResourceManager().Access(_brdfLUT)->format };
 
     std::vector<std::byte> vertSpv = shader::ReadFile("shaders/bin/fullscreen.vert.spv");
     std::vector<std::byte> fragSpv = shader::ReadFile("shaders/bin/brdf_integration.frag.spv");
@@ -305,7 +305,7 @@ void IBLPass::CreateIrradianceCubemap()
         .SetFormat(vk::Format::eR16G16B16A16Sfloat)
         .SetFlags(vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled);
 
-    _irradianceMap = _context->Resources()->ImageResourceManager().Create(ImageData);
+    _irradianceMap = _context->Resources()->GetImageResourceManager().Create(ImageData);
 }
 
 void IBLPass::CreatePrefilterCubemap()
@@ -319,7 +319,7 @@ void IBLPass::CreatePrefilterCubemap()
         .SetFlags(vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled)
         .SetMips(fmin(floor(log2(creation.width)), 6.0));
 
-    _prefilterMap = _context->Resources()->ImageResourceManager().Create(creation, _sampler);
+    _prefilterMap = _context->Resources()->GetImageResourceManager().Create(creation, _sampler);
     _prefilterMapViews.resize(creation.mips);
 
     vk::Device device = _context->GetVulkanContext()->Device();
@@ -328,7 +328,7 @@ void IBLPass::CreatePrefilterCubemap()
         for (size_t j = 0; j < 6; ++j)
         {
             vk::ImageViewCreateInfo imageViewCreateInfo {};
-            imageViewCreateInfo.image = _context->Resources()->ImageResourceManager().Access(_prefilterMap)->handle;
+            imageViewCreateInfo.image = _context->Resources()->GetImageResourceManager().Access(_prefilterMap)->handle;
             imageViewCreateInfo.viewType = vk::ImageViewType::e2D;
             imageViewCreateInfo.format = creation.format;
             imageViewCreateInfo.subresourceRange.aspectMask = vk::ImageAspectFlagBits::eColor;
@@ -350,5 +350,5 @@ void IBLPass::CreateBRDFLUT()
         .SetSize(512, 512)
         .SetFormat(vk::Format::eR16G16Sfloat)
         .SetFlags(vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled);
-    _brdfLUT = _context->Resources()->ImageResourceManager().Create(creation);
+    _brdfLUT = _context->Resources()->GetImageResourceManager().Create(creation);
 }

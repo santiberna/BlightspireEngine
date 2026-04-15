@@ -119,7 +119,7 @@ ResourceHandle<GPUImage>& ParticleModule::GetEmitterImage(std::string fileName, 
 
     if (got == _emitterImages.end())
     {
-        auto& textures = _context->Resources()->ImageResourceManager();
+        auto& textures = _context->Resources()->GetImageResourceManager();
         std::string path = "assets/textures/particles/" + fileName;
         if (fileIO::Exists(path))
         {
@@ -147,10 +147,10 @@ bool ParticleModule::SetEmitterPresetImage(EmitterPreset& preset)
     auto image = GetEmitterImage(preset.imageName, imageFound);
 
     preset.materialIndex = image.Index();
-    float biggestSize = glm::max(resources->ImageResourceManager().Access(image)->width, resources->ImageResourceManager().Access(image)->height);
+    float biggestSize = glm::max(resources->GetImageResourceManager().Access(image)->width, resources->GetImageResourceManager().Access(image)->height);
     preset.size = glm::vec3(
-        resources->ImageResourceManager().Access(image)->width / preset.spriteDimensions.x / biggestSize,
-        resources->ImageResourceManager().Access(image)->height / preset.spriteDimensions.y / biggestSize, preset.size.z);
+        resources->GetImageResourceManager().Access(image)->width / preset.spriteDimensions.x / biggestSize,
+        resources->GetImageResourceManager().Access(image)->height / preset.spriteDimensions.y / biggestSize, preset.size.z);
 
     return imageFound;
 }

@@ -136,7 +136,7 @@ void GPUScene::UpdateSceneData(uint32_t frameIndex)
 {
     UpdateDirectionalLightData(_sceneData, frameIndex);
 
-    const Buffer* buffer = _context->Resources()->BufferResourceManager().Access(_sceneFrameData[frameIndex].buffer);
+    const Buffer* buffer = _context->Resources()->GetBufferResourceManager().Access(_sceneFrameData[frameIndex].buffer);
     memcpy(buffer->mappedPtr, &_sceneData, sizeof(SceneData));
 }
 
@@ -146,13 +146,13 @@ void GPUScene::UpdatePointLightArray(uint32_t frameIndex)
 
     UpdatePointLightData(pointLightArray, frameIndex);
 
-    const Buffer* buffer = _context->Resources()->BufferResourceManager().Access(_pointLightFrameData[frameIndex].buffer);
+    const Buffer* buffer = _context->Resources()->GetBufferResourceManager().Access(_pointLightFrameData[frameIndex].buffer);
     memcpy(buffer->mappedPtr, &pointLightArray, sizeof(PointLightArray));
 }
 
 void GPUScene::UpdateGlobalIndexBuffer(vk::CommandBuffer& currentCommandBuffer)
 {
-    const Buffer* buffer = _context->Resources()->BufferResourceManager().Access(_clusterCullingData.globalIndexBuffer);
+    const Buffer* buffer = _context->Resources()->GetBufferResourceManager().Access(_clusterCullingData.globalIndexBuffer);
 
     currentCommandBuffer.fillBuffer(buffer->buffer, 0, vk::WholeSize, 0);
 
@@ -193,8 +193,8 @@ void GPUScene::UpdateObjectInstancesData(uint32_t frameIndex)
 
         auto resources { _context->Resources() };
 
-        auto mesh = resources->MeshResourceManager().Access(meshComponent.mesh);
-        assert(resources->MaterialResourceManager().IsValid(mesh->material) && "There should always be a material available");
+        auto mesh = resources->GetMeshResourceManager().Access(meshComponent.mesh);
+        assert(resources->GetMaterialResourceManager().IsValid(mesh->material) && "There should always be a material available");
 
         instance.model = TransformHelpers::GetWorldMatrix(transformComponent);
         instance.materialIndex = mesh->material.Index();
@@ -217,7 +217,7 @@ void GPUScene::UpdateObjectInstancesData(uint32_t frameIndex)
 
         const auto& meshComponent = staticMeshView.get<StaticMeshComponent>(entity);
         auto resources { _context->Resources() };
-        auto mesh = resources->MeshResourceManager().Access(meshComponent.mesh);
+        auto mesh = resources->GetMeshResourceManager().Access(meshComponent.mesh);
 
         _staticDrawCommands.emplace_back(DrawIndexedIndirectCommand {
             .command = {
@@ -241,7 +241,7 @@ void GPUScene::UpdateObjectInstancesData(uint32_t frameIndex)
 
         const auto& meshComponent = staticMeshView.get<StaticMeshComponent>(entity);
         auto resources { _context->Resources() };
-        auto mesh = resources->MeshResourceManager().Access(meshComponent.mesh);
+        auto mesh = resources->GetMeshResourceManager().Access(meshComponent.mesh);
 
         _foregroundStaticDrawCommands.emplace_back(DrawIndexedDirectCommand {
             .instanceIndex = count,
@@ -272,8 +272,8 @@ void GPUScene::UpdateObjectInstancesData(uint32_t frameIndex)
 
         auto resources { _context->Resources() };
 
-        auto mesh = resources->MeshResourceManager().Access(skinnedMeshComponent.mesh);
-        assert(resources->MaterialResourceManager().IsValid(mesh->material) && "There should always be a material available");
+        auto mesh = resources->GetMeshResourceManager().Access(skinnedMeshComponent.mesh);
+        assert(resources->GetMaterialResourceManager().IsValid(mesh->material) && "There should always be a material available");
 
         instance.model = TransformHelpers::GetWorldMatrix(transformComponent);
         instance.materialIndex = mesh->material.Index();
@@ -291,7 +291,7 @@ void GPUScene::UpdateObjectInstancesData(uint32_t frameIndex)
 
         SkinnedMeshComponent skinnedMeshComponent = skinnedMeshView.get<SkinnedMeshComponent>(entity);
         auto resources { _context->Resources() };
-        auto mesh = resources->MeshResourceManager().Access(skinnedMeshComponent.mesh);
+        auto mesh = resources->GetMeshResourceManager().Access(skinnedMeshComponent.mesh);
 
         _skinnedDrawCommands.emplace_back(DrawIndexedIndirectCommand {
             .command = {
@@ -315,7 +315,7 @@ void GPUScene::UpdateObjectInstancesData(uint32_t frameIndex)
 
         SkinnedMeshComponent skinnedMeshComponent = foregroundSkinnedMeshView.get<SkinnedMeshComponent>(entity);
         auto resources { _context->Resources() };
-        auto mesh = resources->MeshResourceManager().Access(skinnedMeshComponent.mesh);
+        auto mesh = resources->GetMeshResourceManager().Access(skinnedMeshComponent.mesh);
 
         _foregroundSkinnedDrawCommands.emplace_back(DrawIndexedDirectCommand {
             .instanceIndex = count,
@@ -327,10 +327,10 @@ void GPUScene::UpdateObjectInstancesData(uint32_t frameIndex)
         count++;
     }
 
-    const Buffer* staticInstancesBuffer = _context->Resources()->BufferResourceManager().Access(_staticInstancesFrameData[frameIndex].buffer);
+    const Buffer* staticInstancesBuffer = _context->Resources()->GetBufferResourceManager().Access(_staticInstancesFrameData[frameIndex].buffer);
     memcpy(staticInstancesBuffer->mappedPtr, staticInstances.data(), staticInstances.size() * sizeof(InstanceData));
 
-    const Buffer* skinnedInstancesBuffer = _context->Resources()->BufferResourceManager().Access(_skinnedInstancesFrameData[frameIndex].buffer);
+    const Buffer* skinnedInstancesBuffer = _context->Resources()->GetBufferResourceManager().Access(_skinnedInstancesFrameData[frameIndex].buffer);
     memcpy(skinnedInstancesBuffer->mappedPtr, skinnedInstances.data(), skinnedInstances.size() * sizeof(InstanceData));
 
     // remove the tags, it will add again if needed later
@@ -502,14 +502,14 @@ void GPUScene::UpdateSkinBuffers(uint32_t frameIndex)
         }
     }
 
-    const Buffer* buffer = _context->Resources()->BufferResourceManager().Access(_skinTransformBuffers[frameIndex]);
+    const Buffer* buffer = _context->Resources()->GetBufferResourceManager().Access(_skinTransformBuffers[frameIndex]);
     std::memcpy(buffer->mappedPtr, skinDualQuats.data(), sizeof(glm::mat2x4) * skinDualQuats.size());
 }
 
 void GPUScene::UpdateDecalBuffer(uint32_t frameIndex)
 {
     // Update Decal buffer
-    const Buffer* buffer = _context->Resources()->BufferResourceManager().Access(_decalFrameData[frameIndex].buffer);
+    const Buffer* buffer = _context->Resources()->GetBufferResourceManager().Access(_decalFrameData[frameIndex].buffer);
     std::memcpy(buffer->mappedPtr, &_decals, sizeof(DecalArray));
 }
 
@@ -523,7 +523,7 @@ ResourceHandle<GPUImage>& GPUScene::GetDecalImage(std::string fileName)
         if (fileIO::Exists(path))
         {
             bb::Image2D image = bb::Image2D::fromFile(path).value();
-            auto handle = _context->Resources()->ImageResourceManager().Create(image, bb::TextureFlags::COMMON_FLAGS, path);
+            auto handle = _context->Resources()->GetImageResourceManager().Create(image, bb::TextureFlags::COMMON_FLAGS, path);
             auto& resource = _decalImages.emplace(fileName, handle).first->second;
             _context->UpdateBindlessSet();
             return resource;
@@ -541,8 +541,8 @@ void GPUScene::SpawnDecal(glm::vec3 normal, glm::vec3 position, glm::vec2 size, 
     const auto image = GetDecalImage(albedoName);
 
     glm::vec2 imageSize;
-    imageSize.x = _context->Resources()->ImageResourceManager().Access(image)->width;
-    imageSize.y = _context->Resources()->ImageResourceManager().Access(image)->height;
+    imageSize.x = _context->Resources()->GetImageResourceManager().Access(image)->width;
+    imageSize.y = _context->Resources()->GetImageResourceManager().Access(image)->height;
 
     const float decalThickness = 1.f;
 
@@ -817,7 +817,7 @@ void GPUScene::CreateClusterDescriptorSet()
 
     _clusterData.descriptorSet = descriptorSet;
 
-    const Buffer* buffer = _context->Resources()->BufferResourceManager().Access(_clusterData.buffer);
+    const Buffer* buffer = _context->Resources()->GetBufferResourceManager().Access(_clusterData.buffer);
 
     vk::DescriptorBufferInfo bufferInfo {};
     bufferInfo.buffer = buffer->buffer;
@@ -923,7 +923,7 @@ void GPUScene::CreateDecalDescriptorSets()
 
 void GPUScene::UpdateSceneDescriptorSet(uint32_t frameIndex)
 {
-    const Buffer* buffer = _context->Resources()->BufferResourceManager().Access(_sceneFrameData[frameIndex].buffer);
+    const Buffer* buffer = _context->Resources()->GetBufferResourceManager().Access(_sceneFrameData[frameIndex].buffer);
 
     vk::DescriptorBufferInfo bufferInfo {};
     bufferInfo.buffer = buffer->buffer;
@@ -946,7 +946,7 @@ void GPUScene::UpdateSceneDescriptorSet(uint32_t frameIndex)
 
 void GPUScene::UpdatePointLightDescriptorSet(uint32_t frameIndex)
 {
-    const Buffer* buffer = _context->Resources()->BufferResourceManager().Access(_pointLightFrameData[frameIndex].buffer);
+    const Buffer* buffer = _context->Resources()->GetBufferResourceManager().Access(_pointLightFrameData[frameIndex].buffer);
 
     vk::DescriptorBufferInfo bufferInfo {};
     bufferInfo.buffer = buffer->buffer;
@@ -970,9 +970,9 @@ void GPUScene::UpdatePointLightDescriptorSet(uint32_t frameIndex)
 void GPUScene::UpdateAtomicGlobalDescriptorSet(uint32_t frameIndex)
 {
     std::array buffers = {
-        _context->Resources()->BufferResourceManager().Access(_clusterCullingData.globalIndexBuffer),
-        _context->Resources()->BufferResourceManager().Access(_clusterCullingData.buffers.at(0)),
-        _context->Resources()->BufferResourceManager().Access(_clusterCullingData.buffers.at(1))
+        _context->Resources()->GetBufferResourceManager().Access(_clusterCullingData.globalIndexBuffer),
+        _context->Resources()->GetBufferResourceManager().Access(_clusterCullingData.buffers.at(0)),
+        _context->Resources()->GetBufferResourceManager().Access(_clusterCullingData.buffers.at(1))
     };
 
     std::array<vk::WriteDescriptorSet, 3> writeDescriptorSets;
@@ -1003,12 +1003,12 @@ void GPUScene::UpdateAtomicGlobalDescriptorSet(uint32_t frameIndex)
 void GPUScene::UpdateObjectInstancesDescriptorSet(uint32_t frameIndex)
 {
     vk::DescriptorBufferInfo staticBufferInfo {};
-    staticBufferInfo.buffer = _context->Resources()->BufferResourceManager().Access(_staticInstancesFrameData[frameIndex].buffer)->buffer;
+    staticBufferInfo.buffer = _context->Resources()->GetBufferResourceManager().Access(_staticInstancesFrameData[frameIndex].buffer)->buffer;
     staticBufferInfo.offset = 0;
     staticBufferInfo.range = vk::WholeSize;
 
     vk::DescriptorBufferInfo skinnedBufferInfo {};
-    skinnedBufferInfo.buffer = _context->Resources()->BufferResourceManager().Access(_skinnedInstancesFrameData[frameIndex].buffer)->buffer;
+    skinnedBufferInfo.buffer = _context->Resources()->GetBufferResourceManager().Access(_skinnedInstancesFrameData[frameIndex].buffer)->buffer;
     skinnedBufferInfo.offset = 0;
     skinnedBufferInfo.range = vk::WholeSize;
 
@@ -1036,7 +1036,7 @@ void GPUScene::UpdateObjectInstancesDescriptorSet(uint32_t frameIndex)
 
 void GPUScene::UpdateSkinDescriptorSet(uint32_t frameIndex)
 {
-    const Buffer* buffer = _context->Resources()->BufferResourceManager().Access(_skinTransformBuffers[frameIndex]);
+    const Buffer* buffer = _context->Resources()->GetBufferResourceManager().Access(_skinTransformBuffers[frameIndex]);
 
     vk::DescriptorBufferInfo bufferInfo {
         .buffer = buffer->buffer,
@@ -1060,7 +1060,7 @@ void GPUScene::UpdateSkinDescriptorSet(uint32_t frameIndex)
 void GPUScene::UpdateDecalDescriptorSet(uint32_t frameIndex)
 {
     vk::DescriptorBufferInfo bufferInfo {
-        .buffer = _context->Resources()->BufferResourceManager().Access(_decalFrameData[frameIndex].buffer)->buffer,
+        .buffer = _context->Resources()->GetBufferResourceManager().Access(_decalFrameData[frameIndex].buffer)->buffer,
         .offset = 0,
         .range = sizeof(DecalArray),
     };
@@ -1092,7 +1092,7 @@ void GPUScene::CreateSceneBuffers()
             .SetUsageFlags(vk::BufferUsageFlagBits::eUniformBuffer)
             .SetName(name);
 
-        _sceneFrameData[i].buffer = _context->Resources()->BufferResourceManager().Create(creation);
+        _sceneFrameData[i].buffer = _context->Resources()->GetBufferResourceManager().Create(creation);
     }
 }
 
@@ -1108,7 +1108,7 @@ void GPUScene::CreatePointLightBuffer()
             .SetUsageFlags(vk::BufferUsageFlagBits::eStorageBuffer)
             .SetName(name);
 
-        _pointLightFrameData[i].buffer = _context->Resources()->BufferResourceManager().Create(creation);
+        _pointLightFrameData[i].buffer = _context->Resources()->GetBufferResourceManager().Create(creation);
     }
 }
 
@@ -1121,7 +1121,7 @@ void GPUScene::CreateClusterBuffer()
         .SetIsMappable(false)
         .SetName("Cluster Buffer");
 
-    _clusterData.buffer = _context->Resources()->BufferResourceManager().Create(createInfo);
+    _clusterData.buffer = _context->Resources()->GetBufferResourceManager().Create(createInfo);
 }
 
 void GPUScene::CreateClusterCullingBuffers()
@@ -1132,7 +1132,7 @@ void GPUScene::CreateClusterCullingBuffers()
         .SetMemoryUsage(VMA_MEMORY_USAGE_AUTO)
         .SetName("Atomic Counter Buffer");
 
-    _clusterCullingData.globalIndexBuffer = _context->Resources()->BufferResourceManager().Create(createInfo);
+    _clusterCullingData.globalIndexBuffer = _context->Resources()->GetBufferResourceManager().Create(createInfo);
 
     createInfo = {};
     createInfo.SetSize(CLUSTER_SIZE * (sizeof(uint32_t) * 2))
@@ -1140,7 +1140,7 @@ void GPUScene::CreateClusterCullingBuffers()
         .SetMemoryUsage(VMA_MEMORY_USAGE_AUTO)
         .SetName("ClusterCullingLightCells Buffer");
 
-    _clusterCullingData.buffers.at(0) = _context->Resources()->BufferResourceManager().Create(createInfo);
+    _clusterCullingData.buffers.at(0) = _context->Resources()->GetBufferResourceManager().Create(createInfo);
 
     createInfo = {};
     createInfo.SetSize(CLUSTER_SIZE * MAX_LIGHTS_PER_CLUSTER * sizeof(uint32_t))
@@ -1148,7 +1148,7 @@ void GPUScene::CreateClusterCullingBuffers()
         .SetMemoryUsage(VMA_MEMORY_USAGE_AUTO)
         .SetName("ClusterCullingLightIndices Buffer");
 
-    _clusterCullingData.buffers.at(1) = _context->Resources()->BufferResourceManager().Create(createInfo);
+    _clusterCullingData.buffers.at(1) = _context->Resources()->GetBufferResourceManager().Create(createInfo);
 }
 
 void GPUScene::CreateObjectInstancesBuffers()
@@ -1165,7 +1165,7 @@ void GPUScene::CreateObjectInstancesBuffers()
             .SetUsageFlags(vk::BufferUsageFlagBits::eStorageBuffer)
             .SetName(name);
 
-        _staticInstancesFrameData[i].buffer = _context->Resources()->BufferResourceManager().Create(creation);
+        _staticInstancesFrameData[i].buffer = _context->Resources()->GetBufferResourceManager().Create(creation);
     }
     for (size_t i = 0; i < _skinnedInstancesFrameData.size(); ++i)
     {
@@ -1179,7 +1179,7 @@ void GPUScene::CreateObjectInstancesBuffers()
             .SetUsageFlags(vk::BufferUsageFlagBits::eStorageBuffer)
             .SetName(name);
 
-        _skinnedInstancesFrameData[i].buffer = _context->Resources()->BufferResourceManager().Create(creation);
+        _skinnedInstancesFrameData[i].buffer = _context->Resources()->GetBufferResourceManager().Create(creation);
     }
 }
 void GPUScene::CreateSkinBuffers()
@@ -1193,9 +1193,9 @@ void GPUScene::CreateSkinBuffers()
             .memoryUsage = VMA_MEMORY_USAGE_AUTO_PREFER_DEVICE,
             .name = "Skin matrices buffer",
         };
-        _skinTransformBuffers[i] = _context->Resources()->BufferResourceManager().Create(creation);
+        _skinTransformBuffers[i] = _context->Resources()->GetBufferResourceManager().Create(creation);
 
-        const Buffer* skinBuffer = _context->Resources()->BufferResourceManager().Access(_skinTransformBuffers[i]);
+        const Buffer* skinBuffer = _context->Resources()->GetBufferResourceManager().Access(_skinTransformBuffers[i]);
         for (uint32_t j = 0; j < MAX_BONES; ++j)
         {
             glm::mat2x4 data { glm::mat2x4_cast(glm::dualquat {}) };
@@ -1216,9 +1216,9 @@ void GPUScene::CreateDecalBuffer()
             .name = "Decal Buffer"
         };
 
-        _decalFrameData[i].buffer = _context->Resources()->BufferResourceManager().Create(createInfo);
+        _decalFrameData[i].buffer = _context->Resources()->GetBufferResourceManager().Create(createInfo);
 
-        const Buffer* decalBuffer = _context->Resources()->BufferResourceManager().Access(_decalFrameData[i].buffer);
+        const Buffer* decalBuffer = _context->Resources()->GetBufferResourceManager().Access(_decalFrameData[i].buffer);
         DecalArray data;
         std::memcpy(decalBuffer->mappedPtr, &data, sizeof(DecalArray));
     }
@@ -1235,7 +1235,7 @@ void GPUScene::InitializeIndirectDrawBuffer()
             .SetIsMappable(true)
             .SetName("Static indirect draw buffer");
 
-        _staticDraws[i].buffer = _context->Resources()->BufferResourceManager().Create(creation);
+        _staticDraws[i].buffer = _context->Resources()->GetBufferResourceManager().Create(creation);
     }
     for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
     {
@@ -1246,7 +1246,7 @@ void GPUScene::InitializeIndirectDrawBuffer()
             .SetIsMappable(true)
             .SetName("Skinned indirect draw buffer");
 
-        _skinnedDraws[i].buffer = _context->Resources()->BufferResourceManager().Create(creation);
+        _skinnedDraws[i].buffer = _context->Resources()->GetBufferResourceManager().Create(creation);
     }
 }
 
@@ -1283,7 +1283,7 @@ void GPUScene::InitializeIndirectDrawDescriptor()
         _staticDraws[i].descriptorSet = descriptorSets[i];
 
         vk::DescriptorBufferInfo& staticBufferInfo { bufferInfos[i] };
-        staticBufferInfo.buffer = _context->Resources()->BufferResourceManager().Access(_staticDraws[i].buffer)->buffer;
+        staticBufferInfo.buffer = _context->Resources()->GetBufferResourceManager().Access(_staticDraws[i].buffer)->buffer;
         staticBufferInfo.offset = 0;
         staticBufferInfo.range = vk::WholeSize;
 
@@ -1303,7 +1303,7 @@ void GPUScene::InitializeIndirectDrawDescriptor()
         _skinnedDraws[i].descriptorSet = descriptorSets[i];
 
         vk::DescriptorBufferInfo& skinnedBufferInfo { bufferInfos[i] };
-        skinnedBufferInfo.buffer = _context->Resources()->BufferResourceManager().Access(_skinnedDraws[i].buffer)->buffer;
+        skinnedBufferInfo.buffer = _context->Resources()->GetBufferResourceManager().Access(_skinnedDraws[i].buffer)->buffer;
         skinnedBufferInfo.offset = 0;
         skinnedBufferInfo.range = vk::WholeSize;
 
@@ -1322,8 +1322,8 @@ void GPUScene::WriteDraws(uint32_t frameIndex)
 {
     assert(_staticDrawCommands.size() < MAX_STATIC_INSTANCES && "Too many draw commands");
 
-    const Buffer* staticBuffer = _context->Resources()->BufferResourceManager().Access(_staticDraws[frameIndex].buffer);
-    const Buffer* skinnedBuffer = _context->Resources()->BufferResourceManager().Access(_skinnedDraws[frameIndex].buffer);
+    const Buffer* staticBuffer = _context->Resources()->GetBufferResourceManager().Access(_staticDraws[frameIndex].buffer);
+    const Buffer* skinnedBuffer = _context->Resources()->GetBufferResourceManager().Access(_skinnedDraws[frameIndex].buffer);
 
     std::memcpy(staticBuffer->mappedPtr, _staticDrawCommands.data(), _staticDrawCommands.size() * sizeof(DrawIndexedIndirectCommand));
     std::memcpy(skinnedBuffer->mappedPtr, _skinnedDrawCommands.data(), _skinnedDrawCommands.size() * sizeof(DrawIndexedIndirectCommand));
@@ -1342,14 +1342,14 @@ void GPUScene::CreateShadowMapResources()
     shadowSamplerInfo.addressModeW = bb::SamplerAddressMode::CLAMP_TO_BORDER;
     shadowSamplerInfo.addressModeV = bb::SamplerAddressMode::CLAMP_TO_BORDER;
 
-    _shadowSampler = _context->Resources()->SamplerResourceManager().Create(shadowSamplerInfo);
+    _shadowSampler = _context->Resources()->GetSamplerResourceManager().Create(shadowSamplerInfo);
 
     bb::Image2D shadowCreationStatic {};
     shadowCreationStatic.format = bb::ImageFormat::D32_SFLOAT;
     shadowCreationStatic.height = 2048;
     shadowCreationStatic.width = 2048;
 
-    auto& textures = _context->Resources()->ImageResourceManager();
+    auto& textures = _context->Resources()->GetImageResourceManager();
     SingleTimeCommands commands { *_context->GetVulkanContext() };
 
     bb::Flags<bb::TextureFlags> flags = { bb::TextureFlags::DEPTH_ATTACH, bb::TextureFlags::SAMPLED };

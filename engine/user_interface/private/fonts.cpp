@@ -180,11 +180,11 @@ std::shared_ptr<UIFont> LoadFromFile(const std::string& path, uint16_t character
     bb::SamplerCreation samplerCreation;
     samplerCreation.minFilter = bb::SamplerFilter::NEAREST;
     samplerCreation.magFilter = bb::SamplerFilter::NEAREST;
-    static ResourceHandle<Sampler> sampler = context.Resources()->SamplerResourceManager().Create(samplerCreation);
+    static ResourceHandle<Sampler> sampler = context.Resources()->GetSamplerResourceManager().Create(samplerCreation);
 
     SingleTimeCommands commands { *context.GetVulkanContext() };
 
-    font->fontAtlas = context.Resources()->ImageResourceManager().Create(commands, image, sampler, bb::TextureFlags::COMMON_FLAGS, path);
+    font->fontAtlas = context.Resources()->GetImageResourceManager().Create(commands, image, sampler, bb::TextureFlags::COMMON_FLAGS, path);
     context.UpdateBindlessSet();
 
     FT_Done_Face(fontFace);

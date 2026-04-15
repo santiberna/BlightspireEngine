@@ -45,7 +45,7 @@ void SSAOPass::RecordCommands(vk::CommandBuffer commandBuffer, uint32_t currentF
     _pushConstants.ssaoRenderTargetHeight = _gBuffers.Size().y / 2;
 
     vk::RenderingAttachmentInfoKHR ssaoColorAttachmentInfo {
-        .imageView = _context->Resources()->ImageResourceManager().Access(_ssaoTarget)->view,
+        .imageView = _context->Resources()->GetImageResourceManager().Access(_ssaoTarget)->view,
         .imageLayout = vk::ImageLayout::eAttachmentOptimalKHR,
         .loadOp = vk::AttachmentLoadOp::eClear,
         .storeOp = vk::AttachmentStoreOp::eStore,
@@ -83,7 +83,7 @@ SSAOPass::~SSAOPass()
     device.destroy(_pipeline);
     device.destroy(_pipelineLayout);
     device.destroy(_descriptorSetLayout);
-    _context->Resources()->BufferResourceManager().Destroy(_sampleKernelBuffer);
+    _context->Resources()->GetBufferResourceManager().Destroy(_sampleKernelBuffer);
 }
 
 void SSAOPass::CreatePipeline()
@@ -160,8 +160,8 @@ void SSAOPass::CreateBuffers()
             .SetMemoryUsage(VMA_MEMORY_USAGE_AUTO)
             .SetUsageFlags(vk::BufferUsageFlagBits::eUniformBuffer | vk::BufferUsageFlagBits::eTransferDst);
 
-        _sampleKernelBuffer = resources->BufferResourceManager().Create(creation);
-        cmdBuffer.CopyIntoLocalBuffer(ssaoKernel, 0, resources->BufferResourceManager().Access(_sampleKernelBuffer)->buffer);
+        _sampleKernelBuffer = resources->GetBufferResourceManager().Create(creation);
+        cmdBuffer.CopyIntoLocalBuffer(ssaoKernel, 0, resources->GetBufferResourceManager().Access(_sampleKernelBuffer)->buffer);
     }
 
     std::shared_ptr<std::byte[]> byteData = std::make_shared<std::byte[]>(ssaoNoise.size() * sizeof(float) * 4);
@@ -204,8 +204,8 @@ void SSAOPass::CreateBuffers()
 
     SingleTimeCommands commands { *_context->GetVulkanContext() };
 
-    _noiseSampler = _context->Resources()->SamplerResourceManager().Create(noiseSampler);
-    _ssaoNoise = _context->Resources()->ImageResourceManager().Create(commands, noiseImage, _noiseSampler, bb::TextureFlags::COMMON_FLAGS, "SSAO Noise Image");
+    _noiseSampler = _context->Resources()->GetSamplerResourceManager().Create(noiseSampler);
+    _ssaoNoise = _context->Resources()->GetImageResourceManager().Create(commands, noiseImage, _noiseSampler, bb::TextureFlags::COMMON_FLAGS, "SSAO Noise Image");
     _pushConstants.ssaoNoiseIndex = _ssaoNoise.Index();
 }
 void SSAOPass::CreateDescriptorSetLayouts()
@@ -236,7 +236,7 @@ void SSAOPass::CreateDescriptorSets()
     }
 
     vk::DescriptorBufferInfo sampleKernelBufferInfo {
-        .buffer = _context->Resources()->BufferResourceManager().Access(_sampleKernelBuffer)->buffer,
+        .buffer = _context->Resources()->GetBufferResourceManager().Access(_sampleKernelBuffer)->buffer,
         .offset = 0,
         .range = vk::WholeSize,
     };

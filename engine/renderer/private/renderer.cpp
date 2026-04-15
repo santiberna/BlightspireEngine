@@ -90,7 +90,7 @@ Renderer::Renderer(ApplicationModule& application, Viewport& viewport, const std
     {
         ZoneScopedN("UV sphere render");
         SingleTimeCommands commandBufferPrimitive { *_context->GetVulkanContext() };
-        uvSphere = _context->Resources()->MeshResourceManager().Create(commandBufferPrimitive, GenerateUVSphere(32, 32), ResourceHandle<GPUMaterial>::Null(), *_staticBatchBuffer);
+        uvSphere = _context->Resources()->GetMeshResourceManager().Create(commandBufferPrimitive, GenerateUVSphere(32, 32), ResourceHandle<GPUMaterial>::Null(), *_staticBatchBuffer);
     }
 
     {
@@ -405,7 +405,7 @@ std::vector<ResourceHandle<GPUModel>> Renderer::LoadModels(const std::vector<CPU
             std::string zone = cpuModel.name + " GPU upload";
             ZoneName(zone.c_str(), 128);
 
-            auto gpu = _context->Resources()->ModelResourceManager().Create(cpuModel, *_staticBatchBuffer, *_skinnedBatchBuffer);
+            auto gpu = _context->Resources()->GetModelResourceManager().Create(cpuModel, *_staticBatchBuffer, *_skinnedBatchBuffer);
             gpuModels.emplace_back(std::move(gpu));
         }
     }
@@ -507,18 +507,18 @@ void Renderer::InitializeHDRTarget()
 
     nearestSampler.unnormalizedCoordinates = false;
     nearestSampler.borderColor = bb::SamplerBorderColor::OPAQUE_BLACK_INT;
-    _nearestSampler = _context->Resources()->SamplerResourceManager().Create(nearestSampler);
+    _nearestSampler = _context->Resources()->GetSamplerResourceManager().Create(nearestSampler);
     auto size = _swapChain->GetImageSize();
 
     CPUImage hdrImageData {};
     hdrImageData.SetName("HDR Target").SetSize(size.x, size.y).SetFormat(vk::Format::eR32G32B32A32Sfloat).SetFlags(vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled);
 
-    _hdrTarget = _context->Resources()->ImageResourceManager().Create(hdrImageData);
+    _hdrTarget = _context->Resources()->GetImageResourceManager().Create(hdrImageData);
 }
 
 void Renderer::InitializeBloomTargets()
 {
-    auto& samplerResourceManager = _context->Resources()->SamplerResourceManager();
+    auto& samplerResourceManager = _context->Resources()->GetSamplerResourceManager();
 
     bb::SamplerCreation samplerCreation {};
     samplerCreation.name = "Bloom Sampler",
@@ -535,7 +535,7 @@ void Renderer::InitializeBloomTargets()
 
     CPUImage bloomCreation {};
     bloomCreation.SetName("HDR Bloom Target").SetSize(size.x, size.y).SetMips(4).SetFormat(vk::Format::eR16G16B16A16Sfloat).SetFlags(vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled);
-    _bloomTarget = _context->Resources()->ImageResourceManager().Create(bloomCreation, _bloomSampler);
+    _bloomTarget = _context->Resources()->GetImageResourceManager().Create(bloomCreation, _bloomSampler);
 }
 void Renderer::InitializeTonemappingTarget()
 {
@@ -544,7 +544,7 @@ void Renderer::InitializeTonemappingTarget()
     CPUImage tonemappingCreation {};
     tonemappingCreation.SetName("Tonemapping Target").SetSize(size.x, size.y).SetFormat(_swapChain->GetFormat()).SetFlags(vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled | vk::ImageUsageFlagBits::eTransferSrc | vk::ImageUsageFlagBits::eTransferDst);
 
-    _tonemappingTarget = _context->Resources()->ImageResourceManager().Create(tonemappingCreation);
+    _tonemappingTarget = _context->Resources()->GetImageResourceManager().Create(tonemappingCreation);
 }
 void Renderer::InitializeVolumetricTarget()
 {
@@ -553,7 +553,7 @@ void Renderer::InitializeVolumetricTarget()
     CPUImage volumetricCreation {};
     volumetricCreation.SetName("Volumetric Target").SetSize(size.x / 6.0, size.y / 6.0).SetFormat(_swapChain->GetFormat()).SetFlags(vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled | vk::ImageUsageFlagBits::eTransferSrc | vk::ImageUsageFlagBits::eTransferDst);
 
-    _volumetricTarget = _context->Resources()->ImageResourceManager().Create(volumetricCreation);
+    _volumetricTarget = _context->Resources()->GetImageResourceManager().Create(volumetricCreation);
 }
 void Renderer::InitializeFXAATarget()
 {
@@ -562,7 +562,7 @@ void Renderer::InitializeFXAATarget()
     CPUImage fxaaCreation {};
     fxaaCreation.SetName("FXAA Target").SetSize(size.x, size.y).SetFormat(_swapChain->GetFormat()).SetFlags(vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled | vk::ImageUsageFlagBits::eTransferSrc | vk::ImageUsageFlagBits::eTransferDst);
 
-    _fxaaTarget = _context->Resources()->ImageResourceManager().Create(fxaaCreation);
+    _fxaaTarget = _context->Resources()->GetImageResourceManager().Create(fxaaCreation);
 }
 void Renderer::InitializeSSAOTarget()
 {
@@ -574,11 +574,11 @@ void Renderer::InitializeSSAOTarget()
         .SetFormat(vk::Format::eR8Unorm)
         .SetFlags(vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled);
 
-    _ssaoTarget = _context->Resources()->ImageResourceManager().Create(ssaoImageData);
+    _ssaoTarget = _context->Resources()->GetImageResourceManager().Create(ssaoImageData);
 }
 void Renderer::LoadEnvironmentMap()
 {
-    auto& textures = _context->Resources()->ImageResourceManager();
+    auto& textures = _context->Resources()->GetImageResourceManager();
     auto sampler = textures._defaultSampler;
 
     bb::Image2D environment_map = bb::Image2D::fromFile("assets/hdri/kloofendal_misty_morning_puresky_2k copy.hdr").value();

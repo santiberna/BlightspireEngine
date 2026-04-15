@@ -53,7 +53,7 @@ ImGuiBackend::ImGuiBackend(const std::shared_ptr<GraphicsContext>& context, cons
 
     ImGui_ImplSDL3_InitForVulkan(applicationModule.GetWindowHandle());
 
-    _basicSampler = _context->Resources()->SamplerResourceManager().Create(bb::SamplerCreation { .name = "ImGui sampler" });
+    _basicSampler = _context->Resources()->GetSamplerResourceManager().Create(bb::SamplerCreation { .name = "ImGui sampler" });
 }
 
 ImGuiBackend::~ImGuiBackend()
@@ -78,7 +78,7 @@ void ImGuiBackend::NewFrame()
 
 ImTextureID ImGuiBackend::GetTexture(const ResourceHandle<GPUImage>& image)
 {
-    const auto* resource = _context->Resources()->ImageResourceManager().Access(image);
+    const auto* resource = _context->Resources()->GetImageResourceManager().Access(image);
     vk::ImageLayout layout {};
     switch (resource->type)
     {
@@ -92,7 +92,7 @@ ImTextureID ImGuiBackend::GetTexture(const ResourceHandle<GPUImage>& image)
         break;
     }
 
-    _imageIDs.emplace_back(ImGui_ImplVulkan_AddTexture(_context->Resources()->SamplerResourceManager().Access(_basicSampler)->sampler, resource->view, static_cast<VkImageLayout>(layout)));
+    _imageIDs.emplace_back(ImGui_ImplVulkan_AddTexture(_context->Resources()->GetSamplerResourceManager().Access(_basicSampler)->sampler, resource->view, static_cast<VkImageLayout>(layout)));
 
     return _imageIDs.back();
 }

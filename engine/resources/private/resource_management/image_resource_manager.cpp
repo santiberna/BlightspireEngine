@@ -300,6 +300,8 @@ vk::Format toVkFormat(bb::ImageFormat format)
     switch (format)
     {
     // Color sRGB
+    case bb::ImageFormat::B8G8R8A8_UNORM:
+        return vk::Format::eB8G8R8A8Unorm;
     case bb::ImageFormat::R8G8B8A8_SRGB:
         return vk::Format::eR8G8B8A8Srgb;
     case bb::ImageFormat::R8G8B8_SRGB:
@@ -322,6 +324,8 @@ vk::Format toVkFormat(bb::ImageFormat format)
         return vk::Format::eR32G32B32A32Sfloat;
     case bb::ImageFormat::R16G16B16A16_SFLOAT:
         return vk::Format::eR16G16B16A16Sfloat;
+    case bb::ImageFormat::R16G16_SFLOAT:
+        return vk::Format::eR16G16Sfloat;
     case bb::ImageFormat::R32_SFLOAT:
         return vk::Format::eR32Sfloat;
     // Depth
@@ -345,6 +349,8 @@ uint32_t formatStride(bb::ImageFormat format)
         return 8;
     case bb::ImageFormat::R8G8B8A8_SRGB:
     case bb::ImageFormat::R8G8B8A8_UNORM:
+    case bb::ImageFormat::B8G8R8A8_UNORM:
+    case bb::ImageFormat::R16G16_SFLOAT:
     case bb::ImageFormat::R32_SFLOAT:
     case bb::ImageFormat::D32_SFLOAT:
         return 4;

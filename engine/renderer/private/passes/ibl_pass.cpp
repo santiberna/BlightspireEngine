@@ -321,11 +321,11 @@ void IBLPass::CreatePrefilterCubemap()
 
 void IBLPass::CreateBRDFLUT()
 {
-    CPUImage creation {};
-    creation
-        .SetName("BRDF LUT")
-        .SetSize(512, 512)
-        .SetFormat(vk::Format::eR16G16Sfloat)
-        .SetFlags(vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled);
-    _brdfLUT = _context->Resources()->GetImageResourceManager().Create(creation);
+    bb::Image2D image {};
+    image.width = 512;
+    image.height = 512;
+    image.format = bb::ImageFormat::R16G16_SFLOAT;
+
+    _brdfLUT = _context->Resources()->GetImageResourceManager().Create(
+        image, { bb::TextureFlags::COLOR_ATTACH, bb::TextureFlags::SAMPLED }, "BRDF LUT");
 }

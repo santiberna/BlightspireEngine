@@ -492,9 +492,6 @@ void Renderer::InitializeHDRTarget()
 {
     auto size = _swapChain->GetImageSize();
 
-    CPUImage hdrImageData {};
-    hdrImageData.SetName("HDR Target").SetSize(size.x, size.y).SetFormat(vk::Format::eR32G32B32A32Sfloat).SetFlags(vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled);
-
     bb::Image2D image {};
     image.format = bb::ImageFormat::R32G32B32A32_SFLOAT;
     image.height = size.y;
@@ -528,40 +525,49 @@ void Renderer::InitializeTonemappingTarget()
 {
     auto size = _swapChain->GetImageSize();
 
-    CPUImage tonemappingCreation {};
-    tonemappingCreation.SetName("Tonemapping Target").SetSize(size.x, size.y).SetFormat(_swapChain->GetFormat()).SetFlags(vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled | vk::ImageUsageFlagBits::eTransferSrc | vk::ImageUsageFlagBits::eTransferDst);
+    bb::Image2D image {};
+    image.height = size.y;
+    image.width = size.x;
+    image.format = bb::ImageFormat::B8G8R8A8_UNORM;
 
-    _tonemappingTarget = _context->Resources()->GetImageResourceManager().Create(tonemappingCreation);
+    bb::Flags<bb::TextureFlags> flags = { bb::TextureFlags::COLOR_ATTACH, bb::TextureFlags::SAMPLED };
+    _tonemappingTarget = _context->Resources()->GetImageResourceManager().Create(image, flags, "Tonemapping Target");
 }
 void Renderer::InitializeVolumetricTarget()
 {
     auto size = _swapChain->GetImageSize();
 
-    CPUImage volumetricCreation {};
-    volumetricCreation.SetName("Volumetric Target").SetSize(size.x / 6.0, size.y / 6.0).SetFormat(_swapChain->GetFormat()).SetFlags(vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled | vk::ImageUsageFlagBits::eTransferSrc | vk::ImageUsageFlagBits::eTransferDst);
+    bb::Image2D image {};
+    image.height = size.y / 6;
+    image.width = size.x / 6;
+    image.format = bb::ImageFormat::B8G8R8A8_UNORM;
 
-    _volumetricTarget = _context->Resources()->GetImageResourceManager().Create(volumetricCreation);
+    bb::Flags<bb::TextureFlags> flags = { bb::TextureFlags::COLOR_ATTACH, bb::TextureFlags::SAMPLED };
+    _volumetricTarget = _context->Resources()->GetImageResourceManager().Create(image, flags, "Volumetric Target");
 }
 void Renderer::InitializeFXAATarget()
 {
     auto size = _swapChain->GetImageSize();
 
-    CPUImage fxaaCreation {};
-    fxaaCreation.SetName("FXAA Target").SetSize(size.x, size.y).SetFormat(_swapChain->GetFormat()).SetFlags(vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled | vk::ImageUsageFlagBits::eTransferSrc | vk::ImageUsageFlagBits::eTransferDst);
+    bb::Image2D image {};
+    image.height = size.y;
+    image.width = size.x;
+    image.format = bb::ImageFormat::B8G8R8A8_UNORM;
 
-    _fxaaTarget = _context->Resources()->GetImageResourceManager().Create(fxaaCreation);
+    bb::Flags<bb::TextureFlags> flags = { bb::TextureFlags::COLOR_ATTACH, bb::TextureFlags::SAMPLED, bb::TextureFlags::TRANSFER_SRC };
+    _fxaaTarget = _context->Resources()->GetImageResourceManager().Create(image, flags, "FXAA Target");
 }
 void Renderer::InitializeSSAOTarget()
 {
     auto size = _swapChain->GetImageSize();
 
-    CPUImage ssaoImageData {};
-    ssaoImageData.SetName("SSAO Target")
-        .SetSize(size.x / 2, size.y / 2) // lets work with it at half resolution
-        .SetFormat(vk::Format::eR8Unorm)
-        .SetFlags(vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled);
+    bb::Image2D image {};
+    image.height = size.y / 2;
+    image.width = size.x / 2;
+    image.format = bb::ImageFormat::R8_UNORM;
 
-    _ssaoTarget = _context->Resources()->GetImageResourceManager().Create(ssaoImageData);
+    _ssaoTarget = _context->Resources()->GetImageResourceManager().Create(
+        image, { bb::TextureFlags::COLOR_ATTACH, bb::TextureFlags::SAMPLED }, "SSAO Target");
 }
 void Renderer::LoadEnvironmentMap()
 {

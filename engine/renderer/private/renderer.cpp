@@ -506,9 +506,9 @@ void Renderer::InitializeBloomTargets()
 
     bb::SamplerCreation samplerCreation {};
     samplerCreation.name = "Bloom Sampler",
-    samplerCreation.minLod = 0.0f,
-    samplerCreation.maxLod = vk::LodClampNone;
-    samplerCreation.mipmapMode = bb::SamplerFilter::LINEAR,
+    samplerCreation.minLod = 0.0f;
+    samplerCreation.maxLod = 4.0f;
+    samplerCreation.mipmapMode = bb::SamplerFilter::LINEAR;
     samplerCreation.addressModeU = bb::SamplerAddressMode::CLAMP_TO_EDGE;
     samplerCreation.addressModeW = bb::SamplerAddressMode::CLAMP_TO_EDGE;
     samplerCreation.addressModeV = bb::SamplerAddressMode::CLAMP_TO_EDGE;
@@ -517,9 +517,14 @@ void Renderer::InitializeBloomTargets()
 
     auto size = _swapChain->GetImageSize();
 
-    CPUImage bloomCreation {};
-    bloomCreation.SetName("HDR Bloom Target").SetSize(size.x, size.y).SetMips(4).SetFormat(vk::Format::eR16G16B16A16Sfloat).SetFlags(vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled);
-    _bloomTarget = _context->Resources()->GetImageResourceManager().Create(bloomCreation, _bloomSampler);
+    bb::Image2D image {};
+    image.format = bb::ImageFormat::R16G16B16A16_SFLOAT;
+    image.width = size.x;
+    image.height = size.y;
+
+    bb::Flags<bb::TextureFlags> flags = { bb::TextureFlags::COLOR_ATTACH, bb::TextureFlags::SAMPLED, bb::TextureFlags::GEN_MIPMAPS };
+    auto& textures = _context->Resources()->GetImageResourceManager();
+    _bloomTarget = textures.Create(image, _bloomSampler, flags, "Bloom Target", nullptr);
 }
 void Renderer::InitializeTonemappingTarget()
 {

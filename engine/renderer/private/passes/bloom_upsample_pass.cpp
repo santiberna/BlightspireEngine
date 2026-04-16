@@ -29,7 +29,10 @@ void BloomUpsamplePass::RecordCommands(vk::CommandBuffer commandBuffer, uint32_t
 
     const GPUImage* image = _context->Resources()->GetImageResourceManager().Access(_bloomImage);
 
-    uint32_t startTargetMip = image->mips - 2;
+    constexpr uint8_t MAX_BLOOM_MIPS = 3;
+    const uint32_t mips = glm::min<uint8_t>(image->mips - 1, MAX_BLOOM_MIPS);
+
+    uint32_t startTargetMip = mips - 1;
     glm::vec2 resolution = glm::vec2(image->width >> startTargetMip, image->height >> startTargetMip);
 
     vk::ImageMemoryBarrier2 startBarrier {};
@@ -45,7 +48,7 @@ void BloomUpsamplePass::RecordCommands(vk::CommandBuffer commandBuffer, uint32_t
     startDependencyInfo.pImageMemoryBarriers = &startBarrier;
     commandBuffer.pipelineBarrier2(startDependencyInfo);
 
-    for (uint32_t mip = image->mips - 1; mip > 0; --mip)
+    for (uint32_t mip = mips; mip > 0; --mip)
     {
         uint32_t nextMip = mip - 1;
 

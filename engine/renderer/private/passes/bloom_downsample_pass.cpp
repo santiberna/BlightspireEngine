@@ -42,7 +42,10 @@ void BloomDownsamplePass::RecordCommands(vk::CommandBuffer commandBuffer, [[mayb
 
     commandBuffer.pipelineBarrier2(startDependencyInfo);
 
-    for (uint32_t mip = 0; mip < image->mips - 1; ++mip)
+    constexpr uint8_t MAX_BLOOM_MIPS = 3;
+    const uint32_t mips = glm::min<uint8_t>(image->mips - 1, MAX_BLOOM_MIPS);
+
+    for (uint32_t mip = 0; mip < mips; ++mip)
     {
         uint32_t nextMip = mip + 1;
 

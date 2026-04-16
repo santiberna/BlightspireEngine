@@ -490,30 +490,17 @@ void Renderer::CreateSyncObjects()
 
 void Renderer::InitializeHDRTarget()
 {
-    bb::SamplerCreation nearestSampler {};
-    nearestSampler.name = "Nearest_Sampler";
-    nearestSampler.addressModeU = bb::SamplerAddressMode::CLAMP_TO_EDGE;
-    nearestSampler.addressModeV = bb::SamplerAddressMode::CLAMP_TO_EDGE;
-    nearestSampler.addressModeW = bb::SamplerAddressMode::CLAMP_TO_EDGE;
-
-    nearestSampler.minFilter = bb::SamplerFilter::NEAREST;
-    nearestSampler.magFilter = bb::SamplerFilter::NEAREST;
-    nearestSampler.mipmapMode = bb::SamplerFilter::NEAREST;
-
-    nearestSampler.useMaxAnisotropy = false;
-    nearestSampler.anisotropyEnable = false;
-    nearestSampler.minLod = 0.0f;
-    nearestSampler.maxLod = vk::LodClampNone;
-
-    nearestSampler.unnormalizedCoordinates = false;
-    nearestSampler.borderColor = bb::SamplerBorderColor::OPAQUE_BLACK_INT;
-    _nearestSampler = _context->Resources()->GetSamplerResourceManager().Create(nearestSampler);
     auto size = _swapChain->GetImageSize();
 
     CPUImage hdrImageData {};
     hdrImageData.SetName("HDR Target").SetSize(size.x, size.y).SetFormat(vk::Format::eR32G32B32A32Sfloat).SetFlags(vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled);
 
-    _hdrTarget = _context->Resources()->GetImageResourceManager().Create(hdrImageData);
+    bb::Image2D image {};
+    image.format = bb::ImageFormat::R32G32B32A32_SFLOAT;
+    image.height = size.y;
+    image.width = size.x;
+
+    _hdrTarget = _context->Resources()->GetImageResourceManager().Create(image, { bb::TextureFlags::COLOR_ATTACH, bb::TextureFlags::SAMPLED }, "HDR Target");
 }
 
 void Renderer::InitializeBloomTargets()

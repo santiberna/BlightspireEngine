@@ -112,7 +112,7 @@ CameraBatch::CameraBatch(const std::shared_ptr<GraphicsContext>& context, const 
     flags.set(bb::TextureFlags::GEN_MIPMAPS);
     flags.set(bb::TextureFlags::STORAGE_ACCESS);
 
-    _hzbImage = _context->Resources()->GetImageResourceManager().Create(hzb_image, flags, name + " HZB Image");
+    _hzbImage = _context->Resources()->GetImageResourceManager().Create(hzb_image, _hzbSampler, flags, name + " HZB Image", nullptr);
 }
 
 CameraBatch::~CameraBatch() = default;

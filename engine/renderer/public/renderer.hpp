@@ -124,7 +124,6 @@ private:
     std::unique_ptr<FrameGraph> _frameGraph;
     std::unique_ptr<SwapChain> _swapChain;
     std::unique_ptr<GBuffers> _gBuffers;
-    ResourceHandle<Sampler> _nearestSampler;
 
     std::array<vk::Semaphore, MAX_FRAMES_IN_FLIGHT> _imageAvailableSemaphores;
     std::vector<vk::Semaphore> _renderFinishedSemaphores; // Should be the size of the amount of images in the swapchain

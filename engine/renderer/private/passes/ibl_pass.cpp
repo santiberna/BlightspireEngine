@@ -47,8 +47,8 @@ IBLPass::~IBLPass()
 
 void IBLPass::RecordCommands(vk::CommandBuffer commandBuffer)
 {
-    const GPUImage& irradianceMap = *_context->Resources()->GetImageResourceManager().Access(_irradianceMap);
-    const GPUImage& prefilterMap = *_context->Resources()->GetImageResourceManager().Access(_prefilterMap);
+    const GPUImage& irradianceMap = *_context->Resources()->GetImageResourceManager().get(_irradianceMap);
+    const GPUImage& prefilterMap = *_context->Resources()->GetImageResourceManager().get(_prefilterMap);
 
     util::BeginLabel(commandBuffer, "Irradiance pass", glm::vec3 { 17.0f, 138.0f, 178.0f } / 255.0f);
 
@@ -79,7 +79,7 @@ void IBLPass::RecordCommands(vk::CommandBuffer commandBuffer)
 
         IrradiancePushConstant pc {
             .index = static_cast<uint32_t>(i),
-            .hdriIndex = _environmentMap.Index(),
+            .hdriIndex = _environmentMap.getIndex(),
         };
 
         commandBuffer.pushConstants<IrradiancePushConstant>(_irradiancePipelineLayout, vk::ShaderStageFlagBits::eFragment, 0, { pc });
@@ -135,7 +135,7 @@ void IBLPass::RecordCommands(vk::CommandBuffer commandBuffer)
             PrefilterPushConstant pc {
                 .faceIndex = static_cast<uint32_t>(j),
                 .roughness = static_cast<float>(i) / static_cast<float>(prefilterMap.mips - 1),
-                .hdriIndex = _environmentMap.Index(),
+                .hdriIndex = _environmentMap.getIndex(),
             };
 
             commandBuffer.pushConstants<PrefilterPushConstant>(_prefilterPipelineLayout, vk::ShaderStageFlagBits::eFragment, 0, { pc });
@@ -159,12 +159,12 @@ void IBLPass::RecordCommands(vk::CommandBuffer commandBuffer)
 
     util::EndLabel(commandBuffer);
 
-    const GPUImage* brdfLUT = _context->Resources()->GetImageResourceManager().Access(_brdfLUT);
+    const GPUImage* brdfLUT = _context->Resources()->GetImageResourceManager().get(_brdfLUT);
     util::BeginLabel(commandBuffer, "BRDF Integration pass", glm::vec3 { 17.0f, 138.0f, 178.0f } / 255.0f);
     util::TransitionImageLayout(commandBuffer, brdfLUT->handle, brdfLUT->format, vk::ImageLayout::eUndefined, vk::ImageLayout::eColorAttachmentOptimal);
 
     vk::RenderingAttachmentInfoKHR finalColorAttachmentInfo {
-        .imageView = _context->Resources()->GetImageResourceManager().Access(_brdfLUT)->view,
+        .imageView = _context->Resources()->GetImageResourceManager().get(_brdfLUT)->view,
         .imageLayout = vk::ImageLayout::eAttachmentOptimal,
         .loadOp = vk::AttachmentLoadOp::eClear,
         .storeOp = vk::AttachmentStoreOp::eStore,
@@ -216,7 +216,7 @@ void IBLPass::CreateIrradiancePipeline()
         .pAttachments = &colorBlendAttachmentState,
     };
 
-    std::vector<vk::Format> formats { _context->Resources()->GetImageResourceManager().Access(_irradianceMap)->format };
+    std::vector<vk::Format> formats { _context->Resources()->GetImageResourceManager().get(_irradianceMap)->format };
 
     std::vector<std::byte> vertSpv = shader::ReadFile("shaders/bin/fullscreen.vert.spv");
     std::vector<std::byte> fragSpv = shader::ReadFile("shaders/bin/irradiance.frag.spv");
@@ -246,7 +246,7 @@ void IBLPass::CreatePrefilterPipeline()
         .pAttachments = &colorBlendAttachmentState,
     };
 
-    std::vector<vk::Format> formats { _context->Resources()->GetImageResourceManager().Access(_prefilterMap)->format };
+    std::vector<vk::Format> formats { _context->Resources()->GetImageResourceManager().get(_prefilterMap)->format };
 
     std::vector<std::byte> vertSpv = shader::ReadFile("shaders/bin/fullscreen.vert.spv");
     std::vector<std::byte> fragSpv = shader::ReadFile("shaders/bin/prefilter.frag.spv");
@@ -276,7 +276,7 @@ void IBLPass::CreateBRDFLUTPipeline()
         .pAttachments = &colorBlendAttachmentState,
     };
 
-    std::vector<vk::Format> formats { _context->Resources()->GetImageResourceManager().Access(_brdfLUT)->format };
+    std::vector<vk::Format> formats { _context->Resources()->GetImageResourceManager().get(_brdfLUT)->format };
 
     std::vector<std::byte> vertSpv = shader::ReadFile("shaders/bin/fullscreen.vert.spv");
     std::vector<std::byte> fragSpv = shader::ReadFile("shaders/bin/brdf_integration.frag.spv");

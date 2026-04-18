@@ -18,8 +18,12 @@ template <typename T>
 class SlotHandle
 {
 public:
+    SlotHandle() = default;
     bool operator==(const SlotHandle&) const = default;
-    explicit operator bool() const { return version != 0; }
+    explicit operator bool() const { return isValid(); }
+
+    [[nodiscard]] uint32_t getIndex() const { return index; }
+    [[nodiscard]] bool isValid() const { return version != 0; }
 
 private:
     uint32_t index {};

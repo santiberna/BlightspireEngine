@@ -231,7 +231,7 @@ void FrameGraph::ComputeNodeViewportAndScissor(FrameGraphNodeHandle nodeHandle)
 
         if (HasAnyFlags(resource.type, FrameGraphResourceType::eAttachment))
         {
-            const GPUImage* attachment = resources->GetImageResourceManager().Access(std::get<ResourceHandle<GPUImage>>(resource.info.resource));
+            const GPUImage* attachment = resources->GetImageResourceManager().get(std::get<ResourceHandle<GPUImage>>(resource.info.resource));
 
             viewportSize.x = attachment->width;
             viewportSize.y = attachment->height;
@@ -245,7 +245,7 @@ void FrameGraph::ComputeNodeViewportAndScissor(FrameGraphNodeHandle nodeHandle)
 
         if (resource.type == FrameGraphResourceType::eAttachment)
         {
-            const GPUImage* attachment = resources->GetImageResourceManager().Access(std::get<ResourceHandle<GPUImage>>(resource.info.resource));
+            const GPUImage* attachment = resources->GetImageResourceManager().get(std::get<ResourceHandle<GPUImage>>(resource.info.resource));
 
             viewportSize.x = attachment->width;
             viewportSize.y = attachment->height;
@@ -342,7 +342,7 @@ void FrameGraph::CreateMemoryBarriers()
 void FrameGraph::CreateImageBarrier(const FrameGraphResource& resource, ResourceState state, vk::ImageMemoryBarrier2& barrier) const
 {
     auto resources { _context->Resources() };
-    const GPUImage* image = resources->GetImageResourceManager().Access(std::get<ResourceHandle<GPUImage>>(resource.info.resource));
+    const GPUImage* image = resources->GetImageResourceManager().get(std::get<ResourceHandle<GPUImage>>(resource.info.resource));
 
     if (image->flags & vk::ImageUsageFlagBits::eDepthStencilAttachment)
     {
@@ -642,7 +642,7 @@ const std::string& FrameGraph::GetResourceName(FrameGraphResourceType type, cons
 
     if (HasAnyFlags(type, FrameGraphResourceType::eAttachment | FrameGraphResourceType::eTexture))
     {
-        const GPUImage* image = resources->GetImageResourceManager().Access(std::get<ResourceHandle<GPUImage>>(resource));
+        const GPUImage* image = resources->GetImageResourceManager().get(std::get<ResourceHandle<GPUImage>>(resource));
         return image->name;
     }
 

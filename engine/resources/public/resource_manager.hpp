@@ -291,3 +291,19 @@ ResourceHandle<T>& ResourceHandle<T>::operator=(std::nullptr_t)
 
     return *this;
 }
+
+// Injecting new version
+
+#include "slot_map/handle.hpp"
+
+struct GPUImage;
+
+template <>
+struct ResourceHandle<GPUImage> : public bb::SlotHandle<GPUImage>
+{
+    ResourceHandle<GPUImage>() = default;
+    ResourceHandle<GPUImage>(bb::SlotHandle<GPUImage> slot)
+        : bb::SlotHandle<GPUImage>(slot)
+    {
+    }
+};

@@ -25,7 +25,7 @@ SkydomePass::SkydomePass(const std::shared_ptr<GraphicsContext>& context, Resour
 {
     CreatePipeline();
 
-    _pushConstants.hdriIndex = environmentMap.Index();
+    _pushConstants.hdriIndex = environmentMap.getIndex();
 }
 
 SkydomePass::~SkydomePass()
@@ -39,7 +39,7 @@ void SkydomePass::RecordCommands(vk::CommandBuffer commandBuffer, uint32_t curre
 {
     TracyVkZone(scene.tracyContext, commandBuffer, "Skydome Pass");
     vk::RenderingAttachmentInfoKHR depthAttachmentInfo {};
-    depthAttachmentInfo.imageView = _context->Resources()->GetImageResourceManager().Access(_gBuffers.Depth())->view;
+    depthAttachmentInfo.imageView = _context->Resources()->GetImageResourceManager().get(_gBuffers.Depth())->view;
     depthAttachmentInfo.imageLayout = vk::ImageLayout::eDepthStencilAttachmentOptimal;
     depthAttachmentInfo.storeOp = vk::AttachmentStoreOp::eNone;
     depthAttachmentInfo.loadOp = vk::AttachmentLoadOp::eLoad;
@@ -52,20 +52,20 @@ void SkydomePass::RecordCommands(vk::CommandBuffer commandBuffer, uint32_t curre
     std::array<vk::RenderingAttachmentInfoKHR, 2> colorAttachmentInfos {};
 
     // HDR color
-    colorAttachmentInfos[0].imageView = _context->Resources()->GetImageResourceManager().Access(_hdrTarget)->view;
+    colorAttachmentInfos[0].imageView = _context->Resources()->GetImageResourceManager().get(_hdrTarget)->view;
     colorAttachmentInfos[0].imageLayout = vk::ImageLayout::eAttachmentOptimalKHR;
     colorAttachmentInfos[0].storeOp = vk::AttachmentStoreOp::eStore;
     colorAttachmentInfos[0].loadOp = vk::AttachmentLoadOp::eLoad;
 
     // HDR brightness for bloom
-    colorAttachmentInfos[1].imageView = _context->Resources()->GetImageResourceManager().Access(_brightnessTarget)->view;
+    colorAttachmentInfos[1].imageView = _context->Resources()->GetImageResourceManager().get(_brightnessTarget)->view;
     colorAttachmentInfos[1].imageLayout = vk::ImageLayout::eAttachmentOptimalKHR;
     colorAttachmentInfos[1].storeOp = vk::AttachmentStoreOp::eStore;
     colorAttachmentInfos[1].loadOp = vk::AttachmentLoadOp::eLoad;
 
     vk::RenderingInfoKHR renderingInfo {};
-    renderingInfo.renderArea.extent = vk::Extent2D { _context->Resources()->GetImageResourceManager().Access(_hdrTarget)->width,
-        _context->Resources()->GetImageResourceManager().Access(_hdrTarget)->height };
+    renderingInfo.renderArea.extent = vk::Extent2D { _context->Resources()->GetImageResourceManager().get(_hdrTarget)->width,
+        _context->Resources()->GetImageResourceManager().get(_hdrTarget)->height };
     renderingInfo.renderArea.offset = vk::Offset2D { 0, 0 };
     renderingInfo.colorAttachmentCount = colorAttachmentInfos.size();
     renderingInfo.pColorAttachments = colorAttachmentInfos.data();
@@ -121,8 +121,8 @@ void SkydomePass::CreatePipeline()
     vk::StructureChain<vk::GraphicsPipelineCreateInfo, vk::PipelineRenderingCreateInfoKHR> structureChain;
 
     std::vector<vk::Format> formats = {
-        _context->Resources()->GetImageResourceManager().Access(_hdrTarget)->format,
-        _context->Resources()->GetImageResourceManager().Access(_brightnessTarget)->format
+        _context->Resources()->GetImageResourceManager().get(_hdrTarget)->format,
+        _context->Resources()->GetImageResourceManager().get(_brightnessTarget)->format
     };
 
     std::vector<std::byte> vertSpv = shader::ReadFile("shaders/bin/skydome.vert.spv");

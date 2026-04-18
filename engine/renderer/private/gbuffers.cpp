@@ -108,7 +108,7 @@ void GBuffers::TransitionLayout(vk::CommandBuffer commandBuffer, vk::ImageLayout
 {
     for (const auto& attachment : _attachments)
     {
-        const GPUImage* image = _context->Resources()->GetImageResourceManager().Access(attachment);
+        const GPUImage* image = _context->Resources()->GetImageResourceManager().get(attachment);
 
         util::TransitionImageLayout(commandBuffer, image->handle, image->format, oldLayout, newLayout);
     }

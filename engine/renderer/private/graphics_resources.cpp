@@ -23,7 +23,7 @@ void GraphicsResources::Clean()
 {
     _meshResourceManager->Clean();
     _materialResourceManager->Clean();
-    _imageResourceManager->Clean();
+    //_imageResourceManager->clear();
     _bufferResourceManager->Clean();
     _samplerResourceManager->Clean();
 }

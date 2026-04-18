@@ -8,5 +8,6 @@ MaterialResourceManager::MaterialResourceManager(const std::shared_ptr<ImageReso
 
 ResourceHandle<GPUMaterial> MaterialResourceManager::Create(const MaterialCreation& creation)
 {
-    return ResourceManager::Create(GPUMaterial { creation, _imageResourceManager });
+    GPUMaterial material = GPUMaterial(creation);
+    return ResourceManager::Create(std::move(material));
 }

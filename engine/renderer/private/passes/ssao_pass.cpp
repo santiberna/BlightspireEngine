@@ -22,8 +22,8 @@ SSAOPass::SSAOPass(const std::shared_ptr<GraphicsContext>& context, const Settin
     , _gBuffers(gBuffers)
     , _ssaoTarget(ssaoTarget)
 {
-    _pushConstants.normalIndex = _gBuffers.Attachments()[1].Index();
-    _pushConstants.depthIndex = _gBuffers.Depth().Index();
+    _pushConstants.normalIndex = _gBuffers.Attachments()[1].getIndex();
+    _pushConstants.depthIndex = _gBuffers.Depth().getIndex();
 
     CreateBuffers();
     CreateDescriptorSetLayouts();
@@ -45,7 +45,7 @@ void SSAOPass::RecordCommands(vk::CommandBuffer commandBuffer, uint32_t currentF
     _pushConstants.ssaoRenderTargetHeight = _gBuffers.Size().y / 2;
 
     vk::RenderingAttachmentInfoKHR ssaoColorAttachmentInfo {
-        .imageView = _context->Resources()->GetImageResourceManager().Access(_ssaoTarget)->view,
+        .imageView = _context->Resources()->GetImageResourceManager().get(_ssaoTarget)->view,
         .imageLayout = vk::ImageLayout::eAttachmentOptimalKHR,
         .loadOp = vk::AttachmentLoadOp::eClear,
         .storeOp = vk::AttachmentStoreOp::eStore,
@@ -206,7 +206,7 @@ void SSAOPass::CreateBuffers()
 
     _noiseSampler = _context->Resources()->GetSamplerResourceManager().Create(noiseSampler);
     _ssaoNoise = _context->Resources()->GetImageResourceManager().Create(noiseImage, _noiseSampler, bb::TextureFlags::COMMON_FLAGS, "SSAO Noise Image", &commands);
-    _pushConstants.ssaoNoiseIndex = _ssaoNoise.Index();
+    _pushConstants.ssaoNoiseIndex = _ssaoNoise.getIndex();
 }
 void SSAOPass::CreateDescriptorSetLayouts()
 {

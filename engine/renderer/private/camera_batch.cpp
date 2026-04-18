@@ -83,7 +83,7 @@ CameraBatch::CameraBatch(const std::shared_ptr<GraphicsContext>& context, const 
     , _staticDraw(context, "Static " + name, MAX_STATIC_INSTANCES, drawDSL, visibilityDSL, redirectDSL)
     , _skinnedDraw(context, "Skinned" + name, MAX_SKINNED_INSTANCES, drawDSL, visibilityDSL, redirectDSL)
 {
-    const auto* depthImageAccess = _context->Resources()->GetImageResourceManager().Access(_depthImage);
+    const auto* depthImageAccess = _context->Resources()->GetImageResourceManager().get(_depthImage);
     uint16_t hzbSize = math::RoundUpToPowerOfTwo(std::max(depthImageAccess->width, depthImageAccess->height));
 
     bb::SamplerCreation samplerCreation {};

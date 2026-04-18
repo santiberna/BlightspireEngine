@@ -18,7 +18,7 @@ FXAAPass::FXAAPass(const std::shared_ptr<GraphicsContext>& context, const Settin
     , _fxaaTarget(fxaaTarget)
     , _source(sourceTarget)
 {
-    _pushConstants.sourceIndex = _source.Index();
+    _pushConstants.sourceIndex = _source.getIndex();
     CreatePipeline();
 }
 
@@ -36,7 +36,7 @@ void FXAAPass::RecordCommands(vk::CommandBuffer commandBuffer, [[maybe_unused]] 
     _pushConstants.subPixelQuality = _settings.subPixelQuality;
 
     vk::RenderingAttachmentInfoKHR fxaaColorAttachmentInfo {
-        .imageView = _context->Resources()->GetImageResourceManager().Access(_fxaaTarget)->view,
+        .imageView = _context->Resources()->GetImageResourceManager().get(_fxaaTarget)->view,
         .imageLayout = vk::ImageLayout::eAttachmentOptimalKHR,
         .loadOp = vk::AttachmentLoadOp::eClear,
         .storeOp = vk::AttachmentStoreOp::eStore,
@@ -86,7 +86,7 @@ void FXAAPass::CreatePipeline()
         .pAttachments = &colorBlendAttachmentState,
     };
 
-    std::vector<vk::Format> formats { _context->Resources()->GetImageResourceManager().Access(_source)->format };
+    std::vector<vk::Format> formats { _context->Resources()->GetImageResourceManager().get(_source)->format };
 
     std::vector<std::byte> vertSpv = shader::ReadFile("shaders/bin/fullscreen.vert.spv");
     std::vector<std::byte> fragSpv = shader::ReadFile("shaders/bin/fxaa.frag.spv");

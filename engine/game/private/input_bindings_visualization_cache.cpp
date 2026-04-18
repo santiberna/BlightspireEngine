@@ -42,7 +42,7 @@ ResourceHandle<GPUImage> InputBindingsVisualizationCache::GetGlyph(const std::st
 {
     if (path.empty())
     {
-        return ResourceHandle<GPUImage>::Null();
+        return {};
     }
 
     auto it = _glyphCache.find(path);
@@ -55,7 +55,7 @@ ResourceHandle<GPUImage> InputBindingsVisualizationCache::GetGlyph(const std::st
 
     if (!glyphImage.has_value())
     {
-        return ResourceHandle<GPUImage>::Null();
+        return {};
     }
 
     auto& imageResourceManager = _graphicsContext.Resources()->GetImageResourceManager();

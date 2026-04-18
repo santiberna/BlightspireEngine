@@ -30,12 +30,12 @@ VolumetricPass::VolumetricPass(const std::shared_ptr<GraphicsContext>& context, 
     CreateDescriptorSets();
     CreatePipeline();
 
-    _pushConstants.hdrTargetIndex = hdrTarget.Index();
-    _pushConstants.bloomTargetIndex = bloomTarget.Index();
-    _pushConstants.depthIndex = gBuffers.Depth().Index();
+    _pushConstants.hdrTargetIndex = hdrTarget.getIndex();
+    _pushConstants.bloomTargetIndex = bloomTarget.getIndex();
+    _pushConstants.depthIndex = gBuffers.Depth().getIndex();
     _pushConstants.screenWidth = _gBuffers.Size().x / 4.0;
     _pushConstants.screenHeight = _gBuffers.Size().y / 4.0;
-    _pushConstants.normalRIndex = _gBuffers.Attachments()[1].Index();
+    _pushConstants.normalRIndex = _gBuffers.Attachments()[1].getIndex();
 
     for (size_t i = 0; i < gunShots.size(); ++i)
     {
@@ -87,7 +87,7 @@ void VolumetricPass::RecordCommands(vk::CommandBuffer commandBuffer, uint32_t cu
     UpdateFogTrailsBuffer();
 
     vk::RenderingAttachmentInfoKHR finalColorAttachmentInfo {
-        .imageView = _context->Resources()->GetImageResourceManager().Access(_outputTarget)->view,
+        .imageView = _context->Resources()->GetImageResourceManager().get(_outputTarget)->view,
         .imageLayout = vk::ImageLayout::eAttachmentOptimalKHR,
         .loadOp = vk::AttachmentLoadOp::eClear,
         .storeOp = vk::AttachmentStoreOp::eStore,
@@ -150,7 +150,7 @@ void VolumetricPass::CreatePipeline()
     pipelineBuilder.AddShaderStage(vk::ShaderStageFlagBits::eFragment, fragSpv);
     auto result = pipelineBuilder
                       .SetColorBlendState(colorBlendStateCreateInfo)
-                      .SetColorAttachmentFormats({ _context->Resources()->GetImageResourceManager().Access(_outputTarget)->format })
+                      .SetColorAttachmentFormats({ _context->Resources()->GetImageResourceManager().get(_outputTarget)->format })
                       .SetDepthAttachmentFormat(vk::Format::eUndefined)
                       .BuildPipeline();
 

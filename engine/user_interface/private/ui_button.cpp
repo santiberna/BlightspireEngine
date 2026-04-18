@@ -5,7 +5,6 @@
 #include "ui_module.hpp"
 #include <glm/gtc/matrix_transform.hpp>
 
-
 void UIButton::SwitchState(bool inputActionPressed, bool inputActionReleased)
 {
     switch (state)
@@ -135,7 +134,7 @@ void UIButton::SubmitDrawInfo(std::vector<QuadDrawInfo>& drawList) const
 
         QuadDrawInfo info {
             .matrix = matrix,
-            .textureIndex = image.Index(),
+            .textureIndex = image.getIndex(),
         };
 
         info.useRedAsAlpha = false;

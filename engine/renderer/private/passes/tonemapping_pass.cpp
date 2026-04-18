@@ -28,13 +28,13 @@ TonemappingPass::TonemappingPass(const std::shared_ptr<GraphicsContext>& context
     CreateDescriptorSets();
     CreatePipeline();
 
-    _pushConstants.hdrTargetIndex = hdrTarget.Index();
-    _pushConstants.bloomTargetIndex = bloomTarget.Index();
-    _pushConstants.depthIndex = gBuffers.Depth().Index();
-    _pushConstants.volumetricIndex = volumetricTarget.Index();
+    _pushConstants.hdrTargetIndex = hdrTarget.getIndex();
+    _pushConstants.bloomTargetIndex = bloomTarget.getIndex();
+    _pushConstants.depthIndex = gBuffers.Depth().getIndex();
+    _pushConstants.volumetricIndex = volumetricTarget.getIndex();
     _pushConstants.screenWidth = _gBuffers.Size().x;
     _pushConstants.screenHeight = _gBuffers.Size().y;
-    _pushConstants.normalRIndex = _gBuffers.Attachments()[1].Index();
+    _pushConstants.normalRIndex = _gBuffers.Attachments()[1].getIndex();
 }
 
 TonemappingPass::~TonemappingPass()
@@ -113,7 +113,7 @@ void TonemappingPass::RecordCommands(vk::CommandBuffer commandBuffer, uint32_t c
     UpdatePaletteBuffer(_settings.palette);
 
     vk::RenderingAttachmentInfoKHR finalColorAttachmentInfo {
-        .imageView = _context->Resources()->GetImageResourceManager().Access(_outputTarget)->view,
+        .imageView = _context->Resources()->GetImageResourceManager().get(_outputTarget)->view,
         .imageLayout = vk::ImageLayout::eAttachmentOptimalKHR,
         .loadOp = vk::AttachmentLoadOp::eClear,
         .storeOp = vk::AttachmentStoreOp::eStore,
@@ -174,7 +174,7 @@ void TonemappingPass::CreatePipeline()
     pipelineBuilder.AddShaderStage(vk::ShaderStageFlagBits::eFragment, fragSpv);
     auto result = pipelineBuilder
                       .SetColorBlendState(colorBlendStateCreateInfo)
-                      .SetColorAttachmentFormats({ _context->Resources()->GetImageResourceManager().Access(_outputTarget)->format })
+                      .SetColorAttachmentFormats({ _context->Resources()->GetImageResourceManager().get(_outputTarget)->format })
                       .SetDepthAttachmentFormat(vk::Format::eUndefined)
                       .BuildPipeline();
 

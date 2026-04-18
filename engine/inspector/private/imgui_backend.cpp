@@ -78,7 +78,7 @@ void ImGuiBackend::NewFrame()
 
 ImTextureID ImGuiBackend::GetTexture(const ResourceHandle<GPUImage>& image)
 {
-    const auto* resource = _context->Resources()->GetImageResourceManager().Access(image);
+    const auto* resource = _context->Resources()->GetImageResourceManager().get(image);
     vk::ImageLayout layout = vk::ImageLayout::eShaderReadOnlyOptimal;
     _imageIDs.emplace_back(
         ImGui_ImplVulkan_AddTexture(_context->Resources()->GetSamplerResourceManager().Access(_basicSampler)->sampler, resource->view, static_cast<VkImageLayout>(layout)));

@@ -1,8 +1,7 @@
 #include "resources/material.hpp"
 #include "resources/texture.hpp"
 
-GPUMaterial::GPUMaterial(const MaterialCreation& creation, const std::shared_ptr<ResourceManager<GPUImage>>& imageResourceManager)
-    : _imageResourceManager(imageResourceManager)
+GPUMaterial::GPUMaterial(const MaterialCreation& creation)
 {
     albedoMap = creation.albedoMap;
     mrMap = creation.metallicRoughnessMap;
@@ -10,17 +9,17 @@ GPUMaterial::GPUMaterial(const MaterialCreation& creation, const std::shared_ptr
     occlusionMap = creation.occlusionMap;
     emissiveMap = creation.emissiveMap;
 
-    gpuInfo.useAlbedoMap = _imageResourceManager->IsValid(albedoMap);
-    gpuInfo.useMRMap = _imageResourceManager->IsValid(mrMap);
-    gpuInfo.useNormalMap = _imageResourceManager->IsValid(normalMap);
-    gpuInfo.useOcclusionMap = _imageResourceManager->IsValid(occlusionMap);
-    gpuInfo.useEmissiveMap = _imageResourceManager->IsValid(emissiveMap);
+    gpuInfo.useAlbedoMap = static_cast<int32_t>(albedoMap.isValid());
+    gpuInfo.useMRMap = static_cast<int32_t>(mrMap.isValid());
+    gpuInfo.useNormalMap = static_cast<int32_t>(normalMap.isValid());
+    gpuInfo.useOcclusionMap = static_cast<int32_t>(occlusionMap.isValid());
+    gpuInfo.useEmissiveMap = static_cast<int32_t>(emissiveMap.isValid());
 
-    gpuInfo.albedoMapIndex = albedoMap.Index();
-    gpuInfo.mrMapIndex = mrMap.Index();
-    gpuInfo.normalMapIndex = normalMap.Index();
-    gpuInfo.occlusionMapIndex = occlusionMap.Index();
-    gpuInfo.emissiveMapIndex = emissiveMap.Index();
+    gpuInfo.albedoMapIndex = albedoMap.getIndex();
+    gpuInfo.mrMapIndex = mrMap.getIndex();
+    gpuInfo.normalMapIndex = normalMap.getIndex();
+    gpuInfo.occlusionMapIndex = occlusionMap.getIndex();
+    gpuInfo.emissiveMapIndex = emissiveMap.getIndex();
 
     gpuInfo.albedoFactor = creation.albedoFactor;
     gpuInfo.metallicFactor = creation.metallicFactor;

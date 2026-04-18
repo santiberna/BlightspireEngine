@@ -24,7 +24,7 @@ std::shared_ptr<LoadingScreen> LoadingScreen::Create(const bb::UIResources& reso
     std::shared_ptr<UITextElement> contRightText = loading->_continueTextRight.lock();
     contRightText->anchorPoint = UIElement::AnchorPoint::eBottomRight;
 
-    loading->_continueGlyph = loading->AddChild<UIImage>(ResourceHandle<GPUImage>::Null(), glm::vec2(330.0f, 30.0f), glm::vec2(_textSize / 2.0f));
+    loading->_continueGlyph = loading->AddChild<UIImage>(ResourceHandle<GPUImage> {}, glm::vec2(330.0f, 30.0f), glm::vec2(_textSize / 2.0f));
     std::shared_ptr<UIImage> contGlyph = loading->_continueGlyph.lock();
     contGlyph->anchorPoint = UIElement::AnchorPoint::eBottomRight;
 
@@ -94,7 +94,7 @@ void LoadingScreen::ShowContinuePrompt()
 
     auto visualizations = _inputVisualizationsCache.GetDigital("Interact");
 
-    if (!visualizations[0].glyphImage.IsNull()) // Controller with glyphs
+    if (!visualizations[0].glyphImage) // Controller with glyphs
     {
         std::shared_ptr<UIImage> glyph = _continueGlyph.lock();
 

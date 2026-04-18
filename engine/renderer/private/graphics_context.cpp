@@ -146,34 +146,46 @@ void GraphicsContext::UpdateBindlessSet()
 void GraphicsContext::UpdateBindlessImages()
 {
     ImageResourceManager& imageResourceManager { _graphicsResources->GetImageResourceManager() };
+    SamplerResourceManager& samplers { _graphicsResources->GetSamplerResourceManager() };
+
+    // Default sampler
+    if (_sampler.IsNull())
+    {
+        bb::SamplerCreation createInfo {
+            .name = "Graphics context sampler",
+            .maxLod = vk::LodClampNone,
+        };
+
+        _sampler = samplers.Create(createInfo);
+    }
 
     for (uint32_t i = 0; i < MAX_BINDLESS_RESOURCES; ++i)
     {
-        const GPUImage* image = i < imageResourceManager.Resources().size() && imageResourceManager.Resources()[i].resource.has_value()
-            ? &imageResourceManager.Resources()[i].resource.value()
-            : imageResourceManager.Access(_fallbackImage);
+        auto* fallback = imageResourceManager.get(_fallbackImage);
+        bindless->_bindlessImageInfos.at(i).imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
+        bindless->_bindlessImageInfos.at(i).imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
+        bindless->_bindlessImageInfos.at(i).imageView = fallback->view;
+        bindless->_bindlessImageInfos.at(i).sampler = samplers.Access(_sampler)->sampler;
+    }
 
-        // If it can't be sampled, use the fallback.
-        if (!(image->flags & vk::ImageUsageFlagBits::eSampled))
+    for (auto [handle, texture] : imageResourceManager)
+    {
+        auto i = handle.getIndex();
+        assert(i < MAX_BINDLESS_RESOURCES);
+
+        if (!(texture.flags & vk::ImageUsageFlagBits::eSampled))
         {
-            image = imageResourceManager.Access(_fallbackImage);
-        }
-
-        if (_sampler.IsNull())
-        {
-            bb::SamplerCreation createInfo {
-                .name = "Graphics context sampler",
-                .maxLod = static_cast<float>(image->mips),
-            };
-
-            _sampler = _graphicsResources->GetSamplerResourceManager().Create(createInfo);
+            continue;
         }
 
         bindless->_bindlessImageInfos.at(i).imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
-        bindless->_bindlessImageInfos.at(i).imageView = image->view;
-        ResourceHandle<Sampler> samplerHandle = _graphicsResources->GetSamplerResourceManager().IsValid(image->sampler) ? image->sampler : _sampler;
-        bindless->_bindlessImageInfos.at(i).sampler = _graphicsResources->GetSamplerResourceManager().Access(samplerHandle)->sampler;
+        bindless->_bindlessImageInfos.at(i).imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
+        bindless->_bindlessImageInfos.at(i).imageView = texture.view;
+        bindless->_bindlessImageInfos.at(i).sampler = samplers.Access(texture.sampler)->sampler;
+    }
 
+    for (uint32_t i = 0; i < MAX_BINDLESS_RESOURCES; ++i)
+    {
         bindless->_bindlessImageWrites.at(i).dstSet = bindless->_bindlessSet;
         bindless->_bindlessImageWrites.at(i).dstBinding = static_cast<uint32_t>(BindlessBinding::eImage);
         bindless->_bindlessImageWrites.at(i).dstArrayElement = i;

@@ -67,7 +67,7 @@ void GeometryPass::CreateStaticPipeline()
 
     std::vector<vk::Format> formats(DEFERRED_ATTACHMENT_COUNT);
     for (size_t i = 0; i < DEFERRED_ATTACHMENT_COUNT; ++i)
-        formats.at(i) = _context->Resources()->GetImageResourceManager().Access(_gBuffers.Attachments().at(i))->format;
+        formats.at(i) = _context->Resources()->GetImageResourceManager().get(_gBuffers.Attachments().at(i))->format;
 
     std::vector<std::byte> vertSpv = shader::ReadFile("shaders/bin/geom.vert.spv");
     std::vector<std::byte> fragSpv = shader::ReadFile("shaders/bin/geom.frag.spv");
@@ -114,7 +114,7 @@ void GeometryPass::CreateSkinnedPipeline()
     std::vector<vk::Format> formats(DEFERRED_ATTACHMENT_COUNT);
     for (size_t i = 0; i < DEFERRED_ATTACHMENT_COUNT; ++i)
     {
-        formats.at(i) = imageResourceManager.Access(_gBuffers.Attachments().at(i))->format;
+        formats.at(i) = imageResourceManager.get(_gBuffers.Attachments().at(i))->format;
     }
 
     std::vector<std::byte> vertSpv = shader::ReadFile("shaders/bin/skinned_geom.vert.spv");
@@ -149,11 +149,11 @@ void GeometryPass::DrawGeometry(vk::CommandBuffer commandBuffer, uint32_t curren
     const ImageResourceManager& imageResourceManager = _context->Resources()->GetImageResourceManager();
     for (size_t i = 0; i < DEFERRED_ATTACHMENT_COUNT; ++i)
     {
-        colorAttachmentInfos.at(i).imageView = imageResourceManager.Access(_gBuffers.Attachments().at(i))->view;
+        colorAttachmentInfos.at(i).imageView = imageResourceManager.get(_gBuffers.Attachments().at(i))->view;
     }
 
     vk::RenderingAttachmentInfoKHR depthAttachmentInfo {};
-    depthAttachmentInfo.imageView = imageResourceManager.Access(_gBuffers.Depth())->view;
+    depthAttachmentInfo.imageView = imageResourceManager.get(_gBuffers.Depth())->view;
     depthAttachmentInfo.imageLayout = vk::ImageLayout::eDepthStencilAttachmentOptimal;
     depthAttachmentInfo.storeOp = vk::AttachmentStoreOp::eStore;
     depthAttachmentInfo.loadOp = prepass ? vk::AttachmentLoadOp::eClear : vk::AttachmentLoadOp::eLoad;

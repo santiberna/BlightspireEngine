@@ -42,7 +42,7 @@ void DebugPass::RecordCommands(vk::CommandBuffer commandBuffer, uint32_t current
     UpdateVertexData();
 
     vk::RenderingAttachmentInfoKHR finalColorAttachmentInfo {
-        .imageView = _context->Resources()->GetImageResourceManager().Access(_attachment)->view,
+        .imageView = _context->Resources()->GetImageResourceManager().get(_attachment)->view,
         .imageLayout = vk::ImageLayout::eAttachmentOptimalKHR,
         .loadOp = vk::AttachmentLoadOp::eLoad,
         .storeOp = vk::AttachmentStoreOp::eStore,
@@ -51,7 +51,7 @@ void DebugPass::RecordCommands(vk::CommandBuffer commandBuffer, uint32_t current
     };
 
     vk::RenderingAttachmentInfoKHR depthAttachmentInfo {
-        .imageView = _context->Resources()->GetImageResourceManager().Access(_gBuffers.Depth())->view,
+        .imageView = _context->Resources()->GetImageResourceManager().get(_gBuffers.Depth())->view,
         .imageLayout = vk::ImageLayout::eDepthStencilAttachmentOptimal,
         .loadOp = vk::AttachmentLoadOp::eClear,
         .storeOp = vk::AttachmentStoreOp::eStore,
@@ -118,7 +118,7 @@ void DebugPass::CreatePipeline()
         .pAttachments = &colorBlendAttachmentState,
     };
 
-    std::vector<vk::Format> formats { _context->Resources()->GetImageResourceManager().Access(_attachment)->format };
+    std::vector<vk::Format> formats { _context->Resources()->GetImageResourceManager().get(_attachment)->format };
 
     vk::PipelineInputAssemblyStateCreateInfo inputAssemblyStateCreateInfo {
         .topology = vk::PrimitiveTopology::eLineList,

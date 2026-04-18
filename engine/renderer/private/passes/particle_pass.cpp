@@ -205,20 +205,20 @@ void ParticlePass::RecordRenderIndexedIndirect(vk::CommandBuffer commandBuffer, 
     std::array<vk::RenderingAttachmentInfoKHR, 2> colorAttachmentInfos {};
 
     // HDR color
-    colorAttachmentInfos[0].imageView = resources->GetImageResourceManager().Access(_hdrTarget)->view;
+    colorAttachmentInfos[0].imageView = resources->GetImageResourceManager().get(_hdrTarget)->view;
     colorAttachmentInfos[0].imageLayout = vk::ImageLayout::eAttachmentOptimalKHR;
     colorAttachmentInfos[0].storeOp = vk::AttachmentStoreOp::eStore;
     colorAttachmentInfos[0].loadOp = vk::AttachmentLoadOp::eLoad;
     colorAttachmentInfos[0].clearValue.color = vk::ClearColorValue { .float32 = { { 0.0f, 0.0f, 0.0f, 0.0f } } };
 
     // HDR brightness for bloom
-    colorAttachmentInfos[1].imageView = _context->Resources()->GetImageResourceManager().Access(_brightnessTarget)->view;
+    colorAttachmentInfos[1].imageView = _context->Resources()->GetImageResourceManager().get(_brightnessTarget)->view;
     colorAttachmentInfos[1].imageLayout = vk::ImageLayout::eAttachmentOptimalKHR;
     colorAttachmentInfos[1].storeOp = vk::AttachmentStoreOp::eStore;
     colorAttachmentInfos[1].loadOp = vk::AttachmentLoadOp::eLoad;
 
     vk::RenderingAttachmentInfoKHR depthAttachmentInfo {};
-    depthAttachmentInfo.imageView = resources->GetImageResourceManager().Access(_gBuffers.Depth())->view;
+    depthAttachmentInfo.imageView = resources->GetImageResourceManager().get(_gBuffers.Depth())->view;
     depthAttachmentInfo.imageLayout = vk::ImageLayout::eDepthStencilAttachmentOptimal;
     depthAttachmentInfo.storeOp = vk::AttachmentStoreOp::eStore;
     depthAttachmentInfo.loadOp = vk::AttachmentLoadOp::eLoad;
@@ -534,8 +534,8 @@ void ParticlePass::CreatePipelines()
         depthStencilStateCreateInfo.stencilTestEnable = false;
 
         std::vector<vk::Format> formats = {
-            resources->GetImageResourceManager().Access(_hdrTarget)->format,
-            resources->GetImageResourceManager().Access(_brightnessTarget)->format
+            resources->GetImageResourceManager().get(_hdrTarget)->format,
+            resources->GetImageResourceManager().get(_brightnessTarget)->format
         };
 
         std::vector<std::byte> vertSpv = shader::ReadFile("shaders/bin/billboard.vert.spv");
@@ -547,7 +547,7 @@ void ParticlePass::CreatePipelines()
         auto result = pipelineBuilder
                           .SetColorBlendState(colorBlendStateCreateInfo)
                           .SetColorAttachmentFormats(formats)
-                          .SetDepthAttachmentFormat(resources->GetImageResourceManager().Access(_gBuffers.Depth())->format)
+                          .SetDepthAttachmentFormat(resources->GetImageResourceManager().get(_gBuffers.Depth())->format)
                           .SetDepthStencilState(depthStencilStateCreateInfo)
                           .BuildPipeline();
 

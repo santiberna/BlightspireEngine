@@ -31,12 +31,12 @@ void GenerateDrawsPass::RecordCommands(vk::CommandBuffer commandBuffer, uint32_t
 {
     const auto& imageResourceManager = _context->Resources()->GetImageResourceManager();
     const auto& bufferResourceManager = _context->Resources()->GetBufferResourceManager();
-    const auto* depthImage = imageResourceManager.Access(_cameraBatch.DepthImage());
+    const auto* depthImage = imageResourceManager.get(_cameraBatch.DepthImage());
 
     PushConstants staticPc {
         .isPrepass = _isPrepass,
         .mipSize = std::fmax(static_cast<float>(depthImage->width), static_cast<float>(depthImage->height)),
-        .hzbIndex = _cameraBatch.HZBImage().Index(),
+        .hzbIndex = _cameraBatch.HZBImage().getIndex(),
         .drawCommandsCount = scene.gpuScene->StaticDrawCount(),
         .isReverseZ = _cameraBatch.Camera().UsesReverseZ(),
         .drawStaticDraws = static_cast<uint32_t>(_shouldDrawStatic),

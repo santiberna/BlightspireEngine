@@ -62,7 +62,7 @@ void UIPass::CreatePipeLine()
     auto result = pipelineBuilder
                       .SetRasterizationState(rasterizationStateCreateInfo)
                       .SetColorBlendState(colorBlendStateCreateInfo)
-                      .SetColorAttachmentFormats({ _context->Resources()->GetImageResourceManager().Access(_outputTarget)->format })
+                      .SetColorAttachmentFormats({ _context->Resources()->GetImageResourceManager().get(_outputTarget)->format })
                       .SetDepthAttachmentFormat(vk::Format::eUndefined)
                       .BuildPipeline();
 
@@ -75,7 +75,7 @@ void UIPass::RecordCommands(vk::CommandBuffer commandBuffer, [[maybe_unused]] ui
     TracyVkZone(scene.tracyContext, commandBuffer, "UI Pass");
 
     vk::RenderingAttachmentInfoKHR finalColorAttachmentInfo {
-        .imageView = _context->Resources()->GetImageResourceManager().Access(_outputTarget)->view,
+        .imageView = _context->Resources()->GetImageResourceManager().get(_outputTarget)->view,
         .imageLayout = vk::ImageLayout::eAttachmentOptimalKHR,
         .loadOp = vk::AttachmentLoadOp::eLoad,
         .storeOp = vk::AttachmentStoreOp::eStore,
@@ -103,11 +103,6 @@ void UIPass::RecordCommands(vk::CommandBuffer commandBuffer, [[maybe_unused]] ui
     {
         _pushConstants.quad = quad;
         _pushConstants.quad.matrix = _projectionMatrix * _pushConstants.quad.matrix;
-
-        if (_pushConstants.quad.textureIndex == ResourceHandle<GPUImage>::Null().Index())
-        {
-            _pushConstants.quad.textureIndex = fallbackImage.Index();
-        }
 
         commandBuffer.pushConstants<UIPushConstants>(_pipelineLayout, vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment, 0, _pushConstants);
 

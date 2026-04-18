@@ -19,12 +19,12 @@ LightingPass::LightingPass(const std::shared_ptr<GraphicsContext>& context, cons
     , _brightnessTarget(brightnessTarget)
     , _bloomSettings(bloomSettings)
 {
-    _pushConstants.albedoMIndex = _gBuffers.Attachments()[0].Index();
-    _pushConstants.normalRIndex = _gBuffers.Attachments()[1].Index();
-    _pushConstants.ssaoIndex = ssaoTarget.Index();
-    _pushConstants.depthIndex = _gBuffers.Depth().Index();
+    _pushConstants.albedoMIndex = _gBuffers.Attachments()[0].getIndex();
+    _pushConstants.normalRIndex = _gBuffers.Attachments()[1].getIndex();
+    _pushConstants.ssaoIndex = ssaoTarget.getIndex();
+    _pushConstants.depthIndex = _gBuffers.Depth().getIndex();
     _pushConstants.screenSize = glm::vec2 { _gBuffers.Size().x, _gBuffers.Size().y };
-    _pushConstants.shadowMapSize = _context->Resources()->GetImageResourceManager().Access(scene.StaticShadow())->width;
+    _pushConstants.shadowMapSize = _context->Resources()->GetImageResourceManager().get(scene.StaticShadow())->width;
     _pushConstants.clusterDimensions = glm::ivec3 { CLUSTER_X, CLUSTER_Y, CLUSTER_Z };
 
     CreatePipeline();
@@ -40,14 +40,14 @@ void LightingPass::RecordCommands(vk::CommandBuffer commandBuffer, uint32_t curr
     std::array<vk::RenderingAttachmentInfoKHR, 2> colorAttachmentInfos {};
 
     // HDR color
-    colorAttachmentInfos[0].imageView = _context->Resources()->GetImageResourceManager().Access(_hdrTarget)->view;
+    colorAttachmentInfos[0].imageView = _context->Resources()->GetImageResourceManager().get(_hdrTarget)->view;
     colorAttachmentInfos[0].imageLayout = vk::ImageLayout::eAttachmentOptimalKHR;
     colorAttachmentInfos[0].storeOp = vk::AttachmentStoreOp::eStore;
     colorAttachmentInfos[0].loadOp = vk::AttachmentLoadOp::eClear;
     colorAttachmentInfos[0].clearValue.color = vk::ClearColorValue { .float32 = { { 0.0f, 0.0f, 0.0f, 0.0f } } };
 
     // HDR brightness for bloom
-    colorAttachmentInfos[1].imageView = _context->Resources()->GetImageResourceManager().Access(_brightnessTarget)->view;
+    colorAttachmentInfos[1].imageView = _context->Resources()->GetImageResourceManager().get(_brightnessTarget)->view;
     colorAttachmentInfos[1].imageLayout = vk::ImageLayout::eAttachmentOptimalKHR;
     colorAttachmentInfos[1].storeOp = vk::AttachmentStoreOp::eStore;
     colorAttachmentInfos[1].loadOp = vk::AttachmentLoadOp::eClear;
@@ -103,8 +103,8 @@ void LightingPass::CreatePipeline()
     colorBlendStateCreateInfo.pAttachments = blendAttachments.data();
 
     std::vector<vk::Format> formats = {
-        _context->Resources()->GetImageResourceManager().Access(_hdrTarget)->format,
-        _context->Resources()->GetImageResourceManager().Access(_brightnessTarget)->format
+        _context->Resources()->GetImageResourceManager().get(_hdrTarget)->format,
+        _context->Resources()->GetImageResourceManager().get(_brightnessTarget)->format
     };
 
     std::vector<std::byte> vertSpv = shader::ReadFile("shaders/bin/fullscreen.vert.spv");

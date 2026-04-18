@@ -1,6 +1,7 @@
 #pragma once
 
-#include "resource_manager.hpp"
+#include "slot_map/container.hpp"
+
 #include "resources/image.hpp"
 #include "resources/texture.hpp"
 #include "single_time_commands.hpp"
@@ -9,7 +10,7 @@
 
 class VulkanContext;
 
-class ImageResourceManager final : public ResourceManager<GPUImage>
+class ImageResourceManager : public bb::SlotMap<GPUImage>
 {
 public:
     ImageResourceManager(const std::shared_ptr<VulkanContext>& context, ResourceHandle<Sampler> defaultSampler)

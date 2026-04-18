@@ -27,7 +27,7 @@ void BloomUpsamplePass::RecordCommands(vk::CommandBuffer commandBuffer, uint32_t
 {
     TracyVkZone(scene.tracyContext, commandBuffer, "Bloom Upsample Pass");
 
-    const GPUImage* image = _context->Resources()->GetImageResourceManager().Access(_bloomImage);
+    const GPUImage* image = _context->Resources()->GetImageResourceManager().get(_bloomImage);
 
     constexpr uint8_t MAX_BLOOM_MIPS = 3;
     const uint32_t mips = glm::min<uint8_t>(image->mips - 1, MAX_BLOOM_MIPS);
@@ -84,7 +84,7 @@ void BloomUpsamplePass::RecordCommands(vk::CommandBuffer commandBuffer, uint32_t
             uint32_t sourceIndex;
             uint32_t mip;
         } pushConstants {};
-        pushConstants.sourceIndex = _bloomImage.Index();
+        pushConstants.sourceIndex = _bloomImage.getIndex();
         pushConstants.mip = mip;
 
         commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, _pipeline);
@@ -153,7 +153,7 @@ void BloomUpsamplePass::CreatPipeline()
         .pAttachments = &colorBlendAttachmentState,
     };
 
-    std::vector<vk::Format> formats { _context->Resources()->GetImageResourceManager().Access(_bloomImage)->format };
+    std::vector<vk::Format> formats { _context->Resources()->GetImageResourceManager().get(_bloomImage)->format };
 
     std::vector<std::byte> vertSpv = shader::ReadFile("shaders/bin/fullscreen.vert.spv");
     std::vector<std::byte> fragSpv = shader::ReadFile("shaders/bin/bloom_upsampling.frag.spv");

@@ -91,11 +91,11 @@ GPUScene::GPUScene(const GPUSceneCreation& creation, const Settings::Fog& settin
     _mainCameraBatch = std::make_unique<CameraBatch>(_context, "Main Camera Batch", _mainCamera, creation.depthImage, _drawBufferDSL, _visibilityDSL, _redirectDSL);
     _shadowCameraBatch = std::make_unique<CameraBatch>(_context, "Shadow Camera Batch", _directionalLightShadowCamera, _staticShadowImage, _drawBufferDSL, _visibilityDSL, _redirectDSL);
 
-    _sceneData.irradianceIndex = irradianceMap.Index();
-    _sceneData.prefilterIndex = prefilterMap.Index();
-    _sceneData.brdfLUTIndex = brdfLUTMap.Index();
-    _sceneData.staticShadowMapIndex = _staticShadowImage.Index();
-    _sceneData.dynamicShadowMapIndex = _dynamicShadowImage.Index();
+    _sceneData.irradianceIndex = irradianceMap.getIndex();
+    _sceneData.prefilterIndex = prefilterMap.getIndex();
+    _sceneData.brdfLUTIndex = brdfLUTMap.getIndex();
+    _sceneData.staticShadowMapIndex = _staticShadowImage.getIndex();
+    _sceneData.dynamicShadowMapIndex = _dynamicShadowImage.getIndex();
 }
 
 GPUScene::~GPUScene()
@@ -541,8 +541,8 @@ void GPUScene::SpawnDecal(glm::vec3 normal, glm::vec3 position, glm::vec2 size, 
     const auto image = GetDecalImage(albedoName);
 
     glm::vec2 imageSize;
-    imageSize.x = _context->Resources()->GetImageResourceManager().Access(image)->width;
-    imageSize.y = _context->Resources()->GetImageResourceManager().Access(image)->height;
+    imageSize.x = _context->Resources()->GetImageResourceManager().get(image)->width;
+    imageSize.y = _context->Resources()->GetImageResourceManager().get(image)->height;
 
     const float decalThickness = 1.f;
 
@@ -559,7 +559,7 @@ void GPUScene::SpawnDecal(glm::vec3 normal, glm::vec3 position, glm::vec2 size, 
     DecalData newDecal {
         .invModel = glm::inverse(translationMatrix * rotationMatrix * scaleMatrix),
         .orientation = glm::normalize(normal),
-        .albedoIndex = image.Index(),
+        .albedoIndex = image.getIndex(),
     };
 
     _decals.decals[_decalIndex % MAX_DECALS] = newDecal;

@@ -38,8 +38,8 @@ void BuildHzbPass::RecordCommands(vk::CommandBuffer commandBuffer, [[maybe_unuse
     TracyVkZone(scene.tracyContext, commandBuffer, "Build HZB");
 
     const auto& imageResourceManager = _context->Resources()->GetImageResourceManager();
-    const auto* hzb = imageResourceManager.Access(_cameraBatch.HZBImage());
-    const auto* depth = imageResourceManager.Access(_cameraBatch.DepthImage());
+    const auto* hzb = imageResourceManager.get(_cameraBatch.HZBImage());
+    const auto* depth = imageResourceManager.get(_cameraBatch.DepthImage());
 
     for (size_t i = 0; i < hzb->mips; ++i)
     {

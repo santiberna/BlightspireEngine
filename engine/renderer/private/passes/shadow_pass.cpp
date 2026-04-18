@@ -66,7 +66,7 @@ void ShadowPass::CreateStaticPipeline(const GPUScene& gpuScene)
                       .SetDepthStencilState(depthStencilStateCreateInfo)
                       .SetRasterizationState(rasterizationStateCreateInfo)
                       .SetColorAttachmentFormats({})
-                      .SetDepthAttachmentFormat(_context->Resources()->GetImageResourceManager().Access(gpuScene.StaticShadow())->format)
+                      .SetDepthAttachmentFormat(_context->Resources()->GetImageResourceManager().get(gpuScene.StaticShadow())->format)
                       .BuildPipeline();
 
     _staticPipelineLayout = std::get<0>(result);
@@ -100,7 +100,7 @@ void ShadowPass::CreateSkinnedPipeline(const GPUScene& gpuScene)
                       .SetDepthStencilState(depthStencilStateCreateInfo)
                       .SetRasterizationState(rasterizationStateCreateInfo)
                       .SetColorAttachmentFormats({})
-                      .SetDepthAttachmentFormat(_context->Resources()->GetImageResourceManager().Access(gpuScene.StaticShadow())->format)
+                      .SetDepthAttachmentFormat(_context->Resources()->GetImageResourceManager().get(gpuScene.StaticShadow())->format)
                       .BuildPipeline();
 
     _skinnedPipelineLayout = std::get<0>(result);
@@ -112,8 +112,8 @@ void ShadowPass::DrawGeometry(vk::CommandBuffer commandBuffer, uint32_t currentF
     auto vkContext { _context->GetVulkanContext() };
     auto resources { _context->Resources() };
 
-    const auto* staticShadowImage = resources->GetImageResourceManager().Access(scene.gpuScene->StaticShadow());
-    const auto* dynamicShadowImage = resources->GetImageResourceManager().Access(scene.gpuScene->DynamicShadow());
+    const auto* staticShadowImage = resources->GetImageResourceManager().get(scene.gpuScene->StaticShadow());
+    const auto* dynamicShadowImage = resources->GetImageResourceManager().get(scene.gpuScene->DynamicShadow());
 
     if (scene.gpuScene->ShouldUpdateShadows() == true)
     {

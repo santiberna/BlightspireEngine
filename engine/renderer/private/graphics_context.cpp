@@ -11,11 +11,27 @@
 
 #include <tracy/Tracy.hpp>
 
+struct GraphicsContext::BindlessObjects
+{
+    // BINDLESS THINGS
+    vk::DescriptorPool _bindlessPool;
+    vk::DescriptorSetLayout _bindlessLayout;
+    vk::DescriptorSet _bindlessSet;
+
+    std::array<vk::DescriptorImageInfo, MAX_BINDLESS_RESOURCES> _bindlessImageInfos;
+    std::array<vk::WriteDescriptorSet, MAX_BINDLESS_RESOURCES> _bindlessImageWrites;
+
+    ResourceHandle<Buffer> _bindlessMaterialBuffer;
+    vk::DescriptorBufferInfo _bindlessMaterialInfo;
+    vk::WriteDescriptorSet _bindlessMaterialWrite;
+};
+
 GraphicsContext::GraphicsContext(SDL_Window* window)
     : _drawStats()
 {
     ZoneScopedN("Graphics Backend Initialization");
 
+    bindless = std::make_unique<BindlessObjects>();
     _vulkanContext = std::make_shared<VulkanContext>(window);
     _graphicsResources = std::make_shared<GraphicsResources>(_vulkanContext);
 
@@ -34,9 +50,12 @@ GraphicsContext::GraphicsContext(SDL_Window* window)
 GraphicsContext::~GraphicsContext()
 {
     vk::Device device = _vulkanContext->Device();
-    device.destroy(_bindlessLayout);
-    device.destroy(_bindlessPool);
+    device.destroy(bindless->_bindlessLayout);
+    device.destroy(bindless->_bindlessPool);
 }
+
+VkDescriptorSetLayout GraphicsContext::BindlessLayout() const { return bindless->_bindlessLayout; }
+VkDescriptorSet GraphicsContext::BindlessSet() const { return bindless->_bindlessSet; }
 
 void GraphicsContext::CreateBindlessDescriptorSet()
 {
@@ -56,7 +75,8 @@ void GraphicsContext::CreateBindlessDescriptorSet()
     poolCreateInfo.maxSets = MAX_BINDLESS_RESOURCES * poolSizes.size();
     poolCreateInfo.poolSizeCount = poolSizes.size();
     poolCreateInfo.pPoolSizes = poolSizes.data();
-    util::VK_ASSERT(device.createDescriptorPool(&poolCreateInfo, nullptr, &_bindlessPool), "Failed creating bindless pool!");
+
+    util::VK_ASSERT(device.createDescriptorPool(&poolCreateInfo, nullptr, &bindless->_bindlessPool), "Failed creating bindless pool!");
 
     std::vector<vk::DescriptorSetLayoutBinding> bindings(3);
     vk::DescriptorSetLayoutBinding& combinedImageSampler = bindings[0];
@@ -96,15 +116,15 @@ void GraphicsContext::CreateBindlessDescriptorSet()
 
     std::vector<std::string_view> names { "bindless_color_textures", "bindless_storage_image_r16f", "Materials" };
 
-    _bindlessLayout = PipelineBuilder::CacheDescriptorSetLayout(*_vulkanContext, bindings, names, layoutCreateInfo);
+    bindless->_bindlessLayout = PipelineBuilder::CacheDescriptorSetLayout(*_vulkanContext, bindings, names, layoutCreateInfo);
 
     vk::DescriptorSetAllocateInfo allocInfo {};
-    allocInfo.descriptorPool = _bindlessPool;
+    allocInfo.descriptorPool = bindless->_bindlessPool;
     allocInfo.descriptorSetCount = 1;
-    allocInfo.pSetLayouts = &_bindlessLayout;
+    allocInfo.pSetLayouts = &bindless->_bindlessLayout;
 
-    util::VK_ASSERT(device.allocateDescriptorSets(&allocInfo, &_bindlessSet), "Failed creating bindless descriptor set!");
-    _vulkanContext->DebugSetObjectName(_bindlessSet, "Bindless DS");
+    util::VK_ASSERT(device.allocateDescriptorSets(&allocInfo, &bindless->_bindlessSet), "Failed creating bindless descriptor set!");
+    _vulkanContext->DebugSetObjectName(bindless->_bindlessSet, "Bindless DS");
 }
 
 void GraphicsContext::CreateBindlessMaterialBuffer()
@@ -114,7 +134,7 @@ void GraphicsContext::CreateBindlessMaterialBuffer()
         .SetUsageFlags(vk::BufferUsageFlagBits::eUniformBuffer)
         .SetName("Bindless material uniform buffer");
 
-    _bindlessMaterialBuffer = _graphicsResources->GetBufferResourceManager().Create(creation);
+    bindless->_bindlessMaterialBuffer = _graphicsResources->GetBufferResourceManager().Create(creation);
 }
 
 void GraphicsContext::UpdateBindlessSet()
@@ -149,21 +169,21 @@ void GraphicsContext::UpdateBindlessImages()
             _sampler = _graphicsResources->GetSamplerResourceManager().Create(createInfo);
         }
 
-        _bindlessImageInfos.at(i).imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
-        _bindlessImageInfos.at(i).imageView = image->view;
+        bindless->_bindlessImageInfos.at(i).imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
+        bindless->_bindlessImageInfos.at(i).imageView = image->view;
         ResourceHandle<Sampler> samplerHandle = _graphicsResources->GetSamplerResourceManager().IsValid(image->sampler) ? image->sampler : _sampler;
-        _bindlessImageInfos.at(i).sampler = _graphicsResources->GetSamplerResourceManager().Access(samplerHandle)->sampler;
+        bindless->_bindlessImageInfos.at(i).sampler = _graphicsResources->GetSamplerResourceManager().Access(samplerHandle)->sampler;
 
-        _bindlessImageWrites.at(i).dstSet = _bindlessSet;
-        _bindlessImageWrites.at(i).dstBinding = static_cast<uint32_t>(BindlessBinding::eImage);
-        _bindlessImageWrites.at(i).dstArrayElement = i;
-        _bindlessImageWrites.at(i).descriptorType = vk::DescriptorType::eCombinedImageSampler;
-        _bindlessImageWrites.at(i).descriptorCount = 1;
-        _bindlessImageWrites.at(i).pImageInfo = &_bindlessImageInfos[i];
+        bindless->_bindlessImageWrites.at(i).dstSet = bindless->_bindlessSet;
+        bindless->_bindlessImageWrites.at(i).dstBinding = static_cast<uint32_t>(BindlessBinding::eImage);
+        bindless->_bindlessImageWrites.at(i).dstArrayElement = i;
+        bindless->_bindlessImageWrites.at(i).descriptorType = vk::DescriptorType::eCombinedImageSampler;
+        bindless->_bindlessImageWrites.at(i).descriptorCount = 1;
+        bindless->_bindlessImageWrites.at(i).pImageInfo = &bindless->_bindlessImageInfos[i];
     }
 
     vk::Device device = _vulkanContext->Device();
-    device.updateDescriptorSets(MAX_BINDLESS_RESOURCES, _bindlessImageWrites.data(), 0, nullptr);
+    device.updateDescriptorSets(MAX_BINDLESS_RESOURCES, bindless->_bindlessImageWrites.data(), 0, nullptr);
 }
 
 void GraphicsContext::UpdateBindlessMaterials()
@@ -186,20 +206,20 @@ void GraphicsContext::UpdateBindlessMaterials()
         materialGPUData[i] = material->gpuInfo;
     }
 
-    const Buffer* buffer = bufferResourceManager.Access(_bindlessMaterialBuffer);
+    const Buffer* buffer = bufferResourceManager.Access(bindless->_bindlessMaterialBuffer);
     std::memcpy(buffer->mappedPtr, materialGPUData.data(), materialResourceManager.Resources().size() * sizeof(GPUMaterial::GPUInfo));
 
-    _bindlessMaterialInfo.buffer = buffer->buffer;
-    _bindlessMaterialInfo.offset = 0;
-    _bindlessMaterialInfo.range = sizeof(GPUMaterial::GPUInfo) * materialResourceManager.Resources().size();
+    bindless->_bindlessMaterialInfo.buffer = buffer->buffer;
+    bindless->_bindlessMaterialInfo.offset = 0;
+    bindless->_bindlessMaterialInfo.range = sizeof(GPUMaterial::GPUInfo) * materialResourceManager.Resources().size();
 
-    _bindlessMaterialWrite.dstSet = _bindlessSet;
-    _bindlessMaterialWrite.dstBinding = static_cast<uint32_t>(BindlessBinding::eStorageBuffer);
-    _bindlessMaterialWrite.dstArrayElement = 0;
-    _bindlessMaterialWrite.descriptorType = vk::DescriptorType::eUniformBuffer;
-    _bindlessMaterialWrite.descriptorCount = 1;
-    _bindlessMaterialWrite.pBufferInfo = &_bindlessMaterialInfo;
+    bindless->_bindlessMaterialWrite.dstSet = bindless->_bindlessSet;
+    bindless->_bindlessMaterialWrite.dstBinding = static_cast<uint32_t>(BindlessBinding::eStorageBuffer);
+    bindless->_bindlessMaterialWrite.dstArrayElement = 0;
+    bindless->_bindlessMaterialWrite.descriptorType = vk::DescriptorType::eUniformBuffer;
+    bindless->_bindlessMaterialWrite.descriptorCount = 1;
+    bindless->_bindlessMaterialWrite.pBufferInfo = &bindless->_bindlessMaterialInfo;
 
     vk::Device device = _vulkanContext->Device();
-    device.updateDescriptorSets(1, &_bindlessMaterialWrite, 0, nullptr);
+    device.updateDescriptorSets(1, &bindless->_bindlessMaterialWrite, 0, nullptr);
 }

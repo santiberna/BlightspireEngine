@@ -20,3 +20,5 @@ BB_VULKAN_FWD(VkBuffer);
 BB_VULKAN_FWD(VkFence);
 BB_VULKAN_FWD(VkImage);
 BB_VULKAN_FWD(VkSampler);
+BB_VULKAN_FWD(VkDescriptorSetLayout);
+BB_VULKAN_FWD(VkDescriptorSet);

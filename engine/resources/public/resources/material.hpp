@@ -1,9 +1,11 @@
 #pragma once
+#include "resource_manager.hpp"
+
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
 #include <optional>
 
-#include "resources/texture.hpp"
+struct GPUImage;
 
 // For now this is only meant to be used in combination with an owning CPUModel.
 struct CPUMaterial

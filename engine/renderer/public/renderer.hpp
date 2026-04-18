@@ -5,6 +5,7 @@
 #include "data_store.hpp"
 #include "ecs_module.hpp"
 #include "resources/model.hpp"
+#include "resources/texture.hpp"
 #include "settings.hpp"
 #include "swap_chain.hpp"
 
@@ -43,6 +44,8 @@ class BatchBuffer;
 class GPUScene;
 class FrameGraph;
 class Viewport;
+
+struct Sampler;
 
 class Renderer
 {

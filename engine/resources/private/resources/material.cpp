@@ -1,4 +1,5 @@
 #include "resources/material.hpp"
+#include "resources/texture.hpp"
 
 GPUMaterial::GPUMaterial(const MaterialCreation& creation, const std::shared_ptr<ResourceManager<GPUImage>>& imageResourceManager)
     : _imageResourceManager(imageResourceManager)

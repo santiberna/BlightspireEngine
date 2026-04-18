@@ -11,19 +11,6 @@ GBuffers::GBuffers(const std::shared_ptr<GraphicsContext>& context, glm::uvec2 s
     : _context(context)
     , _size(size)
 {
-    auto supportedDepthFormat = util::FindSupportedFormat(_context->GetVulkanContext()->PhysicalDevice(), { vk::Format::eD32Sfloat, vk::Format::eD32SfloatS8Uint, vk::Format::eD24UnormS8Uint },
-        vk::ImageTiling::eOptimal,
-        vk::FormatFeatureFlagBits::eDepthStencilAttachment);
-
-    if (supportedDepthFormat.has_value())
-    {
-        _depthFormat = supportedDepthFormat.value();
-    }
-    else
-    {
-        assert(false && "No supported depth format!");
-    }
-
     CreateGBuffers();
     CreateDepthResources();
     CreateViewportAndScissor();
@@ -52,44 +39,56 @@ void GBuffers::CreateGBuffers()
 {
     auto resources { _context->Resources() };
 
-    CPUImage imageData {};
-    imageData
-        .SetSize(_size.x, _size.y)
-        .SetFlags(vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled);
+    bb::Flags<bb::TextureFlags> flags;
 
-    imageData.SetFormat(vk::Format::eR8G8B8A8Unorm).SetName("Albedo Metallic Roughness");
-    _attachments[0] = resources->ImageResourceManager().Create(imageData);
+    flags.set(bb::TextureFlags::COLOR_ATTACH);
+    flags.set(bb::TextureFlags::SAMPLED);
 
-    imageData.SetFormat(vk::Format::eR8G8Unorm).SetName("Normal");
-    _attachments[1] = resources->ImageResourceManager().Create(imageData);
+    bb::Image2D g_buffer_spec;
+    g_buffer_spec.width = _size.x;
+    g_buffer_spec.height = _size.y;
+    g_buffer_spec.format = bb::ImageFormat::R8G8B8A8_UNORM;
+
+    _attachments[0] = resources->GetImageResourceManager().Create(g_buffer_spec, flags, "Albedo Metallic Roughness GBuffer");
+
+    g_buffer_spec.format = bb::ImageFormat::R8G8_UNORM;
+
+    _attachments[1] = resources->GetImageResourceManager().Create(g_buffer_spec, flags, "Normal GBuffer");
 }
 
 void GBuffers::CreateDepthResources()
 {
-
-    SamplerCreation depthSampler {};
+    bb::SamplerCreation depthSampler {};
     depthSampler.name = "Nearest_Depth_Sampler";
-    depthSampler.addressModeU = vk::SamplerAddressMode::eClampToEdge;
-    depthSampler.addressModeV = vk::SamplerAddressMode::eClampToEdge;
-    depthSampler.addressModeW = vk::SamplerAddressMode::eClampToEdge;
+    depthSampler.addressModeU = bb::SamplerAddressMode::CLAMP_TO_EDGE;
+    depthSampler.addressModeV = bb::SamplerAddressMode::CLAMP_TO_EDGE;
+    depthSampler.addressModeW = bb::SamplerAddressMode::CLAMP_TO_EDGE;
 
-    depthSampler.minFilter = vk::Filter::eNearest;
-    depthSampler.magFilter = vk::Filter::eNearest;
-    depthSampler.mipmapMode = vk::SamplerMipmapMode::eNearest;
+    depthSampler.minFilter = bb::SamplerFilter::NEAREST;
+    depthSampler.magFilter = bb::SamplerFilter::NEAREST;
+    depthSampler.mipmapMode = bb::SamplerFilter::NEAREST;
 
     depthSampler.useMaxAnisotropy = false;
     depthSampler.anisotropyEnable = false;
     depthSampler.minLod = 0.0f;
     depthSampler.maxLod = vk::LodClampNone;
 
-    depthSampler.compareEnable = false;
-    depthSampler.compareOp = vk::CompareOp::eAlways;
     depthSampler.unnormalizedCoordinates = false;
-    depthSampler.borderColor = vk::BorderColor::eIntOpaqueBlack;
-    _depthSampler = _context->Resources()->SamplerResourceManager().Create(depthSampler);
-    CPUImage depthImageData {};
-    depthImageData.SetFormat(_depthFormat).SetType(ImageType::eDepth).SetSize(_size.x, _size.y).SetName("Depth image").SetFlags(vk::ImageUsageFlagBits::eSampled | vk::ImageUsageFlagBits::eDepthStencilAttachment);
-    _depthImage = _context->Resources()->ImageResourceManager().Create(depthImageData);
+    depthSampler.borderColor = bb::SamplerBorderColor::OPAQUE_BLACK_INT;
+    _depthSampler = _context->Resources()->GetSamplerResourceManager().Create(depthSampler);
+
+    bb::Flags<bb::TextureFlags> flags;
+
+    flags.set(bb::TextureFlags::DEPTH_ATTACH);
+    flags.set(bb::TextureFlags::SAMPLED);
+
+    bb::Image2D g_buffer_spec;
+    g_buffer_spec.width = _size.x;
+    g_buffer_spec.height = _size.y;
+    g_buffer_spec.format = bb::ImageFormat::D32_SFLOAT;
+
+    _depthFormat = vk::Format::eD32Sfloat;
+    _depthImage = _context->Resources()->GetImageResourceManager().Create(g_buffer_spec, flags, "Depth GBuffer");
 }
 
 void GBuffers::CleanUp()
@@ -109,7 +108,7 @@ void GBuffers::TransitionLayout(vk::CommandBuffer commandBuffer, vk::ImageLayout
 {
     for (const auto& attachment : _attachments)
     {
-        const GPUImage* image = _context->Resources()->ImageResourceManager().Access(attachment);
+        const GPUImage* image = _context->Resources()->GetImageResourceManager().Access(attachment);
 
         util::TransitionImageLayout(commandBuffer, image->handle, image->format, oldLayout, newLayout);
     }

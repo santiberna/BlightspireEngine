@@ -42,7 +42,7 @@ void DebugPass::RecordCommands(vk::CommandBuffer commandBuffer, uint32_t current
     UpdateVertexData();
 
     vk::RenderingAttachmentInfoKHR finalColorAttachmentInfo {
-        .imageView = _context->Resources()->ImageResourceManager().Access(_attachment)->view,
+        .imageView = _context->Resources()->GetImageResourceManager().Access(_attachment)->view,
         .imageLayout = vk::ImageLayout::eAttachmentOptimalKHR,
         .loadOp = vk::AttachmentLoadOp::eLoad,
         .storeOp = vk::AttachmentStoreOp::eStore,
@@ -51,7 +51,7 @@ void DebugPass::RecordCommands(vk::CommandBuffer commandBuffer, uint32_t current
     };
 
     vk::RenderingAttachmentInfoKHR depthAttachmentInfo {
-        .imageView = _context->Resources()->ImageResourceManager().Access(_gBuffers.Depth())->view,
+        .imageView = _context->Resources()->GetImageResourceManager().Access(_gBuffers.Depth())->view,
         .imageLayout = vk::ImageLayout::eDepthStencilAttachmentOptimal,
         .loadOp = vk::AttachmentLoadOp::eClear,
         .storeOp = vk::AttachmentStoreOp::eStore,
@@ -82,7 +82,7 @@ void DebugPass::RecordCommands(vk::CommandBuffer commandBuffer, uint32_t current
 
     commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, _pipelineLayout, 0, { scene.gpuScene->MainCamera().DescriptorSet(currentFrame) }, {});
 
-    const Buffer* buffer = _context->Resources()->BufferResourceManager().Access(_vertexBuffer);
+    const Buffer* buffer = _context->Resources()->GetBufferResourceManager().Access(_vertexBuffer);
     const std::array<vk::DeviceSize, 1> offsets = { 0 };
     commandBuffer.bindVertexBuffers(0, 1, &buffer->buffer, offsets.data());
 
@@ -118,7 +118,7 @@ void DebugPass::CreatePipeline()
         .pAttachments = &colorBlendAttachmentState,
     };
 
-    std::vector<vk::Format> formats { _context->Resources()->ImageResourceManager().Access(_attachment)->format };
+    std::vector<vk::Format> formats { _context->Resources()->GetImageResourceManager().Access(_attachment)->format };
 
     vk::PipelineInputAssemblyStateCreateInfo inputAssemblyStateCreateInfo {
         .topology = vk::PrimitiveTopology::eLineList,
@@ -152,11 +152,11 @@ void DebugPass::CreateVertexBuffer()
         .SetMemoryUsage(VMA_MEMORY_USAGE_AUTO_PREFER_HOST)
         .SetName("Debug vertex buffer");
 
-    _vertexBuffer = _context->Resources()->BufferResourceManager().Create(vertexBufferCreation);
+    _vertexBuffer = _context->Resources()->GetBufferResourceManager().Create(vertexBufferCreation);
 }
 
 void DebugPass::UpdateVertexData()
 {
-    const Buffer* buffer = _context->Resources()->BufferResourceManager().Access(_vertexBuffer);
+    const Buffer* buffer = _context->Resources()->GetBufferResourceManager().Access(_vertexBuffer);
     std::memcpy(buffer->mappedPtr, _linesData.data(), _linesData.size() * sizeof(glm::vec3));
 }

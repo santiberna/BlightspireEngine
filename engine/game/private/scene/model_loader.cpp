@@ -296,7 +296,7 @@ std::shared_ptr<ModelData> ModelLoader::LoadModel(Engine& engine, std::string_vi
         std::string zone = std::string(path) + " CPU parsing";
         ZoneName(zone.c_str(), 128);
 
-        cpuData = ModelLoading::LoadGLTFFast(threadPool, path, genCollision);
+        cpuData = ModelLoading::LoadGLTF(&threadPool, path, genCollision);
     }
 
     auto& rendererModule = engine.GetModule<RendererModule>();
@@ -310,7 +310,7 @@ std::shared_ptr<ModelData> ModelLoader::LoadModel(Engine& engine, std::string_vi
 
 entt::entity ModelData::Instantiate(Engine& engine, bool loadWithCollision)
 {
-    auto& modelResourceManager = engine.GetModule<RendererModule>().GetRenderer()->GetContext()->Resources()->ModelResourceManager();
+    auto& modelResourceManager = engine.GetModule<RendererModule>().GetRenderer()->GetContext()->Resources()->GetModelResourceManager();
     const GPUModel& model = *modelResourceManager.Access(gpuModel);
 
     return LoadModelIntoECSAsHierarchy(
@@ -321,7 +321,7 @@ entt::entity ModelData::Instantiate(Engine& engine, bool loadWithCollision)
 }
 entt::entity ModelData::InstantiateCollisions(Engine& engine)
 {
-    auto& modelResourceManager = engine.GetModule<RendererModule>().GetRenderer()->GetContext()->Resources()->ModelResourceManager();
+    auto& modelResourceManager = engine.GetModule<RendererModule>().GetRenderer()->GetContext()->Resources()->GetModelResourceManager();
     const GPUModel& model = *modelResourceManager.Access(gpuModel);
 
     return LoadModelIntoECSAsHierarchy(

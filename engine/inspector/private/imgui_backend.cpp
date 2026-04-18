@@ -53,7 +53,7 @@ ImGuiBackend::ImGuiBackend(const std::shared_ptr<GraphicsContext>& context, cons
 
     ImGui_ImplSDL3_InitForVulkan(applicationModule.GetWindowHandle());
 
-    _basicSampler = _context->Resources()->SamplerResourceManager().Create(SamplerCreation { .name = "ImGui sampler" });
+    _basicSampler = _context->Resources()->GetSamplerResourceManager().Create(bb::SamplerCreation { .name = "ImGui sampler" });
 }
 
 ImGuiBackend::~ImGuiBackend()
@@ -78,21 +78,10 @@ void ImGuiBackend::NewFrame()
 
 ImTextureID ImGuiBackend::GetTexture(const ResourceHandle<GPUImage>& image)
 {
-    const auto* resource = _context->Resources()->ImageResourceManager().Access(image);
-    vk::ImageLayout layout {};
-    switch (resource->type)
-    {
-    case ImageType::e2D:
-    case ImageType::eDepth:
-    case ImageType::eCubeMap:
-        layout = vk::ImageLayout::eShaderReadOnlyOptimal;
-        break;
-    case ImageType::eShadowMap:
-        layout = vk::ImageLayout::eShaderReadOnlyOptimal; // vk::ImageLayout::eDepthAttachmentStencilReadOnlyOptimal; // TODO: I dont know why this works :l
-        break;
-    }
-
-    _imageIDs.emplace_back(ImGui_ImplVulkan_AddTexture(_context->Resources()->SamplerResourceManager().Access(_basicSampler)->sampler, resource->view, static_cast<VkImageLayout>(layout)));
+    const auto* resource = _context->Resources()->GetImageResourceManager().Access(image);
+    vk::ImageLayout layout = vk::ImageLayout::eShaderReadOnlyOptimal;
+    _imageIDs.emplace_back(
+        ImGui_ImplVulkan_AddTexture(_context->Resources()->GetSamplerResourceManager().Access(_basicSampler)->sampler, resource->view, static_cast<VkImageLayout>(layout)));
 
     return _imageIDs.back();
 }

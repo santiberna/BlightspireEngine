@@ -127,7 +127,7 @@ std::shared_ptr<UIFont> LoadFromFile(const std::string& path, uint16_t character
         throw std::runtime_error("Failed to pack font glyphs into the atlas.");
     }
 
-    std::vector<std::byte> atlasData(atlasWidth * atlasHeight, std::byte { 0 });
+    std::shared_ptr<std::byte[]> atlasData = std::make_shared<std::byte[]>(atlasWidth * atlasHeight);
 
     for (uint8_t c = 0; c < maxGlyphs; ++c)
     {
@@ -171,21 +171,20 @@ std::shared_ptr<UIFont> LoadFromFile(const std::string& path, uint16_t character
         }
     }
 
-    CPUImage image;
-    image.name = path + " fontatlas";
+    bb::Image2D image;
+    image.data = atlasData;
+    image.format = bb::ImageFormat::R8_UNORM;
     image.width = atlasWidth;
     image.height = atlasHeight;
-    image.SetData(std::move(atlasData));
-    image.SetFormat(vk::Format::eR8Unorm);
-    image.SetFlags(vk::ImageUsageFlagBits::eSampled);
-    image.isHDR = false;
 
-    SamplerCreation samplerCreation;
-    samplerCreation.minFilter = vk::Filter::eNearest;
-    samplerCreation.magFilter = vk::Filter::eNearest;
-    static ResourceHandle<Sampler> sampler = context.Resources()->SamplerResourceManager().Create(samplerCreation);
+    bb::SamplerCreation samplerCreation;
+    samplerCreation.minFilter = bb::SamplerFilter::NEAREST;
+    samplerCreation.magFilter = bb::SamplerFilter::NEAREST;
+    static ResourceHandle<Sampler> sampler = context.Resources()->GetSamplerResourceManager().Create(samplerCreation);
 
-    font->fontAtlas = context.Resources()->ImageResourceManager().Create(image, sampler);
+    SingleTimeCommands commands { *context.GetVulkanContext() };
+
+    font->fontAtlas = context.Resources()->GetImageResourceManager().Create(image, sampler, bb::TextureFlags::COMMON_FLAGS, path, &commands);
     context.UpdateBindlessSet();
 
     FT_Done_Face(fontFace);

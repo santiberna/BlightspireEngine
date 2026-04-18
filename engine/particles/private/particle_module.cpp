@@ -119,15 +119,13 @@ ResourceHandle<GPUImage>& ParticleModule::GetEmitterImage(std::string fileName, 
 
     if (got == _emitterImages.end())
     {
-        if (fileIO::Exists("assets/textures/particles/" + fileName))
+        auto& textures = _context->Resources()->GetImageResourceManager();
+        std::string path = "assets/textures/particles/" + fileName;
+        if (fileIO::Exists(path))
         {
-            CPUImage creation;
-            creation.SetFlags(vk::ImageUsageFlagBits::eSampled);
-            creation.SetName(fileName);
-            creation.FromPNG("assets/textures/particles/" + fileName);
-            creation.isHDR = false;
-            auto image = _context->Resources()->ImageResourceManager().Create(creation);
-            auto& resource = _emitterImages.emplace(fileName, image).first->second;
+            auto image = bb::Image2D::fromFile(path).value();
+            auto texture = textures.Create(image, bb::TextureFlags::COMMON_FLAGS, path);
+            auto& resource = _emitterImages.emplace(fileName, texture).first->second;
             _context->UpdateBindlessSet();
             imageFound = true;
             return resource;
@@ -149,10 +147,10 @@ bool ParticleModule::SetEmitterPresetImage(EmitterPreset& preset)
     auto image = GetEmitterImage(preset.imageName, imageFound);
 
     preset.materialIndex = image.Index();
-    float biggestSize = glm::max(resources->ImageResourceManager().Access(image)->width, resources->ImageResourceManager().Access(image)->height);
+    float biggestSize = glm::max(resources->GetImageResourceManager().Access(image)->width, resources->GetImageResourceManager().Access(image)->height);
     preset.size = glm::vec3(
-        resources->ImageResourceManager().Access(image)->width / preset.spriteDimensions.x / biggestSize,
-        resources->ImageResourceManager().Access(image)->height / preset.spriteDimensions.y / biggestSize, preset.size.z);
+        resources->GetImageResourceManager().Access(image)->width / preset.spriteDimensions.x / biggestSize,
+        resources->GetImageResourceManager().Access(image)->height / preset.spriteDimensions.y / biggestSize, preset.size.z);
 
     return imageFound;
 }

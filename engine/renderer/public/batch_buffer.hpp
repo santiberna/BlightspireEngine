@@ -39,7 +39,7 @@ public:
         assert((_vertexOffset + vertices.size()) * sizeof(T) < _vertexBufferSize);
         uint32_t originalOffset = _vertexOffset;
 
-        const Buffer* buffer = resources->BufferResourceManager().Access(_vertexBuffer);
+        const Buffer* buffer = resources->GetBufferResourceManager().Access(_vertexBuffer);
         commandBuffer.CopyIntoLocalBuffer(vertices, _vertexOffset, buffer->buffer);
 
         _vertexOffset += vertices.size();

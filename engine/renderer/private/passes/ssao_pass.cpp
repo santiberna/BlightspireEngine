@@ -45,7 +45,7 @@ void SSAOPass::RecordCommands(vk::CommandBuffer commandBuffer, uint32_t currentF
     _pushConstants.ssaoRenderTargetHeight = _gBuffers.Size().y / 2;
 
     vk::RenderingAttachmentInfoKHR ssaoColorAttachmentInfo {
-        .imageView = _context->Resources()->ImageResourceManager().Access(_ssaoTarget)->view,
+        .imageView = _context->Resources()->GetImageResourceManager().Access(_ssaoTarget)->view,
         .imageLayout = vk::ImageLayout::eAttachmentOptimalKHR,
         .loadOp = vk::AttachmentLoadOp::eClear,
         .storeOp = vk::AttachmentStoreOp::eStore,
@@ -83,7 +83,7 @@ SSAOPass::~SSAOPass()
     device.destroy(_pipeline);
     device.destroy(_pipelineLayout);
     device.destroy(_descriptorSetLayout);
-    _context->Resources()->BufferResourceManager().Destroy(_sampleKernelBuffer);
+    _context->Resources()->GetBufferResourceManager().Destroy(_sampleKernelBuffer);
 }
 
 void SSAOPass::CreatePipeline()
@@ -160,54 +160,52 @@ void SSAOPass::CreateBuffers()
             .SetMemoryUsage(VMA_MEMORY_USAGE_AUTO)
             .SetUsageFlags(vk::BufferUsageFlagBits::eUniformBuffer | vk::BufferUsageFlagBits::eTransferDst);
 
-        _sampleKernelBuffer = resources->BufferResourceManager().Create(creation);
-        cmdBuffer.CopyIntoLocalBuffer(ssaoKernel, 0, resources->BufferResourceManager().Access(_sampleKernelBuffer)->buffer);
+        _sampleKernelBuffer = resources->GetBufferResourceManager().Create(creation);
+        cmdBuffer.CopyIntoLocalBuffer(ssaoKernel, 0, resources->GetBufferResourceManager().Access(_sampleKernelBuffer)->buffer);
     }
 
-    std::vector<std::byte> byteData;
-    byteData.reserve(ssaoNoise.size() * sizeof(float) * 4);
+    std::shared_ptr<std::byte[]> byteData = std::make_shared<std::byte[]>(ssaoNoise.size() * sizeof(float) * 4);
 
-    for (const auto& color : ssaoNoise)
+    for (size_t i = 0; i < ssaoNoise.size(); i++)
     {
         // No clamping, store raw floats (including negative)
+        const auto& color = ssaoNoise[i];
         float components[4] = { color.r, color.g, color.b, color.a };
 
         // Push raw float bytes directly
         const std::byte* rawBytes = reinterpret_cast<const std::byte*>(components);
-        byteData.insert(byteData.end(), rawBytes, rawBytes + sizeof(components));
+        auto* dest = byteData.get() + (i * sizeof(float) * 4);
+        std::memcpy(dest, rawBytes, 4 * sizeof(float));
     }
 
-    // Use a float format
-    CPUImage noiseImage {};
-    noiseImage.SetName("SSAO_Noise_Image")
-        .SetSize(4, 4, 1)
-        .SetData(std::move(byteData))
-        .SetFlags(vk::ImageUsageFlagBits::eSampled)
-        .SetFormat(vk::Format::eR32G32B32A32Sfloat);
-    noiseImage.isHDR = true;
+    bb::Image2D noiseImage {};
+    noiseImage.data = byteData;
+    noiseImage.height = 4;
+    noiseImage.width = 4;
+    noiseImage.format = bb::ImageFormat::R32G32B32A32_SFLOAT;
 
-    SamplerCreation noiseSampler {};
+    bb::SamplerCreation noiseSampler {};
     noiseSampler.name = "SSAO_Noise_Sampler";
-    noiseSampler.addressModeU = vk::SamplerAddressMode::eRepeat;
-    noiseSampler.addressModeV = vk::SamplerAddressMode::eRepeat;
-    noiseSampler.addressModeW = vk::SamplerAddressMode::eRepeat;
+    noiseSampler.addressModeU = bb::SamplerAddressMode::REPEAT;
+    noiseSampler.addressModeV = bb::SamplerAddressMode::REPEAT;
+    noiseSampler.addressModeW = bb::SamplerAddressMode::REPEAT;
 
-    noiseSampler.minFilter = vk::Filter::eNearest;
-    noiseSampler.magFilter = vk::Filter::eNearest;
-    noiseSampler.mipmapMode = vk::SamplerMipmapMode::eNearest;
+    noiseSampler.minFilter = bb::SamplerFilter::NEAREST;
+    noiseSampler.magFilter = bb::SamplerFilter::NEAREST;
+    noiseSampler.mipmapMode = bb::SamplerFilter::NEAREST;
 
     noiseSampler.useMaxAnisotropy = false;
     noiseSampler.anisotropyEnable = false;
     noiseSampler.minLod = 0.0f;
     noiseSampler.maxLod = 0.0f; // No mipmaps
 
-    noiseSampler.compareEnable = false;
-    noiseSampler.compareOp = vk::CompareOp::eAlways;
     noiseSampler.unnormalizedCoordinates = false;
-    noiseSampler.borderColor = vk::BorderColor::eIntOpaqueBlack;
+    noiseSampler.borderColor = bb::SamplerBorderColor::OPAQUE_BLACK_INT;
 
-    _noiseSampler = _context->Resources()->SamplerResourceManager().Create(noiseSampler);
-    _ssaoNoise = _context->Resources()->ImageResourceManager().Create(noiseImage, _noiseSampler);
+    SingleTimeCommands commands { *_context->GetVulkanContext() };
+
+    _noiseSampler = _context->Resources()->GetSamplerResourceManager().Create(noiseSampler);
+    _ssaoNoise = _context->Resources()->GetImageResourceManager().Create(noiseImage, _noiseSampler, bb::TextureFlags::COMMON_FLAGS, "SSAO Noise Image", &commands);
     _pushConstants.ssaoNoiseIndex = _ssaoNoise.Index();
 }
 void SSAOPass::CreateDescriptorSetLayouts()
@@ -238,7 +236,7 @@ void SSAOPass::CreateDescriptorSets()
     }
 
     vk::DescriptorBufferInfo sampleKernelBufferInfo {
-        .buffer = _context->Resources()->BufferResourceManager().Access(_sampleKernelBuffer)->buffer,
+        .buffer = _context->Resources()->GetBufferResourceManager().Access(_sampleKernelBuffer)->buffer,
         .offset = 0,
         .range = vk::WholeSize,
     };

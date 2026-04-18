@@ -53,8 +53,6 @@ private:
 
     ResourceHandle<Sampler> _sampler;
 
-    std::vector<std::array<vk::ImageView, 6>> _prefilterMapViews;
-
     void CreateIrradiancePipeline();
     void CreatePrefilterPipeline();
     void CreateBRDFLUTPipeline();

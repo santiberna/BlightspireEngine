@@ -2,7 +2,6 @@
 #include "components/animation_channel_component.hpp"
 #include "resources/mesh.hpp"
 
-
 #include <glm/mat4x4.hpp>
 #include <glm/vec3.hpp>
 

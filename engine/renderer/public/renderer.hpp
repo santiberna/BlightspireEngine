@@ -5,6 +5,7 @@
 #include "data_store.hpp"
 #include "ecs_module.hpp"
 #include "resources/model.hpp"
+#include "resources/texture.hpp"
 #include "settings.hpp"
 #include "swap_chain.hpp"
 
@@ -43,6 +44,8 @@ class BatchBuffer;
 class GPUScene;
 class FrameGraph;
 class Viewport;
+
+struct Sampler;
 
 class Renderer
 {
@@ -124,7 +127,6 @@ private:
     std::unique_ptr<FrameGraph> _frameGraph;
     std::unique_ptr<SwapChain> _swapChain;
     std::unique_ptr<GBuffers> _gBuffers;
-    ResourceHandle<Sampler> _nearestSampler;
 
     std::array<vk::Semaphore, MAX_FRAMES_IN_FLIGHT> _imageAvailableSemaphores;
     std::vector<vk::Semaphore> _renderFinishedSemaphores; // Should be the size of the amount of images in the swapchain

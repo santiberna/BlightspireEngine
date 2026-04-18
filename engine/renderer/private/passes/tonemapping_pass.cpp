@@ -43,7 +43,7 @@ TonemappingPass::~TonemappingPass()
     device.destroy(_pipeline);
     device.destroy(_pipelineLayout);
     device.destroy(_paletteDescriptorSetLayout);
-    _context->Resources()->BufferResourceManager().Destroy(_colorPaletteBuffer);
+    _context->Resources()->GetBufferResourceManager().Destroy(_colorPaletteBuffer);
 }
 
 void TonemappingPass::RecordCommands(vk::CommandBuffer commandBuffer, uint32_t currentFrame, [[maybe_unused]] const RenderSceneDescription& scene)
@@ -113,7 +113,7 @@ void TonemappingPass::RecordCommands(vk::CommandBuffer commandBuffer, uint32_t c
     UpdatePaletteBuffer(_settings.palette);
 
     vk::RenderingAttachmentInfoKHR finalColorAttachmentInfo {
-        .imageView = _context->Resources()->ImageResourceManager().Access(_outputTarget)->view,
+        .imageView = _context->Resources()->GetImageResourceManager().Access(_outputTarget)->view,
         .imageLayout = vk::ImageLayout::eAttachmentOptimalKHR,
         .loadOp = vk::AttachmentLoadOp::eClear,
         .storeOp = vk::AttachmentStoreOp::eStore,
@@ -174,7 +174,7 @@ void TonemappingPass::CreatePipeline()
     pipelineBuilder.AddShaderStage(vk::ShaderStageFlagBits::eFragment, fragSpv);
     auto result = pipelineBuilder
                       .SetColorBlendState(colorBlendStateCreateInfo)
-                      .SetColorAttachmentFormats({ _context->Resources()->ImageResourceManager().Access(_outputTarget)->format })
+                      .SetColorAttachmentFormats({ _context->Resources()->GetImageResourceManager().Access(_outputTarget)->format })
                       .SetDepthAttachmentFormat(vk::Format::eUndefined)
                       .BuildPipeline();
 
@@ -193,7 +193,7 @@ void TonemappingPass::CreatePaletteBuffer()
         .SetMemoryUsage(VMA_MEMORY_USAGE_AUTO)
         .SetUsageFlags(vk::BufferUsageFlagBits::eUniformBuffer | vk::BufferUsageFlagBits::eTransferDst);
 
-    _colorPaletteBuffer = _context->Resources()->BufferResourceManager().Create(creation);
+    _colorPaletteBuffer = _context->Resources()->GetBufferResourceManager().Create(creation);
 
     // Immediately update the buffer with the initial palette data.
     UpdatePaletteBuffer(colors);
@@ -215,7 +215,7 @@ void TonemappingPass::CreateDescriptorSetLayouts()
 void TonemappingPass::UpdatePaletteBuffer(const std::vector<glm::vec4>& paletteColors)
 {
     // Get a pointer to the mapped buffer memory.
-    void* data = _context->Resources()->BufferResourceManager().Access(_colorPaletteBuffer)->mappedPtr;
+    void* data = _context->Resources()->GetBufferResourceManager().Access(_colorPaletteBuffer)->mappedPtr;
     memcpy(data, paletteColors.data(), paletteColors.size() * sizeof(glm::vec4));
 }
 
@@ -234,7 +234,7 @@ void TonemappingPass::CreateDescriptorSets()
     }
 
     vk::DescriptorBufferInfo colorPaletteBufferInfo {
-        .buffer = _context->Resources()->BufferResourceManager().Access(_colorPaletteBuffer)->buffer,
+        .buffer = _context->Resources()->GetBufferResourceManager().Access(_colorPaletteBuffer)->buffer,
         .offset = 0,
         .range = vk::WholeSize,
     };

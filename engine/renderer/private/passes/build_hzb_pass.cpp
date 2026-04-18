@@ -37,7 +37,7 @@ void BuildHzbPass::RecordCommands(vk::CommandBuffer commandBuffer, [[maybe_unuse
 {
     TracyVkZone(scene.tracyContext, commandBuffer, "Build HZB");
 
-    const auto& imageResourceManager = _context->Resources()->ImageResourceManager();
+    const auto& imageResourceManager = _context->Resources()->GetImageResourceManager();
     const auto* hzb = imageResourceManager.Access(_cameraBatch.HZBImage());
     const auto* depth = imageResourceManager.Access(_cameraBatch.DepthImage());
 
@@ -51,7 +51,7 @@ void BuildHzbPass::RecordCommands(vk::CommandBuffer commandBuffer, [[maybe_unuse
         util::TransitionImageLayout(commandBuffer, hzb->handle, hzb->format, vk::ImageLayout::eUndefined, vk::ImageLayout::eGeneral, 1, i, 1);
 
         vk::DescriptorImageInfo inputImageInfo {
-            .sampler = _context->Resources()->SamplerResourceManager().Access(_hzbSampler)->sampler,
+            .sampler = _context->Resources()->GetSamplerResourceManager().Access(_hzbSampler)->sampler,
             .imageView = inputTexture,
             .imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal,
         };
@@ -77,17 +77,19 @@ void BuildHzbPass::RecordCommands(vk::CommandBuffer commandBuffer, [[maybe_unuse
 
 void BuildHzbPass::CreateSampler()
 {
-    auto& samplerResourceManager = _context->Resources()->SamplerResourceManager();
-    SamplerCreation samplerCreation {
-        .name = "HZB Sampler",
-        .minFilter = vk::Filter::eLinear,
-        .magFilter = vk::Filter::eLinear,
-        .anisotropyEnable = false,
-        .minLod = 0.0f,
-        .maxLod = 0.0f,
-        .reductionMode = _cameraBatch.Camera().UsesReverseZ() ? vk::SamplerReductionMode::eMin : vk::SamplerReductionMode::eMax,
-    };
-    samplerCreation.SetGlobalAddressMode(vk::SamplerAddressMode::eClampToEdge);
+    auto& samplerResourceManager = _context->Resources()->GetSamplerResourceManager();
+
+    bb::SamplerCreation samplerCreation {};
+    samplerCreation.name = "HZB Sampler",
+    samplerCreation.minFilter = bb::SamplerFilter::LINEAR;
+    samplerCreation.magFilter = bb::SamplerFilter::LINEAR;
+    samplerCreation.anisotropyEnable = false,
+    samplerCreation.minLod = 0.0f;
+    samplerCreation.maxLod = 0.0f;
+    samplerCreation.reductionMode = _cameraBatch.Camera().UsesReverseZ() ? bb::SamplerReductionMode::MIN : bb::SamplerReductionMode::MAX;
+    samplerCreation.addressModeU = bb::SamplerAddressMode::CLAMP_TO_EDGE;
+    samplerCreation.addressModeW = bb::SamplerAddressMode::CLAMP_TO_EDGE;
+    samplerCreation.addressModeV = bb::SamplerAddressMode::CLAMP_TO_EDGE;
 
     _hzbSampler = samplerResourceManager.Create(samplerCreation);
 }

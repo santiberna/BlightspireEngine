@@ -37,9 +37,9 @@ CameraBatch::Draw::Draw(const std::shared_ptr<GraphicsContext>& context, const s
         .name = name + " visibility buffer"
     };
 
-    drawBuffer = context->Resources()->BufferResourceManager().Create(drawBufferCreation);
-    redirectBuffer = context->Resources()->BufferResourceManager().Create(redirectBufferCreation);
-    visibilityBuffer = context->Resources()->BufferResourceManager().Create(visibilityCreation);
+    drawBuffer = context->Resources()->GetBufferResourceManager().Create(drawBufferCreation);
+    redirectBuffer = context->Resources()->GetBufferResourceManager().Create(redirectBufferCreation);
+    visibilityBuffer = context->Resources()->GetBufferResourceManager().Create(visibilityCreation);
 
     drawDescriptor = CreateDescriptor(context, drawDSL, drawBuffer);
     redirectDescriptor = CreateDescriptor(context, redirectDSL, redirectBuffer);
@@ -58,7 +58,7 @@ vk::DescriptorSet CameraBatch::Draw::CreateDescriptor(const std::shared_ptr<Grap
     vk::DescriptorSet descriptor = device.allocateDescriptorSets(allocateInfo).value.front();
 
     vk::DescriptorBufferInfo bufferInfo {
-        .buffer = context->Resources()->BufferResourceManager().Access(buffer)->buffer,
+        .buffer = context->Resources()->GetBufferResourceManager().Access(buffer)->buffer,
         .offset = 0,
         .range = vk::WholeSize,
     };
@@ -83,38 +83,36 @@ CameraBatch::CameraBatch(const std::shared_ptr<GraphicsContext>& context, const 
     , _staticDraw(context, "Static " + name, MAX_STATIC_INSTANCES, drawDSL, visibilityDSL, redirectDSL)
     , _skinnedDraw(context, "Skinned" + name, MAX_SKINNED_INSTANCES, drawDSL, visibilityDSL, redirectDSL)
 {
-    const auto* depthImageAccess = _context->Resources()->ImageResourceManager().Access(_depthImage);
-
+    const auto* depthImageAccess = _context->Resources()->GetImageResourceManager().Access(_depthImage);
     uint16_t hzbSize = math::RoundUpToPowerOfTwo(std::max(depthImageAccess->width, depthImageAccess->height));
-    SamplerCreation samplerCreation {
-        .name = name + " HZB Sampler",
-        .minFilter = vk::Filter::eLinear,
-        .magFilter = vk::Filter::eLinear,
-        .anisotropyEnable = false,
-        .borderColor = vk::BorderColor::eFloatOpaqueBlack,
-        .mipmapMode = vk::SamplerMipmapMode::eNearest,
-        .minLod = 0.0f,
-        .maxLod = static_cast<float>(std::floor(std::log2(hzbSize))),
-        .reductionMode = _camera.UsesReverseZ() ? vk::SamplerReductionMode::eMin : vk::SamplerReductionMode::eMax,
-    };
-    samplerCreation.SetGlobalAddressMode(vk::SamplerAddressMode::eClampToBorder);
 
-    _hzbSampler = _context->Resources()->SamplerResourceManager().Create(samplerCreation);
+    bb::SamplerCreation samplerCreation {};
+    samplerCreation.name = name + " HZB Sampler";
+    samplerCreation.minFilter = bb::SamplerFilter::LINEAR;
+    samplerCreation.magFilter = bb::SamplerFilter::LINEAR;
+    samplerCreation.anisotropyEnable = false;
+    samplerCreation.borderColor = bb::SamplerBorderColor::OPAQUE_BLACK_INT;
+    samplerCreation.mipmapMode = bb::SamplerFilter::LINEAR;
+    samplerCreation.minLod = 0.0f;
+    samplerCreation.maxLod = static_cast<float>(std::floor(std::log2(hzbSize)));
+    samplerCreation.reductionMode = _camera.UsesReverseZ() ? bb::SamplerReductionMode::MIN : bb::SamplerReductionMode::MAX;
+    samplerCreation.addressModeU = bb::SamplerAddressMode::CLAMP_TO_BORDER;
+    samplerCreation.addressModeW = bb::SamplerAddressMode::CLAMP_TO_BORDER;
+    samplerCreation.addressModeV = bb::SamplerAddressMode::CLAMP_TO_BORDER;
 
-    CPUImage hzbImage {
-        .initialData = {},
-        .width = hzbSize,
-        .height = hzbSize,
-        .depth = 1,
-        .layers = 1,
-        .mips = static_cast<uint8_t>(std::log2(hzbSize)),
-        .flags = vk::ImageUsageFlagBits::eStorage | vk::ImageUsageFlagBits::eSampled,
-        .isHDR = false,
-        .format = vk::Format::eR32Sfloat,
-        .type = ImageType::e2D,
-        .name = name + " HZB Image",
-    };
-    _hzbImage = _context->Resources()->ImageResourceManager().Create(hzbImage, _hzbSampler);
+    _hzbSampler = _context->Resources()->GetSamplerResourceManager().Create(samplerCreation);
+
+    bb::Image2D hzb_image {};
+    hzb_image.width = hzbSize;
+    hzb_image.height = hzbSize;
+    hzb_image.format = bb::ImageFormat::R32_SFLOAT;
+
+    bb::Flags<bb::TextureFlags> flags {};
+    flags.set(bb::TextureFlags::SAMPLED);
+    flags.set(bb::TextureFlags::GEN_MIPMAPS);
+    flags.set(bb::TextureFlags::STORAGE_ACCESS);
+
+    _hzbImage = _context->Resources()->GetImageResourceManager().Create(hzb_image, _hzbSampler, flags, name + " HZB Image", nullptr);
 }
 
 CameraBatch::~CameraBatch() = default;

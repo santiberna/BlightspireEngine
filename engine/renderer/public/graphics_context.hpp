@@ -1,12 +1,11 @@
 #pragma once
 
 #include "common.hpp"
-#include "resource_manager.hpp"
-
-#include "vulkan_include.hpp"
-#include <memory>
-
 #include "draw_stats.hpp"
+#include "resource_manager.hpp"
+#include "vulkan_fwd.hpp"
+
+#include <memory>
 
 class VulkanContext;
 class GraphicsResources;
@@ -27,13 +26,13 @@ public:
     NON_COPYABLE(GraphicsContext);
     NON_MOVABLE(GraphicsContext);
 
-    std::shared_ptr<VulkanContext> GetVulkanContext() const { return _vulkanContext; }
-    std::shared_ptr<GraphicsResources> Resources() const { return _graphicsResources; }
-    vk::DescriptorSetLayout BindlessLayout() const { return _bindlessLayout; }
-    vk::DescriptorSet BindlessSet() const { return _bindlessSet; }
+    [[nodiscard]] std::shared_ptr<VulkanContext> GetVulkanContext() const { return _vulkanContext; }
+    [[nodiscard]] std::shared_ptr<GraphicsResources> Resources() const { return _graphicsResources; }
+    [[nodiscard]] VkDescriptorSetLayout BindlessLayout() const;
+    [[nodiscard]] VkDescriptorSet BindlessSet() const;
 
     DrawStats& GetDrawStats() { return _drawStats; }
-    const ResourceHandle<GPUImage>& FallbackImage() const { return _fallbackImage; }
+    [[nodiscard]] const ResourceHandle<GPUImage>& FallbackImage() const { return _fallbackImage; }
 
     void UpdateBindlessSet();
 
@@ -41,21 +40,11 @@ private:
     std::shared_ptr<VulkanContext> _vulkanContext;
     std::shared_ptr<GraphicsResources> _graphicsResources;
 
-    // BINDLESS THINGS
-    vk::DescriptorPool _bindlessPool;
-    vk::DescriptorSetLayout _bindlessLayout;
-    vk::DescriptorSet _bindlessSet;
-
     ResourceHandle<Sampler> _sampler;
-
     ResourceHandle<GPUImage> _fallbackImage;
 
-    std::array<vk::DescriptorImageInfo, MAX_BINDLESS_RESOURCES> _bindlessImageInfos;
-    std::array<vk::WriteDescriptorSet, MAX_BINDLESS_RESOURCES> _bindlessImageWrites;
-
-    ResourceHandle<Buffer> _bindlessMaterialBuffer;
-    vk::DescriptorBufferInfo _bindlessMaterialInfo;
-    vk::WriteDescriptorSet _bindlessMaterialWrite;
+    struct BindlessObjects;
+    std::unique_ptr<BindlessObjects> bindless {};
 
     DrawStats _drawStats;
 

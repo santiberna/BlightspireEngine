@@ -18,7 +18,7 @@ void PresentationPass::RecordCommands(vk::CommandBuffer commandBuffer, [[maybe_u
     TracyVkZone(scene.tracyContext, commandBuffer, "Presentation Pass");
 
     const vk::Image swapChainImage = _swapChain.GetImage(scene.targetSwapChainImageIndex);
-    const GPUImage* inputImage = _context->Resources()->ImageResourceManager().Access(_input);
+    const GPUImage* inputImage = _context->Resources()->GetImageResourceManager().Access(_input);
 
     util::TransitionImageLayout(commandBuffer, swapChainImage, _swapChain.GetFormat(),
         vk::ImageLayout::eUndefined, vk::ImageLayout::eTransferDstOptimal, 1, 0, 1);

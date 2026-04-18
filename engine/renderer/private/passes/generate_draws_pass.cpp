@@ -29,8 +29,8 @@ GenerateDrawsPass::~GenerateDrawsPass()
 
 void GenerateDrawsPass::RecordCommands(vk::CommandBuffer commandBuffer, uint32_t currentFrame, const RenderSceneDescription& scene)
 {
-    const auto& imageResourceManager = _context->Resources()->ImageResourceManager();
-    const auto& bufferResourceManager = _context->Resources()->BufferResourceManager();
+    const auto& imageResourceManager = _context->Resources()->GetImageResourceManager();
+    const auto& bufferResourceManager = _context->Resources()->GetBufferResourceManager();
     const auto* depthImage = imageResourceManager.Access(_cameraBatch.DepthImage());
 
     PushConstants staticPc {
@@ -110,7 +110,7 @@ void GenerateDrawsPass::RecordCommands(vk::CommandBuffer commandBuffer, uint32_t
 
 void GenerateDrawsPass::RecordPrepassCommands(vk::CommandBuffer commandBuffer, uint32_t currentFrame, const CameraBatch::Draw& draw, vk::DescriptorSet sceneDraws, vk::DescriptorSet sceneInstances, uint32_t drawCount, const PushConstants& pc)
 {
-    const auto& bufferResourceManager = _context->Resources()->BufferResourceManager();
+    const auto& bufferResourceManager = _context->Resources()->GetBufferResourceManager();
 
     commandBuffer.bindPipeline(vk::PipelineBindPoint::eCompute, _generateDrawsPipeline);
     commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eCompute, _generateDrawsPipelineLayout, 0, { _context->BindlessSet() }, {});
@@ -142,7 +142,7 @@ void GenerateDrawsPass::RecordPrepassCommands(vk::CommandBuffer commandBuffer, u
 
 void GenerateDrawsPass::RecordSecondPassCommands(vk::CommandBuffer commandBuffer, uint32_t currentFrame, const CameraBatch::Draw& draw, vk::DescriptorSet sceneDraws, vk::DescriptorSet sceneInstances, uint32_t drawCount, const PushConstants& pc)
 {
-    const auto& bufferResourceManager = _context->Resources()->BufferResourceManager();
+    const auto& bufferResourceManager = _context->Resources()->GetBufferResourceManager();
 
     commandBuffer.bindPipeline(vk::PipelineBindPoint::eCompute, _generateDrawsPipeline);
     commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eCompute, _generateDrawsPipelineLayout, 0, { _context->BindlessSet() }, {});

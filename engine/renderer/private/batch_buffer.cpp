@@ -24,7 +24,7 @@ BatchBuffer::BatchBuffer(const std::shared_ptr<GraphicsContext>& context, uint32
         .SetMemoryUsage(VMA_MEMORY_USAGE_GPU_ONLY)
         .SetName("Unified vertex buffer");
 
-    _vertexBuffer = resources->BufferResourceManager().Create(vertexBufferCreation);
+    _vertexBuffer = resources->GetBufferResourceManager().Create(vertexBufferCreation);
 
     BufferCreation indexBufferCreation {};
     indexBufferCreation.SetSize(indexBufferSize)
@@ -33,7 +33,7 @@ BatchBuffer::BatchBuffer(const std::shared_ptr<GraphicsContext>& context, uint32
         .SetMemoryUsage(VMA_MEMORY_USAGE_GPU_ONLY)
         .SetName("Unified index buffer");
 
-    _indexBuffer = resources->BufferResourceManager().Create(indexBufferCreation);
+    _indexBuffer = resources->GetBufferResourceManager().Create(indexBufferCreation);
 }
 
 BatchBuffer::~BatchBuffer()
@@ -48,7 +48,7 @@ uint32_t BatchBuffer::AppendIndices(const std::vector<uint32_t>& indices, Single
     assert((_indexOffset + indices.size()) * sizeof(uint32_t) < _indexBufferSize);
     uint32_t originalOffset = _indexOffset;
 
-    const Buffer* buffer = resources->BufferResourceManager().Access(_indexBuffer);
+    const Buffer* buffer = resources->GetBufferResourceManager().Access(_indexBuffer);
     commandBuffer.CopyIntoLocalBuffer(indices, _indexOffset, buffer->buffer);
 
     _indexOffset += indices.size();

@@ -62,7 +62,7 @@ void UIPass::CreatePipeLine()
     auto result = pipelineBuilder
                       .SetRasterizationState(rasterizationStateCreateInfo)
                       .SetColorBlendState(colorBlendStateCreateInfo)
-                      .SetColorAttachmentFormats({ _context->Resources()->ImageResourceManager().Access(_outputTarget)->format })
+                      .SetColorAttachmentFormats({ _context->Resources()->GetImageResourceManager().Access(_outputTarget)->format })
                       .SetDepthAttachmentFormat(vk::Format::eUndefined)
                       .BuildPipeline();
 
@@ -75,7 +75,7 @@ void UIPass::RecordCommands(vk::CommandBuffer commandBuffer, [[maybe_unused]] ui
     TracyVkZone(scene.tracyContext, commandBuffer, "UI Pass");
 
     vk::RenderingAttachmentInfoKHR finalColorAttachmentInfo {
-        .imageView = _context->Resources()->ImageResourceManager().Access(_outputTarget)->view,
+        .imageView = _context->Resources()->GetImageResourceManager().Access(_outputTarget)->view,
         .imageLayout = vk::ImageLayout::eAttachmentOptimalKHR,
         .loadOp = vk::AttachmentLoadOp::eLoad,
         .storeOp = vk::AttachmentStoreOp::eStore,

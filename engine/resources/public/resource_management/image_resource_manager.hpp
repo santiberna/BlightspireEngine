@@ -19,19 +19,6 @@ public:
     }
 
     ResourceHandle<GPUImage> Create(
-        const CPUImage& cpuImage,
-        ResourceHandle<Sampler> sampler,
-        SingleTimeCommands* commands = nullptr);
-
-    // TODO remove this
-    ResourceHandle<GPUImage> Create(
-        const CPUImage& cpuImage,
-        SingleTimeCommands* commands = nullptr)
-    {
-        return Create(cpuImage, _defaultSampler, commands);
-    }
-
-    ResourceHandle<GPUImage> Create(
         const bb::Image2D& image,
         ResourceHandle<Sampler> sampler,
         bb::Flags<bb::TextureFlags> flags,

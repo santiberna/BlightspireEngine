@@ -2,12 +2,13 @@
 
 #include "resource_manager.hpp"
 #include "resources/sampler.hpp"
+#include "slot_map/container.hpp"
 
 #include <memory>
 
 class VulkanContext;
 
-class SamplerResourceManager final : public ResourceManager<Sampler>
+class SamplerResourceManager final : public bb::SlotMap<Sampler>
 {
 public:
     explicit SamplerResourceManager(const std::shared_ptr<VulkanContext>& context);

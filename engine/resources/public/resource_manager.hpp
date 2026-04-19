@@ -297,6 +297,7 @@ ResourceHandle<T>& ResourceHandle<T>::operator=(std::nullptr_t)
 #include "slot_map/handle.hpp"
 
 struct GPUImage;
+struct Sampler;
 
 template <>
 struct ResourceHandle<GPUImage> : public bb::SlotHandle<GPUImage>
@@ -304,6 +305,16 @@ struct ResourceHandle<GPUImage> : public bb::SlotHandle<GPUImage>
     ResourceHandle<GPUImage>() = default;
     ResourceHandle<GPUImage>(bb::SlotHandle<GPUImage> slot)
         : bb::SlotHandle<GPUImage>(slot)
+    {
+    }
+};
+
+template <>
+struct ResourceHandle<Sampler> : public bb::SlotHandle<Sampler>
+{
+    ResourceHandle<Sampler>() = default;
+    ResourceHandle<Sampler>(bb::SlotHandle<Sampler> slot)
+        : bb::SlotHandle<Sampler>(slot)
     {
     }
 };

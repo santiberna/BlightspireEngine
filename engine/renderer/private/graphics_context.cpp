@@ -149,7 +149,7 @@ void GraphicsContext::UpdateBindlessImages()
     SamplerResourceManager& samplers { _graphicsResources->GetSamplerResourceManager() };
 
     // Default sampler
-    if (_sampler.IsNull())
+    if (!_sampler.isValid())
     {
         bb::SamplerCreation createInfo {
             .name = "Graphics context sampler",
@@ -165,7 +165,7 @@ void GraphicsContext::UpdateBindlessImages()
         bindless->_bindlessImageInfos.at(i).imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
         bindless->_bindlessImageInfos.at(i).imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
         bindless->_bindlessImageInfos.at(i).imageView = fallback->view;
-        bindless->_bindlessImageInfos.at(i).sampler = samplers.Access(_sampler)->sampler;
+        bindless->_bindlessImageInfos.at(i).sampler = samplers.get(_sampler)->sampler;
     }
 
     for (auto [handle, texture] : imageResourceManager)
@@ -181,7 +181,7 @@ void GraphicsContext::UpdateBindlessImages()
         bindless->_bindlessImageInfos.at(i).imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
         bindless->_bindlessImageInfos.at(i).imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
         bindless->_bindlessImageInfos.at(i).imageView = texture.view;
-        bindless->_bindlessImageInfos.at(i).sampler = samplers.Access(texture.sampler)->sampler;
+        bindless->_bindlessImageInfos.at(i).sampler = samplers.get(texture.sampler)->sampler;
     }
 
     for (uint32_t i = 0; i < MAX_BINDLESS_RESOURCES; ++i)

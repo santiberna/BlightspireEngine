@@ -25,7 +25,7 @@ void GraphicsResources::Clean()
     _materialResourceManager->Clean();
     //_imageResourceManager->clear();
     _bufferResourceManager->Clean();
-    _samplerResourceManager->Clean();
+    //_samplerResourceManager->Clean();
 }
 
 GraphicsResources::~GraphicsResources()

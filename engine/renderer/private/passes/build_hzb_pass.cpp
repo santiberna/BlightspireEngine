@@ -51,7 +51,7 @@ void BuildHzbPass::RecordCommands(vk::CommandBuffer commandBuffer, [[maybe_unuse
         util::TransitionImageLayout(commandBuffer, hzb->handle, hzb->format, vk::ImageLayout::eUndefined, vk::ImageLayout::eGeneral, 1, i, 1);
 
         vk::DescriptorImageInfo inputImageInfo {
-            .sampler = _context->Resources()->GetSamplerResourceManager().Access(_hzbSampler)->sampler,
+            .sampler = _context->Resources()->GetSamplerResourceManager().get(_hzbSampler)->sampler,
             .imageView = inputTexture,
             .imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal,
         };

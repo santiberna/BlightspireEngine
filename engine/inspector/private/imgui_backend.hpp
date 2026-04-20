@@ -1,9 +1,10 @@
 #pragma once
 
+#include "common.hpp"
+#include "resource_manager.hpp"
+
 #include <imgui_include.hpp>
 #include <vector>
-
-#include "resource_manager.hpp"
 
 class GraphicsContext;
 class SwapChain;

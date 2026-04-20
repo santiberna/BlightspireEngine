@@ -1,14 +1,12 @@
 #pragma once
 
-#include "common.hpp"
+#include "achievements.hpp"
 #include "engine.hpp"
 #include "game_settings.hpp"
-#include "input_bindings_visualization_cache.hpp"
 #include "scene/model_loader.hpp"
+#include "steam_stats.hpp"
 #include "ui/ui_menus.hpp"
 
-#include "achievements.hpp"
-#include "steam_stats.hpp"
 #include <stack>
 
 constexpr const char* DISCORD_URL = "https://discord.gg/8RmgD2sz9M";

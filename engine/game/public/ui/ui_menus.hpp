@@ -2,10 +2,6 @@
 #include "canvas.hpp"
 #include "fonts.hpp"
 #include "input_bindings_visualization_cache.hpp"
-#include "ui_button.hpp"
-#include "ui_slider.hpp"
-#include "ui_toggle.hpp"
-
 #include "ui/resources.hpp"
 
 #include <array>

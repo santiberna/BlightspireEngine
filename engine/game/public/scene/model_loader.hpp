@@ -1,6 +1,6 @@
 #pragma once
 
-#include "resource_management/model_resource_manager.hpp"
+#include "resources/model.hpp"
 
 #include <entt/entity/entity.hpp>
 #include <string>

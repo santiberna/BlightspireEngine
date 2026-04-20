@@ -1,13 +1,10 @@
 #pragma once
 
+#include <cassert>
 #include <cstdint>
 #include <memory>
 #include <optional>
-#include <unordered_map>
 #include <vector>
-
-#include "common.hpp"
-#include <cassert>
 
 template <typename T>
 struct ResourceHandle;

@@ -1,12 +1,7 @@
 #pragma once
 #include "callback.hpp"
 #include "resource_manager.hpp"
-#include "resources/image.hpp"
 #include "ui_element.hpp"
-
-#include "resources/texture.hpp"
-
-#include <functional>
 
 class UIButton : public UIElement
 {

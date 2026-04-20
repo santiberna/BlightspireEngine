@@ -1,4 +1,6 @@
 #pragma once
+
+#include "common.hpp"
 #include "resource_manager.hpp"
 
 #include <glm/vec3.hpp>

@@ -1,7 +1,6 @@
 #include "particle_bindings.hpp"
 
 #include "particle_module.hpp"
-#include "resource_management/image_resource_manager.hpp"
 #include "utility/enum_bind.hpp"
 #include "wren_entity.hpp"
 

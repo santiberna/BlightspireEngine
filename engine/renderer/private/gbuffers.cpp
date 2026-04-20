@@ -4,7 +4,6 @@
 #include "graphics_resources.hpp"
 #include "resource_management/image_resource_manager.hpp"
 #include "resource_management/sampler_resource_manager.hpp"
-#include "vulkan_context.hpp"
 #include "vulkan_helper.hpp"
 
 GBuffers::GBuffers(const std::shared_ptr<GraphicsContext>& context, glm::uvec2 size)

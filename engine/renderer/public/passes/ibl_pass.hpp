@@ -1,8 +1,9 @@
 #pragma once
 
+#include "common.hpp"
 #include "resource_manager.hpp"
-#include "resources/image.hpp"
-#include "resources/texture.hpp"
+
+#include "vulkan_include.hpp"
 
 #include <memory>
 

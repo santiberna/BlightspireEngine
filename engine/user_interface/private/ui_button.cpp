@@ -1,6 +1,5 @@
 #include "ui_button.hpp"
 #include "input/input_device_manager.hpp"
-#include "resources/texture.hpp"
 #include "ui_input.hpp"
 #include "ui_module.hpp"
 #include <glm/gtc/matrix_transform.hpp>

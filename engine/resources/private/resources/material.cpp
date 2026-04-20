@@ -1,5 +1,4 @@
 #include "resources/material.hpp"
-#include "resources/texture.hpp"
 
 GPUMaterial::GPUMaterial(const MaterialCreation& creation)
 {

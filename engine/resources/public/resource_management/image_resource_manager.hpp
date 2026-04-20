@@ -32,7 +32,7 @@ public:
         bb::Flags<bb::TextureFlags> flags,
         std::string_view name);
 
-    // TODO remove this
+    // TODO remove this overload at some point
     ResourceHandle<GPUImage> Create(
         const bb::Image2D& image,
         bb::Flags<bb::TextureFlags> flags,
@@ -42,7 +42,7 @@ public:
         return Create(image, _defaultSampler, flags, name, upload_commands);
     }
 
-    // TODO remove this
+    // TODO remove this overload at some point
     ResourceHandle<GPUImage> Create(
         const bb::Image2D& image,
         bb::Flags<bb::TextureFlags> flags,

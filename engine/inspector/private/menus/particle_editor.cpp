@@ -6,7 +6,6 @@
 #include "components/transform_helpers.hpp"
 #include "ecs_module.hpp"
 #include "game_module.hpp"
-#include "resource_management/image_resource_manager.hpp"
 
 #include <imgui_include.hpp>
 #include <magic_enum.hpp>

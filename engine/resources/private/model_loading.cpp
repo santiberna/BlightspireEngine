@@ -1,15 +1,12 @@
 #include "model_loading.hpp"
 
 #include "animation.hpp"
-#include "batch_buffer.hpp"
-#include "ecs_module.hpp"
 #include "file_io.hpp"
 #include "lib/include_fastgltf.hpp"
+#include "vulkan_include.hpp"
 
 #include "math.hpp"
 #include "physics/shape_factory.hpp"
-#include "resource_management/image_resource_manager.hpp"
-#include "resource_management/mesh_resource_manager.hpp"
 #include "thread_pool.hpp"
 
 #include <glm/glm.hpp>

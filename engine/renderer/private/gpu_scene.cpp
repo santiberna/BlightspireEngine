@@ -31,7 +31,6 @@
 #include "vulkan_helper.hpp"
 
 #include <file_io.hpp>
-#include <filesystem>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/dual_quaternion.hpp>
 #include <glm/gtx/matrix_decompose.hpp>

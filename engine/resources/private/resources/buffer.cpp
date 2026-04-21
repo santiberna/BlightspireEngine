@@ -19,8 +19,8 @@ bb::Buffer::~Buffer()
 bb::Buffer::Buffer(bb::Buffer&& other) noexcept
     : buffer(other.buffer)
     , allocation(other.allocation)
-    , mappedPtr(other.mappedPtr)
     , size(other.size)
+    , mappedPtr(other.mappedPtr)
     , name(std::move(other.name))
     , _context(other._context)
 {

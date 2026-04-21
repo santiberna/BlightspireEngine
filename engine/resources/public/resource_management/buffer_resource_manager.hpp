@@ -1,12 +1,9 @@
 #pragma once
 
 #include "common.hpp"
+#include "enum_utils.hpp"
 #include "resource_manager.hpp"
 #include "resources/buffer.hpp"
-
-#include "enum_utils.hpp"
-#include "vma_include.hpp"
-#include "vulkan_include.hpp"
 
 #include <memory>
 

@@ -147,14 +147,11 @@ void DebugPass::CreatePipeline()
 void DebugPass::CreateVertexBuffer()
 {
     const vk::DeviceSize bufferSize = sizeof(glm::vec3) * 4_mb;
-    BufferCreation vertexBufferCreation {};
-    vertexBufferCreation.SetSize(bufferSize)
-        .SetUsageFlags(vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eVertexBuffer)
-        .SetIsMappable(true)
-        .SetMemoryUsage(VMA_MEMORY_USAGE_AUTO_PREFER_HOST)
-        .SetName("Debug vertex buffer");
 
-    _vertexBuffer = _context->Resources()->GetBufferResourceManager().Create(vertexBufferCreation);
+    _vertexBuffer = _context->Resources()->GetBufferResourceManager().Create(
+        bufferSize,
+        { bb::BufferFlags::VERTEX_USAGE, bb::BufferFlags::TRANSFER_DST, bb::BufferFlags::MAPPABLE },
+        "Debug vertex buffer");
 }
 
 void DebugPass::UpdateVertexData()

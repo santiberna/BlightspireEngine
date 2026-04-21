@@ -186,14 +186,8 @@ void TonemappingPass::CreatePaletteBuffer()
     std::vector<glm::vec4> colors(_maxColorsInPalette);
     vk::DeviceSize bufferSize = sizeof(glm::vec4) * _maxColorsInPalette;
 
-    BufferCreation creation;
-    creation.SetName("Palette bb::Buffer")
-        .SetSize(bufferSize)
-        .SetIsMappable(true)
-        .SetMemoryUsage(VMA_MEMORY_USAGE_AUTO)
-        .SetUsageFlags(vk::BufferUsageFlagBits::eUniformBuffer | vk::BufferUsageFlagBits::eTransferDst);
-
-    _colorPaletteBuffer = _context->Resources()->GetBufferResourceManager().Create(creation);
+    bb::Flags<bb::BufferFlags> flags = { bb::BufferFlags::UNIFORM_USAGE, bb::BufferFlags::TRANSFER_DST, bb::BufferFlags::MAPPABLE };
+    _colorPaletteBuffer = _context->Resources()->GetBufferResourceManager().Create(bufferSize, flags, "Palette Buffer");
 
     // Immediately update the buffer with the initial palette data.
     UpdatePaletteBuffer(colors);

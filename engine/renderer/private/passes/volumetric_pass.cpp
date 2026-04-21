@@ -167,14 +167,8 @@ void VolumetricPass::CreateFogTrailsBuffer()
 {
     const vk::DeviceSize bufferSize = (gunShots.size() * sizeof(glm::vec4) * 2) + (playerTrailPositions.size() * sizeof(glm::vec4));
 
-    BufferCreation creation;
-    creation.SetName("Fog Trails bb::Buffer")
-        .SetSize(bufferSize)
-        .SetIsMappable(true)
-        .SetMemoryUsage(VMA_MEMORY_USAGE_AUTO)
-        .SetUsageFlags(vk::BufferUsageFlagBits::eUniformBuffer | vk::BufferUsageFlagBits::eTransferDst);
-
-    _fogTrailsBuffer = _context->Resources()->GetBufferResourceManager().Create(creation);
+    bb::Flags<bb::BufferFlags> flags = { bb::BufferFlags::UNIFORM_USAGE, bb::BufferFlags::TRANSFER_DST, bb::BufferFlags::MAPPABLE };
+    _fogTrailsBuffer = _context->Resources()->GetBufferResourceManager().Create(bufferSize, flags, "Fog Trails Buffer");
 
     // Immediately update the buffer with the initial palette data.
     UpdateFogTrailsBuffer();

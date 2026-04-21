@@ -17,13 +17,13 @@ namespace bb
 
 enum class BufferFlags
 {
-    TRANSFER_DST,
-    INDEX_USAGE,
-    VERTEX_USAGE,
-    UNIFORM_USAGE,
-    STORAGE_USAGE,
-    INDIRECT_USAGE,
-    MAPPABLE,
+    TRANSFER_DST = 1 << 0,
+    INDEX_USAGE = 1 << 1,
+    VERTEX_USAGE = 1 << 2,
+    UNIFORM_USAGE = 1 << 3,
+    STORAGE_USAGE = 1 << 4,
+    INDIRECT_USAGE = 1 << 5,
+    MAPPABLE = 1 << 6,
 };
 
 }

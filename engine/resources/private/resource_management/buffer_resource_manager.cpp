@@ -49,7 +49,7 @@ ResourceHandle<bb::Buffer> BufferResourceManager::Create(VkDeviceSize size, bb::
         mappable,
         out.allocation,
         VMA_MEMORY_USAGE_AUTO,
-        out.name.c_str());
+        name);
 
     out.buffer = vk_type;
     out.size = size;

@@ -129,12 +129,10 @@ void GraphicsContext::CreateBindlessDescriptorSet()
 
 void GraphicsContext::CreateBindlessMaterialBuffer()
 {
-    BufferCreation creation {};
-    creation.SetSize(MAX_BINDLESS_RESOURCES * sizeof(GPUMaterial::GPUInfo))
-        .SetUsageFlags(vk::BufferUsageFlagBits::eUniformBuffer)
-        .SetName("Bindless material uniform buffer");
-
-    bindless->_bindlessMaterialBuffer = _graphicsResources->GetBufferResourceManager().Create(creation);
+    bindless->_bindlessMaterialBuffer = _graphicsResources->GetBufferResourceManager().Create(
+        MAX_BINDLESS_RESOURCES * sizeof(GPUMaterial::GPUInfo),
+        { bb::BufferFlags::UNIFORM_USAGE, bb::BufferFlags::MAPPABLE },
+        "Bindless Material Uniforms");
 }
 
 void GraphicsContext::UpdateBindlessSet()

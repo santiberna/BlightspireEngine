@@ -69,7 +69,7 @@ void BloomSettings::CreateUniformBuffers()
 
         _frameData.buffers.at(i) = resources->GetBufferResourceManager().Create(
             sizeof(FrameData),
-            bb::BufferFlags::UNIFORM_USAGE,
+            { bb::BufferFlags::UNIFORM_USAGE, bb::BufferFlags::MAPPABLE },
             name.c_str());
     }
 

@@ -1086,12 +1086,8 @@ void GPUScene::CreateSceneBuffers()
         // Inserts i in the middle of []
         name.insert(1, 1, static_cast<char>(i + '0'));
 
-        BufferCreation creation {};
-        creation.SetSize(sizeof(SceneData))
-            .SetUsageFlags(vk::BufferUsageFlagBits::eUniformBuffer)
-            .SetName(name);
-
-        _sceneFrameData[i].buffer = _context->Resources()->GetBufferResourceManager().Create(creation);
+        _sceneFrameData[i].buffer = _context->Resources()->GetBufferResourceManager().Create(
+            sizeof(SceneData), { bb::BufferFlags::UNIFORM_USAGE, bb::BufferFlags::MAPPABLE }, name.c_str());
     }
 }
 
@@ -1102,52 +1098,27 @@ void GPUScene::CreatePointLightBuffer()
         std::string name = "[] PointLight SSBO";
         name.insert(1, 1, static_cast<char>(i + '0'));
 
-        BufferCreation creation {};
-        creation.SetSize(sizeof(PointLightArray))
-            .SetUsageFlags(vk::BufferUsageFlagBits::eStorageBuffer)
-            .SetName(name);
-
-        _pointLightFrameData[i].buffer = _context->Resources()->GetBufferResourceManager().Create(creation);
+        _pointLightFrameData[i].buffer = _context->Resources()->GetBufferResourceManager().Create(
+            sizeof(PointLightArray), { bb::BufferFlags::STORAGE_USAGE, bb::BufferFlags::MAPPABLE }, name.c_str());
     }
 }
 
 void GPUScene::CreateClusterBuffer()
 {
-    BufferCreation createInfo {};
-    createInfo.SetSize(CLUSTER_SIZE * (sizeof(glm::vec4) * 2))
-        .SetUsageFlags(vk::BufferUsageFlagBits::eStorageBuffer)
-        .SetMemoryUsage(VMA_MEMORY_USAGE_AUTO)
-        .SetIsMappable(false)
-        .SetName("Cluster bb::Buffer");
-
-    _clusterData.buffer = _context->Resources()->GetBufferResourceManager().Create(createInfo);
+    _clusterData.buffer = _context->Resources()->GetBufferResourceManager().Create(
+        CLUSTER_SIZE * (sizeof(glm::vec4) * 2), bb::BufferFlags::STORAGE_USAGE, "Cluster Buffer");
 }
 
 void GPUScene::CreateClusterCullingBuffers()
 {
-    BufferCreation createInfo {};
-    createInfo.SetSize(sizeof(uint32_t))
-        .SetUsageFlags(vk::BufferUsageFlagBits::eStorageBuffer | vk::BufferUsageFlagBits::eTransferDst)
-        .SetMemoryUsage(VMA_MEMORY_USAGE_AUTO)
-        .SetName("Atomic Counter bb::Buffer");
+    _clusterCullingData.globalIndexBuffer = _context->Resources()->GetBufferResourceManager().Create(
+        sizeof(uint32_t), { bb::BufferFlags::STORAGE_USAGE, bb::BufferFlags::TRANSFER_DST }, "Atomic Counter Buffer");
 
-    _clusterCullingData.globalIndexBuffer = _context->Resources()->GetBufferResourceManager().Create(createInfo);
+    _clusterCullingData.buffers.at(0) = _context->Resources()->GetBufferResourceManager().Create(
+        CLUSTER_SIZE * (sizeof(uint32_t) * 2), bb::BufferFlags::STORAGE_USAGE, "Cluster Light Cells");
 
-    createInfo = {};
-    createInfo.SetSize(CLUSTER_SIZE * (sizeof(uint32_t) * 2))
-        .SetUsageFlags(vk::BufferUsageFlagBits::eStorageBuffer)
-        .SetMemoryUsage(VMA_MEMORY_USAGE_AUTO)
-        .SetName("ClusterCullingLightCells bb::Buffer");
-
-    _clusterCullingData.buffers.at(0) = _context->Resources()->GetBufferResourceManager().Create(createInfo);
-
-    createInfo = {};
-    createInfo.SetSize(CLUSTER_SIZE * MAX_LIGHTS_PER_CLUSTER * sizeof(uint32_t))
-        .SetUsageFlags(vk::BufferUsageFlagBits::eStorageBuffer)
-        .SetMemoryUsage(VMA_MEMORY_USAGE_AUTO)
-        .SetName("ClusterCullingLightIndices bb::Buffer");
-
-    _clusterCullingData.buffers.at(1) = _context->Resources()->GetBufferResourceManager().Create(createInfo);
+    _clusterCullingData.buffers.at(1) = _context->Resources()->GetBufferResourceManager().Create(
+        CLUSTER_SIZE * MAX_LIGHTS_PER_CLUSTER * sizeof(uint32_t), bb::BufferFlags::STORAGE_USAGE, "Light Indices");
 }
 
 void GPUScene::CreateObjectInstancesBuffers()
@@ -1159,12 +1130,8 @@ void GPUScene::CreateObjectInstancesBuffers()
         // Inserts i in the middle of []
         name.insert(1, 1, static_cast<char>(i + '0'));
 
-        BufferCreation creation {};
-        creation.SetSize(sizeof(InstanceData) * MAX_STATIC_INSTANCES)
-            .SetUsageFlags(vk::BufferUsageFlagBits::eStorageBuffer)
-            .SetName(name);
-
-        _staticInstancesFrameData[i].buffer = _context->Resources()->GetBufferResourceManager().Create(creation);
+        _staticInstancesFrameData[i].buffer = _context->Resources()->GetBufferResourceManager().Create(
+            sizeof(InstanceData) * MAX_STATIC_INSTANCES, { bb::BufferFlags::STORAGE_USAGE, bb::BufferFlags::MAPPABLE }, name.c_str());
     }
     for (size_t i = 0; i < _skinnedInstancesFrameData.size(); ++i)
     {
@@ -1173,26 +1140,17 @@ void GPUScene::CreateObjectInstancesBuffers()
         // Inserts i in the middle of []
         name.insert(1, 1, static_cast<char>(i + '0'));
 
-        BufferCreation creation {};
-        creation.SetSize(sizeof(InstanceData) * MAX_SKINNED_INSTANCES)
-            .SetUsageFlags(vk::BufferUsageFlagBits::eStorageBuffer)
-            .SetName(name);
-
-        _skinnedInstancesFrameData[i].buffer = _context->Resources()->GetBufferResourceManager().Create(creation);
+        _skinnedInstancesFrameData[i].buffer = _context->Resources()->GetBufferResourceManager().Create(
+            sizeof(InstanceData) * MAX_SKINNED_INSTANCES, { bb::BufferFlags::STORAGE_USAGE, bb::BufferFlags::MAPPABLE }, name.c_str());
     }
 }
 void GPUScene::CreateSkinBuffers()
 {
     for (uint32_t i = 0; i < _skinTransformBuffers.size(); ++i)
     {
-        BufferCreation creation {
-            .size = sizeof(glm::mat2x4) * MAX_BONES,
-            .usage = vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eStorageBuffer,
-            .isMappable = true,
-            .memoryUsage = VMA_MEMORY_USAGE_AUTO_PREFER_DEVICE,
-            .name = "Skin matrices buffer",
-        };
-        _skinTransformBuffers[i] = _context->Resources()->GetBufferResourceManager().Create(creation);
+        bb::Flags<bb::BufferFlags> flags = { bb::BufferFlags::TRANSFER_DST, bb::BufferFlags::STORAGE_USAGE, bb::BufferFlags::MAPPABLE };
+        _skinTransformBuffers[i] = _context->Resources()->GetBufferResourceManager().Create(
+            sizeof(glm::mat2x4) * MAX_BONES, flags, "Skin Matrix Buffer");
 
         const bb::Buffer* skinBuffer = _context->Resources()->GetBufferResourceManager().Access(_skinTransformBuffers[i]);
         for (uint32_t j = 0; j < MAX_BONES; ++j)
@@ -1207,15 +1165,8 @@ void GPUScene::CreateDecalBuffer()
 {
     for (uint32_t i = 0; i < _decalFrameData.size(); ++i)
     {
-        BufferCreation createInfo {
-            .size = sizeof(DecalArray),
-            .usage = vk::BufferUsageFlagBits::eUniformBuffer,
-            .isMappable = true,
-            .memoryUsage = VMA_MEMORY_USAGE_AUTO_PREFER_DEVICE,
-            .name = "Decal bb::Buffer"
-        };
-
-        _decalFrameData[i].buffer = _context->Resources()->GetBufferResourceManager().Create(createInfo);
+        bb::Flags<bb::BufferFlags> flags = { bb::BufferFlags::UNIFORM_USAGE, bb::BufferFlags::MAPPABLE };
+        _decalFrameData[i].buffer = _context->Resources()->GetBufferResourceManager().Create(sizeof(DecalArray), flags, "Decal Buffer");
 
         const bb::Buffer* decalBuffer = _context->Resources()->GetBufferResourceManager().Access(_decalFrameData[i].buffer);
         DecalArray data;
@@ -1227,25 +1178,15 @@ void GPUScene::InitializeIndirectDrawBuffer()
 {
     for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
     {
-        BufferCreation creation {};
-        creation.SetSize(sizeof(DrawIndexedIndirectCommand) * MAX_STATIC_INSTANCES)
-            .SetUsageFlags(vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eStorageBuffer)
-            .SetMemoryUsage(VMA_MEMORY_USAGE_AUTO)
-            .SetIsMappable(true)
-            .SetName("Static indirect draw buffer");
-
-        _staticDraws[i].buffer = _context->Resources()->GetBufferResourceManager().Create(creation);
+        bb::Flags<bb::BufferFlags> flags = { bb::BufferFlags::TRANSFER_DST, bb::BufferFlags::STORAGE_USAGE, bb::BufferFlags::MAPPABLE };
+        _staticDraws[i].buffer = _context->Resources()->GetBufferResourceManager().Create(
+            sizeof(DrawIndexedIndirectCommand) * MAX_STATIC_INSTANCES, flags, "Static Indirect Draws");
     }
     for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
     {
-        BufferCreation creation {};
-        creation.SetSize(sizeof(DrawIndexedIndirectCommand) * MAX_SKINNED_INSTANCES)
-            .SetUsageFlags(vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eStorageBuffer)
-            .SetMemoryUsage(VMA_MEMORY_USAGE_AUTO)
-            .SetIsMappable(true)
-            .SetName("Skinned indirect draw buffer");
-
-        _skinnedDraws[i].buffer = _context->Resources()->GetBufferResourceManager().Create(creation);
+        bb::Flags<bb::BufferFlags> flags = { bb::BufferFlags::TRANSFER_DST, bb::BufferFlags::STORAGE_USAGE, bb::BufferFlags::MAPPABLE };
+        _skinnedDraws[i].buffer = _context->Resources()->GetBufferResourceManager().Create(
+            sizeof(DrawIndexedIndirectCommand) * MAX_SKINNED_INSTANCES, flags, "Skinned Indirect Draws");
     }
 }
 

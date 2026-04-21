@@ -64,15 +64,8 @@ void CameraResource::CreateBuffers()
 
         // Inserts i in the middle of []
         name.insert(1, 1, static_cast<char>(i + '0'));
-
-        BufferCreation creation {};
-        creation.SetSize(bufferSize)
-            .SetUsageFlags(vk::BufferUsageFlagBits::eUniformBuffer)
-            .SetMemoryUsage(VMA_MEMORY_USAGE_AUTO)
-            .SetIsMappable(true)
-            .SetName(name);
-
-        _buffers.at(i) = _context->Resources()->GetBufferResourceManager().Create(creation);
+        _buffers.at(i) = _context->Resources()->GetBufferResourceManager().Create(
+            bufferSize, { bb::BufferFlags::UNIFORM_USAGE, bb::BufferFlags::MAPPABLE }, name.c_str());
     }
 }
 

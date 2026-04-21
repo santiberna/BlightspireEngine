@@ -153,14 +153,8 @@ void SSAOPass::CreateBuffers()
 
     // Sample Kernel buffer
     {
-        BufferCreation creation {};
-        creation.SetName("Sample Kernel")
-            .SetSize(ssaoKernel.size() * sizeof(glm::vec4))
-            .SetIsMappable(false)
-            .SetMemoryUsage(VMA_MEMORY_USAGE_AUTO)
-            .SetUsageFlags(vk::BufferUsageFlagBits::eUniformBuffer | vk::BufferUsageFlagBits::eTransferDst);
-
-        _sampleKernelBuffer = resources->GetBufferResourceManager().Create(creation);
+        bb::Flags<bb::BufferFlags> flags = { bb::BufferFlags::UNIFORM_USAGE, bb::BufferFlags::TRANSFER_DST };
+        _sampleKernelBuffer = resources->GetBufferResourceManager().Create(ssaoKernel.size() * sizeof(glm::vec4), flags, "Sample Kernel");
         cmdBuffer.CopyIntoLocalBuffer(ssaoKernel, 0, resources->GetBufferResourceManager().Access(_sampleKernelBuffer)->buffer);
     }
 

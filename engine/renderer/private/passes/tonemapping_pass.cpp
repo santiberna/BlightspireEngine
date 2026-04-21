@@ -187,7 +187,7 @@ void TonemappingPass::CreatePaletteBuffer()
     vk::DeviceSize bufferSize = sizeof(glm::vec4) * _maxColorsInPalette;
 
     BufferCreation creation;
-    creation.SetName("Palette Buffer")
+    creation.SetName("Palette bb::Buffer")
         .SetSize(bufferSize)
         .SetIsMappable(true)
         .SetMemoryUsage(VMA_MEMORY_USAGE_AUTO)

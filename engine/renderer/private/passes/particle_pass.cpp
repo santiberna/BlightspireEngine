@@ -52,7 +52,7 @@ ParticlePass::~ParticlePass()
     {
         device.destroy(layout);
     }
-    // Buffer stuff
+    // bb::Buffer stuff
     for (auto& storageBuffer : _particlesBuffers)
     {
         resources->GetBufferResourceManager().Destroy(storageBuffer);
@@ -590,7 +590,7 @@ void ParticlePass::CreateDescriptorSetLayouts()
             "Failed creating particle buffers descriptor set layout!");
     }
 
-    { // Emitter Uniform Buffer
+    { // Emitter Uniform bb::Buffer
         std::array<vk::DescriptorSetLayoutBinding, 1> bindings {};
 
         vk::DescriptorSetLayoutBinding& descriptorSetLayoutBinding { bindings[0] };
@@ -608,7 +608,7 @@ void ParticlePass::CreateDescriptorSetLayouts()
             "Failed creating emitter buffer descriptor set layout!");
     }
 
-    { // Local Emitter Uniform Buffer
+    { // Local Emitter Uniform bb::Buffer
         std::array<vk::DescriptorSetLayoutBinding, 1> bindings {};
 
         vk::DescriptorSetLayoutBinding& descriptorSetLayoutBinding { bindings[0] };
@@ -626,7 +626,7 @@ void ParticlePass::CreateDescriptorSetLayouts()
             "Failed creating local emitter buffer descriptor set layout!");
     }
 
-    { // Particle Instances Storage Buffer
+    { // Particle Instances Storage bb::Buffer
         std::vector<vk::DescriptorSetLayoutBinding> bindings {};
 
         vk::DescriptorSetLayoutBinding& descriptorSetLayoutBinding { bindings.emplace_back() };
@@ -672,13 +672,13 @@ void ParticlePass::CreateDescriptorSets()
         std::array<vk::DescriptorSet, 1> descriptorSets;
 
         util::VK_ASSERT(device.allocateDescriptorSets(&allocateInfo, descriptorSets.data()),
-            "Failed allocating Particle Storage Buffer descriptor sets!");
+            "Failed allocating Particle Storage bb::Buffer descriptor sets!");
 
         _particlesBuffersDescriptorSet = descriptorSets[0];
         UpdateParticleBuffersDescriptorSets();
     }
 
-    { // Culled Instances Storage Buffer
+    { // Culled Instances Storage bb::Buffer
         vk::DescriptorSetAllocateInfo allocateInfo {};
         allocateInfo.descriptorPool = vkContext->DescriptorPool();
         allocateInfo.descriptorSetCount = 1;
@@ -686,7 +686,7 @@ void ParticlePass::CreateDescriptorSets()
 
         std::array<vk::DescriptorSet, 1> descriptorSets;
         util::VK_ASSERT(device.allocateDescriptorSets(&allocateInfo, descriptorSets.data()),
-            "Failed allocating Particle Instances Storage Buffer descriptor sets!");
+            "Failed allocating Particle Instances Storage bb::Buffer descriptor sets!");
 
         _culledInstancesDescriptorSet = descriptorSets[0];
         UpdateParticleInstancesBufferDescriptorSet();
@@ -700,7 +700,7 @@ void ParticlePass::CreateDescriptorSets()
 
         std::array<vk::DescriptorSet, 1> descriptorSets;
         util::VK_ASSERT(device.allocateDescriptorSets(&allocateInfo, descriptorSets.data()),
-            "Failed allocating Emitter Uniform Buffer descriptor sets!");
+            "Failed allocating Emitter Uniform bb::Buffer descriptor sets!");
 
         _emittersDescriptorSet = descriptorSets[0];
         UpdateEmittersBuffersDescriptorSets();
@@ -714,7 +714,7 @@ void ParticlePass::CreateDescriptorSets()
 
         std::array<vk::DescriptorSet, 1> descriptorSets;
         util::VK_ASSERT(device.allocateDescriptorSets(&allocateInfo, descriptorSets.data()),
-            "Failed allocating Local Emitter Uniform Buffer descriptor sets!");
+            "Failed allocating Local Emitter Uniform bb::Buffer descriptor sets!");
 
         _localEmittersDescriptorSet = descriptorSets[0];
         UpdateLocalEmittersBuffersDescriptorSets();
@@ -728,7 +728,7 @@ void ParticlePass::CreateDescriptorSets()
 
         std::array<vk::DescriptorSet, 1> descriptorSets;
         util::VK_ASSERT(device.allocateDescriptorSets(&allocateInfo, descriptorSets.data()),
-            "Failed allocating Particle Draw Commands Buffer descriptor set!");
+            "Failed allocating Particle Draw Commands bb::Buffer descriptor set!");
 
         _drawCommandsDescriptorSet = descriptorSets[0];
         UpdateDrawCommandsBufferDescriptorSet();

@@ -21,7 +21,7 @@ struct GraphicsContext::BindlessObjects
     std::array<vk::DescriptorImageInfo, MAX_BINDLESS_RESOURCES> _bindlessImageInfos;
     std::array<vk::WriteDescriptorSet, MAX_BINDLESS_RESOURCES> _bindlessImageWrites;
 
-    ResourceHandle<Buffer> _bindlessMaterialBuffer;
+    ResourceHandle<bb::Buffer> _bindlessMaterialBuffer;
     vk::DescriptorBufferInfo _bindlessMaterialInfo;
     vk::WriteDescriptorSet _bindlessMaterialWrite;
 };
@@ -218,7 +218,7 @@ void GraphicsContext::UpdateBindlessMaterials()
         materialGPUData[i] = material->gpuInfo;
     }
 
-    const Buffer* buffer = bufferResourceManager.Access(bindless->_bindlessMaterialBuffer);
+    const bb::Buffer* buffer = bufferResourceManager.Access(bindless->_bindlessMaterialBuffer);
     std::memcpy(buffer->mappedPtr, materialGPUData.data(), materialResourceManager.Resources().size() * sizeof(GPUMaterial::GPUInfo));
 
     bindless->_bindlessMaterialInfo.buffer = buffer->buffer;

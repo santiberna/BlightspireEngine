@@ -168,7 +168,7 @@ void VolumetricPass::CreateFogTrailsBuffer()
     const vk::DeviceSize bufferSize = (gunShots.size() * sizeof(glm::vec4) * 2) + (playerTrailPositions.size() * sizeof(glm::vec4));
 
     BufferCreation creation;
-    creation.SetName("Fog Trails Buffer")
+    creation.SetName("Fog Trails bb::Buffer")
         .SetSize(bufferSize)
         .SetIsMappable(true)
         .SetMemoryUsage(VMA_MEMORY_USAGE_AUTO)

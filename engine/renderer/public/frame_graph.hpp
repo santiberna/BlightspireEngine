@@ -10,9 +10,13 @@
 #include <variant>
 
 struct RenderSceneDescription;
-struct Buffer;
 struct GPUImage;
 class GraphicsContext;
+
+namespace bb
+{
+struct Buffer;
+}
 
 enum class FrameGraphRenderPassType : uint8_t
 {
@@ -30,7 +34,7 @@ enum class FrameGraphResourceType : uint8_t
     // Image that is read during the render pass
     eTexture = 1 << 2,
 
-    // Buffer of data that we can write to or read from
+    // bb::Buffer of data that we can write to or read from
     eBuffer = 1 << 3,
 
     // Type exclusively used to ensure correct node ordering when the pass does not actually use the resource
@@ -45,7 +49,7 @@ struct FrameGraphResourceInfo
 {
     struct StageBuffer
     {
-        ResourceHandle<Buffer> handle = ResourceHandle<Buffer>::Null();
+        ResourceHandle<bb::Buffer> handle = ResourceHandle<bb::Buffer>::Null();
         vk::PipelineStageFlags2 stageUsage;
     };
 
@@ -110,10 +114,10 @@ struct FrameGraphNodeCreation
     FrameGraphNodeCreation(FrameGraphRenderPass& renderPass, FrameGraphRenderPassType queueType = FrameGraphRenderPassType::eGraphics);
 
     FrameGraphNodeCreation& AddInput(ResourceHandle<GPUImage> image, FrameGraphResourceType type);
-    FrameGraphNodeCreation& AddInput(ResourceHandle<Buffer> buffer, FrameGraphResourceType type, vk::PipelineStageFlags2 stageUsage);
+    FrameGraphNodeCreation& AddInput(ResourceHandle<bb::Buffer> buffer, FrameGraphResourceType type, vk::PipelineStageFlags2 stageUsage);
 
     FrameGraphNodeCreation& AddOutput(ResourceHandle<GPUImage> image, FrameGraphResourceType type, bool allowSimultaneousWrites = false);
-    FrameGraphNodeCreation& AddOutput(ResourceHandle<Buffer> buffer, FrameGraphResourceType type, vk::PipelineStageFlags2 stageUsage, bool allowSimultaneousWrites = false);
+    FrameGraphNodeCreation& AddOutput(ResourceHandle<bb::Buffer> buffer, FrameGraphResourceType type, vk::PipelineStageFlags2 stageUsage, bool allowSimultaneousWrites = false);
 
     FrameGraphNodeCreation& SetIsEnabled(bool isEnabled);
     FrameGraphNodeCreation& SetName(std::string_view name);

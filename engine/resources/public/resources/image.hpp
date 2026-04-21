@@ -36,19 +36,6 @@ enum class ImageFormat : uint8_t
     R32_SFLOAT,
 };
 
-enum class TextureFlags : uint8_t
-{
-    SAMPLED = 1 << 0,
-    TRANSFER_SRC = 1 << 1,
-    TRANSFER_DST = 1 << 2,
-    COLOR_ATTACH = 1 << 3,
-    DEPTH_ATTACH = 1 << 4,
-    GEN_MIPMAPS = 1 << 5,
-    STORAGE_ACCESS = 1 << 6,
-
-    COMMON_FLAGS = SAMPLED | TRANSFER_SRC | TRANSFER_DST | GEN_MIPMAPS,
-};
-
 struct Image2D
 {
     static std::optional<Image2D> fromFile(std::string_view path);

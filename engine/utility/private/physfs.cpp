@@ -72,28 +72,29 @@ private:
 
     int_type overflow(int_type c = traits_type::eof())
     {
-        if (pptr() == pbase() && c == traits_type::eof())
+        if(pptr() != pbase())
         {
-            return 0; // no-op
-        }
-        if (PHYSFS_writeBytes(file, pbase(), pptr() - pbase()) < 1)
-        {
-            return traits_type::eof();
-        }
-        if (c != traits_type::eof())
-        {
-            if (PHYSFS_writeBytes(file, &c, 1) < 1)
+            auto n = pptr() - pbase();
+            if(PHYSFS_writeBytes(file, pbase(), n) < n)
             {
                 return traits_type::eof();
             }
         }
 
-        return 0;
+        setp(pbase(), epptr());
+
+        if(!traits_type::eq_int_type(c, traits_type::eof()))
+        {
+            *pptr() = traits_type::to_char_type(c);
+            pbump(1);
+        }
+
+        return traits_type::not_eof(c);
     }
 
     int sync()
     {
-        return overflow();
+        return overflow() == traits_type::eof() ? -1 : 0;
     }
 
     char* buffer;

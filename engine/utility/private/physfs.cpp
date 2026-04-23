@@ -72,25 +72,6 @@ private:
 
     int_type overflow(int_type c = traits_type::eof())
     {
-#if 0
-        if (pptr() == pbase() && c == traits_type::eof())
-        {
-            return 0; // no-op
-        }
-        if (PHYSFS_writeBytes(file, pbase(), pptr() - pbase()) < 1)
-        {
-            return traits_type::eof();
-        }
-        if (c != traits_type::eof())
-        {
-            if (PHYSFS_writeBytes(file, &c, 1) < 1)
-            {
-                return traits_type::eof();
-            }
-        }
-
-        return 0;
-#endif
         if(pptr() != pbase())
         {
             auto n = pptr() - pbase();

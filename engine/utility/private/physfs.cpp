@@ -72,6 +72,7 @@ private:
 
     int_type overflow(int_type c = traits_type::eof())
     {
+#if 0
         if (pptr() == pbase() && c == traits_type::eof())
         {
             return 0; // no-op
@@ -89,11 +90,30 @@ private:
         }
 
         return 0;
+#endif
+        if(pptr() != pbase())
+        {
+            auto n = pptr() - pbase();
+            if(PHYSFS_writeBytes(file, pbase(), n) < n)
+            {
+                return traits_type::eof();
+            }
+        }
+
+        setp(pbase(), epptr());
+
+        if(!traits_type::eq_int_type(c, traits_type::eof()))
+        {
+            *pptr() = traits_type::to_char_type(c);
+            pbump(1);
+        }
+
+        return traits_type::not_eof(c);
     }
 
     int sync()
     {
-        return overflow();
+        return overflow() == traits_type::eof() ? -1 : 0;
     }
 
     char* buffer;

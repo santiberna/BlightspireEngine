@@ -327,12 +327,11 @@ void DumpVMAStats(Engine& engine)
     vmaBuildStatsString(engine.GetModule<RendererModule>().GetRenderer()->GetContext()->GetVulkanContext()->MemoryAllocator(), &statsJson, true);
 
     const char* outputFilePath = "vma_stats.json";
-    std::ofstream file { outputFilePath };
-    if (file.is_open())
+    auto stream = fileIO::OpenWriteStream(outputFilePath);
+    if (stream)
     {
+        auto& file = stream.value();
         file << statsJson;
-
-        file.close();
     }
     else
     {

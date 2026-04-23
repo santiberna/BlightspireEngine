@@ -50,6 +50,20 @@ bool fileIO::MakeDirectory(const std::string& path)
     return PhysFS::mkdir(path);
 }
 
+std::vector<std::string> fileIO::ListFilesInDirectory(const std::string& path)
+{
+    std::vector<std::string> files;
+    PhysFS::enumerate(path, [](void *data, const char *origdir, const char *fname)->PHYSFS_EnumerateCallbackResult
+    {
+        std::vector<std::string>& files = *reinterpret_cast<std::vector<std::string>*>(data);
+        files.push_back(fname);
+        return PHYSFS_EnumerateCallbackResult::PHYSFS_ENUM_OK;
+    },
+    &files);
+
+    return files;
+}
+
 std::vector<std::byte> fileIO::DumpStreamIntoBytes(std::istream& stream)
 {
     stream.seekg(0, std::ios::end);

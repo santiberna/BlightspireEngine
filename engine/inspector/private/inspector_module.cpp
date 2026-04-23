@@ -45,6 +45,7 @@ void DrawFXAASettings(Settings& settings);
 void DrawFogSettings(Settings& settings);
 void DrawTonemappingSettings(Settings& settings);
 void DrawLightingSettings(Settings& settings);
+void DrawSettingsFileDialog(Settings& settings);
 void DrawShadowMapInspect(Engine& engine, ImGuiBackend& imguiBackend);
 
 inline void SetupImGuiStyle();
@@ -124,6 +125,7 @@ void InspectorModule::Tick([[maybe_unused]] Engine& engine)
 
         if (ImGui::BeginMenu("Renderer"))
         {
+            ImGui::MenuItem("Settings file dialog", nullptr, &_openWindows["Settings File Dialog"]);
             ImGui::MenuItem("Performance Tracker", nullptr, &_openWindows["Performance"]);
             ImGui::MenuItem("Draw Stats", nullptr, &_openWindows["RenderStats"]);
             ImGui::MenuItem("Shadow map visualisation", nullptr, &_openWindows["Shadow Map"]);
@@ -285,6 +287,10 @@ void InspectorModule::Tick([[maybe_unused]] Engine& engine)
     if (_openWindows["Lighting"])
     {
         DrawLightingSettings(settings);
+    }
+    if(_openWindows["Settings File Dialog"])
+    {
+        DrawSettingsFileDialog(settings);
     }
 
     {
@@ -513,6 +519,19 @@ void DrawLightingSettings(Settings& settings)
     ImGui::DragFloat("Ambient Strength", &lighting.ambientStrength, 0.01f, 0.0f, 16.0f);
     ImGui::DragFloat("Ambient Shadow Strength", &lighting.ambientShadowStrength, 0.01f, 0.0f, 1.0f);
     ImGui::DragFloat("Decals Normal Wrap Threshold", &lighting.decalNormalThreshold, 0.1f, 0.0f, 180.0f);
+
+    ImGui::End();
+}
+
+void DrawSettingsFileDialog(Settings& settings)
+{
+    ImGui::Begin("Settings file dialog", nullptr);
+
+    std::vector<std::string> files = fileIO::ListFilesInDirectory("game/config");
+    for(const auto& file : files)
+    {
+        ImGui::Text(file.c_str());
+    }
 
     ImGui::End();
 }

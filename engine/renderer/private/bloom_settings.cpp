@@ -51,8 +51,9 @@ void BloomSettings::CreateDescriptorSetLayout()
     });
     std::vector<std::string_view> names { "BloomSettingsUBO" };
 
-    _descriptorSetLayout = PipelineBuilder::CacheDescriptorSetLayout(*_context->GetVulkanContext(), bindings, names);
-    vkContext->DebugSetObjectName(_descriptorSetLayout, "Bloom settings DSL");
+    auto layout = PipelineBuilder::CacheDescriptorSetLayout(*_context->GetVulkanContext(), bindings, names);
+    vkContext->DebugSetObjectName(layout, "Bloom settings DSL");
+    _descriptorSetLayout = layout;
 }
 
 void BloomSettings::CreateUniformBuffers()
@@ -82,7 +83,8 @@ void BloomSettings::CreateUniformBuffers()
     allocateInfo.pSetLayouts = layouts.data();
 
     vk::Device device = vkContext->Device();
-    util::VK_ASSERT(device.allocateDescriptorSets(&allocateInfo, _frameData.descriptorSets.data()),
+
+    util::VK_ASSERT(device.allocateDescriptorSets(&allocateInfo, (vk::DescriptorSet*)_frameData.descriptorSets.data()),
         "Failed allocating descriptor sets!");
 
     for (size_t i = 0; i < _frameData.descriptorSets.size(); ++i)

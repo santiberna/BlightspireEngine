@@ -9,6 +9,7 @@
 #include "gpu_scene.hpp"
 #include "graphics_context.hpp"
 #include "graphics_resources.hpp"
+#include "pipeline_builder.hpp"
 #include "resource_management/buffer_resource_manager.hpp"
 #include "resource_management/image_resource_manager.hpp"
 #include "shaders/shader_loader.hpp"
@@ -16,8 +17,8 @@
 #include "vertex.hpp"
 #include "vulkan_context.hpp"
 #include "vulkan_helper.hpp"
+#include "vulkan_include.hpp"
 
-#include <pipeline_builder.hpp>
 #include <random>
 
 ParticlePass::ParticlePass(const std::shared_ptr<GraphicsContext>& context, ECSModule& ecs, const GBuffers& gBuffers, const ResourceHandle<GPUImage>& hdrTarget, const ResourceHandle<GPUImage>& brightnessTarget, const BloomSettings& bloomSettings)
@@ -251,7 +252,9 @@ void ParticlePass::RecordRenderIndexedIndirect(vk::CommandBuffer commandBuffer, 
     commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, _pipelineLayouts[static_cast<uint32_t>(ShaderStages::eRenderIndexedIndirect)], 1, _culledInstancesDescriptorSet, {});
     commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, _pipelineLayouts[static_cast<uint32_t>(ShaderStages::eRenderIndexedIndirect)], 2, scene.gpuScene->MainCamera().DescriptorSet(currentFrame), {});
     commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, _pipelineLayouts[static_cast<uint32_t>(ShaderStages::eRenderIndexedIndirect)], 3, scene.gpuScene->GetSceneDescriptorSet(currentFrame), {});
-    commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, _pipelineLayouts[static_cast<uint32_t>(ShaderStages::eRenderIndexedIndirect)], 4, _bloomSettings.GetDescriptorSetData(currentFrame), {});
+
+    vk::DescriptorSet bloom_set = _bloomSettings.GetDescriptorSetData(currentFrame);
+    commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, _pipelineLayouts[static_cast<uint32_t>(ShaderStages::eRenderIndexedIndirect)], 4, bloom_set, {});
 
     vk::Buffer vertexBuffer = resources->GetBufferResourceManager().Access(_vertexBuffer)->buffer;
     vk::Buffer indexBuffer = resources->GetBufferResourceManager().Access(_indexBuffer)->buffer;

@@ -4,7 +4,7 @@
 #include "resource_manager.hpp"
 #include "resources/buffer.hpp"
 #include "settings.hpp"
-#include "vulkan_include.hpp"
+#include "vulkan_fwd.hpp"
 
 #include <array>
 #include <glm/vec2.hpp>
@@ -18,7 +18,7 @@ class BloomSettings
 public:
     struct FrameData
     {
-        std::array<vk::DescriptorSet, MAX_FRAMES_IN_FLIGHT> descriptorSets;
+        std::array<VkDescriptorSet, MAX_FRAMES_IN_FLIGHT> descriptorSets;
         std::array<ResourceHandle<bb::Buffer>, MAX_FRAMES_IN_FLIGHT> buffers;
     };
 
@@ -26,8 +26,8 @@ public:
     ~BloomSettings();
     void Render();
     void Update(uint32_t currentFrame);
-    const vk::DescriptorSet& GetDescriptorSetData(uint32_t currentFrame) const { return _frameData.descriptorSets[currentFrame]; }
-    const vk::DescriptorSetLayout& GetDescriptorSetLayout() const { return _descriptorSetLayout; }
+    VkDescriptorSet GetDescriptorSetData(uint32_t currentFrame) const { return _frameData.descriptorSets[currentFrame]; }
+    VkDescriptorSetLayout GetDescriptorSetLayout() const { return _descriptorSetLayout; }
 
 private:
     struct alignas(16) SettingsData
@@ -53,7 +53,7 @@ private:
 
     std::shared_ptr<GraphicsContext> _context;
     const Settings::Bloom& _settings;
-    vk::DescriptorSetLayout _descriptorSetLayout;
+    VkDescriptorSetLayout _descriptorSetLayout;
     FrameData _frameData;
 
     void CreateDescriptorSetLayout();

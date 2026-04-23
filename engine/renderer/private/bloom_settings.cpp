@@ -84,7 +84,7 @@ void BloomSettings::CreateUniformBuffers()
 
     vk::Device device = vkContext->Device();
 
-    util::VK_ASSERT(device.allocateDescriptorSets(&allocateInfo, (vk::DescriptorSet*)_frameData.descriptorSets.data()),
+    util::VK_ASSERT(device.allocateDescriptorSets(&allocateInfo, reinterpret_cast<vk::DescriptorSet*>(_frameData.descriptorSets.data())),
         "Failed allocating descriptor sets!");
 
     for (size_t i = 0; i < _frameData.descriptorSets.size(); ++i)

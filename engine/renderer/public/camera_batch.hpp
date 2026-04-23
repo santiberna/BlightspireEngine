@@ -1,7 +1,9 @@
 #pragma once
 
 #include "resource_manager.hpp"
-#include "vulkan_include.hpp"
+#include "vulkan_fwd.hpp"
+
+#include <string>
 
 class GPUScene;
 class GraphicsContext;
@@ -19,20 +21,20 @@ class CameraBatch
 public:
     struct Draw
     {
-        Draw(const std::shared_ptr<GraphicsContext>& context, const std::string& name, uint32_t instanceCount, vk::DescriptorSetLayout drawDSL, vk::DescriptorSetLayout visibilityDSL, vk::DescriptorSetLayout redirectDSL);
+        Draw(const std::shared_ptr<GraphicsContext>& context, const std::string& name, uint32_t instanceCount, VkDescriptorSetLayout drawDSL, VkDescriptorSetLayout visibilityDSL, VkDescriptorSetLayout redirectDSL);
 
         ResourceHandle<bb::Buffer> drawBuffer;
         ResourceHandle<bb::Buffer> redirectBuffer;
         ResourceHandle<bb::Buffer> visibilityBuffer;
-        vk::DescriptorSet drawDescriptor;
-        vk::DescriptorSet redirectDescriptor;
-        vk::DescriptorSet visibilityDescriptor;
+        VkDescriptorSet drawDescriptor;
+        VkDescriptorSet redirectDescriptor;
+        VkDescriptorSet visibilityDescriptor;
 
     private:
-        vk::DescriptorSet CreateDescriptor(const std::shared_ptr<GraphicsContext>& context, vk::DescriptorSetLayout dsl, ResourceHandle<bb::Buffer> buffer);
+        VkDescriptorSet CreateDescriptor(const std::shared_ptr<GraphicsContext>& context, VkDescriptorSetLayout dsl, ResourceHandle<bb::Buffer> buffer);
     };
 
-    CameraBatch(const std::shared_ptr<GraphicsContext>& context, const std::string& name, const CameraResource& camera, ResourceHandle<GPUImage> depthImage, vk::DescriptorSetLayout drawDSL, vk::DescriptorSetLayout visibilityDSL, vk::DescriptorSetLayout redirectDSL);
+    CameraBatch(const std::shared_ptr<GraphicsContext>& context, const std::string& name, const CameraResource& camera, ResourceHandle<GPUImage> depthImage, VkDescriptorSetLayout drawDSL, VkDescriptorSetLayout visibilityDSL, VkDescriptorSetLayout redirectDSL);
     ~CameraBatch();
 
     const CameraResource& Camera() const { return _camera; }

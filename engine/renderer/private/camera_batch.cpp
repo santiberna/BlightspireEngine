@@ -10,7 +10,7 @@
 #include "resource_management/sampler_resource_manager.hpp"
 #include "vulkan_context.hpp"
 
-CameraBatch::Draw::Draw(const std::shared_ptr<GraphicsContext>& context, const std::string& name, uint32_t instanceCount, vk::DescriptorSetLayout drawDSL, vk::DescriptorSetLayout visibilityDSL, vk::DescriptorSetLayout redirectDSL)
+CameraBatch::Draw::Draw(const std::shared_ptr<GraphicsContext>& context, const std::string& name, uint32_t instanceCount, VkDescriptorSetLayout drawDSL, VkDescriptorSetLayout visibilityDSL, VkDescriptorSetLayout redirectDSL)
 {
     auto& buffers = context->Resources()->GetBufferResourceManager();
 
@@ -31,12 +31,12 @@ CameraBatch::Draw::Draw(const std::shared_ptr<GraphicsContext>& context, const s
     visibilityDescriptor = CreateDescriptor(context, visibilityDSL, visibilityBuffer);
 }
 
-vk::DescriptorSet CameraBatch::Draw::CreateDescriptor(const std::shared_ptr<GraphicsContext>& context, vk::DescriptorSetLayout dsl, ResourceHandle<bb::Buffer> buffer)
+VkDescriptorSet CameraBatch::Draw::CreateDescriptor(const std::shared_ptr<GraphicsContext>& context, VkDescriptorSetLayout dsl, ResourceHandle<bb::Buffer> buffer)
 {
     vk::DescriptorSetAllocateInfo allocateInfo {
         .descriptorPool = context->GetVulkanContext()->DescriptorPool(),
         .descriptorSetCount = 1,
-        .pSetLayouts = &dsl,
+        .pSetLayouts = reinterpret_cast<vk::DescriptorSetLayout*>(&dsl),
     };
 
     vk::Device device = context->GetVulkanContext()->Device();
@@ -61,7 +61,7 @@ vk::DescriptorSet CameraBatch::Draw::CreateDescriptor(const std::shared_ptr<Grap
     return descriptor;
 }
 
-CameraBatch::CameraBatch(const std::shared_ptr<GraphicsContext>& context, const std::string& name, const CameraResource& camera, ResourceHandle<GPUImage> depthImage, vk::DescriptorSetLayout drawDSL, vk::DescriptorSetLayout visibilityDSL, vk::DescriptorSetLayout redirectDSL)
+CameraBatch::CameraBatch(const std::shared_ptr<GraphicsContext>& context, const std::string& name, const CameraResource& camera, ResourceHandle<GPUImage> depthImage, VkDescriptorSetLayout drawDSL, VkDescriptorSetLayout visibilityDSL, VkDescriptorSetLayout redirectDSL)
     : _context(context)
     , _camera(camera)
     , _depthImage(depthImage)

@@ -6,7 +6,7 @@
 #include "resource_manager.hpp"
 #include "resources/buffer.hpp"
 
-#include "vulkan_include.hpp"
+#include "vulkan_fwd.hpp"
 #include <array>
 #include <glm/gtc/quaternion.hpp>
 #include <glm/mat4x4.hpp>
@@ -54,7 +54,7 @@ public:
     static glm::mat4 CalculateProjectionMatrix(const CameraComponent& camera);
     static glm::mat4 CalculateViewMatrix(const glm::quat& rotation, const glm::vec3& position);
 
-    vk::DescriptorSet DescriptorSet(uint32_t frameIndex) const
+    VkDescriptorSet DescriptorSet(uint32_t frameIndex) const
     {
         return _descriptorSets[frameIndex];
     }
@@ -62,13 +62,13 @@ public:
 
     bool UsesReverseZ() const { return _useReverseZ; }
 
-    static vk::DescriptorSetLayout DescriptorSetLayout();
+    static VkDescriptorSetLayout DescriptorSetLayout();
 
 private:
     std::shared_ptr<GraphicsContext> _context;
 
-    static vk::DescriptorSetLayout _descriptorSetLayout;
-    std::array<vk::DescriptorSet, MAX_FRAMES_IN_FLIGHT> _descriptorSets;
+    static VkDescriptorSetLayout _descriptorSetLayout;
+    std::array<VkDescriptorSet, MAX_FRAMES_IN_FLIGHT> _descriptorSets;
     std::array<ResourceHandle<bb::Buffer>, MAX_FRAMES_IN_FLIGHT> _buffers;
 
     bool _useReverseZ;

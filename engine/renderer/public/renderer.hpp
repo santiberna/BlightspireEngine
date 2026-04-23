@@ -12,6 +12,7 @@
 #include <glm/mat4x4.hpp>
 #include <vector>
 
+#include "vulkan_include.hpp"
 #include <tracy/TracyVulkan.hpp>
 
 class BuildHzbPass;

@@ -13,7 +13,7 @@
 #include <ecs_module.hpp>
 #include <glm/gtc/quaternion.hpp>
 
-vk::DescriptorSetLayout CameraResource::_descriptorSetLayout;
+VkDescriptorSetLayout CameraResource::_descriptorSetLayout;
 
 CameraResource::CameraResource(const std::shared_ptr<GraphicsContext>& context, bool useReverseZ)
     : _context(context)
@@ -82,7 +82,9 @@ void CameraResource::CreateDescriptorSets()
     allocateInfo.pSetLayouts = layouts.data();
 
     vk::Device device = vkContext->Device();
-    util::VK_ASSERT(device.allocateDescriptorSets(&allocateInfo, _descriptorSets.data()),
+
+    util::VK_ASSERT(device.allocateDescriptorSets(&allocateInfo,
+                        reinterpret_cast<vk::DescriptorSet*>(_descriptorSets.data())),
         "Failed allocating descriptor sets!");
 
     for (size_t i = 0; i < _descriptorSets.size(); ++i)
@@ -223,7 +225,7 @@ glm::mat4 CameraResource::CalculateViewMatrix(const glm::quat& rotation, const g
     return glm::inverse(cameraTranslation * cameraRotation);
 }
 
-vk::DescriptorSetLayout CameraResource::DescriptorSetLayout()
+VkDescriptorSetLayout CameraResource::DescriptorSetLayout()
 {
     return _descriptorSetLayout;
 }

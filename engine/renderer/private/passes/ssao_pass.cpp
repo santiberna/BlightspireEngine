@@ -69,7 +69,9 @@ void SSAOPass::RecordCommands(vk::CommandBuffer commandBuffer, uint32_t currentF
 
     commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, _pipelineLayout, 0, { _context->BindlessSet() }, {});
     commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, _pipelineLayout, 1, { _descriptorSet }, {});
-    commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, _pipelineLayout, 2, scene.gpuScene->MainCamera().DescriptorSet(currentFrame), {});
+
+    vk::DescriptorSet camera_set = scene.gpuScene->MainCamera().DescriptorSet(currentFrame);
+    commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, _pipelineLayout, 2, camera_set, {});
     commandBuffer.draw(3, 1, 0, 0);
 
     _context->GetDrawStats().Draw(3);

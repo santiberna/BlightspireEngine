@@ -12,6 +12,7 @@
 #include "vulkan_context.hpp"
 #include "vulkan_helper.hpp"
 
+#include "vulkan_include.hpp"
 #include <tracy/TracyVulkan.hpp>
 
 BuildHzbPass::BuildHzbPass(const std::shared_ptr<GraphicsContext>& context, CameraBatch& cameraBatch, vk::DescriptorSetLayout hzbImageDSL)

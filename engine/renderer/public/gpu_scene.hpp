@@ -8,6 +8,8 @@
 
 #include <entt/entity/entity.hpp>
 #include <memory>
+
+#include "vulkan_include.hpp"
 #include <tracy/TracyVulkan.hpp>
 
 class GPUScene;

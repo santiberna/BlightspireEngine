@@ -18,18 +18,19 @@
 #include "pathfinding_module.hpp"
 #include "physics/physics_bindings.hpp"
 #include "physics_module.hpp"
+#include "renderer.hpp"
 #include "renderer/animation_bindings.hpp"
 #include "renderer_module.hpp"
 #include "scene/model_loader.hpp"
 #include "scripting_module.hpp"
 #include "steam/steam_bindings.hpp"
+#include "steam_module.hpp"
 #include "time_module.hpp"
 #include "ui_module.hpp"
 #include "utility/math_bind.hpp"
 #include "utility/random_util.hpp"
 #include "wren_engine.hpp"
 #include "wren_entity.hpp"
-#include <steam_module.hpp>
 
 namespace bindings
 {

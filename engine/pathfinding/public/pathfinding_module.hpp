@@ -1,9 +1,12 @@
 #pragma once
 
 #include "module_interface.hpp"
-#include "renderer.hpp"
+#include "resources/mesh.hpp"
+#include "vertex.hpp"
+
 #include <glm/glm.hpp>
 #include <queue>
+#include <string_view>
 #include <unordered_map>
 
 struct PathNode

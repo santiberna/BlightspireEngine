@@ -16,6 +16,7 @@
 #include "ui_module.hpp"
 
 #include <spdlog/spdlog.h>
+#include <tracy/Tracy.hpp>
 
 #if BB_DEVELOPMENT
 #include "inspector_module.hpp"

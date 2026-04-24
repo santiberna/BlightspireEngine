@@ -38,16 +38,17 @@
 #include "passes/ssao_pass.hpp"
 #include "passes/tonemapping_pass.hpp"
 #include "passes/ui_pass.hpp"
+#include "passes/volumetric_pass.hpp"
 #include "resource_management/buffer_resource_manager.hpp"
 #include "resource_management/image_resource_manager.hpp"
 #include "resource_management/mesh_resource_manager.hpp"
 #include "resource_management/model_resource_manager.hpp"
 #include "resource_management/sampler_resource_manager.hpp"
 #include "single_time_commands.hpp"
+#include "swap_chain.hpp"
 #include "viewport.hpp"
 #include "vulkan_context.hpp"
 #include "vulkan_helper.hpp"
-#include <passes/volumetric_pass.hpp>
 
 Renderer::Renderer(ApplicationModule& application, Viewport& viewport, const std::shared_ptr<GraphicsContext>& context, ECSModule& ecs)
     : _context(context)

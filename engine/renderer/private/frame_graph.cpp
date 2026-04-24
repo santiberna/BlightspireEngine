@@ -11,7 +11,9 @@
 #include "graphics_resources.hpp"
 #include "resource_management/buffer_resource_manager.hpp"
 #include "resource_management/image_resource_manager.hpp"
+#include "swap_chain.hpp"
 #include "vulkan_helper.hpp"
+
 
 FrameGraphNodeCreation::FrameGraphNodeCreation(FrameGraphRenderPass& renderPass, FrameGraphRenderPassType queueType)
     : queueType(queueType)

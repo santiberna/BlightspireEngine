@@ -27,6 +27,7 @@
 #include "scene/model_loader.hpp"
 #include "scripting_module.hpp"
 #include "steam_module.hpp"
+#include "swap_chain.hpp"
 #include "systems/lifetime_system.hpp"
 #include "time_module.hpp"
 #include "ui/resources.hpp"

@@ -6,7 +6,6 @@
 #include "ecs_module.hpp"
 #include "resources/model.hpp"
 #include "settings.hpp"
-#include "swap_chain.hpp"
 
 #include <glm/glm.hpp>
 #include <glm/mat4x4.hpp>
@@ -15,6 +14,7 @@
 #include "vulkan_include.hpp"
 #include <tracy/TracyVulkan.hpp>
 
+class SwapChain;
 class BuildHzbPass;
 class GenerateDrawsPass;
 class UIModule;

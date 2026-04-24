@@ -2,7 +2,6 @@
 #include "common.hpp"
 #include "enum_utils.hpp"
 #include "resource_manager.hpp"
-#include "swap_chain.hpp"
 #include "vulkan_include.hpp"
 #include <glm/vec3.hpp>
 #include <memory>
@@ -12,6 +11,7 @@
 struct RenderSceneDescription;
 struct GPUImage;
 class GraphicsContext;
+class SwapChain;
 
 namespace bb
 {

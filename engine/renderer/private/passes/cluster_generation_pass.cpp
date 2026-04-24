@@ -7,6 +7,7 @@
 #include "pipeline_builder.hpp"
 #include "resource_management/buffer_resource_manager.hpp"
 #include "shaders/shader_loader.hpp"
+#include "swap_chain.hpp"
 #include "vulkan_context.hpp"
 #include "vulkan_helper.hpp"
 

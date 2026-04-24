@@ -3,11 +3,11 @@
 #include "frame_graph.hpp"
 #include "gbuffers.hpp"
 #include "settings.hpp"
-#include "swap_chain.hpp"
 
 #include <cstdint>
 #include <memory>
 
+class SwapChain;
 class BloomSettings;
 class ECSModule;
 class GraphicsContext;

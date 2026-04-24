@@ -38,6 +38,8 @@ public:
     {
     }
 
+    ~ImageResourceManager() override = default;
+
     ResourceHandle<GPUImage> Create(
         const bb::Image2D& image,
         ResourceHandle<Sampler> sampler,

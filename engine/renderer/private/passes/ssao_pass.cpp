@@ -85,7 +85,7 @@ SSAOPass::~SSAOPass()
     device.destroy(_pipeline);
     device.destroy(_pipelineLayout);
     device.destroy(_descriptorSetLayout);
-    _context->Resources()->GetBufferResourceManager().Destroy(_sampleKernelBuffer);
+    _context->Resources()->GetBufferResourceManager().remove(_sampleKernelBuffer);
 }
 
 void SSAOPass::CreatePipeline()
@@ -157,7 +157,7 @@ void SSAOPass::CreateBuffers()
     {
         bb::Flags<bb::BufferFlags> flags = { bb::BufferFlags::UNIFORM_USAGE, bb::BufferFlags::TRANSFER_DST };
         _sampleKernelBuffer = resources->GetBufferResourceManager().Create(ssaoKernel.size() * sizeof(glm::vec4), flags, "Sample Kernel");
-        cmdBuffer.CopyIntoLocalBuffer(ssaoKernel, 0, resources->GetBufferResourceManager().Access(_sampleKernelBuffer)->buffer);
+        cmdBuffer.CopyIntoLocalBuffer(ssaoKernel, 0, resources->GetBufferResourceManager().get(_sampleKernelBuffer)->buffer);
     }
 
     std::shared_ptr<std::byte[]> byteData = std::make_shared<std::byte[]>(ssaoNoise.size() * sizeof(float) * 4);
@@ -232,7 +232,7 @@ void SSAOPass::CreateDescriptorSets()
     }
 
     vk::DescriptorBufferInfo sampleKernelBufferInfo {
-        .buffer = _context->Resources()->GetBufferResourceManager().Access(_sampleKernelBuffer)->buffer,
+        .buffer = _context->Resources()->GetBufferResourceManager().get(_sampleKernelBuffer)->buffer,
         .offset = 0,
         .range = vk::WholeSize,
     };

@@ -62,5 +62,5 @@ ResourceHandle<bb::Buffer> BufferResourceManager::Create(VkDeviceSize size, bb::
             "Failed mapping memory for buffer: " + std::string(name));
     }
 
-    return ResourceManager<bb::Buffer>::Create(std::move(out));
+    return insert(std::move(out));
 }

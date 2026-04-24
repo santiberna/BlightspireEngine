@@ -33,7 +33,7 @@ uint32_t BatchBuffer::AppendIndices(const std::vector<uint32_t>& indices, Single
     assert((_indexOffset + indices.size()) * sizeof(uint32_t) < _indexBufferSize);
     uint32_t originalOffset = _indexOffset;
 
-    const bb::Buffer* buffer = resources->GetBufferResourceManager().Access(_indexBuffer);
+    const bb::Buffer* buffer = resources->GetBufferResourceManager().get(_indexBuffer);
     commandBuffer.CopyIntoLocalBuffer(indices, _indexOffset, buffer->buffer);
 
     _indexOffset += indices.size();

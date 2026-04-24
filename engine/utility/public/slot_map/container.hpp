@@ -117,6 +117,8 @@ class SlotMap
 {
 public:
     SlotMap() = default;
+    virtual ~SlotMap() = default; // TODO: remove and mark as final
+
     NON_COPYABLE(SlotMap);
     DEFAULT_MOVABLE(SlotMap);
 

@@ -82,7 +82,7 @@ void DebugPass::RecordCommands(vk::CommandBuffer commandBuffer, uint32_t current
 
     commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, _pipelineLayout, 0, { scene.gpuScene->MainCamera().DescriptorSet(currentFrame) }, {});
 
-    const bb::Buffer* buffer = _context->Resources()->GetBufferResourceManager().Access(_vertexBuffer);
+    const bb::Buffer* buffer = _context->Resources()->GetBufferResourceManager().get(_vertexBuffer);
     const std::array<vk::DeviceSize, 1> offsets = { 0 };
 
     vk::Buffer buf = buffer->buffer;
@@ -156,6 +156,6 @@ void DebugPass::CreateVertexBuffer()
 
 void DebugPass::UpdateVertexData()
 {
-    const bb::Buffer* buffer = _context->Resources()->GetBufferResourceManager().Access(_vertexBuffer);
+    const bb::Buffer* buffer = _context->Resources()->GetBufferResourceManager().get(_vertexBuffer);
     std::memcpy(buffer->mappedPtr, _linesData.data(), _linesData.size() * sizeof(glm::vec3));
 }

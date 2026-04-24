@@ -43,7 +43,7 @@ VkDescriptorSet CameraBatch::Draw::CreateDescriptor(const std::shared_ptr<Graphi
     vk::DescriptorSet descriptor = device.allocateDescriptorSets(allocateInfo).value.front();
 
     vk::DescriptorBufferInfo bufferInfo {
-        .buffer = context->Resources()->GetBufferResourceManager().Access(buffer)->buffer,
+        .buffer = context->Resources()->GetBufferResourceManager().get(buffer)->buffer,
         .offset = 0,
         .range = vk::WholeSize,
     };

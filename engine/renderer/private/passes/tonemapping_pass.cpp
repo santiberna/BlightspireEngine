@@ -43,7 +43,7 @@ TonemappingPass::~TonemappingPass()
     device.destroy(_pipeline);
     device.destroy(_pipelineLayout);
     device.destroy(_paletteDescriptorSetLayout);
-    _context->Resources()->GetBufferResourceManager().Destroy(_colorPaletteBuffer);
+    _context->Resources()->GetBufferResourceManager().remove(_colorPaletteBuffer);
 }
 
 void TonemappingPass::RecordCommands(vk::CommandBuffer commandBuffer, uint32_t currentFrame, [[maybe_unused]] const RenderSceneDescription& scene)
@@ -209,7 +209,7 @@ void TonemappingPass::CreateDescriptorSetLayouts()
 void TonemappingPass::UpdatePaletteBuffer(const std::vector<glm::vec4>& paletteColors)
 {
     // Get a pointer to the mapped buffer memory.
-    void* data = _context->Resources()->GetBufferResourceManager().Access(_colorPaletteBuffer)->mappedPtr;
+    void* data = _context->Resources()->GetBufferResourceManager().get(_colorPaletteBuffer)->mappedPtr;
     memcpy(data, paletteColors.data(), paletteColors.size() * sizeof(glm::vec4));
 }
 
@@ -228,7 +228,7 @@ void TonemappingPass::CreateDescriptorSets()
     }
 
     vk::DescriptorBufferInfo colorPaletteBufferInfo {
-        .buffer = _context->Resources()->GetBufferResourceManager().Access(_colorPaletteBuffer)->buffer,
+        .buffer = _context->Resources()->GetBufferResourceManager().get(_colorPaletteBuffer)->buffer,
         .offset = 0,
         .range = vk::WholeSize,
     };

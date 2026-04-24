@@ -473,7 +473,7 @@ void FrameGraph::CreateBufferBarrier(const FrameGraphResource& resource, Resourc
 {
     auto resources { _context->Resources() };
     auto stageBuffer = std::get<FrameGraphResourceInfo::StageBuffer>(resource.info.resource);
-    const bb::Buffer* buffer = resources->GetBufferResourceManager().Access(stageBuffer.handle);
+    const bb::Buffer* buffer = resources->GetBufferResourceManager().get(stageBuffer.handle);
 
     switch (state)
     {
@@ -647,7 +647,7 @@ const std::string& FrameGraph::GetResourceName(FrameGraphResourceType type, cons
 
     if (HasAnyFlags(type, FrameGraphResourceType::eBuffer))
     {
-        const bb::Buffer* buffer = resources->GetBufferResourceManager().Access(std::get<FrameGraphResourceInfo::StageBuffer>(resource).handle);
+        const bb::Buffer* buffer = resources->GetBufferResourceManager().get(std::get<FrameGraphResourceInfo::StageBuffer>(resource).handle);
         return buffer->name;
     }
 

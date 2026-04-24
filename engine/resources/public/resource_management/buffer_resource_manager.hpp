@@ -4,6 +4,7 @@
 #include "enum_utils.hpp"
 #include "resource_manager.hpp"
 #include "resources/buffer.hpp"
+#include "slot_map/container.hpp"
 
 #include <memory>
 
@@ -25,11 +26,11 @@ enum class BufferFlags
 
 }
 
-class BufferResourceManager final : public ResourceManager<bb::Buffer>
+class BufferResourceManager final : public bb::SlotMap<bb::Buffer>
 {
 public:
     explicit BufferResourceManager(const std::shared_ptr<VulkanContext>& context);
-    ~BufferResourceManager() final = default;
+    ~BufferResourceManager() override = default;
 
     ResourceHandle<bb::Buffer> Create(VkDeviceSize size, bb::Flags<bb::BufferFlags> flags, const char* name);
 

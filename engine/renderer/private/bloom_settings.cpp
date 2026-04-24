@@ -34,7 +34,7 @@ void BloomSettings::Update(uint32_t currentFrame)
 
     auto resources { _context->Resources() };
 
-    const bb::Buffer* buffer = resources->GetBufferResourceManager().Access(_frameData.buffers.at(currentFrame));
+    const bb::Buffer* buffer = resources->GetBufferResourceManager().get(_frameData.buffers.at(currentFrame));
     memcpy(buffer->mappedPtr, &_data, sizeof(SettingsData));
 }
 
@@ -98,7 +98,7 @@ void BloomSettings::UpdateDescriptorSet(uint32_t currentFrame)
     auto vkContext { _context->GetVulkanContext() };
     auto resources { _context->Resources() };
 
-    const bb::Buffer* buffer = resources->GetBufferResourceManager().Access(_frameData.buffers.at(currentFrame));
+    const bb::Buffer* buffer = resources->GetBufferResourceManager().get(_frameData.buffers.at(currentFrame));
 
     vk::DescriptorBufferInfo bufferInfo {};
     bufferInfo.buffer = buffer->buffer;

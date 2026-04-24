@@ -296,6 +296,10 @@ ResourceHandle<T>& ResourceHandle<T>::operator=(std::nullptr_t)
 struct GPUImage;
 struct Sampler;
 
+namespace bb
+{
+struct Buffer;
+}
 template <>
 struct ResourceHandle<GPUImage> : public bb::SlotHandle<GPUImage>
 {
@@ -312,6 +316,16 @@ struct ResourceHandle<Sampler> : public bb::SlotHandle<Sampler>
     ResourceHandle<Sampler>() = default;
     ResourceHandle<Sampler>(bb::SlotHandle<Sampler> slot)
         : bb::SlotHandle<Sampler>(slot)
+    {
+    }
+};
+
+template <>
+struct ResourceHandle<bb::Buffer> : public bb::SlotHandle<bb::Buffer>
+{
+    ResourceHandle<bb::Buffer>() = default;
+    ResourceHandle<bb::Buffer>(bb::SlotHandle<bb::Buffer> slot)
+        : bb::SlotHandle<bb::Buffer>(slot)
     {
     }
 };

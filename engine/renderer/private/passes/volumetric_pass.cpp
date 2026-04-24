@@ -54,7 +54,7 @@ VolumetricPass::~VolumetricPass()
     device.destroy(_pipeline);
     device.destroy(_pipelineLayout);
     device.destroy(_fogTrailsDescriptorSetLayout);
-    _context->Resources()->GetBufferResourceManager().Destroy(_fogTrailsBuffer);
+    _context->Resources()->GetBufferResourceManager().remove(_fogTrailsBuffer);
 }
 
 void VolumetricPass::RecordCommands(vk::CommandBuffer commandBuffer, uint32_t currentFrame, [[maybe_unused]] const RenderSceneDescription& scene)
@@ -159,7 +159,7 @@ void VolumetricPass::CreatePipeline()
 }
 void VolumetricPass::UpdateFogTrailsBuffer()
 {
-    void* data = _context->Resources()->GetBufferResourceManager().Access(_fogTrailsBuffer)->mappedPtr;
+    void* data = _context->Resources()->GetBufferResourceManager().get(_fogTrailsBuffer)->mappedPtr;
     memcpy(data, gunShots.data(), gunShots.size() * sizeof(glm::vec4) * 2);
     memcpy(reinterpret_cast<std::byte*>(data) + gunShots.size() * sizeof(GunShot), playerTrailPositions.data(), playerTrailPositions.size() * sizeof(glm::vec4));
 }
@@ -201,7 +201,7 @@ void VolumetricPass::CreateDescriptorSets()
     }
 
     vk::DescriptorBufferInfo colorPaletteBufferInfo {
-        .buffer = _context->Resources()->GetBufferResourceManager().Access(_fogTrailsBuffer)->buffer,
+        .buffer = _context->Resources()->GetBufferResourceManager().get(_fogTrailsBuffer)->buffer,
         .offset = 0,
         .range = vk::WholeSize,
     };

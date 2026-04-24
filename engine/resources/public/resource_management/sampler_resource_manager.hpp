@@ -12,6 +12,8 @@ class SamplerResourceManager final : public bb::SlotMap<Sampler>
 {
 public:
     explicit SamplerResourceManager(const std::shared_ptr<VulkanContext>& context);
+    ~SamplerResourceManager() override = default;
+
     ResourceHandle<Sampler> Create(const bb::SamplerCreation& creation);
 
     // create default fallback sampler

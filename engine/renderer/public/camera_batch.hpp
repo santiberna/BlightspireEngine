@@ -3,6 +3,8 @@
 #include "resource_manager.hpp"
 #include "vulkan_include.hpp"
 
+#include <memory>
+
 class GPUScene;
 class GraphicsContext;
 struct GPUImage;

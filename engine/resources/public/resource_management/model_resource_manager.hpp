@@ -10,6 +10,7 @@ class ImageResourceManager;
 class MaterialResourceManager;
 class MeshResourceManager;
 class BatchBuffer;
+class VulkanContext;
 
 class ModelResourceManager
 {

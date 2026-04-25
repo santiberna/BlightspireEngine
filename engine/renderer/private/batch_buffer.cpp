@@ -2,7 +2,7 @@
 
 #include "graphics_context.hpp"
 #include "graphics_resources.hpp"
-#include "resource_management/buffer_resource_manager.hpp"
+#include "resources/buffer.hpp"
 #include "single_time_commands.hpp"
 
 BatchBuffer::BatchBuffer(const std::shared_ptr<GraphicsContext>& context, uint32_t vertexBufferSize, uint32_t indexBufferSize)

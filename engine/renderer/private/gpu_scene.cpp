@@ -21,14 +21,15 @@
 #include "graphics_context.hpp"
 #include "graphics_resources.hpp"
 #include "pipeline_builder.hpp"
-#include "resource_management/buffer_resource_manager.hpp"
 #include "resource_management/image_resource_manager.hpp"
 #include "resource_management/material_resource_manager.hpp"
 #include "resource_management/mesh_resource_manager.hpp"
 #include "resource_management/sampler_resource_manager.hpp"
+#include "resources/buffer.hpp"
 #include "settings.hpp"
 #include "vulkan_context.hpp"
 #include "vulkan_helper.hpp"
+
 
 #include <file_io.hpp>
 #include <filesystem>

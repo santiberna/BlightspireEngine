@@ -6,7 +6,7 @@
 #include "graphics_context.hpp"
 #include "graphics_resources.hpp"
 #include "pipeline_builder.hpp"
-#include "resource_management/buffer_resource_manager.hpp"
+#include "resources/buffer.hpp"
 #include "vulkan_context.hpp"
 #include "vulkan_helper.hpp"
 

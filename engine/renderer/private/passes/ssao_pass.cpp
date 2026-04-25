@@ -10,10 +10,11 @@
 #include "shaders/shader_loader.hpp"
 #include "vulkan_context.hpp"
 
-#include "resource_management/buffer_resource_manager.hpp"
 #include "resource_management/sampler_resource_manager.hpp"
+#include "resources/buffer.hpp"
 #include <random>
 #include <single_time_commands.hpp>
+
 
 SSAOPass::SSAOPass(const std::shared_ptr<GraphicsContext>& context, const Settings::SSAO& settings, const GBuffers& gBuffers, const ResourceHandle<GPUImage>& ssaoTarget)
     : _pushConstants()

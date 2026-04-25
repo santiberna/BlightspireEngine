@@ -2,10 +2,10 @@
 
 #include "graphics_resources.hpp"
 #include "pipeline_builder.hpp"
-#include "resource_management/buffer_resource_manager.hpp"
 #include "resource_management/image_resource_manager.hpp"
 #include "resource_management/material_resource_manager.hpp"
 #include "resource_management/sampler_resource_manager.hpp"
+#include "resources/buffer.hpp"
 #include "vulkan_context.hpp"
 #include "vulkan_helper.hpp"
 
@@ -199,7 +199,7 @@ void GraphicsContext::UpdateBindlessImages()
 void GraphicsContext::UpdateBindlessMaterials()
 {
     MaterialResourceManager& materialResourceManager { _graphicsResources->GetMaterialResourceManager() };
-    BufferResourceManager& bufferResourceManager { _graphicsResources->GetBufferResourceManager() };
+    bb::BufferManager& bufferResourceManager { _graphicsResources->GetBufferResourceManager() };
 
     if (materialResourceManager.Resources().storageSize() == 0)
     {

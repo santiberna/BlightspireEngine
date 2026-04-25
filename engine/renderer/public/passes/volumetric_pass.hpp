@@ -86,7 +86,7 @@ private:
 
     std::array<GunShot, 8> gunShots;
     std::array<glm::vec4, 24> playerTrailPositions;
-    ResourceHandle<Buffer> _fogTrailsBuffer;
+    ResourceHandle<bb::Buffer> _fogTrailsBuffer;
     vk::DescriptorSetLayout _fogTrailsDescriptorSetLayout;
     vk::DescriptorSet _fogTrailsDescriptorSet;
 

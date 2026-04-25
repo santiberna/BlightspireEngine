@@ -19,7 +19,7 @@ public:
     struct FrameData
     {
         std::array<vk::DescriptorSet, MAX_FRAMES_IN_FLIGHT> descriptorSets;
-        std::array<ResourceHandle<Buffer>, MAX_FRAMES_IN_FLIGHT> buffers;
+        std::array<ResourceHandle<bb::Buffer>, MAX_FRAMES_IN_FLIGHT> buffers;
     };
 
     BloomSettings(const std::shared_ptr<GraphicsContext>& context, const Settings::Bloom& settings);

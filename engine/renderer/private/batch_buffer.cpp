@@ -4,8 +4,6 @@
 #include "graphics_resources.hpp"
 #include "resource_management/buffer_resource_manager.hpp"
 #include "single_time_commands.hpp"
-#include "vulkan_context.hpp"
-#include "vulkan_helper.hpp"
 
 BatchBuffer::BatchBuffer(const std::shared_ptr<GraphicsContext>& context, uint32_t vertexBufferSize, uint32_t indexBufferSize)
     : _context(context)
@@ -14,26 +12,13 @@ BatchBuffer::BatchBuffer(const std::shared_ptr<GraphicsContext>& context, uint32
     , _indexType(vk::IndexType::eUint32)
     , _topology(vk::PrimitiveTopology::eTriangleList)
 {
+    auto& buffers { _context->Resources()->GetBufferResourceManager() };
 
-    auto resources { _context->Resources() };
+    _vertexBuffer = buffers.Create(
+        vertexBufferSize, { bb::BufferFlags::VERTEX_USAGE, bb::BufferFlags::TRANSFER_DST }, "Unified Vertex Buffer");
 
-    BufferCreation vertexBufferCreation {};
-    vertexBufferCreation.SetSize(vertexBufferSize)
-        .SetUsageFlags(vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eVertexBuffer)
-        .SetIsMappable(false)
-        .SetMemoryUsage(VMA_MEMORY_USAGE_GPU_ONLY)
-        .SetName("Unified vertex buffer");
-
-    _vertexBuffer = resources->GetBufferResourceManager().Create(vertexBufferCreation);
-
-    BufferCreation indexBufferCreation {};
-    indexBufferCreation.SetSize(indexBufferSize)
-        .SetUsageFlags(vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eIndexBuffer)
-        .SetIsMappable(false)
-        .SetMemoryUsage(VMA_MEMORY_USAGE_GPU_ONLY)
-        .SetName("Unified index buffer");
-
-    _indexBuffer = resources->GetBufferResourceManager().Create(indexBufferCreation);
+    _indexBuffer = buffers.Create(
+        indexBufferSize, { bb::BufferFlags::INDEX_USAGE, bb::BufferFlags::TRANSFER_DST }, "Unified Index buffer");
 }
 
 BatchBuffer::~BatchBuffer()
@@ -48,7 +33,7 @@ uint32_t BatchBuffer::AppendIndices(const std::vector<uint32_t>& indices, Single
     assert((_indexOffset + indices.size()) * sizeof(uint32_t) < _indexBufferSize);
     uint32_t originalOffset = _indexOffset;
 
-    const Buffer* buffer = resources->GetBufferResourceManager().Access(_indexBuffer);
+    const bb::Buffer* buffer = resources->GetBufferResourceManager().Access(_indexBuffer);
     commandBuffer.CopyIntoLocalBuffer(indices, _indexOffset, buffer->buffer);
 
     _indexOffset += indices.size();

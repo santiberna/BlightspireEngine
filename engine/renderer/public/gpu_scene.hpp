@@ -97,9 +97,9 @@ public:
     const vk::DescriptorSetLayout& GetDecalDescriptorSetLayout() const { return _decalDescriptorSetLayout; }
 
     vk::DescriptorSetLayout DrawBufferLayout() const { return _drawBufferDSL; }
-    ResourceHandle<Buffer> StaticDrawBuffer(uint32_t frameIndex) const { return _staticDraws[frameIndex].buffer; }
+    ResourceHandle<bb::Buffer> StaticDrawBuffer(uint32_t frameIndex) const { return _staticDraws[frameIndex].buffer; }
     vk::DescriptorSet StaticDrawDescriptorSet(uint32_t frameIndex) const { return _staticDraws[frameIndex].descriptorSet; }
-    ResourceHandle<Buffer> SkinnedDrawBuffer(uint32_t frameIndex) const { return _skinnedDraws[frameIndex].buffer; }
+    ResourceHandle<bb::Buffer> SkinnedDrawBuffer(uint32_t frameIndex) const { return _skinnedDraws[frameIndex].buffer; }
     vk::DescriptorSet SkinnedDrawDescriptorSet(uint32_t frameIndex) const { return _skinnedDraws[frameIndex].descriptorSet; }
 
     const vk::DescriptorSetLayout GetSkinDescriptorSetLayout() const { return _skinDescriptorSetLayout; }
@@ -108,9 +108,9 @@ public:
     uint32_t StaticDrawCount() const { return _staticDrawCommands.size(); };
     const std::vector<DrawIndexedIndirectCommand>& StaticDrawCommands() const { return _staticDrawCommands; }
     const std::vector<DrawIndexedDirectCommand>& ForegroundStaticDrawCommands() const { return _foregroundStaticDrawCommands; }
-    ResourceHandle<Buffer>& GetClusterBuffer() { return _clusterData.buffer; }
-    ResourceHandle<Buffer>& GetClusterCullingBuffer(uint32_t index) { return _clusterCullingData.buffers.at(index); }
-    ResourceHandle<Buffer>& GetGlobalIndexBuffer() { return _clusterCullingData.globalIndexBuffer; }
+    ResourceHandle<bb::Buffer>& GetClusterBuffer() { return _clusterData.buffer; }
+    ResourceHandle<bb::Buffer>& GetClusterCullingBuffer(uint32_t index) { return _clusterCullingData.buffers.at(index); }
+    ResourceHandle<bb::Buffer>& GetGlobalIndexBuffer() { return _clusterCullingData.globalIndexBuffer; }
 
     uint32_t SkinnedDrawCount() const { return _skinnedDrawCommands.size(); };
     const std::vector<DrawIndexedIndirectCommand>& SkinnedDrawCommands() const { return _skinnedDrawCommands; }
@@ -215,26 +215,26 @@ private:
 
     struct FrameData
     {
-        ResourceHandle<Buffer> buffer {};
+        ResourceHandle<bb::Buffer> buffer {};
         vk::DescriptorSet descriptorSet {};
     };
 
     struct PointLightFrameData
     {
-        ResourceHandle<Buffer> buffer {};
+        ResourceHandle<bb::Buffer> buffer {};
         vk::DescriptorSet descriptorSet {};
     };
 
     struct ClusterData
     {
-        ResourceHandle<Buffer> buffer {};
+        ResourceHandle<bb::Buffer> buffer {};
         vk::DescriptorSet descriptorSet {};
     };
 
     struct ClusterCullingData
     {
-        std::array<ResourceHandle<Buffer>, 2> buffers {};
-        ResourceHandle<Buffer> globalIndexBuffer {};
+        std::array<ResourceHandle<bb::Buffer>, 2> buffers {};
+        ResourceHandle<bb::Buffer> globalIndexBuffer {};
         std::array<vk::DescriptorSet, MAX_FRAMES_IN_FLIGHT> descriptorSets {};
     };
 
@@ -286,7 +286,7 @@ private:
 
     vk::DescriptorSetLayout _skinDescriptorSetLayout;
     std::array<vk::DescriptorSet, MAX_FRAMES_IN_FLIGHT> _skinDescriptorSets;
-    std::array<ResourceHandle<Buffer>, MAX_FRAMES_IN_FLIGHT> _skinTransformBuffers;
+    std::array<ResourceHandle<bb::Buffer>, MAX_FRAMES_IN_FLIGHT> _skinTransformBuffers;
 
     vk::DescriptorSetLayout _visibilityDSL;
     vk::DescriptorSetLayout _redirectDSL;

@@ -43,7 +43,7 @@ private:
     vk::Pipeline _pipeline;
 
     std::vector<glm::vec3> _linesData;
-    ResourceHandle<Buffer> _vertexBuffer;
+    ResourceHandle<bb::Buffer> _vertexBuffer;
 
     void CreatePipeline();
     void CreateVertexBuffer();

@@ -9,11 +9,15 @@
 
 class VulkanContext;
 class GraphicsResources;
-struct Buffer;
 struct VulkanInitInfo;
 struct Sampler;
 struct GPUImage;
 struct SDL_Window;
+
+namespace bb
+{
+struct Buffer;
+}
 
 constexpr uint32_t MAX_BINDLESS_RESOURCES = 1024;
 

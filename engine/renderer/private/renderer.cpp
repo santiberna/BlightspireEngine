@@ -363,7 +363,7 @@ Renderer::Renderer(ApplicationModule& application, Viewport& viewport, const std
         .AddNode(presentationPass)
         .Build();
 
-    static std::array<std::string, MAX_FRAMES_IN_FLIGHT> contextNames { "Command Buffer 0", "Command Buffer 1", "Command Buffer 2" };
+    static std::array<std::string, MAX_FRAMES_IN_FLIGHT> contextNames { "Command bb::Buffer 0", "Command bb::Buffer 1", "Command bb::Buffer 2" };
 
     for (size_t i = 0; i < _tracyContexts.size(); ++i)
     {
@@ -629,7 +629,7 @@ void Renderer::Render(float deltaTime)
     }
 
     {
-        ZoneNamedN(zz, "Reset Command Buffer", true);
+        ZoneNamedN(zz, "Reset Command bb::Buffer", true);
         _commandBuffers[_currentFrame].reset();
     }
 

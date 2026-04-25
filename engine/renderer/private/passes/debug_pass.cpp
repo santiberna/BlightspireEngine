@@ -6,12 +6,13 @@
 #include "graphics_context.hpp"
 #include "graphics_resources.hpp"
 #include "pipeline_builder.hpp"
-#include "resource_management/buffer_resource_manager.hpp"
 #include "resource_management/image_resource_manager.hpp"
+#include "resources/buffer.hpp"
 #include "shaders/shader_loader.hpp"
 #include "swap_chain.hpp"
 #include "vulkan_context.hpp"
 #include "vulkan_helper.hpp"
+
 
 #include <array>
 #include <imgui_impl_vulkan.h>

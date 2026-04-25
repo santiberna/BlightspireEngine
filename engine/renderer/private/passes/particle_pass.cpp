@@ -9,13 +9,14 @@
 #include "gpu_scene.hpp"
 #include "graphics_context.hpp"
 #include "graphics_resources.hpp"
-#include "resource_management/buffer_resource_manager.hpp"
 #include "resource_management/image_resource_manager.hpp"
+#include "resources/buffer.hpp"
 #include "shaders/shader_loader.hpp"
 #include "single_time_commands.hpp"
 #include "vertex.hpp"
 #include "vulkan_context.hpp"
 #include "vulkan_helper.hpp"
+
 
 #include <pipeline_builder.hpp>
 #include <random>

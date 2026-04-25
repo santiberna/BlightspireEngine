@@ -1,6 +1,5 @@
 #pragma once
 #include <glm/glm.hpp>
-#include <stdint.h>
 
 struct alignas(16) QuadDrawInfo
 {

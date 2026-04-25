@@ -2,9 +2,13 @@
 
 #include "slot_map/handle.hpp"
 
+namespace bb
+{
+struct Buffer;
+}
+
 struct GPUImage;
 struct Sampler;
-struct Buffer;
 struct GPUMaterial;
 struct GPUModel;
 struct GPUMesh;

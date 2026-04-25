@@ -106,7 +106,7 @@ private:
     vk::PipelineLayout _pipelineLayout;
     vk::Pipeline _pipeline;
 
-    ResourceHandle<Buffer> _colorPaletteBuffer;
+    ResourceHandle<bb::Buffer> _colorPaletteBuffer;
     vk::DescriptorSetLayout _paletteDescriptorSetLayout;
     vk::DescriptorSet _paletteDescriptorSet;
     const int _maxColorsInPalette = 64;

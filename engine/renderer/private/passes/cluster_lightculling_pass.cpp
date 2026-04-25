@@ -9,8 +9,8 @@
 #include "vulkan_helper.hpp"
 
 ClusterLightCullingPass::ClusterLightCullingPass(const std::shared_ptr<GraphicsContext>& context, GPUScene& gpuScene,
-    ResourceHandle<Buffer>& clusterBuffer, ResourceHandle<Buffer>& globalIndex,
-    ResourceHandle<Buffer>& lightCells, ResourceHandle<Buffer>& lightIndices)
+    ResourceHandle<bb::Buffer>& clusterBuffer, ResourceHandle<bb::Buffer>& globalIndex,
+    ResourceHandle<bb::Buffer>& lightCells, ResourceHandle<bb::Buffer>& lightIndices)
     : _context(context)
     , _gpuScene(gpuScene)
     , _clusterBuffer(clusterBuffer)

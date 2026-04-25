@@ -58,7 +58,7 @@ public:
     {
         return _descriptorSets[frameIndex];
     }
-    ResourceHandle<Buffer> BufferResource(uint32_t frameIndex) const { return _buffers[frameIndex]; }
+    ResourceHandle<bb::Buffer> BufferResource(uint32_t frameIndex) const { return _buffers[frameIndex]; }
 
     bool UsesReverseZ() const { return _useReverseZ; }
 
@@ -69,7 +69,7 @@ private:
 
     static vk::DescriptorSetLayout _descriptorSetLayout;
     std::array<vk::DescriptorSet, MAX_FRAMES_IN_FLIGHT> _descriptorSets;
-    std::array<ResourceHandle<Buffer>, MAX_FRAMES_IN_FLIGHT> _buffers;
+    std::array<ResourceHandle<bb::Buffer>, MAX_FRAMES_IN_FLIGHT> _buffers;
 
     bool _useReverseZ;
 

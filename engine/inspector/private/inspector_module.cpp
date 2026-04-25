@@ -28,6 +28,7 @@
 #include "components/wants_shadows_updated.hpp"
 
 #include "imgui_sdl_include.hpp"
+#include "vma_include.hpp"
 
 #include <spdlog/spdlog.h>
 

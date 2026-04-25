@@ -1,6 +1,10 @@
 
 #pragma once
 
+#include <cstdint>
+
+using VkDeviceSize = uint64_t;
+
 // WARNING: this will completely break on x32 systems (not supported)
 #define BB_VULKAN_FWD(handle) \
     struct handle##_T;        \

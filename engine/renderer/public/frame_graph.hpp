@@ -45,7 +45,7 @@ struct FrameGraphResourceInfo
 {
     struct StageBuffer
     {
-        ResourceHandle<Buffer> handle = ResourceHandle<Buffer>::Null();
+        ResourceHandle<Buffer> handle;
         vk::PipelineStageFlags2 stageUsage;
     };
 

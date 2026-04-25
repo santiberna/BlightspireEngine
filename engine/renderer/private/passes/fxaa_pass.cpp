@@ -18,7 +18,7 @@ FXAAPass::FXAAPass(const std::shared_ptr<GraphicsContext>& context, const Settin
     , _fxaaTarget(fxaaTarget)
     , _source(sourceTarget)
 {
-    _pushConstants.sourceIndex = _source.Index();
+    _pushConstants.sourceIndex = _source.getIndex();
     CreatePipeline();
 }
 

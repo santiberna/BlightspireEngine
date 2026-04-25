@@ -291,3 +291,32 @@ ResourceHandle<T>& ResourceHandle<T>::operator=(std::nullptr_t)
 
     return *this;
 }
+
+// Specializations for new handle types
+
+#include "slot_map/handle.hpp"
+
+struct GPUImage;
+struct Sampler;
+struct Buffer;
+struct GPUMaterial;
+struct GPUModel;
+struct GPUMesh;
+
+#define TEMP_SPECIALIZE(T)                              \
+    template <>                                         \
+    struct ResourceHandle<T> : public bb::SlotHandle<T> \
+    {                                                   \
+        ResourceHandle<T>() = default;                  \
+        ResourceHandle<T>(bb::SlotHandle<T> slot)       \
+            : bb::SlotHandle<T>(slot)                   \
+        {                                               \
+        }                                               \
+    };
+
+TEMP_SPECIALIZE(GPUImage);
+TEMP_SPECIALIZE(Sampler);
+TEMP_SPECIALIZE(GPUMaterial);
+TEMP_SPECIALIZE(GPUModel);
+TEMP_SPECIALIZE(GPUMesh);
+TEMP_SPECIALIZE(Buffer);

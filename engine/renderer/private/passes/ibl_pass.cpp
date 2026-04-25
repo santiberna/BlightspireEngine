@@ -79,7 +79,7 @@ void IBLPass::RecordCommands(vk::CommandBuffer commandBuffer)
 
         IrradiancePushConstant pc {
             .index = static_cast<uint32_t>(i),
-            .hdriIndex = _environmentMap.Index(),
+            .hdriIndex = _environmentMap.getIndex(),
         };
 
         commandBuffer.pushConstants<IrradiancePushConstant>(_irradiancePipelineLayout, vk::ShaderStageFlagBits::eFragment, 0, { pc });
@@ -135,7 +135,7 @@ void IBLPass::RecordCommands(vk::CommandBuffer commandBuffer)
             PrefilterPushConstant pc {
                 .faceIndex = static_cast<uint32_t>(j),
                 .roughness = static_cast<float>(i) / static_cast<float>(prefilterMap.mips - 1),
-                .hdriIndex = _environmentMap.Index(),
+                .hdriIndex = _environmentMap.getIndex(),
             };
 
             commandBuffer.pushConstants<PrefilterPushConstant>(_prefilterPipelineLayout, vk::ShaderStageFlagBits::eFragment, 0, { pc });

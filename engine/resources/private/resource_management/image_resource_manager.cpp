@@ -286,7 +286,7 @@ ResourceHandle<GPUImage> ImageResourceManager::Create(
         }
     }
 
-    return ResourceManager::Create(std::move(out));
+    return m_storage.insert(std::move(out));
 }
 
 ResourceHandle<GPUImage> ImageResourceManager::Create(
@@ -447,5 +447,5 @@ ResourceHandle<GPUImage> ImageResourceManager::Create(
         }
     }
 
-    return ResourceManager::Create(std::move(out));
+    return m_storage.insert(std::move(out));
 }

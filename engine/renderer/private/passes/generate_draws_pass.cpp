@@ -36,7 +36,7 @@ void GenerateDrawsPass::RecordCommands(vk::CommandBuffer commandBuffer, uint32_t
     PushConstants staticPc {
         .isPrepass = _isPrepass,
         .mipSize = std::fmax(static_cast<float>(depthImage->width), static_cast<float>(depthImage->height)),
-        .hzbIndex = _cameraBatch.HZBImage().Index(),
+        .hzbIndex = _cameraBatch.HZBImage().getIndex(),
         .drawCommandsCount = scene.gpuScene->StaticDrawCount(),
         .isReverseZ = _cameraBatch.Camera().UsesReverseZ(),
         .drawStaticDraws = static_cast<uint32_t>(_shouldDrawStatic),

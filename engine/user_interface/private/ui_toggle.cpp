@@ -76,7 +76,7 @@ void UIToggle::SubmitDrawInfo(std::vector<QuadDrawInfo>& drawList) const
         QuadDrawInfo info {
             .matrix = matrix,
             .color = selected ? SELECTED : NORMAL,
-            .textureIndex = state ? style.filled.Index() : style.empty.Index(),
+            .textureIndex = state ? style.filled.getIndex() : style.empty.getIndex(),
         };
 
         info.useRedAsAlpha = false;

@@ -146,7 +146,7 @@ bool ParticleModule::SetEmitterPresetImage(EmitterPreset& preset)
     bool imageFound;
     auto image = GetEmitterImage(preset.imageName, imageFound);
 
-    preset.materialIndex = image.Index();
+    preset.materialIndex = image.getIndex();
     float biggestSize = glm::max(resources->GetImageResourceManager().Access(image)->width, resources->GetImageResourceManager().Access(image)->height);
     preset.size = glm::vec3(
         resources->GetImageResourceManager().Access(image)->width / preset.spriteDimensions.x / biggestSize,
@@ -160,7 +160,7 @@ void ParticleModule::LoadEmitterPresets()
     for (auto& it : _emitterPresets.data.emitterPresets)
     {
         bool imageFound;
-        it.second.materialIndex = GetEmitterImage(it.second.imageName, imageFound).Index();
+        it.second.materialIndex = GetEmitterImage(it.second.imageName, imageFound).getIndex();
     }
 }
 

@@ -19,15 +19,6 @@ GraphicsResources::GraphicsResources(const std::shared_ptr<VulkanContext>& vulka
     _modelResourceManager = std::make_shared<class ModelResourceManager>(_vulkanContext, _imageResourceManager, _materialResourceManager, _meshResourceManager);
 }
 
-void GraphicsResources::Clean()
-{
-    _meshResourceManager->Clean();
-    _materialResourceManager->Clean();
-    _imageResourceManager->Clean();
-    _bufferResourceManager->Clean();
-    _samplerResourceManager->Clean();
-}
-
 GraphicsResources::~GraphicsResources()
 {
     _meshResourceManager.reset();

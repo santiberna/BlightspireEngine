@@ -90,7 +90,7 @@ Renderer::Renderer(ApplicationModule& application, Viewport& viewport, const std
     {
         ZoneScopedN("UV sphere render");
         SingleTimeCommands commandBufferPrimitive { *_context->GetVulkanContext() };
-        uvSphere = _context->Resources()->GetMeshResourceManager().Create(commandBufferPrimitive, GenerateUVSphere(32, 32), ResourceHandle<GPUMaterial>::Null(), *_staticBatchBuffer);
+        uvSphere = _context->Resources()->GetMeshResourceManager().Create(commandBufferPrimitive, GenerateUVSphere(32, 32), ResourceHandle<GPUMaterial> {}, *_staticBatchBuffer);
     }
 
     {
@@ -693,8 +693,6 @@ void Renderer::Render(float deltaTime)
     {
         util::VK_ASSERT(result, "Failed acquiring next image from swap chain!");
     }
-
-    _context->Resources()->Clean();
 
     _currentFrame = (_currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
 }

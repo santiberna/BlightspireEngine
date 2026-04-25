@@ -27,8 +27,6 @@ public:
     SamplerResourceManager& GetSamplerResourceManager() { return *_samplerResourceManager; }
     ModelResourceManager& GetModelResourceManager() { return *_modelResourceManager; }
 
-    void Clean();
-
 private:
     std::shared_ptr<VulkanContext> _vulkanContext;
 

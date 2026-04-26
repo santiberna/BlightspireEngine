@@ -7,7 +7,6 @@
 #include <memory>
 
 class GraphicsContext;
-struct Sampler;
 
 class IBLPass
 {
@@ -51,7 +50,7 @@ private:
     ResourceHandle<GPUImage> _prefilterMap;
     ResourceHandle<GPUImage> _brdfLUT;
 
-    ResourceHandle<Sampler> _sampler;
+    ResourceHandle<bb::Sampler> _sampler;
 
     void CreateIrradiancePipeline();
     void CreatePrefilterPipeline();

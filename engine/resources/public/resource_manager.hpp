@@ -5,10 +5,10 @@
 namespace bb
 {
 struct Buffer;
+struct Sampler;
 }
 
 struct GPUImage;
-struct Sampler;
 struct GPUMaterial;
 struct GPUModel;
 struct GPUMesh;

@@ -24,12 +24,11 @@
 #include "resource_management/image_resource_manager.hpp"
 #include "resource_management/material_resource_manager.hpp"
 #include "resource_management/mesh_resource_manager.hpp"
-#include "resource_management/sampler_resource_manager.hpp"
 #include "resources/buffer.hpp"
+#include "resources/sampler.hpp"
 #include "settings.hpp"
 #include "vulkan_context.hpp"
 #include "vulkan_helper.hpp"
-
 
 #include <file_io.hpp>
 #include <filesystem>
@@ -1274,7 +1273,7 @@ void GPUScene::WriteDraws(uint32_t frameIndex)
 void GPUScene::CreateShadowMapResources()
 {
     bb::SamplerCreation shadowSamplerInfo {};
-    shadowSamplerInfo.name = "Shadow sampler";
+
     shadowSamplerInfo.minFilter = bb::SamplerFilter::LINEAR;
     shadowSamplerInfo.magFilter = bb::SamplerFilter::LINEAR;
     shadowSamplerInfo.borderColor = bb::SamplerBorderColor::OPAQUE_WHITE_FLOAT;
@@ -1284,7 +1283,7 @@ void GPUScene::CreateShadowMapResources()
     shadowSamplerInfo.addressModeW = bb::SamplerAddressMode::CLAMP_TO_BORDER;
     shadowSamplerInfo.addressModeV = bb::SamplerAddressMode::CLAMP_TO_BORDER;
 
-    _shadowSampler = _context->Resources()->GetSamplerResourceManager().Create(shadowSamplerInfo);
+    _shadowSampler = _context->Resources()->GetSamplerResourceManager().Create(shadowSamplerInfo, "Shadow sampler");
 
     bb::Image2D shadowCreationStatic {};
     shadowCreationStatic.format = bb::ImageFormat::D32_SFLOAT;

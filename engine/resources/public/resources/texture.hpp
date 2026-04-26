@@ -30,7 +30,7 @@ struct GPUImage
     std::vector<Layer> layerViews {};
     vk::ImageView view; // Same as first view in view, or refers to a cubemap view
     VmaAllocation allocation {};
-    ResourceHandle<Sampler> sampler {};
+    ResourceHandle<bb::Sampler> sampler {};
 
     uint16_t width { 1 };
     uint16_t height { 1 };

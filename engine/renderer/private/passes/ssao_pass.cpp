@@ -10,11 +10,10 @@
 #include "shaders/shader_loader.hpp"
 #include "vulkan_context.hpp"
 
-#include "resource_management/sampler_resource_manager.hpp"
 #include "resources/buffer.hpp"
+#include "resources/sampler.hpp"
 #include <random>
 #include <single_time_commands.hpp>
-
 
 SSAOPass::SSAOPass(const std::shared_ptr<GraphicsContext>& context, const Settings::SSAO& settings, const GBuffers& gBuffers, const ResourceHandle<GPUImage>& ssaoTarget)
     : _pushConstants()
@@ -180,7 +179,7 @@ void SSAOPass::CreateBuffers()
     noiseImage.format = bb::ImageFormat::R32G32B32A32_SFLOAT;
 
     bb::SamplerCreation noiseSampler {};
-    noiseSampler.name = "SSAO_Noise_Sampler";
+
     noiseSampler.addressModeU = bb::SamplerAddressMode::REPEAT;
     noiseSampler.addressModeV = bb::SamplerAddressMode::REPEAT;
     noiseSampler.addressModeW = bb::SamplerAddressMode::REPEAT;
@@ -199,7 +198,7 @@ void SSAOPass::CreateBuffers()
 
     SingleTimeCommands commands { *_context->GetVulkanContext() };
 
-    _noiseSampler = _context->Resources()->GetSamplerResourceManager().Create(noiseSampler);
+    _noiseSampler = _context->Resources()->GetSamplerResourceManager().Create(noiseSampler, "SSAO Noise Sampler");
     _ssaoNoise = _context->Resources()->GetImageResourceManager().Create(noiseImage, _noiseSampler, bb::TextureFlags::COMMON_FLAGS, "SSAO Noise Image", &commands);
     _pushConstants.ssaoNoiseIndex = _ssaoNoise.getIndex();
 }

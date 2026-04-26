@@ -33,7 +33,7 @@ enum class TextureFlags : uint8_t
 class ImageResourceManager
 {
 public:
-    ImageResourceManager(const std::shared_ptr<VulkanContext>& context, ResourceHandle<Sampler> defaultSampler)
+    ImageResourceManager(const std::shared_ptr<VulkanContext>& context, ResourceHandle<bb::Sampler> defaultSampler)
         : _defaultSampler(defaultSampler)
         , _context(context)
     {
@@ -41,14 +41,14 @@ public:
 
     ResourceHandle<GPUImage> Create(
         const bb::Image2D& image,
-        ResourceHandle<Sampler> sampler,
+        ResourceHandle<bb::Sampler> sampler,
         bb::Flags<bb::TextureFlags> flags,
         std::string_view name,
         SingleTimeCommands* upload_commands);
 
     ResourceHandle<GPUImage> Create(
         const bb::Cubemap& cubemap,
-        ResourceHandle<Sampler> sampler,
+        ResourceHandle<bb::Sampler> sampler,
         bb::Flags<bb::TextureFlags> flags,
         std::string_view name);
 
@@ -72,7 +72,7 @@ public:
         return Create(image, _defaultSampler, flags, name, &commands);
     }
 
-    ResourceHandle<Sampler> _defaultSampler;
+    ResourceHandle<bb::Sampler> _defaultSampler;
 
     const GPUImage* Access(const ResourceHandle<GPUImage>& handle) const
     {

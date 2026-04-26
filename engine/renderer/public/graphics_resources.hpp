@@ -6,12 +6,12 @@
 namespace bb
 {
 class BufferManager;
+class SamplerManager;
 }
 
 class VulkanContext;
 class MeshResourceManager;
 class MaterialResourceManager;
-class SamplerResourceManager;
 class ModelResourceManager;
 class ImageResourceManager;
 
@@ -28,7 +28,7 @@ public:
     MaterialResourceManager& GetMaterialResourceManager() { return *_materialResourceManager; }
     ImageResourceManager& GetImageResourceManager() { return *_imageResourceManager; }
     bb::BufferManager& GetBufferResourceManager() { return *_bufferResourceManager; }
-    SamplerResourceManager& GetSamplerResourceManager() { return *_samplerResourceManager; }
+    bb::SamplerManager& GetSamplerResourceManager() { return *_samplerResourceManager; }
     ModelResourceManager& GetModelResourceManager() { return *_modelResourceManager; }
 
 private:
@@ -39,5 +39,5 @@ private:
     std::shared_ptr<MaterialResourceManager> _materialResourceManager;
     std::shared_ptr<ImageResourceManager> _imageResourceManager;
     std::shared_ptr<bb::BufferManager> _bufferResourceManager;
-    std::shared_ptr<SamplerResourceManager> _samplerResourceManager;
+    std::shared_ptr<bb::SamplerManager> _samplerResourceManager;
 };

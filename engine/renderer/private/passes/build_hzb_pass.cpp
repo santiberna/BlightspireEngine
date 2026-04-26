@@ -7,7 +7,7 @@
 #include "math.hpp"
 #include "pipeline_builder.hpp"
 #include "resource_management/image_resource_manager.hpp"
-#include "resource_management/sampler_resource_manager.hpp"
+#include "resources/sampler.hpp"
 #include "shaders/shader_loader.hpp"
 #include "vulkan_context.hpp"
 #include "vulkan_helper.hpp"
@@ -80,7 +80,7 @@ void BuildHzbPass::CreateSampler()
     auto& samplerResourceManager = _context->Resources()->GetSamplerResourceManager();
 
     bb::SamplerCreation samplerCreation {};
-    samplerCreation.name = "HZB Sampler",
+
     samplerCreation.minFilter = bb::SamplerFilter::LINEAR;
     samplerCreation.magFilter = bb::SamplerFilter::LINEAR;
     samplerCreation.anisotropyEnable = false,
@@ -91,7 +91,7 @@ void BuildHzbPass::CreateSampler()
     samplerCreation.addressModeW = bb::SamplerAddressMode::CLAMP_TO_EDGE;
     samplerCreation.addressModeV = bb::SamplerAddressMode::CLAMP_TO_EDGE;
 
-    _hzbSampler = samplerResourceManager.Create(samplerCreation);
+    _hzbSampler = samplerResourceManager.Create(samplerCreation, "HZB Sampler");
 }
 
 void BuildHzbPass::CreatPipeline()

@@ -1,9 +1,8 @@
 #pragma once
 
-#include "common.hpp"
+#include "resource_manager.hpp"
+#include "slot_map/container.hpp"
 #include "vulkan_fwd.hpp"
-
-#include <string>
 
 class VulkanContext;
 
@@ -46,8 +45,6 @@ enum class SamplerReductionMode
 
 struct SamplerCreation
 {
-    std::string name {};
-
     SamplerAddressMode addressModeU { SamplerAddressMode::REPEAT };
     SamplerAddressMode addressModeW { SamplerAddressMode::REPEAT };
     SamplerAddressMode addressModeV { SamplerAddressMode::REPEAT };
@@ -66,23 +63,36 @@ struct SamplerCreation
 
     float mipLodBias { 0.0f };
     float minLod { 0.0f };
-    float maxLod { 1.0f };
+    float maxLod { 1000.0f };
 };
-
-}
 
 struct Sampler
 {
-    Sampler(const bb::SamplerCreation& creation, const VulkanContext* context);
-    ~Sampler();
+    VkSampler sampler {};
+};
 
-    Sampler(Sampler&& other) noexcept;
-    Sampler& operator=(Sampler&& other) noexcept;
+class SamplerManager
+{
+public:
+    explicit SamplerManager(const VulkanContext& context);
+    ~SamplerManager();
 
-    NON_COPYABLE(Sampler);
+    void Destroy(const ResourceHandle<bb::Sampler>& handle);
+    [[nodiscard]] ResourceHandle<bb::Sampler> Create(const bb::SamplerCreation& creation, const char* name);
+    [[nodiscard]] const Sampler* Access(const ResourceHandle<bb::Sampler>& handle) const
+    {
+        return m_storage.get(handle);
+    }
 
-    VkSampler sampler;
+    [[nodiscard]] ResourceHandle<bb::Sampler> GetDefaultSampler() const
+    {
+        return m_default_sampler;
+    }
 
 private:
-    const VulkanContext* _context;
+    SlotMap<Sampler> m_storage;
+    ResourceHandle<bb::Sampler> m_default_sampler;
+    const VulkanContext& m_context;
 };
+
+}

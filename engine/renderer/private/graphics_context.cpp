@@ -4,8 +4,8 @@
 #include "pipeline_builder.hpp"
 #include "resource_management/image_resource_manager.hpp"
 #include "resource_management/material_resource_manager.hpp"
-#include "resource_management/sampler_resource_manager.hpp"
 #include "resources/buffer.hpp"
+#include "resources/sampler.hpp"
 #include "vulkan_context.hpp"
 #include "vulkan_helper.hpp"
 
@@ -144,17 +144,12 @@ void GraphicsContext::UpdateBindlessSet()
 void GraphicsContext::UpdateBindlessImages()
 {
     ImageResourceManager& imageResourceManager { _graphicsResources->GetImageResourceManager() };
-    SamplerResourceManager& samplers { _graphicsResources->GetSamplerResourceManager() };
+    bb::SamplerManager& samplers { _graphicsResources->GetSamplerResourceManager() };
 
     // Default sampler
     if (!_sampler.isValid())
     {
-        bb::SamplerCreation createInfo {
-            .name = "Graphics context sampler",
-            .maxLod = vk::LodClampNone,
-        };
-
-        _sampler = samplers.Create(createInfo);
+        _sampler = samplers.GetDefaultSampler();
     }
 
     for (uint32_t i = 0; i < MAX_BINDLESS_RESOURCES; ++i)

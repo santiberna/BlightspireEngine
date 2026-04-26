@@ -11,7 +11,7 @@
 #include "graphics_context.hpp"
 #include "graphics_resources.hpp"
 #include "resource_management/image_resource_manager.hpp"
-#include "resource_management/sampler_resource_manager.hpp"
+#include "resources/sampler.hpp"
 #include "swap_chain.hpp"
 #include "vulkan_context.hpp"
 
@@ -53,7 +53,7 @@ ImGuiBackend::ImGuiBackend(const std::shared_ptr<GraphicsContext>& context, cons
 
     ImGui_ImplSDL3_InitForVulkan(applicationModule.GetWindowHandle());
 
-    _basicSampler = _context->Resources()->GetSamplerResourceManager().Create(bb::SamplerCreation { .name = "ImGui sampler" });
+    _basicSampler = _context->Resources()->GetSamplerResourceManager().Create(bb::SamplerCreation {}, "ImGui sampler");
 }
 
 ImGuiBackend::~ImGuiBackend()

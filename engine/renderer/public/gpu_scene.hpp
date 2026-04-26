@@ -8,7 +8,6 @@
 #include "resources/texture.hpp"
 #include "settings.hpp"
 
-
 #include <entt/entity/entity.hpp>
 #include <memory>
 #include <tracy/TracyVulkan.hpp>
@@ -282,7 +281,7 @@ private:
 
     ResourceHandle<GPUImage> _staticShadowImage;
     ResourceHandle<GPUImage> _dynamicShadowImage;
-    ResourceHandle<Sampler> _shadowSampler;
+    ResourceHandle<bb::Sampler> _shadowSampler;
 
     vk::DescriptorSetLayout _skinDescriptorSetLayout;
     std::array<vk::DescriptorSet, MAX_FRAMES_IN_FLIGHT> _skinDescriptorSets;

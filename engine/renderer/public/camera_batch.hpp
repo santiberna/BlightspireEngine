@@ -8,7 +8,7 @@
 class GPUScene;
 class GraphicsContext;
 struct GPUImage;
-struct Sampler;
+
 class CameraResource;
 
 namespace bb
@@ -49,7 +49,7 @@ private:
     const CameraResource& _camera;
 
     ResourceHandle<GPUImage> _hzbImage;
-    ResourceHandle<Sampler> _hzbSampler;
+    ResourceHandle<bb::Sampler> _hzbSampler;
 
     ResourceHandle<GPUImage> _depthImage;
 

@@ -6,11 +6,10 @@
 #include "math.hpp"
 #include "pipeline_builder.hpp"
 #include "resource_management/image_resource_manager.hpp"
-#include "resource_management/sampler_resource_manager.hpp"
 #include "resources/buffer.hpp"
+#include "resources/sampler.hpp"
 #include "shaders/shader_loader.hpp"
 #include "vulkan_context.hpp"
-
 
 CameraBatch::Draw::Draw(const std::shared_ptr<GraphicsContext>& context, const std::string& name, uint32_t instanceCount, vk::DescriptorSetLayout drawDSL, vk::DescriptorSetLayout visibilityDSL, vk::DescriptorSetLayout redirectDSL)
 {
@@ -74,7 +73,6 @@ CameraBatch::CameraBatch(const std::shared_ptr<GraphicsContext>& context, const 
     uint16_t hzbSize = math::RoundUpToPowerOfTwo(std::max(depthImageAccess->width, depthImageAccess->height));
 
     bb::SamplerCreation samplerCreation {};
-    samplerCreation.name = name + " HZB Sampler";
     samplerCreation.minFilter = bb::SamplerFilter::LINEAR;
     samplerCreation.magFilter = bb::SamplerFilter::LINEAR;
     samplerCreation.anisotropyEnable = false;
@@ -87,7 +85,8 @@ CameraBatch::CameraBatch(const std::shared_ptr<GraphicsContext>& context, const 
     samplerCreation.addressModeW = bb::SamplerAddressMode::CLAMP_TO_BORDER;
     samplerCreation.addressModeV = bb::SamplerAddressMode::CLAMP_TO_BORDER;
 
-    _hzbSampler = _context->Resources()->GetSamplerResourceManager().Create(samplerCreation);
+    auto given_name = name + " HZB Sampler";
+    _hzbSampler = _context->Resources()->GetSamplerResourceManager().Create(samplerCreation, given_name.c_str());
 
     bb::Image2D hzb_image {};
     hzb_image.width = hzbSize;

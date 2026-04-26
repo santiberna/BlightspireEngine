@@ -41,14 +41,13 @@
 #include "resource_management/image_resource_manager.hpp"
 #include "resource_management/mesh_resource_manager.hpp"
 #include "resource_management/model_resource_manager.hpp"
-#include "resource_management/sampler_resource_manager.hpp"
 #include "resources/buffer.hpp"
+#include "resources/sampler.hpp"
 #include "single_time_commands.hpp"
 #include "viewport.hpp"
 #include "vulkan_context.hpp"
 #include "vulkan_helper.hpp"
 #include <passes/volumetric_pass.hpp>
-
 
 Renderer::Renderer(ApplicationModule& application, Viewport& viewport, const std::shared_ptr<GraphicsContext>& context, ECSModule& ecs)
     : _context(context)
@@ -506,7 +505,7 @@ void Renderer::InitializeBloomTargets()
     auto& samplerResourceManager = _context->Resources()->GetSamplerResourceManager();
 
     bb::SamplerCreation samplerCreation {};
-    samplerCreation.name = "Bloom Sampler",
+
     samplerCreation.minLod = 0.0f;
     samplerCreation.maxLod = 4.0f;
     samplerCreation.mipmapMode = bb::SamplerFilter::LINEAR;
@@ -514,7 +513,7 @@ void Renderer::InitializeBloomTargets()
     samplerCreation.addressModeW = bb::SamplerAddressMode::CLAMP_TO_EDGE;
     samplerCreation.addressModeV = bb::SamplerAddressMode::CLAMP_TO_EDGE;
 
-    _bloomSampler = samplerResourceManager.Create(samplerCreation);
+    _bloomSampler = samplerResourceManager.Create(samplerCreation, "Bloom Sampler");
 
     auto size = _swapChain->GetImageSize();
 

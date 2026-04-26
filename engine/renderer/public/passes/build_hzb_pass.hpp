@@ -3,7 +3,6 @@
 #include "frame_graph.hpp"
 
 class CameraBatch;
-struct Sampler;
 
 class BuildHzbPass final : public FrameGraphRenderPass
 {
@@ -21,7 +20,7 @@ private:
     vk::DescriptorSetLayout _hzbImageDSL;
     vk::DescriptorUpdateTemplate _hzbUpdateTemplate;
 
-    ResourceHandle<Sampler> _hzbSampler;
+    ResourceHandle<bb::Sampler> _hzbSampler;
 
     void CreateSampler();
     void CreatPipeline();

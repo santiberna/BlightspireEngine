@@ -55,7 +55,7 @@ bool IsTriangleDegenerate(const glm::vec3& v0, const glm::vec3& v1, const glm::v
     return lengthSquared <= 1e-12f;
 }
 
-JPH::ShapeRefC ShapeFactory::MakeMeshHullShape(const std::vector<glm::vec3>& vertices, const std::vector<uint32_t>& indices)
+JPH::ShapeRefC ShapeFactory::MakeMeshHullShape(const std::vector<glm::vec3>& vertices, const std::vector<bb::u32>& indices)
 {
     JPH::Array<JPH::Float3> joltVertices;
     joltVertices.reserve(vertices.size());
@@ -67,7 +67,7 @@ JPH::ShapeRefC ShapeFactory::MakeMeshHullShape(const std::vector<glm::vec3>& ver
     JPH::Array<JPH::IndexedTriangle> joltTriangles;
     joltTriangles.reserve(triangleCount);
 
-    for (size_t i = 0; i < triangleCount; ++i)
+    for (bb::usize i = 0; i < triangleCount; ++i)
     {
         // We do have a couple degenerate triangles left, but Jolt can clean those up
         // assert(IsTriangleDegenerate(vertices[indices[3 * i]], vertices[indices[3 * i + 1]], vertices[indices[3 * i + 2]]) == false);

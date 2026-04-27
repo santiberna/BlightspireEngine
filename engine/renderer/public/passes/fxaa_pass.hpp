@@ -17,7 +17,7 @@ public:
     FXAAPass(const std::shared_ptr<GraphicsContext>& context, const Settings::FXAA& settings, const GBuffers& gBuffers, const ResourceHandle<GPUImage>& fxaaTarget, const ResourceHandle<GPUImage>& sourceTarget);
     ~FXAAPass() override;
 
-    void RecordCommands(vk::CommandBuffer commandBuffer, uint32_t currentFrame, const RenderSceneDescription& scene) override;
+    void RecordCommands(vk::CommandBuffer commandBuffer, bb::u32 currentFrame, const RenderSceneDescription& scene) override;
 
     NON_MOVABLE(FXAAPass);
     NON_COPYABLE(FXAAPass);
@@ -25,10 +25,10 @@ public:
 private:
     struct PushConstants
     {
-        uint32_t sourceIndex;
-        uint32_t screenWidth;
-        uint32_t screenHeight;
-        int32_t iterations = 12;
+        bb::u32 sourceIndex;
+        bb::u32 screenWidth;
+        bb::u32 screenHeight;
+        bb::i32 iterations = 12;
         float edgeThresholdMin = 0.0312;
         float edgeThresholdMax = 0.125;
         float subPixelQuality = 1.2f;

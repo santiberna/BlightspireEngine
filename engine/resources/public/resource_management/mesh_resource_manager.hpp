@@ -33,7 +33,7 @@ public:
     template <typename TVertex>
     ResourceHandle<GPUMesh> Create(SingleTimeCommands& uploadCommands, const CPUMesh<TVertex>& cpuMesh, const std::vector<ResourceHandle<GPUMaterial>>& materials, BatchBuffer& batchBuffer)
     {
-        uint32_t correctedIndex = cpuMesh.materialIndex;
+        bb::u32 correctedIndex = cpuMesh.materialIndex;
 
         // Invalid index.
         if (cpuMesh.materialIndex > materials.size())

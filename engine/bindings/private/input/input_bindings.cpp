@@ -39,7 +39,7 @@ glm::vec2 GetAnalogAction(ApplicationModule& self, const std::string& actionName
 
 glm::vec2 GetMousePosition(ApplicationModule& self)
 {
-    int32_t mouseX, mouseY;
+    bb::i32 mouseX, mouseY;
     self.GetInputDeviceManager().GetMousePosition(mouseX, mouseY);
     return glm::vec2(mouseX, mouseY);
 }

@@ -19,7 +19,7 @@ public:
     SSAOPass(const std::shared_ptr<GraphicsContext>& context, const Settings::SSAO& settings, const GBuffers& gBuffers, const ResourceHandle<GPUImage>& ssaoTarget);
     ~SSAOPass() final;
 
-    void RecordCommands(vk::CommandBuffer commandBuffer, uint32_t currentFrame, const RenderSceneDescription& scene) final;
+    void RecordCommands(vk::CommandBuffer commandBuffer, bb::u32 currentFrame, const RenderSceneDescription& scene) final;
 
     NON_MOVABLE(SSAOPass);
     NON_COPYABLE(SSAOPass);
@@ -27,11 +27,11 @@ public:
 private:
     struct PushConstants
     {
-        uint32_t normalIndex;
-        uint32_t depthIndex;
-        uint32_t ssaoNoiseIndex;
-        uint32_t ssaoRenderTargetWidth = 1920 / 2; // just for refference
-        uint32_t ssaoRenderTargetHeight = 1080 / 2;
+        bb::u32 normalIndex;
+        bb::u32 depthIndex;
+        bb::u32 ssaoNoiseIndex;
+        bb::u32 ssaoRenderTargetWidth = 1920 / 2; // just for refference
+        bb::u32 ssaoRenderTargetHeight = 1080 / 2;
         float aoStrength = 2.0f;
         float aoBias = 0.01f;
         float aoRadius = 0.2f;

@@ -23,7 +23,7 @@ void ActionManager::SetActiveActionSet(std::string_view actionSetName)
     }
 
     // spdlog::info("[Input] Changed to action set: \"{}\"", actionSetName);
-    uint32_t index = itr - _gameActions.begin();
+    bb::u32 index = itr - _gameActions.begin();
     _activeActionSet = index;
 }
 

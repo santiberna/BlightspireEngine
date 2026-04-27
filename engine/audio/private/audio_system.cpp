@@ -132,7 +132,7 @@ void AudioSystem::Inspect()
     {
         for (const auto& pair : _audioModule._channelsActive)
         {
-            ImGui::Text("--| %u", static_cast<uint32_t>(pair.first));
+            ImGui::Text("--| %u", static_cast<bb::u32>(pair.first));
         }
         ImGui::TreePop();
     }
@@ -140,7 +140,7 @@ void AudioSystem::Inspect()
     {
         for (const auto& pair : _audioModule._banks)
         {
-            ImGui::Text("--| %u", static_cast<uint32_t>(pair.first));
+            ImGui::Text("--| %u", static_cast<bb::u32>(pair.first));
         }
         ImGui::TreePop();
     }
@@ -148,7 +148,7 @@ void AudioSystem::Inspect()
     {
         for (const auto& pair : _audioModule._events)
         {
-            ImGui::Text("--| %u", static_cast<uint32_t>(pair.first));
+            ImGui::Text("--| %u", static_cast<bb::u32>(pair.first));
         }
         ImGui::TreePop();
     }

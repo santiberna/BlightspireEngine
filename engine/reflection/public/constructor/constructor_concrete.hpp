@@ -16,7 +16,7 @@ public:
     [[nodiscard]] Value invoke(const ArgumentList& parameters) const override;
 
 private:
-    template <std::size_t... Is>
+    template <bb::usize... Is>
     [[nodiscard]] Value invokeHelper(
         const ArgumentList& args, std::index_sequence<Is...> _sequence) const;
 };
@@ -43,7 +43,7 @@ Value ConstructorImpl<Class, Args...>::invoke(const ArgumentList& args) const
 }
 
 template <typename Class, typename... Args>
-template <std::size_t... Is>
+template <bb::usize... Is>
 [[nodiscard]] Value ConstructorImpl<Class, Args...>::invokeHelper(
     const ArgumentList& args, [[maybe_unused]] std::index_sequence<Is...> _sequence) const
 {

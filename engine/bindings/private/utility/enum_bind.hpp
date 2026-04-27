@@ -7,7 +7,7 @@ namespace detail
 template <auto v>
 auto ReturnVal() { return v; }
 
-template <typename E, size_t... Idx>
+template <typename E, bb::usize... Idx>
 void BindEnumSequence(wren::ForeignKlassImpl<E>& enumClass, std::index_sequence<Idx...>)
 {
     constexpr auto names = magic_enum::enum_names<E>();
@@ -15,7 +15,7 @@ void BindEnumSequence(wren::ForeignKlassImpl<E>& enumClass, std::index_sequence<
     ((enumClass.template funcStaticExt<ReturnVal<values[Idx]>>(std::string(names[Idx]))), ...);
 }
 
-template <typename E, size_t... Idx>
+template <typename E, bb::usize... Idx>
 void BindBitflagSequence(wren::ForeignKlassImpl<E>& enumClass, std::index_sequence<Idx...>)
 {
     constexpr auto names = magic_enum::enum_names<E>();

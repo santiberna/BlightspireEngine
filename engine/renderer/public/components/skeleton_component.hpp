@@ -1,5 +1,7 @@
 #pragma once
 
+#include "common.hpp"
+
 #include <array>
 #include <cstdint>
 #include <entt/entity/entity.hpp>
@@ -32,7 +34,7 @@ struct JointWorldTransformComponent
 struct JointSkinDataComponent
 {
     glm::mat4 inverseBindMatrix {};
-    uint32_t jointIndex {};
+    bb::u32 jointIndex {};
     entt::entity skeletonEntity {};
 };
 

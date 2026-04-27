@@ -21,7 +21,7 @@ public:
     [[nodiscard]] const Type* getType() const;
 
 private:
-    size_t offset {};
+    bb::usize offset {};
     const Type* type {};
 };
 }

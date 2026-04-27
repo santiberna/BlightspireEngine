@@ -1,4 +1,6 @@
 #pragma once
+#include "common.hpp"
+
 #include <chrono>
 #include <cstdint>
 #include <string>
@@ -12,7 +14,7 @@ public:
     void Render();
 
 private:
-    static const uint32_t MAX_SAMPLES { 512 };
+    static const bb::u32 MAX_SAMPLES { 512 };
 
     std::vector<float> _fpsValues {};
 
@@ -22,10 +24,10 @@ private:
     std::vector<float> _timePoints {};
     std::chrono::steady_clock::time_point _lastFrameTime {};
     float _totalTime {};
-    uint32_t _frameCounter {};
+    bb::u32 _frameCounter {};
 
     float _highestFps {};
-    uint32_t _highestFpsRecordIndex {};
+    bb::u32 _highestFpsRecordIndex {};
     float _highestFrameDuration {};
-    uint32_t _highestFrameDurationRecordIndex {};
+    bb::u32 _highestFrameDurationRecordIndex {};
 };

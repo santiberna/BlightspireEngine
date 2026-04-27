@@ -3,7 +3,7 @@
 
 // Modified from SDL_gamepad.h
 
-enum class GamepadButton : uint32_t
+enum class GamepadButton : bb::u32
 {
     eSOUTH, /* Bottom face button (e.g. Xbox A button) */
     eEAST, /* Right face button (e.g. Xbox B button) */
@@ -35,7 +35,7 @@ enum class GamepadButton : uint32_t
     eRIGHT_TRIGGER,
 };
 
-enum class GamepadAxis : uint32_t
+enum class GamepadAxis : bb::u32
 {
     eLEFTX,
     eLEFTY,
@@ -45,14 +45,14 @@ enum class GamepadAxis : uint32_t
     eRIGHT_TRIGGER,
 };
 
-enum class GamepadAnalog : uint32_t
+enum class GamepadAnalog : bb::u32
 {
     eAXIS_LEFT,
     eAXIS_RIGHT,
     eDPAD,
 };
 
-enum class GamepadType : uint32_t
+enum class GamepadType : bb::u32
 {
     eUnknown, // Catch-all for unrecognized devices
     eSteamController, // Valve's Steam Controller

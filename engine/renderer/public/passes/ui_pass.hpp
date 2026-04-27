@@ -18,7 +18,7 @@ public:
     NON_COPYABLE(UIPass);
     NON_MOVABLE(UIPass);
 
-    void RecordCommands(vk::CommandBuffer commandBuffer, [[maybe_unused]] uint32_t currentFrame, [[maybe_unused]] const RenderSceneDescription& scene) final;
+    void RecordCommands(vk::CommandBuffer commandBuffer, [[maybe_unused]] bb::u32 currentFrame, [[maybe_unused]] const RenderSceneDescription& scene) final;
     void SetProjectionMatrix(const glm::vec2& size, const glm::vec2& offset);
     std::vector<QuadDrawInfo>&
     GetDrawList()

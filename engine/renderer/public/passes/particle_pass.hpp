@@ -30,7 +30,7 @@ public:
     ParticlePass(const std::shared_ptr<GraphicsContext>& context, ECSModule& ecs, const GBuffers& gBuffers, const ResourceHandle<GPUImage>& hdrTarget, const ResourceHandle<GPUImage>& brightnessTarget, const BloomSettings& bloomSettings);
     ~ParticlePass() final;
 
-    void RecordCommands(vk::CommandBuffer commandBuffer, uint32_t currentFrame, const RenderSceneDescription& scene) final;
+    void RecordCommands(vk::CommandBuffer commandBuffer, bb::u32 currentFrame, const RenderSceneDescription& scene) final;
 
     void ResetParticles();
 
@@ -59,11 +59,11 @@ private:
     struct SimulatePushConstant
     {
         float deltaTime;
-        uint32_t localEmitterCount;
+        bb::u32 localEmitterCount;
     } _simulatePushConstant;
     struct EmitPushConstant
     {
-        uint32_t bufferOffset;
+        bb::u32 bufferOffset;
     } _emitPushConstant;
 
     std::shared_ptr<GraphicsContext> _context;
@@ -111,10 +111,10 @@ private:
 
     void RecordKickOff(vk::CommandBuffer commandBuffer);
     void RecordEmit(vk::CommandBuffer commandBuffer);
-    void RecordSimulate(vk::CommandBuffer commandBuffer, const CameraResource& camera, float deltaTime, uint32_t currentFrame);
-    void RecordRenderIndexedIndirect(vk::CommandBuffer commandBuffer, const RenderSceneDescription& scene, uint32_t currentFrame);
+    void RecordSimulate(vk::CommandBuffer commandBuffer, const CameraResource& camera, float deltaTime, bb::u32 currentFrame);
+    void RecordRenderIndexedIndirect(vk::CommandBuffer commandBuffer, const RenderSceneDescription& scene, bb::u32 currentFrame);
 
-    void UpdateEmitters(vk::CommandBuffer commandBuffer, uint32_t currentFrame);
+    void UpdateEmitters(vk::CommandBuffer commandBuffer, bb::u32 currentFrame);
 
     void CreatePipelines();
     void CreateDescriptorSetLayouts();

@@ -17,7 +17,7 @@ public:
     GenerateDrawsPass(const std::shared_ptr<GraphicsContext>& context, const CameraBatch& cameraBatch, const bool drawStatic, const bool drawDynamic);
     ~GenerateDrawsPass() final;
 
-    void RecordCommands(vk::CommandBuffer commandBuffer, uint32_t currentFrame, const RenderSceneDescription& scene) final;
+    void RecordCommands(vk::CommandBuffer commandBuffer, bb::u32 currentFrame, const RenderSceneDescription& scene) final;
 
     void SetDrawStatic(bool drawStatic) { _shouldDrawStatic = drawStatic; }
     void SetDrawDynamic(bool drawDynamic) { _shouldDrawDynamic = drawDynamic; }
@@ -34,21 +34,21 @@ private:
     bool _isPrepass = true;
     bool _shouldDrawStatic = true;
     bool _shouldDrawDynamic = true;
-    const uint32_t _localComputeSize = 64;
+    const bb::u32 _localComputeSize = 64;
 
     const CameraBatch& _cameraBatch;
 
     struct PushConstants
     {
-        uint32_t isPrepass;
+        bb::u32 isPrepass;
         float mipSize;
-        uint32_t hzbIndex;
-        uint32_t drawCommandsCount;
-        uint32_t isReverseZ;
-        uint32_t drawStaticDraws;
+        bb::u32 hzbIndex;
+        bb::u32 drawCommandsCount;
+        bb::u32 isReverseZ;
+        bb::u32 drawStaticDraws;
     };
 
     void CreateCullingPipeline();
-    void RecordPrepassCommands(vk::CommandBuffer commandBuffer, uint32_t currentFrame, const CameraBatch::Draw& draw, vk::DescriptorSet sceneDraws, vk::DescriptorSet sceneInstances, uint32_t drawCount, const PushConstants& pc);
-    void RecordSecondPassCommands(vk::CommandBuffer commandBuffer, uint32_t currentFrame, const CameraBatch::Draw& draw, vk::DescriptorSet sceneDraws, vk::DescriptorSet sceneInstances, uint32_t drawCount, const PushConstants& pc);
+    void RecordPrepassCommands(vk::CommandBuffer commandBuffer, bb::u32 currentFrame, const CameraBatch::Draw& draw, vk::DescriptorSet sceneDraws, vk::DescriptorSet sceneInstances, bb::u32 drawCount, const PushConstants& pc);
+    void RecordSecondPassCommands(vk::CommandBuffer commandBuffer, bb::u32 currentFrame, const CameraBatch::Draw& draw, vk::DescriptorSet sceneDraws, vk::DescriptorSet sceneInstances, bb::u32 drawCount, const PushConstants& pc);
 };

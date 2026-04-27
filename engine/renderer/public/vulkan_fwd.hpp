@@ -3,7 +3,7 @@
 
 #include <cstdint>
 
-using VkDeviceSize = uint64_t;
+using VkDeviceSize = bb::u64;
 
 // WARNING: this will completely break on x32 systems (not supported)
 #define BB_VULKAN_FWD(handle) \

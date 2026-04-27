@@ -186,7 +186,7 @@ void util::EndSingleTimeCommands(VulkanContext* context, vk::CommandBuffer comma
     device.free(context->CommandPool(), commandBuffer);
 }
 
-void util::CopyBuffer(vk::CommandBuffer commandBuffer, vk::Buffer srcBuffer, vk::Buffer dstBuffer, vk::DeviceSize size, uint32_t offset)
+void util::CopyBuffer(vk::CommandBuffer commandBuffer, vk::Buffer srcBuffer, vk::Buffer dstBuffer, vk::DeviceSize size, bb::u32 offset)
 {
     vk::BufferCopy copyRegion {};
     copyRegion.srcOffset = 0;
@@ -270,7 +270,7 @@ util::ImageLayoutTransitionState util::GetImageLayoutTransitionDestinationState(
     return it->second;
 }
 
-void util::InitializeImageMemoryBarrier(vk::ImageMemoryBarrier2& barrier, vk::Image image, vk::Format format, vk::ImageLayout oldLayout, vk::ImageLayout newLayout, uint32_t numLayers, uint32_t mipLevel, uint32_t mipCount, vk::ImageAspectFlagBits imageAspect)
+void util::InitializeImageMemoryBarrier(vk::ImageMemoryBarrier2& barrier, vk::Image image, vk::Format format, vk::ImageLayout oldLayout, vk::ImageLayout newLayout, bb::u32 numLayers, bb::u32 mipLevel, bb::u32 mipCount, vk::ImageAspectFlagBits imageAspect)
 {
     barrier.oldLayout = oldLayout;
     barrier.newLayout = newLayout;
@@ -299,7 +299,7 @@ void util::InitializeImageMemoryBarrier(vk::ImageMemoryBarrier2& barrier, vk::Im
     barrier.dstAccessMask = destinationState.accessFlags;
 }
 
-void util::TransitionImageLayout(vk::CommandBuffer commandBuffer, vk::Image image, vk::Format format, vk::ImageLayout oldLayout, vk::ImageLayout newLayout, uint32_t numLayers, uint32_t mipLevel, uint32_t mipCount, vk::ImageAspectFlagBits imageAspect)
+void util::TransitionImageLayout(vk::CommandBuffer commandBuffer, vk::Image image, vk::Format format, vk::ImageLayout oldLayout, vk::ImageLayout newLayout, bb::u32 numLayers, bb::u32 mipLevel, bb::u32 mipCount, vk::ImageAspectFlagBits imageAspect)
 {
     vk::ImageMemoryBarrier2 barrier {};
     InitializeImageMemoryBarrier(barrier, image, format, oldLayout, newLayout, numLayers, mipLevel, mipCount, imageAspect);
@@ -311,7 +311,7 @@ void util::TransitionImageLayout(vk::CommandBuffer commandBuffer, vk::Image imag
     commandBuffer.pipelineBarrier2(dependencyInfo);
 }
 
-void util::CopyBufferToImage(vk::CommandBuffer commandBuffer, vk::Buffer buffer, vk::Image image, uint32_t width, uint32_t height)
+void util::CopyBufferToImage(vk::CommandBuffer commandBuffer, vk::Buffer buffer, vk::Image image, bb::u32 width, bb::u32 height)
 {
     vk::BufferImageCopy region {};
     region.bufferImageHeight = 0;
@@ -447,9 +447,9 @@ vk::ImageAspectFlags util::GetImageAspectFlags(vk::Format format)
 // Returns the size in bytes of the provided vk::Format.
 // As this is only intended for vertex attribute formats, not all VkFormats are
 // supported.
-uint32_t util::FormatSize(vk::Format format)
+bb::u32 util::FormatSize(vk::Format format)
 {
-    uint32_t result = 0;
+    bb::u32 result = 0;
     switch (static_cast<VkFormat>(format))
     {
     case VK_FORMAT_UNDEFINED:

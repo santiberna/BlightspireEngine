@@ -14,7 +14,7 @@
 
 class InputDeviceManager;
 
-enum class DigitalActionType : uint8_t
+enum class DigitalActionType : bb::u8
 {
     eNone = 0 << 0,
     // Action happens once when input is received.
@@ -129,7 +129,7 @@ public:
 protected:
     const InputDeviceManager& _inputDeviceManager;
     GameActions _gameActions {};
-    uint32_t _activeActionSet = 0;
+    bb::u32 _activeActionSet = 0;
     GamepadGlyphs _gamepadGlyphs {};
 
     [[nodiscard]] DigitalActionType CheckDigitalInput(const DigitalAction& action) const;

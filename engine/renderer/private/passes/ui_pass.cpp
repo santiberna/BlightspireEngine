@@ -70,7 +70,7 @@ void UIPass::CreatePipeLine()
     _pipeline = std::get<1>(result);
 }
 
-void UIPass::RecordCommands(vk::CommandBuffer commandBuffer, [[maybe_unused]] uint32_t currentFrame, [[maybe_unused]] const RenderSceneDescription& scene)
+void UIPass::RecordCommands(vk::CommandBuffer commandBuffer, [[maybe_unused]] bb::u32 currentFrame, [[maybe_unused]] const RenderSceneDescription& scene)
 {
     TracyVkZone(scene.tracyContext, commandBuffer, "UI Pass");
 

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "common.hpp"
 #include "physics/jolt_to_glm.hpp"
 
 #include <Jolt/Jolt.h>
@@ -15,5 +16,5 @@ struct ShapeFactory
     static JPH::ShapeRefC MakeSphereShape(float radius);
     static JPH::ShapeRefC MakeCapsuleShape(float cylinderHeight, float radius);
     static JPH::ShapeRefC MakeConvexHullShape(const std::vector<glm::vec3>& vertices);
-    static JPH::ShapeRefC MakeMeshHullShape(const std::vector<glm::vec3>& vertices, const std::vector<uint32_t>& indices);
+    static JPH::ShapeRefC MakeMeshHullShape(const std::vector<glm::vec3>& vertices, const std::vector<bb::u32>& indices);
 };

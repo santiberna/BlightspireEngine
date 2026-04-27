@@ -103,10 +103,10 @@ void InputDeviceManager::SetMousePositionToAbsoluteMousePosition()
     SDL_GetMouseState(&_mouse.positionX, &_mouse.positionY);
 }
 
-void InputDeviceManager::GetMousePosition(int32_t& x, int32_t& y) const
+void InputDeviceManager::GetMousePosition(bb::i32& x, bb::i32& y) const
 {
-    x = static_cast<int32_t>(_mouse.positionX);
-    y = static_cast<int32_t>(_mouse.positionY);
+    x = static_cast<bb::i32>(_mouse.positionX);
+    y = static_cast<bb::i32>(_mouse.positionY);
 }
 
 float InputDeviceManager::ClampGamepadAxisDeadzone(float input) const

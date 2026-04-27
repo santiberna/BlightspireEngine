@@ -168,7 +168,7 @@ std::optional<glm::vec3> LocalEnemySteering(
         float lowestHitFraction = 1.0;
         float lowestHitFractionIndex = 0;
 
-        for (size_t j = 0; j < hitInfos.size(); j++)
+        for (bb::usize j = 0; j < hitInfos.size(); j++)
         {
             auto& ray = hitInfos[j];
 
@@ -206,7 +206,7 @@ std::optional<glm::vec3> LocalEnemySteering(
         // steer either hard left or right (random chance for either)
 
         float angle = 0.0;
-        uint32_t index = RandomUtil::RandomIndex(0, 2);
+        bb::u32 index = RandomUtil::RandomIndex(0, 2);
         assert(index == 1 || index == 0);
 
         if (index == 0)

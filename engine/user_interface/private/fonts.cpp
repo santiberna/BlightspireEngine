@@ -47,7 +47,7 @@ void FTStreamClose([[maybe_unused]] FT_Stream ftStream)
 {
 }
 
-std::shared_ptr<UIFont> LoadFromFile(const std::string& path, uint16_t characterHeight, GraphicsContext& context)
+std::shared_ptr<UIFont> LoadFromFile(const std::string& path, bb::u16 characterHeight, GraphicsContext& context)
 {
     FT_Library library;
     FT_Init_FreeType(&library);
@@ -98,10 +98,10 @@ std::shared_ptr<UIFont> LoadFromFile(const std::string& path, uint16_t character
     font->metrics.descent = (descent >> 6);
     font->metrics.lineGap = (line_gap >> 6);
 
-    const uint8_t maxGlyphs = 128;
+    const bb::u8 maxGlyphs = 128;
 
     std::array<stbrp_rect, maxGlyphs> rects;
-    for (uint8_t c = 0; c < maxGlyphs; ++c)
+    for (bb::u8 c = 0; c < maxGlyphs; ++c)
     {
         if (FT_Load_Char(fontFace, c, FT_LOAD_RENDER | FT_LOAD_MONOCHROME) != 0)
         {
@@ -115,8 +115,8 @@ std::shared_ptr<UIFont> LoadFromFile(const std::string& path, uint16_t character
         rects[c].h = fontFace->glyph->bitmap.rows + 2;
     }
 
-    const uint16_t atlasWidth = 512;
-    const uint16_t atlasHeight = 512;
+    const bb::u16 atlasWidth = 512;
+    const bb::u16 atlasHeight = 512;
 
     stbrp_context stbrpContext;
     std::vector<stbrp_node> nodes(atlasWidth);
@@ -129,7 +129,7 @@ std::shared_ptr<UIFont> LoadFromFile(const std::string& path, uint16_t character
 
     std::shared_ptr<std::byte[]> atlasData = std::make_shared<std::byte[]>(atlasWidth * atlasHeight);
 
-    for (uint8_t c = 0; c < maxGlyphs; ++c)
+    for (bb::u8 c = 0; c < maxGlyphs; ++c)
     {
         if (rects[c].was_packed != 0)
         {
@@ -141,9 +141,9 @@ std::shared_ptr<UIFont> LoadFromFile(const std::string& path, uint16_t character
             const FT_Bitmap& bitmap = fontFace->glyph->bitmap;
 
             glm::uvec2 atlasStart = { rects[c].x + 1, rects[c].y + 1 };
-            for (uint16_t y = 0; y < bitmap.rows; ++y)
+            for (bb::u16 y = 0; y < bitmap.rows; ++y)
             {
-                for (uint16_t x = 0; x < bitmap.width; ++x)
+                for (bb::u16 x = 0; x < bitmap.width; ++x)
                 {
                     glm::uvec2 atlasIndex = { atlasStart.x + x, atlasStart.y + y };
                     atlasData[atlasIndex.y * atlasWidth + atlasIndex.x] = std::byte(bitmap.buffer[y * bitmap.width + x]);

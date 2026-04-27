@@ -6,7 +6,7 @@
 
 struct CameraComponent
 {
-    enum class Projection : uint8_t
+    enum class Projection : bb::u8
     {
         ePerspective,
         eOrthographic,

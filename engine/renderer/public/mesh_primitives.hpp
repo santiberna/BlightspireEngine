@@ -3,5 +3,4 @@
 #include "resources/mesh.hpp"
 #include "vertex.hpp"
 
-
-CPUMesh<Vertex> GenerateUVSphere(uint32_t slices, uint32_t stacks, float radius = 1.0f);
+CPUMesh<Vertex> GenerateUVSphere(bb::u32 slices, bb::u32 stacks, float radius = 1.0f);

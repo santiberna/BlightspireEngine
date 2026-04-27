@@ -59,8 +59,8 @@ std::optional<bb::Image2D> bb::Image2D::fromMemory(std::span<const std::byte> da
 
     bb::Image2D out;
     out.format = format;
-    out.height = static_cast<uint32_t>(h);
-    out.width = static_cast<uint32_t>(w);
+    out.height = static_cast<bb::u32>(h);
+    out.width = static_cast<bb::u32>(w);
     out.data = std::shared_ptr<std::byte[]>(bytes, stbi_image_free);
 
     return out;

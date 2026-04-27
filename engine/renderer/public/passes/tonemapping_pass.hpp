@@ -17,7 +17,7 @@ public:
     TonemappingPass(const std::shared_ptr<GraphicsContext>& context, const Settings::Tonemapping& settings, ResourceHandle<GPUImage> hdrTarget, ResourceHandle<GPUImage> bloomTarget, ResourceHandle<GPUImage> volumetricTarget, ResourceHandle<GPUImage> outputTarget, const SwapChain& _swapChain, const GBuffers& gBuffers, const BloomSettings& bloomSettings);
     ~TonemappingPass() final;
 
-    void RecordCommands(vk::CommandBuffer commandBuffer, uint32_t currentFrame, const RenderSceneDescription& scene) final;
+    void RecordCommands(vk::CommandBuffer commandBuffer, bb::u32 currentFrame, const RenderSceneDescription& scene) final;
 
     void SetFlashColor(const glm::vec4& color) { _pushConstants.flashColor = color; }
 
@@ -28,7 +28,7 @@ public:
     NON_MOVABLE(TonemappingPass);
 
 private:
-    enum TonemappingFlags : uint32_t
+    enum TonemappingFlags : bb::u32
     {
         eEnableVignette = 1 << 0,
         eEnableLensDistortion = 1 << 1,
@@ -41,15 +41,15 @@ private:
     struct PushConstants
     {
         // Register 0 (16 bytes)
-        uint32_t hdrTargetIndex;
-        uint32_t bloomTargetIndex;
-        uint32_t depthIndex;
-        uint32_t enableFlags;
+        bb::u32 hdrTargetIndex;
+        bb::u32 bloomTargetIndex;
+        bb::u32 depthIndex;
+        bb::u32 enableFlags;
 
         // Register 1 (16 bytes)
-        uint32_t normalRIndex;
-        uint32_t tonemappingFunction;
-        uint32_t volumetricIndex;
+        bb::u32 normalRIndex;
+        bb::u32 tonemappingFunction;
+        bb::u32 volumetricIndex;
         float exposure;
 
         // Register 2 (16 bytes)
@@ -72,15 +72,15 @@ private:
 
         // Register 5 (16 bytes)
         float pixelizationDepthBias;
-        uint32_t screenWidth;
-        uint32_t screenHeight;
+        bb::u32 screenWidth;
+        bb::u32 screenHeight;
         float ditherAmount;
 
         // Register 6 (16 bytes)
         float paletteAmount;
         float time;
         float cloudsSpeed;
-        uint32_t paletteSize;
+        bb::u32 paletteSize;
 
         glm::vec4 skyColor;
         glm::vec4 sunColor;

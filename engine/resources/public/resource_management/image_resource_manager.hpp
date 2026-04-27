@@ -15,7 +15,7 @@ class VulkanContext;
 namespace bb
 {
 
-enum class TextureFlags : uint8_t
+enum class TextureFlags : bb::u8
 {
     SAMPLED = 1 << 0,
     TRANSFER_SRC = 1 << 1,

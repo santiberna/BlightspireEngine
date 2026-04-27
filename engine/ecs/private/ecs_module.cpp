@@ -87,7 +87,7 @@ void ECSModule::DestroyEntity(entt::entity entity)
         if (relationship->childrenCount > 0)
         {
             entt::entity child = relationship->first;
-            for (size_t i = 0; i < relationship->childrenCount; ++i)
+            for (bb::usize i = 0; i < relationship->childrenCount; ++i)
             {
                 RelationshipComponent* childRelationship = registry.try_get<RelationshipComponent>(child);
                 if (childRelationship != nullptr)

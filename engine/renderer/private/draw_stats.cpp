@@ -2,32 +2,32 @@
 
 #include <cstdint>
 
-void DrawStats::IndirectDraw(uint32_t drawCommandSize, uint32_t indexCount)
+void DrawStats::IndirectDraw(bb::u32 drawCommandSize, bb::u32 indexCount)
 {
     _drawCalls++;
     _indirectDrawCommands += drawCommandSize;
     _indexCount += indexCount;
 }
 
-void DrawStats::DrawIndexed(uint32_t indexCount)
+void DrawStats::DrawIndexed(bb::u32 indexCount)
 {
     _directDrawCommands++;
     _drawCalls++;
     _indexCount += indexCount;
 }
 
-void DrawStats::Draw(uint32_t vertexCount)
+void DrawStats::Draw(bb::u32 vertexCount)
 {
     _drawCalls++;
     _indexCount += vertexCount;
 }
 
-void DrawStats::SetParticleCount(uint32_t particleCount)
+void DrawStats::SetParticleCount(bb::u32 particleCount)
 {
     _particleCount = particleCount;
 }
 
-void DrawStats::SetEmitterCount(uint32_t emitterCount)
+void DrawStats::SetEmitterCount(bb::u32 emitterCount)
 {
     _emitterCount = emitterCount;
 }

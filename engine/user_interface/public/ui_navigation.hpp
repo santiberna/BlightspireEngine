@@ -16,7 +16,7 @@ struct UINavigationTargets
     std::weak_ptr<UIElement> backward;
 };
 
-enum class UINavigationDirection : uint8_t
+enum class UINavigationDirection : bb::u8
 {
     eNone,
     eUp,

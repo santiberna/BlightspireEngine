@@ -17,7 +17,7 @@ struct AnimationChannelComponent
 {
     entt::entity animationControlEntity { entt::null };
     // Keys are based on the animation index from the AnimationControl.
-    std::unordered_map<uint32_t, TransformAnimationSpline> animationSplines;
+    std::unordered_map<bb::u32, TransformAnimationSpline> animationSplines;
 };
 
 namespace EnttEditor

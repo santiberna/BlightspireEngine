@@ -16,7 +16,7 @@ class UIProgressBar;
 class GraphicsContext;
 class ActionManager;
 
-inline constexpr size_t MAX_DASH_CHARGE_COUNT = 3;
+inline constexpr bb::usize MAX_DASH_CHARGE_COUNT = 3;
 
 class HUD : public Canvas
 {
@@ -45,7 +45,7 @@ public:
     std::weak_ptr<UITextElement> waveCounterText;
     std::weak_ptr<UITextElement> waveCounterbgText;
 
-    static constexpr size_t DIRECTIONAL_INDICATOR_COUNT = 10;
+    static constexpr bb::usize DIRECTIONAL_INDICATOR_COUNT = 10;
     std::array<std::weak_ptr<UIImage>, DIRECTIONAL_INDICATOR_COUNT> directionalIndicators;
 
     std::weak_ptr<UIImage> hitmarker;
@@ -105,7 +105,7 @@ public:
 
 class LoadingScreen : public Canvas
 {
-    static constexpr uint32_t MAX_LINE_BREAKS = 5;
+    static constexpr bb::u32 MAX_LINE_BREAKS = 5;
 
 public:
     static std::shared_ptr<LoadingScreen> Create(const bb::UIResources& resources, InputBindingsVisualizationCache& inputVisualizationsCache, const glm::uvec2& screenResolution, std::shared_ptr<UIFont> font);

@@ -34,7 +34,7 @@ struct alignas(16) GPUCamera
     float zNear;
     float zFar;
     bool cullingEnabled;
-    int32_t projectionType;
+    bb::i32 projectionType;
 
     float fov;
     float _padding;
@@ -49,16 +49,16 @@ public:
     NON_COPYABLE(CameraResource);
     NON_MOVABLE(CameraResource);
 
-    void Update(uint32_t currentFrame, const CameraComponent& camera, const glm::mat4& view, const glm::mat4& proj, const glm::vec3& position);
+    void Update(bb::u32 currentFrame, const CameraComponent& camera, const glm::mat4& view, const glm::mat4& proj, const glm::vec3& position);
 
     static glm::mat4 CalculateProjectionMatrix(const CameraComponent& camera);
     static glm::mat4 CalculateViewMatrix(const glm::quat& rotation, const glm::vec3& position);
 
-    vk::DescriptorSet DescriptorSet(uint32_t frameIndex) const
+    vk::DescriptorSet DescriptorSet(bb::u32 frameIndex) const
     {
         return _descriptorSets[frameIndex];
     }
-    ResourceHandle<bb::Buffer> BufferResource(uint32_t frameIndex) const { return _buffers[frameIndex]; }
+    ResourceHandle<bb::Buffer> BufferResource(bb::u32 frameIndex) const { return _buffers[frameIndex]; }
 
     bool UsesReverseZ() const { return _useReverseZ; }
 

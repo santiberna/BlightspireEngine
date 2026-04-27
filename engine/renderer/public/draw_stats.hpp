@@ -1,30 +1,30 @@
 #pragma once
 
-#include <cstdint>
+#include "common.hpp"
 
 class DrawStats
 {
 public:
-    void IndirectDraw(uint32_t drawCommandSize, uint32_t indexCount);
-    void DrawIndexed(uint32_t indexCount);
-    void Draw(uint32_t vertexCount);
-    void SetParticleCount(uint32_t particleCount);
-    void SetEmitterCount(uint32_t emitterCount);
+    void IndirectDraw(bb::u32 drawCommandSize, bb::u32 indexCount);
+    void DrawIndexed(bb::u32 indexCount);
+    void Draw(bb::u32 vertexCount);
+    void SetParticleCount(bb::u32 particleCount);
+    void SetEmitterCount(bb::u32 emitterCount);
 
     void Clear();
 
-    uint32_t IndexCount() const { return _indexCount; }
-    uint32_t DrawCalls() const { return _drawCalls; }
-    uint32_t DirectDrawCommands() const { return _directDrawCommands; }
-    uint32_t IndirectDrawCommands() const { return _indirectDrawCommands; }
-    uint32_t GetParticleCount() const { return _particleCount; }
-    uint32_t GetEmitterCount() const { return _emitterCount; }
+    bb::u32 IndexCount() const { return _indexCount; }
+    bb::u32 DrawCalls() const { return _drawCalls; }
+    bb::u32 DirectDrawCommands() const { return _directDrawCommands; }
+    bb::u32 IndirectDrawCommands() const { return _indirectDrawCommands; }
+    bb::u32 GetParticleCount() const { return _particleCount; }
+    bb::u32 GetEmitterCount() const { return _emitterCount; }
 
 private:
-    uint32_t _indexCount;
-    uint32_t _drawCalls;
-    uint32_t _directDrawCommands;
-    uint32_t _indirectDrawCommands;
-    uint32_t _particleCount;
-    uint32_t _emitterCount;
+    bb::u32 _indexCount;
+    bb::u32 _drawCalls;
+    bb::u32 _directDrawCommands;
+    bb::u32 _indirectDrawCommands;
+    bb::u32 _particleCount;
+    bb::u32 _emitterCount;
 };

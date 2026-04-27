@@ -3,7 +3,6 @@
 #include "frame_graph.hpp"
 #include "settings.hpp"
 
-#include <cstdint>
 #include <memory>
 
 class GraphicsContext;

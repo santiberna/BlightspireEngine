@@ -3,7 +3,6 @@
 
 #include "wren_include.hpp"
 
-#include <cstdint>
 #include <optional>
 #include <spdlog/fwd.h>
 #include <string>

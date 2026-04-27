@@ -3,7 +3,6 @@
 #include "frame_graph.hpp"
 #include "quad_draw_info.hpp"
 
-#include <cstdint>
 #include <memory>
 
 class SwapChain;

@@ -1,7 +1,5 @@
 #pragma once
 
-#include <cstdint>
-
 constexpr bb::u64 operator""_kb(unsigned long long kilobytes)
 {
     return kilobytes * 1024;

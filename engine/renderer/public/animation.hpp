@@ -2,7 +2,7 @@
 
 #include <algorithm>
 #include <cassert>
-#include <cstdint>
+
 #include <entt/entity/registry.hpp>
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>

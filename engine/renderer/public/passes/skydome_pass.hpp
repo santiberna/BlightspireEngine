@@ -4,7 +4,6 @@
 #include "frame_graph.hpp"
 #include "gbuffers.hpp"
 
-#include <cstdint>
 #include <memory>
 
 class BloomSettings;

@@ -9,7 +9,6 @@
 #include "vertex.hpp"
 #include "vulkan_helper.hpp"
 
-#include <cstddef>
 #include <memory>
 #include <vector>
 

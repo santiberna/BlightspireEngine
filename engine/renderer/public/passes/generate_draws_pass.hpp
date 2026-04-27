@@ -4,7 +4,6 @@
 #include "common.hpp"
 #include "frame_graph.hpp"
 
-#include <cstdint>
 #include <memory>
 
 class GPUScene;

@@ -6,7 +6,7 @@
 #include "resource_manager.hpp"
 
 #include "vulkan_include.hpp"
-#include <cstdint>
+
 #include <memory>
 #include <vma_include.hpp>
 

@@ -5,7 +5,6 @@
 #include "settings.hpp"
 #include "swap_chain.hpp"
 
-#include <cstdint>
 #include <memory>
 
 class BloomSettings;

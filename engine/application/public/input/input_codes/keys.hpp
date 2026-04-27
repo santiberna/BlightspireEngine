@@ -1,5 +1,4 @@
 #pragma once
-#include <cstdint>
 
 // Modified from SDL_keycode.h
 

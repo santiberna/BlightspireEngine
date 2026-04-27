@@ -1,10 +1,9 @@
 #pragma once
 
 #include "common.hpp"
-
 #include "graphics_context.hpp"
 #include "vulkan_include.hpp"
-#include <cstddef>
+
 #include <optional>
 #include <spirv_reflect.h>
 #include <string_view>

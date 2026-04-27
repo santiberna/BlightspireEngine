@@ -1,8 +1,6 @@
 
 #pragma once
 
-#include <cstdint>
-
 using VkDeviceSize = bb::u64;
 
 // WARNING: this will completely break on x32 systems (not supported)

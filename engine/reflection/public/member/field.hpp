@@ -1,6 +1,5 @@
 #pragma once
 #include <common.hpp>
-#include <cstddef>
 #include <reflection_fwd.hpp>
 
 namespace reflection

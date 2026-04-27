@@ -4,7 +4,6 @@
 #include "gbuffers.hpp"
 #include "settings.hpp"
 
-#include <cstdint>
 #include <memory>
 
 class BloomSettings;

@@ -25,7 +25,7 @@ SkydomePass::SkydomePass(const std::shared_ptr<GraphicsContext>& context, Resour
 {
     CreatePipeline();
 
-    _pushConstants.hdriIndex = environmentMap.Index();
+    _pushConstants.hdriIndex = environmentMap.getIndex();
 }
 
 SkydomePass::~SkydomePass()

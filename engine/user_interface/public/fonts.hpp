@@ -1,10 +1,14 @@
 #pragma once
 
+#include "common.hpp"
 #include "resource_manager.hpp"
-#include <common.hpp>
+
+
 #include <glm/glm.hpp>
+#include <memory>
 #include <string>
 #include <unordered_map>
+
 
 class GraphicsContext;
 struct GPUImage;

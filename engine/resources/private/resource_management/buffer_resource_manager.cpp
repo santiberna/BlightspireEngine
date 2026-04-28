@@ -9,5 +9,5 @@ BufferResourceManager::BufferResourceManager(const std::shared_ptr<VulkanContext
 
 ResourceHandle<Buffer> BufferResourceManager::Create(const BufferCreation& creation)
 {
-    return ResourceManager::Create(Buffer { creation, _context });
+    return m_storage.insert(Buffer { creation, _context });
 }

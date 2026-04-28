@@ -4,12 +4,13 @@
 #include "resources/image.hpp"
 #include "resources/texture.hpp"
 #include "single_time_commands.hpp"
+#include "slot_map/container.hpp"
 
 #include <memory>
 
 class VulkanContext;
 
-class ImageResourceManager final : public ResourceManager<GPUImage>
+class ImageResourceManager
 {
 public:
     ImageResourceManager(const std::shared_ptr<VulkanContext>& context, ResourceHandle<Sampler> defaultSampler)
@@ -53,6 +54,19 @@ public:
 
     ResourceHandle<Sampler> _defaultSampler;
 
+    const GPUImage* Access(const ResourceHandle<GPUImage>& handle) const
+    {
+        return m_storage.get(handle);
+    }
+
+    void Destroy(const ResourceHandle<GPUImage>& handle)
+    {
+        m_storage.remove(handle);
+    }
+
+    const bb::SlotMap<GPUImage>& Resources() { return m_storage; }
+
 private:
+    bb::SlotMap<GPUImage> m_storage {};
     std::shared_ptr<VulkanContext> _context;
 };

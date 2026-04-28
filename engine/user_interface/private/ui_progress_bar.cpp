@@ -65,20 +65,20 @@ void UIProgressBar::SubmitDrawInfo(std::vector<QuadDrawInfo>& drawList) const
 
         QuadDrawInfo infoEmpty {
             .matrix = matrixEmpty,
-            .textureIndex = style.empty.Index(),
+            .textureIndex = style.empty.getIndex(),
         };
 
         QuadDrawInfo infoFull {
             .matrix = matrixFull,
             .uvMin = uv0,
             .uvMax = uv1,
-            .textureIndex = style.empty.Index(),
+            .textureIndex = style.empty.getIndex(),
         };
 
         infoEmpty.useRedAsAlpha = false;
         drawList.emplace_back(infoEmpty);
 
-        infoFull.textureIndex = style.filled.Index();
+        infoFull.textureIndex = style.filled.getIndex();
         drawList.emplace_back(infoFull);
 
         ChildrenSubmitDrawInfo(drawList);

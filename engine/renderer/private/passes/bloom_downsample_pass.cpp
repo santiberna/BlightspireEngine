@@ -84,7 +84,7 @@ void BloomDownsamplePass::RecordCommands(vk::CommandBuffer commandBuffer, [[mayb
             uint32_t mip;
             glm::vec2 resolution;
         } pushConstants {};
-        pushConstants.sourceIndex = _bloomImage.Index();
+        pushConstants.sourceIndex = _bloomImage.getIndex();
         pushConstants.mip = mip;
         pushConstants.resolution = resolution * 2.0f;
 

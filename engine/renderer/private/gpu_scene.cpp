@@ -91,11 +91,11 @@ GPUScene::GPUScene(const GPUSceneCreation& creation, const Settings::Fog& settin
     _mainCameraBatch = std::make_unique<CameraBatch>(_context, "Main Camera Batch", _mainCamera, creation.depthImage, _drawBufferDSL, _visibilityDSL, _redirectDSL);
     _shadowCameraBatch = std::make_unique<CameraBatch>(_context, "Shadow Camera Batch", _directionalLightShadowCamera, _staticShadowImage, _drawBufferDSL, _visibilityDSL, _redirectDSL);
 
-    _sceneData.irradianceIndex = irradianceMap.Index();
-    _sceneData.prefilterIndex = prefilterMap.Index();
-    _sceneData.brdfLUTIndex = brdfLUTMap.Index();
-    _sceneData.staticShadowMapIndex = _staticShadowImage.Index();
-    _sceneData.dynamicShadowMapIndex = _dynamicShadowImage.Index();
+    _sceneData.irradianceIndex = irradianceMap.getIndex();
+    _sceneData.prefilterIndex = prefilterMap.getIndex();
+    _sceneData.brdfLUTIndex = brdfLUTMap.getIndex();
+    _sceneData.staticShadowMapIndex = _staticShadowImage.getIndex();
+    _sceneData.dynamicShadowMapIndex = _dynamicShadowImage.getIndex();
 }
 
 GPUScene::~GPUScene()
@@ -194,10 +194,10 @@ void GPUScene::UpdateObjectInstancesData(uint32_t frameIndex)
         auto resources { _context->Resources() };
 
         auto mesh = resources->GetMeshResourceManager().Access(meshComponent.mesh);
-        assert(resources->GetMaterialResourceManager().IsValid(mesh->material) && "There should always be a material available");
+        assert(mesh->material.isValid() && "There should always be a material available");
 
         instance.model = TransformHelpers::GetWorldMatrix(transformComponent);
-        instance.materialIndex = mesh->material.Index();
+        instance.materialIndex = mesh->material.getIndex();
         instance.boundingRadius = mesh->boundingRadius;
 
         instance.isStaticDraw = _ecs.GetRegistry().all_of<IsStaticDraw>(entity);
@@ -273,10 +273,10 @@ void GPUScene::UpdateObjectInstancesData(uint32_t frameIndex)
         auto resources { _context->Resources() };
 
         auto mesh = resources->GetMeshResourceManager().Access(skinnedMeshComponent.mesh);
-        assert(resources->GetMaterialResourceManager().IsValid(mesh->material) && "There should always be a material available");
+        assert(mesh->material.isValid() && "There should always be a material available");
 
         instance.model = TransformHelpers::GetWorldMatrix(transformComponent);
-        instance.materialIndex = mesh->material.Index();
+        instance.materialIndex = mesh->material.getIndex();
         instance.boundingRadius = mesh->boundingRadius;
         instance.boneOffset = _skeletonBoneOffset[skinnedMeshComponent.skeletonEntity];
         instance.isStaticDraw = true;
@@ -559,7 +559,7 @@ void GPUScene::SpawnDecal(glm::vec3 normal, glm::vec3 position, glm::vec2 size, 
     DecalData newDecal {
         .invModel = glm::inverse(translationMatrix * rotationMatrix * scaleMatrix),
         .orientation = glm::normalize(normal),
-        .albedoIndex = image.Index(),
+        .albedoIndex = image.getIndex(),
     };
 
     _decals.decals[_decalIndex % MAX_DECALS] = newDecal;

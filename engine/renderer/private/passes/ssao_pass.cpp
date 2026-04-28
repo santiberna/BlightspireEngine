@@ -22,8 +22,8 @@ SSAOPass::SSAOPass(const std::shared_ptr<GraphicsContext>& context, const Settin
     , _gBuffers(gBuffers)
     , _ssaoTarget(ssaoTarget)
 {
-    _pushConstants.normalIndex = _gBuffers.Attachments()[1].Index();
-    _pushConstants.depthIndex = _gBuffers.Depth().Index();
+    _pushConstants.normalIndex = _gBuffers.Attachments()[1].getIndex();
+    _pushConstants.depthIndex = _gBuffers.Depth().getIndex();
 
     CreateBuffers();
     CreateDescriptorSetLayouts();
@@ -206,7 +206,7 @@ void SSAOPass::CreateBuffers()
 
     _noiseSampler = _context->Resources()->GetSamplerResourceManager().Create(noiseSampler);
     _ssaoNoise = _context->Resources()->GetImageResourceManager().Create(noiseImage, _noiseSampler, bb::TextureFlags::COMMON_FLAGS, "SSAO Noise Image", &commands);
-    _pushConstants.ssaoNoiseIndex = _ssaoNoise.Index();
+    _pushConstants.ssaoNoiseIndex = _ssaoNoise.getIndex();
 }
 void SSAOPass::CreateDescriptorSetLayouts()
 {

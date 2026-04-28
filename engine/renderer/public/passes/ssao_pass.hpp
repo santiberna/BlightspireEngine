@@ -45,8 +45,8 @@ private:
     void CreateDescriptorSetLayouts();
     void CreateDescriptorSets();
 
-    ResourceHandle<Buffer> _sampleKernelBuffer;
-    ResourceHandle<Sampler> _noiseSampler;
+    ResourceHandle<bb::Buffer> _sampleKernelBuffer;
+    ResourceHandle<bb::Sampler> _noiseSampler;
 
     vk::DescriptorSetLayout _descriptorSetLayout;
     vk::DescriptorSet _descriptorSet;

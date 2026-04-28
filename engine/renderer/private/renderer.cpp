@@ -38,11 +38,11 @@
 #include "passes/ssao_pass.hpp"
 #include "passes/tonemapping_pass.hpp"
 #include "passes/ui_pass.hpp"
-#include "resource_management/buffer_resource_manager.hpp"
 #include "resource_management/image_resource_manager.hpp"
 #include "resource_management/mesh_resource_manager.hpp"
 #include "resource_management/model_resource_manager.hpp"
-#include "resource_management/sampler_resource_manager.hpp"
+#include "resources/buffer.hpp"
+#include "resources/sampler.hpp"
 #include "single_time_commands.hpp"
 #include "viewport.hpp"
 #include "vulkan_context.hpp"
@@ -363,7 +363,7 @@ Renderer::Renderer(ApplicationModule& application, Viewport& viewport, const std
         .AddNode(presentationPass)
         .Build();
 
-    static std::array<std::string, MAX_FRAMES_IN_FLIGHT> contextNames { "Command Buffer 0", "Command Buffer 1", "Command Buffer 2" };
+    static std::array<std::string, MAX_FRAMES_IN_FLIGHT> contextNames { "Command bb::Buffer 0", "Command bb::Buffer 1", "Command bb::Buffer 2" };
 
     for (size_t i = 0; i < _tracyContexts.size(); ++i)
     {
@@ -505,7 +505,7 @@ void Renderer::InitializeBloomTargets()
     auto& samplerResourceManager = _context->Resources()->GetSamplerResourceManager();
 
     bb::SamplerCreation samplerCreation {};
-    samplerCreation.name = "Bloom Sampler",
+
     samplerCreation.minLod = 0.0f;
     samplerCreation.maxLod = 4.0f;
     samplerCreation.mipmapMode = bb::SamplerFilter::LINEAR;
@@ -513,7 +513,7 @@ void Renderer::InitializeBloomTargets()
     samplerCreation.addressModeW = bb::SamplerAddressMode::CLAMP_TO_EDGE;
     samplerCreation.addressModeV = bb::SamplerAddressMode::CLAMP_TO_EDGE;
 
-    _bloomSampler = samplerResourceManager.Create(samplerCreation);
+    _bloomSampler = samplerResourceManager.Create(samplerCreation, "Bloom Sampler");
 
     auto size = _swapChain->GetImageSize();
 
@@ -629,7 +629,7 @@ void Renderer::Render(float deltaTime)
     }
 
     {
-        ZoneNamedN(zz, "Reset Command Buffer", true);
+        ZoneNamedN(zz, "Reset Command bb::Buffer", true);
         _commandBuffers[_currentFrame].reset();
     }
 

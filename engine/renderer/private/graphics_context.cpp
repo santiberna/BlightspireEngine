@@ -2,10 +2,10 @@
 
 #include "graphics_resources.hpp"
 #include "pipeline_builder.hpp"
-#include "resource_management/buffer_resource_manager.hpp"
 #include "resource_management/image_resource_manager.hpp"
 #include "resource_management/material_resource_manager.hpp"
-#include "resource_management/sampler_resource_manager.hpp"
+#include "resources/buffer.hpp"
+#include "resources/sampler.hpp"
 #include "vulkan_context.hpp"
 #include "vulkan_helper.hpp"
 
@@ -21,7 +21,7 @@ struct GraphicsContext::BindlessObjects
     std::array<vk::DescriptorImageInfo, MAX_BINDLESS_RESOURCES> _bindlessImageInfos;
     std::array<vk::WriteDescriptorSet, MAX_BINDLESS_RESOURCES> _bindlessImageWrites;
 
-    ResourceHandle<Buffer> _bindlessMaterialBuffer;
+    ResourceHandle<bb::Buffer> _bindlessMaterialBuffer;
     vk::DescriptorBufferInfo _bindlessMaterialInfo;
     vk::WriteDescriptorSet _bindlessMaterialWrite;
 };
@@ -129,12 +129,10 @@ void GraphicsContext::CreateBindlessDescriptorSet()
 
 void GraphicsContext::CreateBindlessMaterialBuffer()
 {
-    BufferCreation creation {};
-    creation.SetSize(MAX_BINDLESS_RESOURCES * sizeof(GPUMaterial::GPUInfo))
-        .SetUsageFlags(vk::BufferUsageFlagBits::eUniformBuffer)
-        .SetName("Bindless material uniform buffer");
-
-    bindless->_bindlessMaterialBuffer = _graphicsResources->GetBufferResourceManager().Create(creation);
+    bindless->_bindlessMaterialBuffer = _graphicsResources->GetBufferResourceManager().Create(
+        MAX_BINDLESS_RESOURCES * sizeof(GPUMaterial::GPUInfo),
+        { bb::BufferFlags::UNIFORM_USAGE, bb::BufferFlags::MAPPABLE },
+        "Bindless Material Uniforms");
 }
 
 void GraphicsContext::UpdateBindlessSet()
@@ -146,17 +144,12 @@ void GraphicsContext::UpdateBindlessSet()
 void GraphicsContext::UpdateBindlessImages()
 {
     ImageResourceManager& imageResourceManager { _graphicsResources->GetImageResourceManager() };
-    SamplerResourceManager& samplers { _graphicsResources->GetSamplerResourceManager() };
+    bb::SamplerManager& samplers { _graphicsResources->GetSamplerResourceManager() };
 
     // Default sampler
     if (!_sampler.isValid())
     {
-        bb::SamplerCreation createInfo {
-            .name = "Graphics context sampler",
-            .maxLod = vk::LodClampNone,
-        };
-
-        _sampler = samplers.Create(createInfo);
+        _sampler = samplers.GetDefaultSampler();
     }
 
     for (uint32_t i = 0; i < MAX_BINDLESS_RESOURCES; ++i)
@@ -201,7 +194,7 @@ void GraphicsContext::UpdateBindlessImages()
 void GraphicsContext::UpdateBindlessMaterials()
 {
     MaterialResourceManager& materialResourceManager { _graphicsResources->GetMaterialResourceManager() };
-    BufferResourceManager& bufferResourceManager { _graphicsResources->GetBufferResourceManager() };
+    bb::BufferManager& bufferResourceManager { _graphicsResources->GetBufferResourceManager() };
 
     if (materialResourceManager.Resources().storageSize() == 0)
     {
@@ -216,7 +209,7 @@ void GraphicsContext::UpdateBindlessMaterials()
         materialGPUData[handle.getIndex()] = material.gpuInfo;
     }
 
-    const Buffer* buffer = bufferResourceManager.Access(bindless->_bindlessMaterialBuffer);
+    const bb::Buffer* buffer = bufferResourceManager.Access(bindless->_bindlessMaterialBuffer);
     std::memcpy(buffer->mappedPtr, materialGPUData.data(), materialResourceManager.Resources().storageSize() * sizeof(GPUMaterial::GPUInfo));
 
     bindless->_bindlessMaterialInfo.buffer = buffer->buffer;

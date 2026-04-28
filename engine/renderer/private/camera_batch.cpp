@@ -5,48 +5,34 @@
 #include "graphics_resources.hpp"
 #include "math.hpp"
 #include "pipeline_builder.hpp"
-#include "resource_management/buffer_resource_manager.hpp"
 #include "resource_management/image_resource_manager.hpp"
-#include "resource_management/sampler_resource_manager.hpp"
+#include "resources/buffer.hpp"
+#include "resources/sampler.hpp"
 #include "shaders/shader_loader.hpp"
 #include "vulkan_context.hpp"
 
 CameraBatch::Draw::Draw(const std::shared_ptr<GraphicsContext>& context, const std::string& name, uint32_t instanceCount, vk::DescriptorSetLayout drawDSL, vk::DescriptorSetLayout visibilityDSL, vk::DescriptorSetLayout redirectDSL)
 {
-    BufferCreation drawBufferCreation {
-        .size = instanceCount * sizeof(DrawIndexedIndirectCommand),
-        .usage = vk::BufferUsageFlagBits::eStorageBuffer | vk::BufferUsageFlagBits::eIndirectBuffer,
-        .isMappable = false,
-        .memoryUsage = VMA_MEMORY_USAGE_AUTO_PREFER_DEVICE,
-        .name = name + " draw buffer",
-    };
+    auto& buffers = context->Resources()->GetBufferResourceManager();
 
-    BufferCreation redirectBufferCreation {
-        .size = sizeof(uint32_t) + instanceCount * sizeof(uint32_t),
-        .usage = vk::BufferUsageFlagBits::eStorageBuffer | vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eIndirectBuffer,
-        .isMappable = false,
-        .memoryUsage = VMA_MEMORY_USAGE_AUTO_PREFER_DEVICE,
-        .name = name + " redirect buffer",
-    };
+    std::string drawBuf = name + " draw buffer";
+    std::string redirectBuf = name + " redirect buffer";
+    std::string visBuf = name + " visibility buffer";
 
-    BufferCreation visibilityCreation {
-        .size = instanceCount / 8,
-        .usage = vk::BufferUsageFlagBits::eStorageBuffer,
-        .isMappable = false,
-        .memoryUsage = VMA_MEMORY_USAGE_GPU_ONLY,
-        .name = name + " visibility buffer"
-    };
+    bb::Flags<bb::BufferFlags> flagsDrawBuf = { bb::BufferFlags::STORAGE_USAGE, bb::BufferFlags::INDIRECT_USAGE };
+    bb::Flags<bb::BufferFlags> flagsRedirectBuf = { bb::BufferFlags::STORAGE_USAGE, bb::BufferFlags::INDIRECT_USAGE, bb::BufferFlags::TRANSFER_DST };
+    bb::Flags<bb::BufferFlags> flagsVisBuf = { bb::BufferFlags::STORAGE_USAGE };
 
-    drawBuffer = context->Resources()->GetBufferResourceManager().Create(drawBufferCreation);
-    redirectBuffer = context->Resources()->GetBufferResourceManager().Create(redirectBufferCreation);
-    visibilityBuffer = context->Resources()->GetBufferResourceManager().Create(visibilityCreation);
+    drawBuffer = buffers.Create(instanceCount * sizeof(DrawIndexedIndirectCommand), flagsDrawBuf, drawBuf.c_str());
+    redirectBuffer = buffers.Create(sizeof(uint32_t) + (instanceCount * sizeof(uint32_t)), flagsRedirectBuf, redirectBuf.c_str());
+    visibilityBuffer = buffers.Create(instanceCount / 8, flagsVisBuf, visBuf.c_str());
 
     drawDescriptor = CreateDescriptor(context, drawDSL, drawBuffer);
     redirectDescriptor = CreateDescriptor(context, redirectDSL, redirectBuffer);
     visibilityDescriptor = CreateDescriptor(context, visibilityDSL, visibilityBuffer);
 }
 
-vk::DescriptorSet CameraBatch::Draw::CreateDescriptor(const std::shared_ptr<GraphicsContext>& context, vk::DescriptorSetLayout dsl, ResourceHandle<Buffer> buffer)
+vk::DescriptorSet CameraBatch::Draw::CreateDescriptor(const std::shared_ptr<GraphicsContext>& context, vk::DescriptorSetLayout dsl, ResourceHandle<bb::Buffer> buffer)
 {
     vk::DescriptorSetAllocateInfo allocateInfo {
         .descriptorPool = context->GetVulkanContext()->DescriptorPool(),
@@ -87,7 +73,6 @@ CameraBatch::CameraBatch(const std::shared_ptr<GraphicsContext>& context, const 
     uint16_t hzbSize = math::RoundUpToPowerOfTwo(std::max(depthImageAccess->width, depthImageAccess->height));
 
     bb::SamplerCreation samplerCreation {};
-    samplerCreation.name = name + " HZB Sampler";
     samplerCreation.minFilter = bb::SamplerFilter::LINEAR;
     samplerCreation.magFilter = bb::SamplerFilter::LINEAR;
     samplerCreation.anisotropyEnable = false;
@@ -100,7 +85,8 @@ CameraBatch::CameraBatch(const std::shared_ptr<GraphicsContext>& context, const 
     samplerCreation.addressModeW = bb::SamplerAddressMode::CLAMP_TO_BORDER;
     samplerCreation.addressModeV = bb::SamplerAddressMode::CLAMP_TO_BORDER;
 
-    _hzbSampler = _context->Resources()->GetSamplerResourceManager().Create(samplerCreation);
+    auto given_name = name + " HZB Sampler";
+    _hzbSampler = _context->Resources()->GetSamplerResourceManager().Create(samplerCreation, given_name.c_str());
 
     bb::Image2D hzb_image {};
     hzb_image.width = hzbSize;

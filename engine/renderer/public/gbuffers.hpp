@@ -11,7 +11,6 @@
 
 struct GPUImage;
 class GraphicsContext;
-struct Sampler;
 
 class GBuffers
 {
@@ -40,7 +39,7 @@ private:
     std::array<ResourceHandle<GPUImage>, DEFERRED_ATTACHMENT_COUNT> _attachments;
 
     ResourceHandle<GPUImage> _depthImage;
-    ResourceHandle<Sampler> _depthSampler;
+    ResourceHandle<bb::Sampler> _depthSampler;
 
     vk::Format _depthFormat;
 

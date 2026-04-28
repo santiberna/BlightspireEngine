@@ -88,7 +88,7 @@ uint32_t formatStride(bb::ImageFormat format)
 
 ResourceHandle<GPUImage> ImageResourceManager::Create(
     const bb::Image2D& image,
-    ResourceHandle<Sampler> sampler,
+    ResourceHandle<bb::Sampler> sampler,
     bb::Flags<bb::TextureFlags> flags,
     std::string_view name,
     SingleTimeCommands* upload_commands)
@@ -291,7 +291,7 @@ ResourceHandle<GPUImage> ImageResourceManager::Create(
 
 ResourceHandle<GPUImage> ImageResourceManager::Create(
     const bb::Cubemap& cubemap,
-    ResourceHandle<Sampler> sampler,
+    ResourceHandle<bb::Sampler> sampler,
     bb::Flags<bb::TextureFlags> flags,
     std::string_view name)
 {

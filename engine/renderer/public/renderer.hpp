@@ -45,8 +45,6 @@ class GPUScene;
 class FrameGraph;
 class Viewport;
 
-struct Sampler;
-
 class Renderer
 {
 public:
@@ -122,7 +120,7 @@ private:
     ResourceHandle<GPUImage> _volumetricTarget;
     ResourceHandle<GPUImage> _fxaaTarget;
 
-    ResourceHandle<Sampler> _bloomSampler;
+    ResourceHandle<bb::Sampler> _bloomSampler;
 
     std::unique_ptr<FrameGraph> _frameGraph;
     std::unique_ptr<SwapChain> _swapChain;

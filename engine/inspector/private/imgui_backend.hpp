@@ -11,8 +11,6 @@ class GraphicsContext;
 class SwapChain;
 class ApplicationModule;
 class GBuffers;
-struct Sampler;
-struct GPUImage;
 
 class ImGuiBackend
 {
@@ -29,7 +27,7 @@ public:
 
 private:
     std::shared_ptr<GraphicsContext> _context;
-    ResourceHandle<Sampler> _basicSampler;
+    ResourceHandle<bb::Sampler> _basicSampler;
 
     // TODO: Textures are currently only cleaned up on shutdown.
     std::vector<ImTextureID> _imageIDs;

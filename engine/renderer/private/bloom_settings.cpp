@@ -3,7 +3,7 @@
 #include "graphics_context.hpp"
 #include "graphics_resources.hpp"
 #include "pipeline_builder.hpp"
-#include "resource_management/buffer_resource_manager.hpp"
+#include "resources/buffer.hpp"
 #include "settings.hpp"
 #include "vulkan_helper.hpp"
 
@@ -34,7 +34,7 @@ void BloomSettings::Update(uint32_t currentFrame)
 
     auto resources { _context->Resources() };
 
-    const Buffer* buffer = resources->GetBufferResourceManager().Access(_frameData.buffers.at(currentFrame));
+    const bb::Buffer* buffer = resources->GetBufferResourceManager().Access(_frameData.buffers.at(currentFrame));
     memcpy(buffer->mappedPtr, &_data, sizeof(SettingsData));
 }
 
@@ -67,12 +67,10 @@ void BloomSettings::CreateUniformBuffers()
         // Inserts i in the middle of []
         name.insert(1, 1, static_cast<char>(i + '0'));
 
-        BufferCreation creation {};
-        creation.SetSize(sizeof(FrameData))
-            .SetUsageFlags(vk::BufferUsageFlagBits::eUniformBuffer)
-            .SetName(name);
-
-        _frameData.buffers.at(i) = resources->GetBufferResourceManager().Create(creation);
+        _frameData.buffers.at(i) = resources->GetBufferResourceManager().Create(
+            sizeof(FrameData),
+            { bb::BufferFlags::UNIFORM_USAGE, bb::BufferFlags::MAPPABLE },
+            name.c_str());
     }
 
     std::array<vk::DescriptorSetLayout, MAX_FRAMES_IN_FLIGHT> layouts {};
@@ -98,7 +96,7 @@ void BloomSettings::UpdateDescriptorSet(uint32_t currentFrame)
     auto vkContext { _context->GetVulkanContext() };
     auto resources { _context->Resources() };
 
-    const Buffer* buffer = resources->GetBufferResourceManager().Access(_frameData.buffers.at(currentFrame));
+    const bb::Buffer* buffer = resources->GetBufferResourceManager().Access(_frameData.buffers.at(currentFrame));
 
     vk::DescriptorBufferInfo bufferInfo {};
     bufferInfo.buffer = buffer->buffer;

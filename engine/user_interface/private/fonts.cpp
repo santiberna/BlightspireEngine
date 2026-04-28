@@ -1,15 +1,15 @@
 #include "fonts.hpp"
 
+#include "file_io.hpp"
 #include "graphics_context.hpp"
 #include "graphics_resources.hpp"
 #include "resource_management/image_resource_manager.hpp"
+#include "resources/sampler.hpp"
 
 #include <ft2build.h>
 #include FT_FREETYPE_H
 
-#include <file_io.hpp>
 #include <memory>
-#include <resource_management/sampler_resource_manager.hpp>
 #include <stb_rect_pack.h>
 
 struct FTStreamContext
@@ -180,7 +180,7 @@ std::shared_ptr<UIFont> LoadFromFile(const std::string& path, uint16_t character
     bb::SamplerCreation samplerCreation;
     samplerCreation.minFilter = bb::SamplerFilter::NEAREST;
     samplerCreation.magFilter = bb::SamplerFilter::NEAREST;
-    static ResourceHandle<Sampler> sampler = context.Resources()->GetSamplerResourceManager().Create(samplerCreation);
+    static ResourceHandle<bb::Sampler> sampler = context.Resources()->GetSamplerResourceManager().Create(samplerCreation, "Font Sampler");
 
     SingleTimeCommands commands { *context.GetVulkanContext() };
 

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "common.hpp"
+
 #include <cereal/cereal.hpp>
 #include <cereal/types/list.hpp>
 #include <cereal/types/unordered_map.hpp>
@@ -53,7 +55,7 @@ CLASS_SERIALIZE(glm::quat);
 CLASS_SERIALIZE(glm::dquat);
 }
 
-template <typename Archive, typename T, size_t S>
+template <typename Archive, typename T, bb::usize S>
 void serialize(Archive& archive, std::array<T, S>& m)
 {
     archive(cereal::make_size_tag(S));

@@ -7,7 +7,7 @@ struct TestType
     bool isZero() const { return !(bool)(a); }
     void set(int b) { a = b; }
 
-    constexpr static uint64_t FLAGS = 0;
+    constexpr static bb::u64 FLAGS = 0;
     void out(int& b) { b = a; }
 };
 

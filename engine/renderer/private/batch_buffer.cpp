@@ -5,7 +5,7 @@
 #include "resources/buffer.hpp"
 #include "single_time_commands.hpp"
 
-BatchBuffer::BatchBuffer(const std::shared_ptr<GraphicsContext>& context, uint32_t vertexBufferSize, uint32_t indexBufferSize)
+BatchBuffer::BatchBuffer(const std::shared_ptr<GraphicsContext>& context, bb::u32 vertexBufferSize, bb::u32 indexBufferSize)
     : _context(context)
     , _vertexBufferSize(vertexBufferSize)
     , _indexBufferSize(indexBufferSize)
@@ -26,12 +26,12 @@ BatchBuffer::~BatchBuffer()
     auto resources { _context->Resources() };
 }
 
-uint32_t BatchBuffer::AppendIndices(const std::vector<uint32_t>& indices, SingleTimeCommands& commandBuffer)
+bb::u32 BatchBuffer::AppendIndices(const std::vector<bb::u32>& indices, SingleTimeCommands& commandBuffer)
 {
     auto resources { _context->Resources() };
 
-    assert((_indexOffset + indices.size()) * sizeof(uint32_t) < _indexBufferSize);
-    uint32_t originalOffset = _indexOffset;
+    assert((_indexOffset + indices.size()) * sizeof(bb::u32) < _indexBufferSize);
+    bb::u32 originalOffset = _indexOffset;
 
     const bb::Buffer* buffer = resources->GetBufferResourceManager().Access(_indexBuffer);
     commandBuffer.CopyIntoLocalBuffer(indices, _indexOffset, buffer->buffer);

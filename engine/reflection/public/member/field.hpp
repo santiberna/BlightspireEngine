@@ -1,6 +1,5 @@
 #pragma once
 #include <common.hpp>
-#include <cstddef>
 #include <reflection_fwd.hpp>
 
 namespace reflection
@@ -21,7 +20,7 @@ public:
     [[nodiscard]] const Type* getType() const;
 
 private:
-    size_t offset {};
+    bb::usize offset {};
     const Type* type {};
 };
 }

@@ -25,15 +25,15 @@ public:
 private:
     struct PrefilterPushConstant
     {
-        uint32_t faceIndex;
+        bb::u32 faceIndex;
         float roughness;
-        uint32_t hdriIndex;
+        bb::u32 hdriIndex;
     };
 
     struct IrradiancePushConstant
     {
-        uint32_t index;
-        uint32_t hdriIndex;
+        bb::u32 index;
+        bb::u32 hdriIndex;
     };
 
     std::shared_ptr<GraphicsContext> _context;

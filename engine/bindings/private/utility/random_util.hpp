@@ -1,10 +1,11 @@
 #pragma once
 
+#include "common.hpp"
 #include "perlin_noise.hpp"
 #include "wren_include.hpp"
+
 #include <glm/glm.hpp>
 #include <glm/gtc/constants.hpp>
-
 #include <random>
 
 namespace bindings
@@ -13,20 +14,20 @@ namespace bindings
 class RandomUtil
 {
 public:
-    static uint32_t Random()
+    static bb::u32 Random()
     {
         return dist(rng);
     }
 
-    static uint32_t RandomIndex(uint32_t start, uint32_t end)
+    static bb::u32 RandomIndex(bb::u32 start, bb::u32 end)
     {
-        std::uniform_int_distribution<uint32_t> dist(start, end - 1);
+        std::uniform_int_distribution<bb::u32> dist(start, end - 1);
         return dist(rng);
     }
 
     static float RandomFloat()
     {
-        return static_cast<float>(Random()) / static_cast<float>(std::numeric_limits<uint32_t>::max());
+        return static_cast<float>(Random()) / static_cast<float>(std::numeric_limits<bb::u32>::max());
     }
 
     static float RandomFloatRange(float min, float max)
@@ -76,7 +77,7 @@ private:
 class Perlin
 {
 public:
-    Perlin(uint32_t seed)
+    Perlin(bb::u32 seed)
         : perlin(seed)
     {
     }
@@ -89,7 +90,7 @@ public:
     }
 };
 
-inline Perlin CreatePerlin(uint32_t seed) { return Perlin { seed }; }
+inline Perlin CreatePerlin(bb::u32 seed) { return Perlin { seed }; }
 
 inline void BindRandom(wren::ForeignModule& module)
 {

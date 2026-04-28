@@ -1,5 +1,7 @@
 #pragma once
 
+#include "common.hpp"
+
 #include <glm/gtc/quaternion.hpp>
 #include <glm/vec3.hpp>
 
@@ -45,16 +47,16 @@ struct Vec3Range
 
 struct URange
 {
-    uint32_t start;
-    uint32_t count;
+    bb::u32 start;
+    bb::u32 count;
 };
 
-inline uint32_t DivideRoundingUp(uint32_t dividend, uint32_t divisor)
+inline bb::u32 DivideRoundingUp(bb::u32 dividend, bb::u32 divisor)
 {
     return (dividend + divisor - 1) / divisor;
 }
 
-inline uint32_t RoundUpToPowerOfTwo(uint32_t n)
+inline bb::u32 RoundUpToPowerOfTwo(bb::u32 n)
 {
     if (n == 0)
     {

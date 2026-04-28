@@ -58,7 +58,7 @@ void CameraResource::CreateBuffers()
 {
     vk::DeviceSize bufferSize = sizeof(GPUCamera);
 
-    for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
+    for (bb::usize i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
     {
         std::string name = "[] Camera bb::Buffer";
 
@@ -85,7 +85,7 @@ void CameraResource::CreateDescriptorSets()
     util::VK_ASSERT(device.allocateDescriptorSets(&allocateInfo, _descriptorSets.data()),
         "Failed allocating descriptor sets!");
 
-    for (size_t i = 0; i < _descriptorSets.size(); ++i)
+    for (bb::usize i = 0; i < _descriptorSets.size(); ++i)
     {
         const bb::Buffer* buffer = _context->Resources()->GetBufferResourceManager().Access(_buffers[i]);
 
@@ -112,7 +112,7 @@ glm::vec4 normalizePlane(glm::vec4 p)
     return p / glm::length(glm::vec3(p));
 }
 
-void CameraResource::Update(uint32_t currentFrame, const CameraComponent& camera, const glm::mat4& view, const glm::mat4& proj, const glm::vec3& position)
+void CameraResource::Update(bb::u32 currentFrame, const CameraComponent& camera, const glm::mat4& view, const glm::mat4& proj, const glm::vec3& position)
 {
     GPUCamera cameraBuffer {};
 
@@ -149,7 +149,7 @@ void CameraResource::Update(uint32_t currentFrame, const CameraComponent& camera
         break;
     }
 
-    cameraBuffer.projectionType = static_cast<int32_t>(camera.projection);
+    cameraBuffer.projectionType = static_cast<bb::i32>(camera.projection);
     cameraBuffer.VP = cameraBuffer.proj * cameraBuffer.view;
     cameraBuffer.inverseProj = glm::inverse(cameraBuffer.proj);
     cameraBuffer.inverseVP = glm::inverse(cameraBuffer.VP);

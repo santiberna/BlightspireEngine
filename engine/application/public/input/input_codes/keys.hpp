@@ -1,9 +1,8 @@
 #pragma once
-#include <cstdint>
 
 // Modified from SDL_keycode.h
 
-enum class KeyboardCode : uint32_t
+enum class KeyboardCode : bb::u32
 {
     eUNKNOWN = 0x00000000u /* 0 */
     ,

@@ -352,7 +352,7 @@ void TransformHelpers::UpdateWorldMatrix(entt::registry& reg, entt::entity entit
 
     // Iterate over all children and update their world matrices
     entt::entity current = relationship->first;
-    for (size_t i {}; i < relationship->childrenCount; ++i)
+    for (bb::usize i {}; i < relationship->childrenCount; ++i)
     {
         if (current != entt::null)
         {

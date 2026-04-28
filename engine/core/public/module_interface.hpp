@@ -1,11 +1,10 @@
 #pragma once
 #include "common.hpp"
-#include <cstdint>
 
 class Engine;
 class MainEngine;
 
-enum class ModuleTickOrder : uint32_t
+enum class ModuleTickOrder : bb::u32
 {
     eFirst = 0,
     ePreTick = 5,

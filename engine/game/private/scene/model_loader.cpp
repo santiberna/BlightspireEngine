@@ -39,7 +39,7 @@
 class RecursiveNodeLoader
 {
 public:
-    RecursiveNodeLoader(ECSModule& ecs, PhysicsModule& physics, const Hierarchy& hierarchy, const CPUModel& cpuModel, const GPUModel& gpuModel, entt::entity animationControlEntity, std::unordered_map<uint32_t, entt::entity>& entityLut, entt::entity rootEntity)
+    RecursiveNodeLoader(ECSModule& ecs, PhysicsModule& physics, const Hierarchy& hierarchy, const CPUModel& cpuModel, const GPUModel& gpuModel, entt::entity animationControlEntity, std::unordered_map<bb::u32, entt::entity>& entityLut, entt::entity rootEntity)
         : _ecs(ecs)
         , _physics(physics)
         , _hierarchy(hierarchy)
@@ -51,7 +51,7 @@ public:
     {
     }
 
-    void Load(entt::entity entity, uint32_t currentNodeIndex, entt::entity parent, bool hasPhysics, bool withRendering = true)
+    void Load(entt::entity entity, bb::u32 currentNodeIndex, entt::entity parent, bool hasPhysics, bool withRendering = true)
     {
         const Node& currentNode = _hierarchy.nodes[currentNodeIndex];
 
@@ -161,7 +161,7 @@ private:
     const CPUModel& _cpuModel;
     const GPUModel& _gpuModel;
     entt::entity _animationControlEntity;
-    std::unordered_map<uint32_t, entt::entity>& _entityLUT;
+    std::unordered_map<bb::u32, entt::entity>& _entityLUT;
     entt::entity _rootEntity;
 };
 
@@ -176,7 +176,7 @@ public:
     {
     }
 
-    void Load(entt::entity entity, uint32_t currentNodeIndex, entt::entity parent)
+    void Load(entt::entity entity, bb::u32 currentNodeIndex, entt::entity parent)
     {
         _skeletonComponent = &_ecs.GetRegistry().emplace<SkeletonComponent>(entity);
         _skeletonComponent->root = entity;
@@ -191,7 +191,7 @@ private:
 
     SkeletonComponent* _skeletonComponent;
 
-    void RecursiveLoadNode(entt::entity entity, uint32_t currentNodeIndex, entt::entity parent)
+    void RecursiveLoadNode(entt::entity entity, bb::u32 currentNodeIndex, entt::entity parent)
     {
         const Node& currentNode = _hierarchy.nodes[currentNodeIndex];
 
@@ -238,7 +238,7 @@ entt::entity LoadModelIntoECSAsHierarchy(ECSModule& ecs, PhysicsModule& physics,
     ZoneScopedN("Instantiate Scene");
     entt::entity rootEntity = ecs.GetRegistry().create();
 
-    std::unordered_map<uint32_t, entt::entity> entityLUT;
+    std::unordered_map<bb::u32, entt::entity> entityLUT;
 
     entt::entity animationControlEntity = entt::null;
     if (!cpuModel.animations.empty())
@@ -267,7 +267,7 @@ entt::entity LoadModelIntoECSAsHierarchy(ECSModule& ecs, PhysicsModule& physics,
     if (skeletonEntity != entt::null)
     {
         // Links skeleton entities to the skinned mesh components.
-        for (size_t i = 0; i < cpuModel.hierarchy.nodes.size(); ++i)
+        for (bb::usize i = 0; i < cpuModel.hierarchy.nodes.size(); ++i)
         {
             const Node& node = cpuModel.hierarchy.nodes[i];
             if (node.skeletonNode.has_value() && node.mesh.has_value() && node.mesh->type == MeshType::eSKINNED)

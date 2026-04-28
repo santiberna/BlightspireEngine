@@ -1,6 +1,6 @@
 #pragma once
 
-#include <cstdint>
+#include "common.hpp"
 
-constexpr uint32_t MAX_FRAMES_IN_FLIGHT { 3 };
-constexpr uint32_t DEFERRED_ATTACHMENT_COUNT { 2 };
+constexpr bb::u32 MAX_FRAMES_IN_FLIGHT { 3 };
+constexpr bb::u32 DEFERRED_ATTACHMENT_COUNT { 2 };

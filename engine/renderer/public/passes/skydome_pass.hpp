@@ -4,7 +4,6 @@
 #include "frame_graph.hpp"
 #include "gbuffers.hpp"
 
-#include <cstdint>
 #include <memory>
 
 class BloomSettings;
@@ -19,7 +18,7 @@ public:
         ResourceHandle<GPUImage> brightnessTarget, ResourceHandle<GPUImage> environmentMap, const GBuffers& _gBuffers, const BloomSettings& bloomSettings);
     ~SkydomePass() final;
 
-    void RecordCommands(vk::CommandBuffer commandBuffer, uint32_t currentFrame, const RenderSceneDescription& scene) final;
+    void RecordCommands(vk::CommandBuffer commandBuffer, bb::u32 currentFrame, const RenderSceneDescription& scene) final;
 
     NON_COPYABLE(SkydomePass);
     NON_MOVABLE(SkydomePass);
@@ -27,7 +26,7 @@ public:
 private:
     struct PushConstants
     {
-        uint32_t hdriIndex;
+        bb::u32 hdriIndex;
     } _pushConstants;
 
     std::shared_ptr<GraphicsContext> _context;

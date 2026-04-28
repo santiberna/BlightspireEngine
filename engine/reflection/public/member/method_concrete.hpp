@@ -26,7 +26,7 @@ public:
     [[nodiscard]] Value invoke(ValueRef object, const ArgumentList& parameters) const override;
 
 private:
-    template <std::size_t... Is>
+    template <bb::usize... Is>
     [[nodiscard]] Ret invokeHelper(
         Class& obj, const ArgumentList& args, std::index_sequence<Is...> sequence) const;
 
@@ -68,7 +68,7 @@ Value MethodImpl<Ret, Class, Qualifiers, Args...>::invoke(
 }
 
 template <typename Ret, typename Class, typename Qualifiers, typename... Args>
-template <std::size_t... Is>
+template <bb::usize... Is>
 Ret MethodImpl<Ret, Class, Qualifiers, Args...>::invokeHelper(
     Class& obj, const ArgumentList& args, [[maybe_unused]] std::index_sequence<Is...> sequence) const
 {

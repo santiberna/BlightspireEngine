@@ -13,8 +13,8 @@ void ComponentEditorWidget<CameraComponent>(entt::registry& reg, entt::registry:
 }
 void CameraComponent::Inspect()
 {
-    int32_t currentProjection = static_cast<int32_t>(projection);
-    constexpr int32_t projectionElementCount = static_cast<int32_t>(Projection::eCount);
+    bb::i32 currentProjection = static_cast<bb::i32>(projection);
+    constexpr bb::i32 projectionElementCount = static_cast<bb::i32>(Projection::eCount);
     const char* projectionElementNames[projectionElementCount] = { "Perspective", "Orthographic" };
     const char* currentProjectionName = "Unknown";
 

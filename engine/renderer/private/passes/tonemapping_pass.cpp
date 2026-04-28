@@ -12,7 +12,6 @@
 #include "vulkan_context.hpp"
 #include "vulkan_helper.hpp"
 
-
 TonemappingPass::TonemappingPass(const std::shared_ptr<GraphicsContext>& context, const Settings::Tonemapping& settings, ResourceHandle<GPUImage> hdrTarget, ResourceHandle<GPUImage> bloomTarget, ResourceHandle<GPUImage> volumetricTarget, ResourceHandle<GPUImage> outputTarget, const SwapChain& _swapChain, const GBuffers& gBuffers, const BloomSettings& bloomSettings)
     : _context(context)
     , _settings(settings)
@@ -47,13 +46,13 @@ TonemappingPass::~TonemappingPass()
     _context->Resources()->GetBufferResourceManager().Destroy(_colorPaletteBuffer);
 }
 
-void TonemappingPass::RecordCommands(vk::CommandBuffer commandBuffer, uint32_t currentFrame, [[maybe_unused]] const RenderSceneDescription& scene)
+void TonemappingPass::RecordCommands(vk::CommandBuffer commandBuffer, bb::u32 currentFrame, [[maybe_unused]] const RenderSceneDescription& scene)
 {
     TracyVkZone(scene.tracyContext, commandBuffer, "Tonemapping Pass");
 
     timePassed += scene.deltaTime / 1000.0f;
     _pushConstants.exposure = _settings.exposure;
-    _pushConstants.tonemappingFunction = static_cast<uint32_t>(_settings.tonemappingFunction);
+    _pushConstants.tonemappingFunction = static_cast<bb::u32>(_settings.tonemappingFunction);
     _pushConstants.rayOrigin.a -= (0.2 * (scene.deltaTime / 1000.0f));
 
     _pushConstants.enableFlags = 0;

@@ -1,10 +1,9 @@
 #pragma once
 
 #include "common.hpp"
-
 #include "graphics_context.hpp"
 #include "vulkan_include.hpp"
-#include <cstddef>
+
 #include <optional>
 #include <spirv_reflect.h>
 #include <string_view>
@@ -49,7 +48,7 @@ protected: // TODO: Review access modifier, right now everything is protected.
     vk::Pipeline _pipeline;
     vk::PipelineLayout _pipelineLayout;
 
-    static std::unordered_map<size_t, vk::DescriptorSetLayout> _cacheDescriptorSetLayouts;
+    static std::unordered_map<bb::usize, vk::DescriptorSetLayout> _cacheDescriptorSetLayouts;
 
     std::vector<vk::DescriptorSetLayout> _descriptorSetLayouts;
     std::vector<vk::PushConstantRange> _pushConstantRanges;
@@ -63,7 +62,7 @@ protected: // TODO: Review access modifier, right now everything is protected.
 
     vk::ShaderModule CreateShaderModule(const std::vector<std::byte>& spirvBytes);
 
-    static size_t HashBindings(const std::vector<vk::DescriptorSetLayoutBinding>& bindings, const std::vector<std::string_view>& names);
+    static bb::usize HashBindings(const std::vector<vk::DescriptorSetLayoutBinding>& bindings, const std::vector<std::string_view>& names);
 };
 
 class GraphicsPipelineBuilder : public PipelineBuilder

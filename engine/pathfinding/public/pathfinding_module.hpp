@@ -24,8 +24,8 @@ struct TriangleNode
     float totalCost;
     float estimateToGoal;
     float totalEstimatedCost;
-    uint32_t triangleIndex;
-    uint32_t parentTriangleIndex;
+    bb::u32 triangleIndex;
+    bb::u32 parentTriangleIndex;
 
     bool operator<(const TriangleNode& rhs)
     {
@@ -90,7 +90,7 @@ public:
     NON_COPYABLE(PathfindingModule);
     NON_MOVABLE(PathfindingModule);
 
-    int32_t SetNavigationMesh(std::string_view filePath);
+    bb::i32 SetNavigationMesh(std::string_view filePath);
     ComputedPath FindPath(glm::vec3 startPos, glm::vec3 endPos);
 
     bool SetDebugDrawState(bool state) { return _debugDraw = state; }
@@ -101,28 +101,28 @@ public:
 private:
     float Heuristic(glm::vec3 startPos, glm::vec3 endPos);
     float DirectedHeuristic(glm::vec3 startPos, glm::vec3 endPos, glm::vec3 finalPosition);
-    ComputedPath ReconstructPath(const uint32_t finalTriangleIndex, std::unordered_map<uint32_t, TriangleNode>& nodes);
+    ComputedPath ReconstructPath(const bb::u32 finalTriangleIndex, std::unordered_map<bb::u32, TriangleNode>& nodes);
 
     struct TriangleInfo
     {
-        uint32_t indices[3] = {
-            std::numeric_limits<uint32_t>::max(),
-            std::numeric_limits<uint32_t>::max(),
-            std::numeric_limits<uint32_t>::max()
+        bb::u32 indices[3] = {
+            std::numeric_limits<bb::u32>::max(),
+            std::numeric_limits<bb::u32>::max(),
+            std::numeric_limits<bb::u32>::max()
         };
 
         glm::vec3 centre = glm::vec3 { 0.0f };
 
-        uint32_t adjacentTriangleIndices[3] = {
-            std::numeric_limits<uint32_t>::max(),
-            std::numeric_limits<uint32_t>::max(),
-            std::numeric_limits<uint32_t>::max()
+        bb::u32 adjacentTriangleIndices[3] = {
+            std::numeric_limits<bb::u32>::max(),
+            std::numeric_limits<bb::u32>::max(),
+            std::numeric_limits<bb::u32>::max()
         };
-        uint8_t adjacentTriangleCount = 0;
+        bb::u8 adjacentTriangleCount = 0;
     };
 
     std::vector<TriangleInfo> _triangles;
-    std::unordered_map<uint32_t, uint32_t[3]> _trianglesToNeighbours;
+    std::unordered_map<bb::u32, bb::u32[3]> _trianglesToNeighbours;
     glm::mat4 _inverseTransform = glm::mat4(1.0f);
 
     CPUMesh<Vertex> _mesh = {};

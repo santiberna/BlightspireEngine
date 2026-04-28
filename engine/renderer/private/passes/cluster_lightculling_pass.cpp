@@ -28,7 +28,7 @@ ClusterLightCullingPass::~ClusterLightCullingPass()
     device.destroy(_pipelineLayout);
 }
 
-void ClusterLightCullingPass::RecordCommands(vk::CommandBuffer commandBuffer, uint32_t currentFrame, const RenderSceneDescription& scene)
+void ClusterLightCullingPass::RecordCommands(vk::CommandBuffer commandBuffer, bb::u32 currentFrame, const RenderSceneDescription& scene)
 {
     TracyVkZone(scene.tracyContext, commandBuffer, "Cluster Light Culling Pipeline");
     commandBuffer.bindPipeline(vk::PipelineBindPoint::eCompute, _pipeline);
@@ -53,7 +53,7 @@ void ClusterLightCullingPass::CreatePipeline()
     };
 
     vk::PipelineLayoutCreateInfo pipelineLayoutCreateInfo {
-        .setLayoutCount = static_cast<uint32_t>(layouts.size()),
+        .setLayoutCount = static_cast<bb::u32>(layouts.size()),
         .pSetLayouts = layouts.data(),
     };
 

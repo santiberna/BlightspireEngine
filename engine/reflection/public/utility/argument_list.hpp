@@ -18,7 +18,7 @@ public:
     }
 
     [[nodiscard]] std::vector<const Type*> asTypes() const;
-    [[nodiscard]] ValueRef get(size_t i) const;
+    [[nodiscard]] ValueRef get(bb::usize i) const;
 
 private:
     std::vector<ValueRef> values;

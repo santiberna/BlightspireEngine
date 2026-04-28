@@ -13,7 +13,6 @@
 #include "vulkan_context.hpp"
 #include "vulkan_helper.hpp"
 
-
 SkydomePass::SkydomePass(const std::shared_ptr<GraphicsContext>& context, ResourceHandle<GPUMesh> sphere, ResourceHandle<GPUImage> hdrTarget,
     ResourceHandle<GPUImage> brightnessTarget, ResourceHandle<GPUImage> environmentMap, const GBuffers& gBuffers, const BloomSettings& bloomSettings)
     : _context(context)
@@ -36,7 +35,7 @@ SkydomePass::~SkydomePass()
     device.destroy(_pipeline);
 }
 
-void SkydomePass::RecordCommands(vk::CommandBuffer commandBuffer, uint32_t currentFrame, const RenderSceneDescription& scene)
+void SkydomePass::RecordCommands(vk::CommandBuffer commandBuffer, bb::u32 currentFrame, const RenderSceneDescription& scene)
 {
     TracyVkZone(scene.tracyContext, commandBuffer, "Skydome Pass");
     vk::RenderingAttachmentInfoKHR depthAttachmentInfo {};

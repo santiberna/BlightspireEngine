@@ -6,7 +6,7 @@
 
 namespace bindings
 {
-int32_t SetNavigationMesh(PathfindingModule& self, const std::string& path)
+bb::i32 SetNavigationMesh(PathfindingModule& self, const std::string& path)
 {
     return self.SetNavigationMesh(path);
 }
@@ -26,12 +26,12 @@ const std::vector<PathNode>& GetWaypoints(ComputedPath& path)
     return path.waypoints;
 }
 
-PathNode GetWaypoint(ComputedPath& path, uint32_t index)
+PathNode GetWaypoint(ComputedPath& path, bb::u32 index)
 {
     return path.waypoints.at(index);
 }
 
-uint32_t GetSize(ComputedPath& path)
+bb::u32 GetSize(ComputedPath& path)
 {
     return path.waypoints.size();
 }
@@ -46,7 +46,7 @@ void ToggleDebugRender(PathfindingModule& self)
     self.SetDebugDrawState(!self.GetDebugDrawState());
 }
 
-glm::vec3 Follow(ComputedPath& path, const glm::vec3& currentPos, uint32_t current_index)
+glm::vec3 Follow(ComputedPath& path, const glm::vec3& currentPos, bb::u32 current_index)
 {
     assert(path.waypoints.size() > 0);
 
@@ -65,7 +65,7 @@ glm::vec3 Follow(ComputedPath& path, const glm::vec3& currentPos, uint32_t curre
     }
 }
 
-bool ShouldGoNextWaypoint(ComputedPath& path, uint32_t current_index, const glm::vec3& position, float bias)
+bool ShouldGoNextWaypoint(ComputedPath& path, bb::u32 current_index, const glm::vec3& position, float bias)
 {
     assert(path.waypoints.size() > 0);
 

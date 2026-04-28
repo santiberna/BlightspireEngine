@@ -1,4 +1,6 @@
 #pragma once
+#include "common.hpp"
+
 #include <compare>
 #include <ratio>
 
@@ -47,7 +49,7 @@ constexpr D durationCast(const Duration<T, R>& duration)
 }
 
 using MillisecondsF32 = Duration<float, std::milli>;
-using NanosecondsI64 = Duration<int64_t, std::nano>;
+using NanosecondsI64 = Duration<bb::i64, std::nano>;
 
 class Stopwatch
 {

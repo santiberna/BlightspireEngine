@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include "common.hpp"
 #include "steam_include.hpp"
 
 #include <span>
@@ -14,7 +15,7 @@ enum class EStatTypes
 
 struct Stat
 {
-    Stat(int32_t id, EStatTypes type, std::string name)
+    Stat(bb::i32 id, EStatTypes type, std::string name)
         : id(id)
         , type(type)
         , name(std::move(name))
@@ -23,7 +24,7 @@ struct Stat
 
     Stat() = default;
 
-    int32_t id = 0;
+    bb::i32 id = 0;
     EStatTypes type = EStatTypes::STAT_INT;
     std::string name;
     int value = 0;

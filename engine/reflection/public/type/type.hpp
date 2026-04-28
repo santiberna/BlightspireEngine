@@ -22,7 +22,7 @@ public:
     ~Type();
 
     [[nodiscard]] Value construct(const ArgumentList& args) const;
-    [[nodiscard]] std::optional<uint64_t> getConstant(std::string_view name) const;
+    [[nodiscard]] std::optional<bb::u64> getConstant(std::string_view name) const;
     [[nodiscard]] std::type_index getIndex() const;
 
     [[nodiscard]] const Field* getField(std::string_view name) const;
@@ -35,13 +35,13 @@ private:
     Type();
 
     std::string name {};
-    size_t size {};
+    bb::usize size {};
     const type_info* index {}; // Make into type_index
 
     // Factory set
     std::optional<std::string> alias {};
 
-    detail::StringHashmap<uint64_t> constants {};
+    detail::StringHashmap<bb::u64> constants {};
     detail::StringHashmap<std::unique_ptr<Field>> fields {};
     detail::StringHashmap<std::unique_ptr<Method>> methods {};
     std::unordered_map<ParameterList, std::unique_ptr<Constructor>> constructors {};

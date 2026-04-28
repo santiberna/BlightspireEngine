@@ -13,7 +13,7 @@ PresentationPass::PresentationPass(const std::shared_ptr<GraphicsContext>& conte
 {
 }
 
-void PresentationPass::RecordCommands(vk::CommandBuffer commandBuffer, [[maybe_unused]] uint32_t currentFrame, const RenderSceneDescription& scene)
+void PresentationPass::RecordCommands(vk::CommandBuffer commandBuffer, [[maybe_unused]] bb::u32 currentFrame, const RenderSceneDescription& scene)
 {
     TracyVkZone(scene.tracyContext, commandBuffer, "Presentation Pass");
 

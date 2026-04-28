@@ -56,28 +56,28 @@ public:
         if (stream)
         {
             stream.value().seekg(0, std::ios::end);
-            size = static_cast<std::size_t>(stream.value().tellg());
+            size = static_cast<bb::usize>(stream.value().tellg());
             stream.value().seekg(0, std::ios::beg);
         }
     }
 
-    void read(void* ptr, std::size_t count) override
+    void read(void* ptr, bb::usize count) override
     {
         stream.value().seekg(static_cast<std::streamoff>(position), std::ios::beg);
         stream.value().read(reinterpret_cast<char*>(ptr), static_cast<std::streamsize>(count));
-        position += static_cast<std::size_t>(stream.value().gcount());
+        position += static_cast<bb::usize>(stream.value().gcount());
     }
 
-    [[nodiscard]] fastgltf::span<std::byte> read(std::size_t count, std::size_t padding) override
+    [[nodiscard]] fastgltf::span<std::byte> read(bb::usize count, bb::usize padding) override
     {
         tempBuffer.resize(count + padding);
         stream.value().seekg(static_cast<std::streamoff>(position), std::ios::beg);
         stream.value().read(reinterpret_cast<char*>(tempBuffer.data()), static_cast<std::streamsize>(count));
-        std::size_t bytesRead = static_cast<std::size_t>(stream.value().gcount());
+        bb::usize bytesRead = static_cast<bb::usize>(stream.value().gcount());
         position += bytesRead;
         // Padding can be uninitialized, but we'll zero it for safety
         std::memset(tempBuffer.data() + bytesRead, 0, padding);
-        return fastgltf::span<std::byte>(tempBuffer.data(), count + padding);
+        return fastgltf::span<std::byte>((std::byte*)tempBuffer.data(), count + padding);
     }
 
     void reset() override
@@ -87,20 +87,20 @@ public:
         stream.value().seekg(0, std::ios::beg);
     }
 
-    [[nodiscard]] std::size_t bytesRead() override
+    [[nodiscard]] bb::usize bytesRead() override
     {
         return position;
     }
 
-    [[nodiscard]] std::size_t totalSize() override
+    [[nodiscard]] bb::usize totalSize() override
     {
         return size;
     }
 
 private:
     std::optional<PhysFS::ifstream> stream;
-    std::size_t position = 0;
-    std::size_t size = 0;
+    bb::usize position = 0;
+    bb::usize size = 0;
     mutable std::vector<std::byte> tempBuffer;
 };
 
@@ -204,13 +204,13 @@ vk::PrimitiveTopology MapGltfTopology(fastgltf::PrimitiveType gltfTopology)
 template <typename T>
 void CalculateTangents(CPUMesh<T>& stagingPrimitive)
 {
-    uint32_t triangleCount = stagingPrimitive.indices.size() > 0 ? stagingPrimitive.indices.size() / 3 : stagingPrimitive.vertices.size() / 3;
-    for (size_t i = 0; i < triangleCount; ++i)
+    bb::u32 triangleCount = stagingPrimitive.indices.size() > 0 ? stagingPrimitive.indices.size() / 3 : stagingPrimitive.vertices.size() / 3;
+    for (bb::usize i = 0; i < triangleCount; ++i)
     {
         std::array<T*, 3> triangle = {};
         if (stagingPrimitive.indices.size() > 0)
         {
-            std::array<uint32_t, 3> indices = {};
+            std::array<bb::u32, 3> indices = {};
 
             indices[0] = stagingPrimitive.indices[(i * 3 + 0)];
             indices[1] = stagingPrimitive.indices[(i * 3 + 1)];
@@ -245,7 +245,7 @@ void CalculateTangents(CPUMesh<T>& stagingPrimitive)
         triangle[2]->tangent += tangent;
     }
 
-    for (size_t i = 0; i < stagingPrimitive.vertices.size(); ++i)
+    for (bb::usize i = 0; i < stagingPrimitive.vertices.size(); ++i)
     {
         glm::vec3 tangent = stagingPrimitive.vertices[i].tangent;
         tangent = glm::normalize(tangent);
@@ -256,11 +256,11 @@ void CalculateTangents(CPUMesh<T>& stagingPrimitive)
 template <typename T>
 void CalculateNormals(CPUMesh<T>& mesh)
 {
-    for (size_t i = 0; i < mesh.indices.size(); i += 3)
+    for (bb::usize i = 0; i < mesh.indices.size(); i += 3)
     {
-        uint32_t idx0 = mesh.indices[i];
-        uint32_t idx1 = mesh.indices[i + 1];
-        uint32_t idx2 = mesh.indices[i + 2];
+        bb::u32 idx0 = mesh.indices[i];
+        bb::u32 idx1 = mesh.indices[i + 1];
+        bb::u32 idx2 = mesh.indices[i + 2];
 
         glm::vec3& v0 = mesh.vertices[idx0].position;
         glm::vec3& v1 = mesh.vertices[idx1].position;
@@ -287,7 +287,7 @@ void CalculateNormals(CPUMesh<T>& mesh)
 }
 
 template <typename T, typename U>
-void AssignAttribute(T& vertexAttribute, uint32_t index, const fastgltf::Attribute* attribute, const fastgltf::Primitive& gltfPrimitive, const fastgltf::Asset& gltf)
+void AssignAttribute(T& vertexAttribute, bb::u32 index, const fastgltf::Attribute* attribute, const fastgltf::Primitive& gltfPrimitive, const fastgltf::Asset& gltf)
 {
     if (attribute != gltfPrimitive.attributes.cend())
     {
@@ -303,7 +303,7 @@ void ProcessVertices(std::vector<T>& vertices, const fastgltf::Primitive& gltfPr
 template <>
 void ProcessVertices<Vertex>(std::vector<Vertex>& vertices, const fastgltf::Primitive& gltfPrimitive, const fastgltf::Asset& gltf, math::Vec3Range& boundingBox, float& boundingRadius)
 {
-    uint32_t vertexCount = gltf.accessors[gltfPrimitive.findAttribute("POSITION")->accessorIndex].count;
+    bb::u32 vertexCount = gltf.accessors[gltfPrimitive.findAttribute("POSITION")->accessorIndex].count;
     vertices = std::vector<Vertex>(vertexCount);
 
     const fastgltf::Attribute* positionAttribute = gltfPrimitive.findAttribute("POSITION");
@@ -311,7 +311,7 @@ void ProcessVertices<Vertex>(std::vector<Vertex>& vertices, const fastgltf::Prim
     const fastgltf::Attribute* tangentAttribute = gltfPrimitive.findAttribute("TANGENT");
     const fastgltf::Attribute* texCoordAttribute = gltfPrimitive.findAttribute("TEXCOORD_0");
 
-    for (size_t i = 0; i < vertices.size(); ++i)
+    for (bb::usize i = 0; i < vertices.size(); ++i)
     {
         AssignAttribute<glm::vec3, fastgltf::math::fvec3>(vertices[i].position, i, positionAttribute, gltfPrimitive, gltf);
         AssignAttribute<glm::vec3, fastgltf::math::fvec3>(vertices[i].normal, i, normalAttribute, gltfPrimitive, gltf);
@@ -338,7 +338,7 @@ void ProcessVertices<Vertex>(std::vector<Vertex>& vertices, const fastgltf::Prim
 template <>
 void ProcessVertices<SkinnedVertex>(std::vector<SkinnedVertex>& vertices, const fastgltf::Primitive& gltfPrimitive, const fastgltf::Asset& gltf, math::Vec3Range& boundingBox, float& boundingRadius)
 {
-    uint32_t vertexCount = gltf.accessors[gltfPrimitive.findAttribute("POSITION")->accessorIndex].count;
+    bb::u32 vertexCount = gltf.accessors[gltfPrimitive.findAttribute("POSITION")->accessorIndex].count;
     vertices = std::vector<SkinnedVertex>(vertexCount);
 
     const fastgltf::Attribute* positionAttribute = gltfPrimitive.findAttribute("POSITION");
@@ -348,7 +348,7 @@ void ProcessVertices<SkinnedVertex>(std::vector<SkinnedVertex>& vertices, const 
     const fastgltf::Attribute* jointsAttribute = gltfPrimitive.findAttribute("JOINTS_0");
     const fastgltf::Attribute* weightsAttribute = gltfPrimitive.findAttribute("WEIGHTS_0");
 
-    for (size_t i = 0; i < vertices.size(); ++i)
+    for (bb::usize i = 0; i < vertices.size(); ++i)
     {
         AssignAttribute<glm::vec3, fastgltf::math::fvec3>(vertices[i].position, i, positionAttribute, gltfPrimitive, gltf);
         AssignAttribute<glm::vec3, fastgltf::math::fvec3>(vertices[i].normal, i, normalAttribute, gltfPrimitive, gltf);
@@ -388,21 +388,21 @@ CPUMesh<T> ProcessPrimitive(const fastgltf::Primitive& gltfPrimitive, const fast
         auto& buffer = gltf.buffers[bufferView.bufferIndex];
         auto& bufferBytes = std::get<fastgltf::sources::Array>(buffer.data);
 
-        mesh.indices = std::vector<uint32_t>(accessor.count);
+        mesh.indices = std::vector<bb::u32>(accessor.count);
 
         const std::byte* attributeBufferStart = bufferBytes.bytes.data() + bufferView.byteOffset + accessor.byteOffset;
 
         if (accessor.componentType == fastgltf::ComponentType::UnsignedInt && (!bufferView.byteStride.has_value() || bufferView.byteStride.value() == 0))
         {
-            std::memcpy(mesh.indices.data(), attributeBufferStart, mesh.indices.size() * sizeof(uint32_t));
+            std::memcpy(mesh.indices.data(), attributeBufferStart, mesh.indices.size() * sizeof(bb::u32));
         }
         else
         {
-            uint32_t gltfIndexTypeSize = fastgltf::getComponentByteSize(accessor.componentType);
-            for (size_t i = 0; i < accessor.count; ++i)
+            bb::u32 gltfIndexTypeSize = fastgltf::getComponentByteSize(accessor.componentType);
+            for (bb::usize i = 0; i < accessor.count; ++i)
             {
                 const std::byte* element = attributeBufferStart + i * gltfIndexTypeSize + (bufferView.byteStride.has_value() ? bufferView.byteStride.value() : 0);
-                uint32_t* indexPtr = mesh.indices.data() + i;
+                bb::u32* indexPtr = mesh.indices.data() + i;
                 std::memcpy(indexPtr, element, gltfIndexTypeSize);
             }
         }
@@ -411,7 +411,7 @@ CPUMesh<T> ProcessPrimitive(const fastgltf::Primitive& gltfPrimitive, const fast
     {
         // Generate indices manually
         mesh.indices.reserve(mesh.vertices.size());
-        for (size_t i = 0; i < mesh.vertices.size(); ++i)
+        for (bb::usize i = 0; i < mesh.vertices.size(); ++i)
         {
             mesh.indices.emplace_back(i);
         }
@@ -491,7 +491,7 @@ struct StagingAnimationChannels
     struct IndexChannel
     {
         std::vector<TransformAnimationSpline> animationChannels;
-        std::vector<uint32_t> nodeIndices;
+        std::vector<bb::u32> nodeIndices;
     };
     std::vector<IndexChannel> indexChannels;
 };
@@ -575,7 +575,7 @@ StagingAnimationChannels LoadAnimations(const fastgltf::Asset& gltf)
 
                     spline->rotation.value().values = std::vector<Rotation> { output.begin(), output.end() };
                     // Parse quaternions from xyzw -> wxyz.
-                    for (size_t i = 0; i < spline->rotation.value().values.size(); ++i)
+                    for (bb::usize i = 0; i < spline->rotation.value().values.size(); ++i)
                     {
                         math::QuatXYZWtoWXYZ(spline->rotation.value().values[i]);
                     }
@@ -599,7 +599,7 @@ StagingAnimationChannels LoadAnimations(const fastgltf::Asset& gltf)
 
 CPUMaterial ProcessMaterial(const fastgltf::Material& gltfMaterial, const std::vector<fastgltf::Texture>& gltfTextures)
 {
-    auto MapTextureIndexToImageIndex = [](uint32_t textureIndex, const std::vector<fastgltf::Texture>& gltfTextures) -> uint32_t
+    auto MapTextureIndexToImageIndex = [](bb::u32 textureIndex, const std::vector<fastgltf::Texture>& gltfTextures) -> bb::u32
     {
         return gltfTextures[textureIndex].imageIndex.value();
     };
@@ -608,31 +608,31 @@ CPUMaterial ProcessMaterial(const fastgltf::Material& gltfMaterial, const std::v
 
     if (gltfMaterial.pbrData.baseColorTexture.has_value())
     {
-        uint32_t textureIndex = MapTextureIndexToImageIndex(gltfMaterial.pbrData.baseColorTexture.value().textureIndex, gltfTextures);
+        bb::u32 textureIndex = MapTextureIndexToImageIndex(gltfMaterial.pbrData.baseColorTexture.value().textureIndex, gltfTextures);
         material.albedoMap = textureIndex;
     }
 
     if (gltfMaterial.pbrData.metallicRoughnessTexture.has_value())
     {
-        uint32_t textureIndex = MapTextureIndexToImageIndex(gltfMaterial.pbrData.metallicRoughnessTexture.value().textureIndex, gltfTextures);
+        bb::u32 textureIndex = MapTextureIndexToImageIndex(gltfMaterial.pbrData.metallicRoughnessTexture.value().textureIndex, gltfTextures);
         material.metallicRoughnessMap = textureIndex;
     }
 
     if (gltfMaterial.normalTexture.has_value())
     {
-        uint32_t textureIndex = MapTextureIndexToImageIndex(gltfMaterial.normalTexture.value().textureIndex, gltfTextures);
+        bb::u32 textureIndex = MapTextureIndexToImageIndex(gltfMaterial.normalTexture.value().textureIndex, gltfTextures);
         material.normalMap = textureIndex;
     }
 
     if (gltfMaterial.occlusionTexture.has_value())
     {
-        uint32_t textureIndex = MapTextureIndexToImageIndex(gltfMaterial.occlusionTexture.value().textureIndex, gltfTextures);
+        bb::u32 textureIndex = MapTextureIndexToImageIndex(gltfMaterial.occlusionTexture.value().textureIndex, gltfTextures);
         material.occlusionMap = textureIndex;
     }
 
     if (gltfMaterial.emissiveTexture.has_value())
     {
-        uint32_t textureIndex = MapTextureIndexToImageIndex(gltfMaterial.emissiveTexture.value().textureIndex, gltfTextures);
+        bb::u32 textureIndex = MapTextureIndexToImageIndex(gltfMaterial.emissiveTexture.value().textureIndex, gltfTextures);
         material.emissiveMap = textureIndex;
     }
 
@@ -648,16 +648,16 @@ CPUMaterial ProcessMaterial(const fastgltf::Material& gltfMaterial, const std::v
     return material;
 }
 
-uint32_t RecurseHierarchy(const fastgltf::Node& gltfNode,
-    uint32_t gltfNodeIndex,
+bb::u32 RecurseHierarchy(const fastgltf::Node& gltfNode,
+    bb::u32 gltfNodeIndex,
     CPUModel& model,
     const fastgltf::Asset& gltf,
     const StagingAnimationChannels& stagingAnimationChannels,
-    const std::unordered_multimap<uint32_t, std::pair<MeshType, uint32_t>>& meshLUT, // Used for looking up gltf mesh to engine mesh.
-    std::unordered_map<uint32_t, uint32_t>& nodeLUT) // Will be populated with gltf node to engine node.
+    const std::unordered_multimap<bb::u32, std::pair<MeshType, bb::u32>>& meshLUT, // Used for looking up gltf mesh to engine mesh.
+    std::unordered_map<bb::u32, bb::u32>& nodeLUT) // Will be populated with gltf node to engine node.
 {
     model.hierarchy.nodes.emplace_back(Node {});
-    uint32_t nodeIndex = model.hierarchy.nodes.size() - 1;
+    bb::u32 nodeIndex = model.hierarchy.nodes.size() - 1;
 
     nodeLUT[gltfNodeIndex] = nodeIndex;
 
@@ -672,7 +672,7 @@ uint32_t RecurseHierarchy(const fastgltf::Node& gltfNode,
             node.mesh = { it->second.first, it->second.second };
 
             model.hierarchy.nodes.emplace_back(node);
-            model.hierarchy.nodes[nodeIndex].childrenIndices.emplace_back(static_cast<uint32_t>(model.hierarchy.nodes.size() - 1));
+            model.hierarchy.nodes[nodeIndex].childrenIndices.emplace_back(static_cast<bb::u32>(model.hierarchy.nodes.size() - 1));
         }
     }
 
@@ -682,9 +682,9 @@ uint32_t RecurseHierarchy(const fastgltf::Node& gltfNode,
     model.hierarchy.nodes[nodeIndex].name = gltfNode.name;
 
     // If we have an animation channel that should be used on this node, we apply it.
-    for (size_t i = 0; i < stagingAnimationChannels.animations.size(); ++i)
+    for (bb::usize i = 0; i < stagingAnimationChannels.animations.size(); ++i)
     {
-        for (size_t j = 0; j < stagingAnimationChannels.indexChannels[i].nodeIndices.size(); j++)
+        for (bb::usize j = 0; j < stagingAnimationChannels.indexChannels[i].nodeIndices.size(); j++)
         {
             if (stagingAnimationChannels.indexChannels[i].nodeIndices[j] == gltfNodeIndex)
             {
@@ -696,7 +696,7 @@ uint32_t RecurseHierarchy(const fastgltf::Node& gltfNode,
     }
 
     // Check all the gltf skins for skinning data that might be applied to this node.
-    for (size_t i = 0; i < gltf.skins.size(); ++i)
+    for (bb::usize i = 0; i < gltf.skins.size(); ++i)
     {
         const auto& skin = gltf.skins[i];
 
@@ -707,7 +707,7 @@ uint32_t RecurseHierarchy(const fastgltf::Node& gltfNode,
             // Get the inverse bind matrix for this joint.
             fastgltf::math::fmat4x4 inverseBindMatrix = fastgltf::getAccessorElement<fastgltf::math::fmat4x4>(gltf, gltf.accessors[skin.inverseBindMatrices.value()], std::distance(skin.joints.begin(), it));
 
-            uint32_t jointIndex = std::distance(skin.joints.begin(), it);
+            bb::u32 jointIndex = std::distance(skin.joints.begin(), it);
             model.hierarchy.nodes[nodeIndex].joint = NodeJointData {
                 jointIndex,
                 *reinterpret_cast<glm::mat4x4*>(&inverseBindMatrix)
@@ -742,9 +742,9 @@ uint32_t RecurseHierarchy(const fastgltf::Node& gltfNode,
         model.hierarchy.nodes[nodeIndex].light = lightData;
     }
 
-    for (size_t childNodeIndex : gltfNode.children)
+    for (bb::usize childNodeIndex : gltfNode.children)
     {
-        uint32_t index = RecurseHierarchy(gltf.nodes[childNodeIndex], childNodeIndex, model, gltf, stagingAnimationChannels, meshLUT, nodeLUT);
+        bb::u32 index = RecurseHierarchy(gltf.nodes[childNodeIndex], childNodeIndex, model, gltf, stagingAnimationChannels, meshLUT, nodeLUT);
         model.hierarchy.nodes[nodeIndex].childrenIndices.emplace_back(index);
     }
 
@@ -755,7 +755,7 @@ uint32_t RecurseHierarchy(const fastgltf::Node& gltfNode,
 
 CPUModel ModelLoading::LoadGLTF(ThreadPool* scheduler, std::string_view path, bool genCollision)
 {
-    size_t offset = path.find_last_of('/') + 1;
+    bb::usize offset = path.find_last_of('/') + 1;
     std::string_view name = path.substr(offset, path.find_last_of('.') - offset);
 
     auto gltf = LoadFastGLTFAsset(path);
@@ -791,13 +791,13 @@ CPUModel ModelLoading::LoadGLTF(ThreadPool* scheduler, std::string_view path, bo
 
     //
     // Tracks gltf mesh index to our engine mesh index.
-    std::unordered_multimap<uint32_t, std::pair<MeshType, uint32_t>> meshLUT {};
+    std::unordered_multimap<bb::u32, std::pair<MeshType, bb::u32>> meshLUT {};
 
     // Extract mesh data
     {
         ZoneScopedN("Mesh Loading");
 
-        uint32_t counter { 0 };
+        bb::u32 counter { 0 };
         for (auto& gltfMesh : gltf.meshes)
         {
             for (const auto& gltfPrimitive : gltfMesh.primitives)
@@ -834,29 +834,29 @@ CPUModel ModelLoading::LoadGLTF(ThreadPool* scheduler, std::string_view path, bo
     }
 
     model.hierarchy.nodes.emplace_back(Node {});
-    uint32_t baseNodeIndex = model.hierarchy.nodes.size() - 1;
+    bb::u32 baseNodeIndex = model.hierarchy.nodes.size() - 1;
     model.hierarchy.nodes[baseNodeIndex].name = name;
 
     model.hierarchy.root = model.hierarchy.nodes.size() - 1;
 
-    std::unordered_map<uint32_t, uint32_t> nodeLUT {};
+    std::unordered_map<bb::u32, bb::u32> nodeLUT {};
 
-    for (size_t i = 0; i < gltf.scenes[0].nodeIndices.size(); ++i)
+    for (bb::usize i = 0; i < gltf.scenes[0].nodeIndices.size(); ++i)
     {
-        uint32_t index = gltf.scenes[0].nodeIndices[i];
+        bb::u32 index = gltf.scenes[0].nodeIndices[i];
         const auto& gltfNode { gltf.nodes[index] };
 
-        uint32_t result = RecurseHierarchy(gltfNode, index, model, gltf, animations, meshLUT, nodeLUT);
+        bb::u32 result = RecurseHierarchy(gltfNode, index, model, gltf, animations, meshLUT, nodeLUT);
         model.hierarchy.nodes[baseNodeIndex].childrenIndices.emplace_back(result);
     }
 
-    for (size_t i = 0; i < gltf.skins.size(); ++i)
+    for (bb::usize i = 0; i < gltf.skins.size(); ++i)
     {
         const auto& skin = gltf.skins[i];
 
-        std::function<bool(uint32_t)> traverse = [&model, &skin, &nodeLUT, &traverse](uint32_t nodeIndex)
+        std::function<bool(bb::u32)> traverse = [&model, &skin, &nodeLUT, &traverse](bb::u32 nodeIndex)
         {
-            auto it = std::find_if(skin.joints.begin(), skin.joints.end(), [&nodeLUT, nodeIndex](uint32_t index)
+            auto it = std::find_if(skin.joints.begin(), skin.joints.end(), [&nodeLUT, nodeIndex](bb::u32 index)
                 { return nodeLUT[index] == nodeIndex; });
 
             if (it != skin.joints.end())
@@ -864,8 +864,8 @@ CPUModel ModelLoading::LoadGLTF(ThreadPool* scheduler, std::string_view path, bo
                 return true;
             }
 
-            std::vector<uint32_t> baseJoints {};
-            for (size_t i = 0; i < model.hierarchy.nodes[nodeIndex].childrenIndices.size(); ++i)
+            std::vector<bb::u32> baseJoints {};
+            for (bb::usize i = 0; i < model.hierarchy.nodes[nodeIndex].childrenIndices.size(); ++i)
             {
                 if (traverse(model.hierarchy.nodes[nodeIndex].childrenIndices[i]))
                 {
@@ -895,7 +895,7 @@ CPUModel ModelLoading::LoadGLTF(ThreadPool* scheduler, std::string_view path, bo
     // After instantiating hierarchy, we do another pass to apply missing child references.
     // In this case we match all the skeleton indices.
     // Note, that we have to account for expanding the primitives into their own nodes.
-    for (size_t i = 0; i < gltf.nodes.size(); ++i)
+    for (bb::usize i = 0; i < gltf.nodes.size(); ++i)
     {
         const auto& gltfNode = gltf.nodes[i];
         auto& node = model.hierarchy.nodes[nodeLUT[i]];

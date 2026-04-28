@@ -9,7 +9,7 @@
 class ThreadPool
 {
 public:
-    ThreadPool(uint32_t threadCount);
+    ThreadPool(bb::u32 threadCount);
     ~ThreadPool();
 
     template <typename Functor>
@@ -43,7 +43,7 @@ public:
     NON_COPYABLE(ThreadPool);
 
 private:
-    static void WorkerMain(ThreadPool* pool, uint32_t ID);
+    static void WorkerMain(ThreadPool* pool, bb::u32 ID);
 
     std::mutex _mutex;
     std::condition_variable _workerNotify;

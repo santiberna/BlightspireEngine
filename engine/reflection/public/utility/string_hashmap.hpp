@@ -9,7 +9,7 @@ struct HeterogenousStringHash
 {
     using is_transparent = void; // NOLINT
 
-    size_t operator()(std::string_view sv) const { return std::hash<std::string_view> {}(sv); }
+    bb::usize operator()(std::string_view sv) const { return std::hash<std::string_view> {}(sv); }
 };
 
 struct HeterogenousStringEqual

@@ -43,19 +43,19 @@ SingleTimeCommands::~SingleTimeCommands()
     vk::Queue graphics = _context.GraphicsQueue();
 
     util::VK_ASSERT(graphics.submit(1, &submitInfo, _fence), "Failed submitting one time buffer to queue!");
-    util::VK_ASSERT(device.waitForFences(1, &fence, VK_TRUE, std::numeric_limits<uint64_t>::max()), "Failed waiting for fence!");
+    util::VK_ASSERT(device.waitForFences(1, &fence, VK_TRUE, std::numeric_limits<bb::u64>::max()), "Failed waiting for fence!");
 
     device.free(_context.CommandPool(), commands);
     device.destroy(fence);
 
     assert(_stagingAllocations.size() == _stagingBuffers.size());
-    for (size_t i = 0; i < _stagingBuffers.size(); ++i)
+    for (bb::usize i = 0; i < _stagingBuffers.size(); ++i)
     {
         util::vmaDestroyBuffer(_context.MemoryAllocator(), _stagingBuffers[i], _stagingAllocations[i]);
     }
 }
 
-void SingleTimeCommands::CopyIntoLocalBuffer(const std::byte* vec, uint32_t count, uint32_t offset, VkBuffer buffer)
+void SingleTimeCommands::CopyIntoLocalBuffer(const std::byte* vec, bb::u32 count, bb::u32 offset, VkBuffer buffer)
 {
     vk::DeviceSize bufferSize = count;
 

@@ -115,7 +115,7 @@ private:
 
     std::unordered_map<std::string, FMOD_STUDIO_BUS*> _eventBusMap;
 
-    static constexpr uint32_t MAX_CHANNELS = 1024;
+    static constexpr bb::u32 MAX_CHANNELS = 1024;
 
     // All sounds go through this eventually
     // USED ONLY FOR DSP VISUALIZATION: for events, we use event buses

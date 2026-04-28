@@ -21,11 +21,11 @@ public:
     }
 
     template <typename T>
-    void CopyIntoLocalBuffer(const std::vector<T>& vec, uint32_t offset, VkBuffer buffer)
+    void CopyIntoLocalBuffer(const std::vector<T>& vec, bb::u32 offset, VkBuffer buffer)
     {
         CopyIntoLocalBuffer(reinterpret_cast<const std::byte*>(vec.data()), vec.size() * sizeof(T), offset * sizeof(T), buffer);
     }
-    void CopyIntoLocalBuffer(const std::byte* vec, uint32_t count, uint32_t offset, VkBuffer buffer);
+    void CopyIntoLocalBuffer(const std::byte* vec, bb::u32 count, bb::u32 offset, VkBuffer buffer);
 
     VkCommandBuffer CommandBuffer() const { return _commandBuffer; }
     VulkanContext& GetContext() const { return _context; }

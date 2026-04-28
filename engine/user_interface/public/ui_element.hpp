@@ -36,7 +36,7 @@ public:
     } anchorPoint
         = AnchorPoint::eMiddle;
     UINavigationTargets navigationTargets = {};
-    int16_t zLevel = 1;
+    bb::i16 zLevel = 1;
 
     glm::vec4 display_color = glm::vec4(1, 1, 1, 1);
 

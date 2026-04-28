@@ -16,7 +16,7 @@ std::vector<std::byte> shader::ReadFile(std::string_view filename)
 
     // Deduce file size based on read position (remember we opened the file at the end with the ate flag).
     stream.value().seekg(0, std::ios::end);
-    size_t fileSize = stream.value().tellg();
+    bb::usize fileSize = stream.value().tellg();
 
     // Allocate buffer with required file size.
     std::vector<std::byte> buffer(fileSize);
@@ -34,7 +34,7 @@ vk::ShaderModule shader::CreateShaderModule(const std::vector<std::byte>& byteCo
 {
     vk::ShaderModuleCreateInfo createInfo {};
     createInfo.codeSize = byteCode.size();
-    createInfo.pCode = reinterpret_cast<const uint32_t*>(byteCode.data());
+    createInfo.pCode = reinterpret_cast<const bb::u32*>(byteCode.data());
 
     vk::ShaderModule shaderModule {};
     util::VK_ASSERT(device.createShaderModule(&createInfo, nullptr, &shaderModule), "Failed creating shader module!");

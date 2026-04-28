@@ -5,7 +5,7 @@
 
 #include <spdlog/spdlog.h>
 
-std::unordered_map<size_t, vk::DescriptorSetLayout> PipelineBuilder::_cacheDescriptorSetLayouts {};
+std::unordered_map<bb::usize, vk::DescriptorSetLayout> PipelineBuilder::_cacheDescriptorSetLayouts {};
 
 PipelineBuilder::PipelineBuilder(const std::shared_ptr<GraphicsContext>& context)
     : _context(context)
@@ -52,14 +52,14 @@ std::tuple<vk::PipelineLayout, vk::Pipeline> PipelineBuilder::BuildPipeline()
 vk::DescriptorSetLayout PipelineBuilder::CacheDescriptorSetLayout(const VulkanContext& context, const std::vector<vk::DescriptorSetLayoutBinding>& bindings, const std::vector<std::string_view>& names, std::optional<vk::DescriptorSetLayoutCreateInfo> createInfo)
 {
     vk::Device device = context.Device();
-    size_t hash = HashBindings(bindings, names);
+    bb::usize hash = HashBindings(bindings, names);
 
     if (_cacheDescriptorSetLayouts.find(hash) == _cacheDescriptorSetLayouts.end())
     {
         if (!createInfo.has_value())
         {
             createInfo = vk::DescriptorSetLayoutCreateInfo {
-                .bindingCount = static_cast<uint32_t>(bindings.size()),
+                .bindingCount = static_cast<bb::u32>(bindings.size()),
                 .pBindings = bindings.data(),
             };
         }
@@ -91,7 +91,7 @@ void PipelineBuilder::ReflectShaders()
 
 void PipelineBuilder::ReflectPushConstants(const PipelineBuilder::ShaderStage& shaderStage)
 {
-    uint32_t pushCount { 0 };
+    bb::u32 pushCount { 0 };
     spvReflectEnumeratePushConstantBlocks(&shaderStage.reflectModule, &pushCount, nullptr);
     std::vector<SpvReflectBlockVariable*> pushConstants { pushCount };
     spvReflectEnumeratePushConstantBlocks(&shaderStage.reflectModule, &pushCount, pushConstants.data());
@@ -110,7 +110,7 @@ void PipelineBuilder::ReflectPushConstants(const PipelineBuilder::ShaderStage& s
 
 void PipelineBuilder::ReflectDescriptorLayouts(const PipelineBuilder::ShaderStage& shaderStage)
 {
-    uint32_t setCount { 0 };
+    bb::u32 setCount { 0 };
     spvReflectEnumerateDescriptorSets(&shaderStage.reflectModule, &setCount, nullptr);
     std::vector<SpvReflectDescriptorSet*> sets { setCount };
     spvReflectEnumerateDescriptorSets(&shaderStage.reflectModule, &setCount, sets.data());
@@ -120,7 +120,7 @@ void PipelineBuilder::ReflectDescriptorLayouts(const PipelineBuilder::ShaderStag
         std::vector<vk::DescriptorSetLayoutBinding> bindings;
         std::vector<std::string_view> names;
 
-        for (size_t i = 0; i < set->binding_count; ++i)
+        for (bb::usize i = 0; i < set->binding_count; ++i)
         {
             const SpvReflectDescriptorBinding* reflectBinding = set->bindings[i];
 
@@ -152,7 +152,7 @@ void PipelineBuilder::ReflectDescriptorLayouts(const PipelineBuilder::ShaderStag
                 const char* underscorePos = std::strchr(reflectBinding->type_description->type_name, '_');
                 if (underscorePos != nullptr)
                 {
-                    name = std::string_view { reflectBinding->type_description->type_name, static_cast<size_t>(underscorePos - reflectBinding->type_description->type_name) }; // Length up to the underscore
+                    name = std::string_view { reflectBinding->type_description->type_name, static_cast<bb::usize>(underscorePos - reflectBinding->type_description->type_name) }; // Length up to the underscore
                 }
                 names.emplace_back(name);
             }
@@ -163,7 +163,7 @@ void PipelineBuilder::ReflectDescriptorLayouts(const PipelineBuilder::ShaderStag
             }
         }
 
-        size_t hash = HashBindings(bindings, names);
+        bb::usize hash = HashBindings(bindings, names);
 
         if (_descriptorSetLayouts.size() <= set->set)
         {
@@ -177,7 +177,7 @@ void PipelineBuilder::ReflectDescriptorLayouts(const PipelineBuilder::ShaderStag
         else
         {
             vk::DescriptorSetLayoutCreateInfo layoutInfo {
-                .bindingCount = static_cast<uint32_t>(bindings.size()),
+                .bindingCount = static_cast<bb::u32>(bindings.size()),
                 .pBindings = bindings.data(),
             };
 
@@ -193,9 +193,9 @@ void PipelineBuilder::ReflectDescriptorLayouts(const PipelineBuilder::ShaderStag
 vk::PipelineLayout PipelineBuilder::CreatePipelineLayout()
 {
     vk::PipelineLayoutCreateInfo createInfo {
-        .setLayoutCount = static_cast<uint32_t>(_descriptorSetLayouts.size()),
+        .setLayoutCount = static_cast<bb::u32>(_descriptorSetLayouts.size()),
         .pSetLayouts = _descriptorSetLayouts.data(),
-        .pushConstantRangeCount = static_cast<uint32_t>(_pushConstantRanges.size()),
+        .pushConstantRangeCount = static_cast<bb::u32>(_pushConstantRanges.size()),
         .pPushConstantRanges = _pushConstantRanges.data(),
     };
 
@@ -207,22 +207,22 @@ vk::ShaderModule PipelineBuilder::CreateShaderModule(const std::vector<std::byte
 {
     vk::ShaderModuleCreateInfo createInfo {
         .codeSize = spirvBytes.size(),
-        .pCode = reinterpret_cast<const uint32_t*>(spirvBytes.data()),
+        .pCode = reinterpret_cast<const bb::u32*>(spirvBytes.data()),
     };
 
     vk::Device device = _context->GetVulkanContext()->Device();
     return device.createShaderModule(createInfo, nullptr).value;
 }
 
-size_t PipelineBuilder::HashBindings(const std::vector<vk::DescriptorSetLayoutBinding>& bindings, const std::vector<std::string_view>& names)
+bb::usize PipelineBuilder::HashBindings(const std::vector<vk::DescriptorSetLayoutBinding>& bindings, const std::vector<std::string_view>& names)
 {
-    size_t seed = bindings.size();
+    bb::usize seed = bindings.size();
     for (const auto& binding : bindings)
     {
-        seed ^= std::hash<uint32_t> {}(binding.binding) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-        seed ^= std::hash<uint32_t> {}(static_cast<uint32_t>(binding.descriptorType)) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-        // seed ^= std::hash<uint32_t> {}(binding.descriptorCount) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-        // seed ^= std::hash<uint32_t>{}(static_cast<uint32_t>(binding.stageFlags)) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+        seed ^= std::hash<bb::u32> {}(binding.binding) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+        seed ^= std::hash<bb::u32> {}(static_cast<bb::u32>(binding.descriptorType)) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+        // seed ^= std::hash<bb::u32> {}(binding.descriptorCount) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+        // seed ^= std::hash<bb::u32>{}(static_cast<bb::u32>(binding.stageFlags)) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
     }
     for (const auto& name : names)
     {
@@ -291,7 +291,7 @@ void GraphicsPipelineBuilder::ReflectShader(const ShaderStage& shaderStage)
 
 void GraphicsPipelineBuilder::ReflectVertexInput(const ShaderStage& shaderStage)
 {
-    uint32_t inputCount { 0 };
+    bb::u32 inputCount { 0 };
 
     spvReflectEnumerateInputVariables(&shaderStage.reflectModule, &inputCount, nullptr);
     std::vector<SpvReflectInterfaceVariable*> inputVariables { inputCount };
@@ -301,7 +301,7 @@ void GraphicsPipelineBuilder::ReflectVertexInput(const ShaderStage& shaderStage)
     std::sort(inputVariables.begin(), inputVariables.end(), [](const auto a, const auto b)
         { return a->location < b->location; });
 
-    uint32_t binding { 0 };
+    bb::u32 binding { 0 };
     vk::VertexInputBindingDescription bindingDescription {
         .binding = binding,
         .stride = 0,
@@ -310,7 +310,7 @@ void GraphicsPipelineBuilder::ReflectVertexInput(const ShaderStage& shaderStage)
 
     for (const auto* var : inputVariables)
     {
-        if (var->location == std::numeric_limits<uint32_t>::max())
+        if (var->location == std::numeric_limits<bb::u32>::max())
             continue;
 
         vk::VertexInputAttributeDescription attributeDescription {
@@ -339,14 +339,14 @@ vk::Pipeline GraphicsPipelineBuilder::CreatePipeline()
     }
 
     vk::PipelineVertexInputStateCreateInfo vertexInputStateCreateInfo {
-        .vertexBindingDescriptionCount = static_cast<uint32_t>(_bindingDescriptions.size()),
+        .vertexBindingDescriptionCount = static_cast<bb::u32>(_bindingDescriptions.size()),
         .pVertexBindingDescriptions = _bindingDescriptions.data(),
-        .vertexAttributeDescriptionCount = static_cast<uint32_t>(_attributeDescriptions.size()),
+        .vertexAttributeDescriptionCount = static_cast<bb::u32>(_attributeDescriptions.size()),
         .pVertexAttributeDescriptions = _attributeDescriptions.data(),
     };
 
     vk::GraphicsPipelineCreateInfo graphicsPipelineCreateInfo {
-        .stageCount = static_cast<uint32_t>(_pipelineShaderStages.size()),
+        .stageCount = static_cast<bb::u32>(_pipelineShaderStages.size()),
         .pStages = _pipelineShaderStages.data(),
         .pVertexInputState = &vertexInputStateCreateInfo,
         .pInputAssemblyState = &_inputAssemblyStateCreateInfo.value(),
@@ -363,7 +363,7 @@ vk::Pipeline GraphicsPipelineBuilder::CreatePipeline()
     };
 
     vk::PipelineRenderingCreateInfoKHR renderingCreateInfo {
-        .colorAttachmentCount = static_cast<uint32_t>(_colorAttachmentFormats.size()),
+        .colorAttachmentCount = static_cast<bb::u32>(_colorAttachmentFormats.size()),
         .pColorAttachmentFormats = _colorAttachmentFormats.data(),
         .depthAttachmentFormat = _depthFormat,
     };

@@ -116,7 +116,7 @@ GPUScene::~GPUScene()
     device.destroy(_decalDescriptorSetLayout);
 }
 
-void GPUScene::Update(uint32_t frameIndex)
+void GPUScene::Update(bb::u32 frameIndex)
 {
     ZoneNamedN(zz, "GPUScene::Update", true);
 
@@ -132,7 +132,7 @@ void GPUScene::Update(uint32_t frameIndex)
     WriteDraws(frameIndex);
 }
 
-void GPUScene::UpdateSceneData(uint32_t frameIndex)
+void GPUScene::UpdateSceneData(bb::u32 frameIndex)
 {
     UpdateDirectionalLightData(_sceneData, frameIndex);
 
@@ -140,7 +140,7 @@ void GPUScene::UpdateSceneData(uint32_t frameIndex)
     memcpy(buffer->mappedPtr, &_sceneData, sizeof(SceneData));
 }
 
-void GPUScene::UpdatePointLightArray(uint32_t frameIndex)
+void GPUScene::UpdatePointLightArray(bb::u32 frameIndex)
 {
     PointLightArray pointLightArray {};
 
@@ -170,10 +170,10 @@ void GPUScene::UpdateGlobalIndexBuffer(vk::CommandBuffer& currentCommandBuffer)
     currentCommandBuffer.pipelineBarrier(vk::PipelineStageFlagBits::eTransfer, vk::PipelineStageFlagBits::eComputeShader, {}, {}, barrier, {});
 }
 
-void GPUScene::UpdateObjectInstancesData(uint32_t frameIndex)
+void GPUScene::UpdateObjectInstancesData(bb::u32 frameIndex)
 {
     static std::vector<InstanceData> staticInstances { MAX_STATIC_INSTANCES };
-    uint32_t count = 0;
+    bb::u32 count = 0;
 
     _staticDrawCommands.clear();
     _foregroundStaticDrawCommands.clear();
@@ -224,7 +224,7 @@ void GPUScene::UpdateObjectInstancesData(uint32_t frameIndex)
                 .indexCount = mesh->count,
                 .instanceCount = 0,
                 .firstIndex = mesh->indexOffset,
-                .vertexOffset = static_cast<int32_t>(mesh->vertexOffset),
+                .vertexOffset = static_cast<bb::i32>(mesh->vertexOffset),
                 .firstInstance = 0,
             },
         });
@@ -247,7 +247,7 @@ void GPUScene::UpdateObjectInstancesData(uint32_t frameIndex)
             .instanceIndex = count,
             .indexCount = mesh->count,
             .firstIndex = mesh->indexOffset,
-            .vertexOffset = static_cast<int32_t>(mesh->vertexOffset),
+            .vertexOffset = static_cast<bb::i32>(mesh->vertexOffset),
         });
 
         count++;
@@ -298,7 +298,7 @@ void GPUScene::UpdateObjectInstancesData(uint32_t frameIndex)
                 .indexCount = mesh->count,
                 .instanceCount = 0,
                 .firstIndex = mesh->indexOffset,
-                .vertexOffset = static_cast<int32_t>(mesh->vertexOffset),
+                .vertexOffset = static_cast<bb::i32>(mesh->vertexOffset),
                 .firstInstance = 0,
             },
         });
@@ -321,7 +321,7 @@ void GPUScene::UpdateObjectInstancesData(uint32_t frameIndex)
             .instanceIndex = count,
             .indexCount = mesh->count,
             .firstIndex = mesh->indexOffset,
-            .vertexOffset = static_cast<int32_t>(mesh->vertexOffset),
+            .vertexOffset = static_cast<bb::i32>(mesh->vertexOffset),
         });
 
         count++;
@@ -341,7 +341,7 @@ void GPUScene::UpdateObjectInstancesData(uint32_t frameIndex)
     }
 }
 
-void GPUScene::UpdateDirectionalLightData(SceneData& scene, uint32_t frameIndex)
+void GPUScene::UpdateDirectionalLightData(SceneData& scene, bb::u32 frameIndex)
 {
     auto directionalLightView = _ecs.GetRegistry().view<DirectionalLightComponent, TransformComponent>();
     bool directionalLightIsSet = false;
@@ -390,10 +390,10 @@ void GPUScene::UpdateDirectionalLightData(SceneData& scene, uint32_t frameIndex)
     }
 }
 
-void GPUScene::UpdatePointLightData(PointLightArray& pointLightArray, [[maybe_unused]] uint32_t frameIndex)
+void GPUScene::UpdatePointLightData(PointLightArray& pointLightArray, [[maybe_unused]] bb::u32 frameIndex)
 {
     auto pointLightView = _ecs.GetRegistry().view<PointLightComponent, TransformComponent>();
-    uint32_t pointLightCount = 0;
+    bb::u32 pointLightCount = 0;
 
     for (const auto& [entity, pointLightComponent, transformComponent] : pointLightView.each())
     {
@@ -415,7 +415,7 @@ void GPUScene::UpdatePointLightData(PointLightArray& pointLightArray, [[maybe_un
     pointLightArray.count = pointLightCount;
 }
 
-void GPUScene::UpdateCameraData(uint32_t frameIndex)
+void GPUScene::UpdateCameraData(bb::u32 frameIndex)
 {
     auto cameraView = _ecs.GetRegistry().view<CameraComponent, TransformComponent>();
     bool mainCameraIsSet = false;
@@ -454,7 +454,7 @@ void GPUScene::UpdateCameraData(uint32_t frameIndex)
     }
 }
 
-void GPUScene::UpdateSkinBuffers(uint32_t frameIndex)
+void GPUScene::UpdateSkinBuffers(bb::u32 frameIndex)
 {
     auto jointView = _ecs.GetRegistry().view<JointSkinDataComponent, JointWorldTransformComponent>();
     static std::array<glm::mat2x4, MAX_BONES> skinDualQuats {};
@@ -466,9 +466,9 @@ void GPUScene::UpdateSkinBuffers(uint32_t frameIndex)
     // While traversing all joints we keep track of skeleton we're on, this helps for determining when we switch to another skeleton.
     entt::entity lastSkeleton = entt::null;
     // We track the offset that we need for each skeleton, so the bones are set properly in the buffer.
-    uint32_t offset = 0;
+    bb::u32 offset = 0;
     // The highest index is used to determine what the count of joints is, so we can use that for our offset.
-    uint32_t highestIndex = 0;
+    bb::u32 highestIndex = 0;
     for (entt::entity entity : jointView)
     {
         const auto& joint = jointView.get<JointSkinDataComponent>(entity);
@@ -506,7 +506,7 @@ void GPUScene::UpdateSkinBuffers(uint32_t frameIndex)
     std::memcpy(buffer->mappedPtr, skinDualQuats.data(), sizeof(glm::mat2x4) * skinDualQuats.size());
 }
 
-void GPUScene::UpdateDecalBuffer(uint32_t frameIndex)
+void GPUScene::UpdateDecalBuffer(bb::u32 frameIndex)
 {
     // Update Decal buffer
     const bb::Buffer* buffer = _context->Resources()->GetBufferResourceManager().Access(_decalFrameData[frameIndex].buffer);
@@ -670,10 +670,10 @@ void GPUScene::CreateClusterDescriptorSetLayout()
 void GPUScene::CreateClusterCullingDescriptorSetLayout()
 {
     std::vector<vk::DescriptorSetLayoutBinding> bindings(3);
-    for (size_t i = 0; i < bindings.size(); i++)
+    for (bb::usize i = 0; i < bindings.size(); i++)
     {
         bindings.at(i) = {
-            .binding = static_cast<uint32_t>(i),
+            .binding = static_cast<bb::u32>(i),
             .descriptorType = vk::DescriptorType::eStorageBuffer,
             .descriptorCount = 1,
             .stageFlags = vk::ShaderStageFlagBits::eAll,
@@ -734,7 +734,7 @@ void GPUScene::CreateHZBDescriptorSetLayout()
     std::vector<std::string_view> names { "inputTexture", "outputTexture" };
     vk::DescriptorSetLayoutCreateInfo dslCreateInfo = vk::DescriptorSetLayoutCreateInfo {
         .flags = vk::DescriptorSetLayoutCreateFlagBits::ePushDescriptorKHR,
-        .bindingCount = static_cast<uint32_t>(bindings.size()),
+        .bindingCount = static_cast<bb::u32>(bindings.size()),
         .pBindings = bindings.data(),
     };
 
@@ -771,7 +771,7 @@ void GPUScene::CreateSceneDescriptorSets()
 
     util::VK_ASSERT(device.allocateDescriptorSets(&allocateInfo, descriptorSets.data()),
         "Failed allocating object instance descriptor sets!");
-    for (size_t i = 0; i < descriptorSets.size(); ++i)
+    for (bb::usize i = 0; i < descriptorSets.size(); ++i)
     {
         _sceneFrameData[i].descriptorSet = descriptorSets[i];
         UpdateSceneDescriptorSet(i);
@@ -793,7 +793,7 @@ void GPUScene::CreatePointLightDescriptorSets()
     vk::Device device = _context->GetVulkanContext()->Device();
     util::VK_ASSERT(device.allocateDescriptorSets(&allocateInfo, descriptorSets.data()),
         "Failed allocating point light descriptor sets!");
-    for (size_t i = 0; i < descriptorSets.size(); ++i)
+    for (bb::usize i = 0; i < descriptorSets.size(); ++i)
     {
         _pointLightFrameData[i].descriptorSet = descriptorSets[i];
         UpdatePointLightDescriptorSet(i);
@@ -854,7 +854,7 @@ void GPUScene::CreateClusterCullingDescriptorSet()
     vk::Device device = _context->GetVulkanContext()->Device();
     util::VK_ASSERT(device.allocateDescriptorSets(&allocateInfo, descriptorSets.data()), "Failed to allocate descriptor set for cluster culling pipeline");
 
-    for (size_t i = 0; i < descriptorSets.size(); ++i)
+    for (bb::usize i = 0; i < descriptorSets.size(); ++i)
     {
         _clusterCullingData.descriptorSets[i] = descriptorSets[i];
         UpdateAtomicGlobalDescriptorSet(i);
@@ -874,7 +874,7 @@ void GPUScene::CreateObjectInstancesDescriptorSets()
     vk::Device device = _context->GetVulkanContext()->Device();
     std::vector<vk::DescriptorSet> descriptorSets = device.allocateDescriptorSets(allocateInfo).value;
 
-    for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
+    for (bb::usize i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
     {
         _staticInstancesFrameData[i].descriptorSet = descriptorSets[i * 2];
         _skinnedInstancesFrameData[i].descriptorSet = descriptorSets[i * 2 + 1];
@@ -894,7 +894,7 @@ void GPUScene::CreateSkinDescriptorSets()
     vk::Device device = _context->GetVulkanContext()->Device();
     util::VK_ASSERT(device.allocateDescriptorSets(&allocateInfo, _skinDescriptorSets.data()),
         "Failed allocating object instance descriptor sets!");
-    for (size_t i = 0; i < _skinDescriptorSets.size(); ++i)
+    for (bb::usize i = 0; i < _skinDescriptorSets.size(); ++i)
     {
         UpdateSkinDescriptorSet(i);
     }
@@ -914,14 +914,14 @@ void GPUScene::CreateDecalDescriptorSets()
     util::VK_ASSERT(device.allocateDescriptorSets(&allocateInfo, descriptorSets.data()),
         "Failed allocating Decal Uniform bb::Buffer descriptor sets!");
 
-    for (size_t i = 0; i < descriptorSets.size(); ++i)
+    for (bb::usize i = 0; i < descriptorSets.size(); ++i)
     {
         _decalFrameData[i].descriptorSet = descriptorSets[i];
         UpdateDecalDescriptorSet(i);
     }
 }
 
-void GPUScene::UpdateSceneDescriptorSet(uint32_t frameIndex)
+void GPUScene::UpdateSceneDescriptorSet(bb::u32 frameIndex)
 {
     const bb::Buffer* buffer = _context->Resources()->GetBufferResourceManager().Access(_sceneFrameData[frameIndex].buffer);
 
@@ -944,7 +944,7 @@ void GPUScene::UpdateSceneDescriptorSet(uint32_t frameIndex)
     device.updateDescriptorSets(descriptorWrites.size(), descriptorWrites.data(), 0, nullptr);
 }
 
-void GPUScene::UpdatePointLightDescriptorSet(uint32_t frameIndex)
+void GPUScene::UpdatePointLightDescriptorSet(bb::u32 frameIndex)
 {
     const bb::Buffer* buffer = _context->Resources()->GetBufferResourceManager().Access(_pointLightFrameData[frameIndex].buffer);
 
@@ -967,7 +967,7 @@ void GPUScene::UpdatePointLightDescriptorSet(uint32_t frameIndex)
     device.updateDescriptorSets(descriptorWrites.size(), descriptorWrites.data(), 0, nullptr);
 }
 
-void GPUScene::UpdateAtomicGlobalDescriptorSet(uint32_t frameIndex)
+void GPUScene::UpdateAtomicGlobalDescriptorSet(bb::u32 frameIndex)
 {
     std::array buffers = {
         _context->Resources()->GetBufferResourceManager().Access(_clusterCullingData.globalIndexBuffer),
@@ -979,7 +979,7 @@ void GPUScene::UpdateAtomicGlobalDescriptorSet(uint32_t frameIndex)
 
     std::array<vk::DescriptorBufferInfo, 3> bufferInfos;
 
-    for (size_t j = 0; j < buffers.size(); j++)
+    for (bb::usize j = 0; j < buffers.size(); j++)
     {
         bufferInfos.at(j) = vk::DescriptorBufferInfo {
             .buffer = buffers.at(j)->buffer,
@@ -989,7 +989,7 @@ void GPUScene::UpdateAtomicGlobalDescriptorSet(uint32_t frameIndex)
 
         writeDescriptorSets.at(j) = vk::WriteDescriptorSet {
             .dstSet = _clusterCullingData.descriptorSets[frameIndex],
-            .dstBinding = static_cast<uint32_t>(j),
+            .dstBinding = static_cast<bb::u32>(j),
             .dstArrayElement = 0,
             .descriptorCount = 1,
             .descriptorType = vk::DescriptorType::eStorageBuffer,
@@ -1000,7 +1000,7 @@ void GPUScene::UpdateAtomicGlobalDescriptorSet(uint32_t frameIndex)
     device.updateDescriptorSets(3, writeDescriptorSets.data(), 0, nullptr);
 }
 
-void GPUScene::UpdateObjectInstancesDescriptorSet(uint32_t frameIndex)
+void GPUScene::UpdateObjectInstancesDescriptorSet(bb::u32 frameIndex)
 {
     vk::DescriptorBufferInfo staticBufferInfo {};
     staticBufferInfo.buffer = _context->Resources()->GetBufferResourceManager().Access(_staticInstancesFrameData[frameIndex].buffer)->buffer;
@@ -1034,7 +1034,7 @@ void GPUScene::UpdateObjectInstancesDescriptorSet(uint32_t frameIndex)
     device.updateDescriptorSets(descriptorWrites, 0);
 }
 
-void GPUScene::UpdateSkinDescriptorSet(uint32_t frameIndex)
+void GPUScene::UpdateSkinDescriptorSet(bb::u32 frameIndex)
 {
     const bb::Buffer* buffer = _context->Resources()->GetBufferResourceManager().Access(_skinTransformBuffers[frameIndex]);
 
@@ -1057,7 +1057,7 @@ void GPUScene::UpdateSkinDescriptorSet(uint32_t frameIndex)
     device.updateDescriptorSets(1, &bufferWrite, 0, nullptr);
 }
 
-void GPUScene::UpdateDecalDescriptorSet(uint32_t frameIndex)
+void GPUScene::UpdateDecalDescriptorSet(bb::u32 frameIndex)
 {
     vk::DescriptorBufferInfo bufferInfo {
         .buffer = _context->Resources()->GetBufferResourceManager().Access(_decalFrameData[frameIndex].buffer)->buffer,
@@ -1080,7 +1080,7 @@ void GPUScene::UpdateDecalDescriptorSet(uint32_t frameIndex)
 
 void GPUScene::CreateSceneBuffers()
 {
-    for (size_t i = 0; i < _sceneFrameData.size(); ++i)
+    for (bb::usize i = 0; i < _sceneFrameData.size(); ++i)
     {
         std::string name = "[] Scene UBO";
 
@@ -1094,7 +1094,7 @@ void GPUScene::CreateSceneBuffers()
 
 void GPUScene::CreatePointLightBuffer()
 {
-    for (size_t i = 0; i < _pointLightFrameData.size(); ++i)
+    for (bb::usize i = 0; i < _pointLightFrameData.size(); ++i)
     {
         std::string name = "[] PointLight SSBO";
         name.insert(1, 1, static_cast<char>(i + '0'));
@@ -1113,18 +1113,18 @@ void GPUScene::CreateClusterBuffer()
 void GPUScene::CreateClusterCullingBuffers()
 {
     _clusterCullingData.globalIndexBuffer = _context->Resources()->GetBufferResourceManager().Create(
-        sizeof(uint32_t), { bb::BufferFlags::STORAGE_USAGE, bb::BufferFlags::TRANSFER_DST }, "Atomic Counter Buffer");
+        sizeof(bb::u32), { bb::BufferFlags::STORAGE_USAGE, bb::BufferFlags::TRANSFER_DST }, "Atomic Counter Buffer");
 
     _clusterCullingData.buffers.at(0) = _context->Resources()->GetBufferResourceManager().Create(
-        CLUSTER_SIZE * (sizeof(uint32_t) * 2), bb::BufferFlags::STORAGE_USAGE, "Cluster Light Cells");
+        CLUSTER_SIZE * (sizeof(bb::u32) * 2), bb::BufferFlags::STORAGE_USAGE, "Cluster Light Cells");
 
     _clusterCullingData.buffers.at(1) = _context->Resources()->GetBufferResourceManager().Create(
-        CLUSTER_SIZE * MAX_LIGHTS_PER_CLUSTER * sizeof(uint32_t), bb::BufferFlags::STORAGE_USAGE, "Light Indices");
+        CLUSTER_SIZE * MAX_LIGHTS_PER_CLUSTER * sizeof(bb::u32), bb::BufferFlags::STORAGE_USAGE, "Light Indices");
 }
 
 void GPUScene::CreateObjectInstancesBuffers()
 {
-    for (size_t i = 0; i < _staticInstancesFrameData.size(); ++i)
+    for (bb::usize i = 0; i < _staticInstancesFrameData.size(); ++i)
     {
         std::string name = "[] Static instances data";
 
@@ -1134,7 +1134,7 @@ void GPUScene::CreateObjectInstancesBuffers()
         _staticInstancesFrameData[i].buffer = _context->Resources()->GetBufferResourceManager().Create(
             sizeof(InstanceData) * MAX_STATIC_INSTANCES, { bb::BufferFlags::STORAGE_USAGE, bb::BufferFlags::MAPPABLE }, name.c_str());
     }
-    for (size_t i = 0; i < _skinnedInstancesFrameData.size(); ++i)
+    for (bb::usize i = 0; i < _skinnedInstancesFrameData.size(); ++i)
     {
         std::string name = "[] Skinned instances data";
 
@@ -1147,14 +1147,14 @@ void GPUScene::CreateObjectInstancesBuffers()
 }
 void GPUScene::CreateSkinBuffers()
 {
-    for (uint32_t i = 0; i < _skinTransformBuffers.size(); ++i)
+    for (bb::u32 i = 0; i < _skinTransformBuffers.size(); ++i)
     {
         bb::Flags<bb::BufferFlags> flags = { bb::BufferFlags::TRANSFER_DST, bb::BufferFlags::STORAGE_USAGE, bb::BufferFlags::MAPPABLE };
         _skinTransformBuffers[i] = _context->Resources()->GetBufferResourceManager().Create(
             sizeof(glm::mat2x4) * MAX_BONES, flags, "Skin Matrix Buffer");
 
         const bb::Buffer* skinBuffer = _context->Resources()->GetBufferResourceManager().Access(_skinTransformBuffers[i]);
-        for (uint32_t j = 0; j < MAX_BONES; ++j)
+        for (bb::u32 j = 0; j < MAX_BONES; ++j)
         {
             glm::mat2x4 data { glm::mat2x4_cast(glm::dualquat {}) };
             std::memcpy(static_cast<std::byte*>(skinBuffer->mappedPtr) + sizeof(glm::mat2x4) * j, &data, sizeof(glm::mat2x4));
@@ -1164,7 +1164,7 @@ void GPUScene::CreateSkinBuffers()
 
 void GPUScene::CreateDecalBuffer()
 {
-    for (uint32_t i = 0; i < _decalFrameData.size(); ++i)
+    for (bb::u32 i = 0; i < _decalFrameData.size(); ++i)
     {
         bb::Flags<bb::BufferFlags> flags = { bb::BufferFlags::UNIFORM_USAGE, bb::BufferFlags::MAPPABLE };
         _decalFrameData[i].buffer = _context->Resources()->GetBufferResourceManager().Create(sizeof(DecalArray), flags, "Decal Buffer");
@@ -1177,13 +1177,13 @@ void GPUScene::CreateDecalBuffer()
 
 void GPUScene::InitializeIndirectDrawBuffer()
 {
-    for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
+    for (bb::usize i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
     {
         bb::Flags<bb::BufferFlags> flags = { bb::BufferFlags::TRANSFER_DST, bb::BufferFlags::STORAGE_USAGE, bb::BufferFlags::MAPPABLE };
         _staticDraws[i].buffer = _context->Resources()->GetBufferResourceManager().Create(
             sizeof(DrawIndexedIndirectCommand) * MAX_STATIC_INSTANCES, flags, "Static Indirect Draws");
     }
-    for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
+    for (bb::usize i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
     {
         bb::Flags<bb::BufferFlags> flags = { bb::BufferFlags::TRANSFER_DST, bb::BufferFlags::STORAGE_USAGE, bb::BufferFlags::MAPPABLE };
         _skinnedDraws[i].buffer = _context->Resources()->GetBufferResourceManager().Create(
@@ -1219,7 +1219,7 @@ void GPUScene::InitializeIndirectDrawDescriptor()
 
     std::array<vk::DescriptorBufferInfo, MAX_FRAMES_IN_FLIGHT> bufferInfos;
     std::array<vk::WriteDescriptorSet, MAX_FRAMES_IN_FLIGHT> bufferWrites;
-    for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
+    for (bb::usize i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
     {
         _staticDraws[i].descriptorSet = descriptorSets[i];
 
@@ -1239,7 +1239,7 @@ void GPUScene::InitializeIndirectDrawDescriptor()
     device.updateDescriptorSets(bufferWrites, {});
     descriptorSets = device.allocateDescriptorSets(allocateInfo).value;
 
-    for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
+    for (bb::usize i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
     {
         _skinnedDraws[i].descriptorSet = descriptorSets[i];
 
@@ -1259,7 +1259,7 @@ void GPUScene::InitializeIndirectDrawDescriptor()
     device.updateDescriptorSets(bufferWrites, {});
 }
 
-void GPUScene::WriteDraws(uint32_t frameIndex)
+void GPUScene::WriteDraws(bb::u32 frameIndex)
 {
     assert(_staticDrawCommands.size() < MAX_STATIC_INSTANCES && "Too many draw commands");
 

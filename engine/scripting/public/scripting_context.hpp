@@ -3,7 +3,6 @@
 
 #include "wren_include.hpp"
 
-#include <cstdint>
 #include <optional>
 #include <spdlog/fwd.h>
 #include <string>
@@ -13,9 +12,9 @@
 struct VMInitConfig
 {
     std::vector<std::string> includePaths;
-    size_t initialHeapSize = 1024ull * 1024ull * 10ull; // 10 MiB
-    size_t minHeapSize = 1024ull * 1024ull; // 1 MiB
-    uint32_t heapGrowthPercent = 50;
+    bb::usize initialHeapSize = 1024ull * 1024ull * 10ull; // 10 MiB
+    bb::usize minHeapSize = 1024ull * 1024ull; // 1 MiB
+    bb::u32 heapGrowthPercent = 50;
 };
 
 class ScriptingContext

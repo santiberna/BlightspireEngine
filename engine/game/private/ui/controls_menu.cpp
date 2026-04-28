@@ -130,7 +130,7 @@ ControlsMenu::ActionControls ControlsMenu::AddActionVisualization(const std::str
         horizontalOffset += binding.originName->GetAbsoluteScale().x * actionOriginBindingTextSize * origin.bindingInputName.length() + glyphHorizontalMargin * actionOriginBindingTextMarginMultiplier;
 
         // Create glyph
-        if (!origin.glyphImage.IsNull())
+        if (origin.glyphImage.isValid())
         {
             const GPUImage* gpuImage = _graphicsContext.Resources()->GetImageResourceManager().Access(origin.glyphImage);
 

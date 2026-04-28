@@ -21,7 +21,7 @@
 
 class MaterialResourceManager;
 
-class MeshResourceManager final : public ResourceManager<GPUMesh>
+class MeshResourceManager
 {
 public:
     MeshResourceManager(const std::shared_ptr<VulkanContext>& context)
@@ -45,17 +45,28 @@ public:
         GPUMesh gpuMesh {};
 
         gpuMesh = CreateMesh(uploadCommands, cpuMesh, material, batchBuffer);
-        return ResourceManager::Create(std::move(gpuMesh));
+        return m_storage.insert(std::move(gpuMesh));
     }
 
     template <typename TVertex>
     ResourceHandle<GPUMesh> Create(SingleTimeCommands& uploadCommands, const CPUMesh<TVertex>& data, ResourceHandle<GPUMaterial> material, BatchBuffer& batchBuffer)
     {
         GPUMesh mesh = CreateMesh(uploadCommands, data, material, batchBuffer);
-        return ResourceManager::Create(std::move(mesh));
+        return m_storage.insert(std::move(mesh));
+    }
+
+    const GPUMesh* Access(const ResourceHandle<GPUMesh>& handle) const
+    {
+        return m_storage.get(handle);
+    }
+
+    void Destroy(const ResourceHandle<GPUMesh>& handle)
+    {
+        m_storage.remove(handle);
     }
 
 private:
+    bb::SlotMap<GPUMesh> m_storage {};
     std::shared_ptr<MaterialResourceManager> _materialResourceManager;
     std::shared_ptr<VulkanContext> _vkContext;
 

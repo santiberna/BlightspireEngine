@@ -19,7 +19,10 @@ class SlotHandle
 {
 public:
     bool operator==(const SlotHandle&) const = default;
-    explicit operator bool() const { return version != 0; }
+    explicit operator bool() const { return isValid(); }
+
+    [[nodiscard]] bool isValid() const { return version != 0; }
+    [[nodiscard]] uint32_t getIndex() const { return index; }
 
 private:
     uint32_t index {};

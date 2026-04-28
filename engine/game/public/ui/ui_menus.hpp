@@ -207,7 +207,7 @@ public:
     };
 
     std::vector<ActionSetControls> actionSetControls {};
-    ResourceHandle<Sampler> sampler;
+    ResourceHandle<bb::Sampler> sampler;
 
 private:
     GraphicsContext& _graphicsContext;

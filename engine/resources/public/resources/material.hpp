@@ -1,11 +1,15 @@
 #pragma once
+
+#include "common.hpp"
 #include "resource_manager.hpp"
 
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
+#include <memory>
 #include <optional>
 
 struct GPUImage;
+class ImageResourceManager;
 
 // For now this is only meant to be used in combination with an owning CPUModel.
 struct CPUMaterial
@@ -36,24 +40,24 @@ struct CPUMaterial
 
 struct MaterialCreation
 {
-    ResourceHandle<GPUImage> albedoMap = ResourceHandle<GPUImage>::Null();
+    ResourceHandle<GPUImage> albedoMap;
     glm::vec4 albedoFactor { 0.0f };
     uint32_t albedoUVChannel;
 
-    ResourceHandle<GPUImage> metallicRoughnessMap = ResourceHandle<GPUImage>::Null();
+    ResourceHandle<GPUImage> metallicRoughnessMap;
     float metallicFactor { 0.0f };
     float roughnessFactor { 0.0f };
     std::optional<uint32_t> metallicRoughnessUVChannel;
 
-    ResourceHandle<GPUImage> normalMap = ResourceHandle<GPUImage>::Null();
+    ResourceHandle<GPUImage> normalMap;
     float normalScale { 0.0f };
     uint32_t normalUVChannel;
 
-    ResourceHandle<GPUImage> occlusionMap = ResourceHandle<GPUImage>::Null();
+    ResourceHandle<GPUImage> occlusionMap;
     float occlusionStrength { 0.0f };
     uint32_t occlusionUVChannel;
 
-    ResourceHandle<GPUImage> emissiveMap = ResourceHandle<GPUImage>::Null();
+    ResourceHandle<GPUImage> emissiveMap;
     glm::vec3 emissiveFactor { 0.0f };
     uint32_t emissiveUVChannel;
 };
@@ -61,7 +65,7 @@ struct MaterialCreation
 struct GPUMaterial
 {
     GPUMaterial() = default;
-    GPUMaterial(const MaterialCreation& creation, const std::shared_ptr<ResourceManager<GPUImage>>& imageResourceManager);
+    GPUMaterial(const MaterialCreation& creation, const std::shared_ptr<ImageResourceManager>& imageResourceManager);
     ~GPUMaterial();
 
     GPUMaterial(GPUMaterial&& other) noexcept = default;
@@ -102,5 +106,5 @@ struct GPUMaterial
     ResourceHandle<GPUImage> emissiveMap;
 
 private:
-    std::shared_ptr<ResourceManager<GPUImage>> _imageResourceManager;
+    std::shared_ptr<ImageResourceManager> _imageResourceManager;
 };

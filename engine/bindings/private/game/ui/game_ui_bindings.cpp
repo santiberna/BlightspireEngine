@@ -275,7 +275,7 @@ void ShowActionBinding(HUD& self, const CachedBindingOriginVisual& visual)
     }
 
     std::shared_ptr<UIImage> bindingGlyph = self.actionBindingGlyph.lock();
-    if (bindingGlyph && !visual.glyphImage.IsNull())
+    if (bindingGlyph && visual.glyphImage.isValid())
     {
         bindingGlyph->SetImage(visual.glyphImage);
         bindingGlyph->visibility = UIElement::VisibilityState::eNotUpdatedAndVisible;

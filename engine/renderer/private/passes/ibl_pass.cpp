@@ -4,7 +4,7 @@
 #include "graphics_resources.hpp"
 #include "pipeline_builder.hpp"
 #include "resource_management/image_resource_manager.hpp"
-#include "resource_management/sampler_resource_manager.hpp"
+#include "resources/sampler.hpp"
 #include "shaders/shader_loader.hpp"
 #include "single_time_commands.hpp"
 #include "vulkan_context.hpp"
@@ -15,7 +15,6 @@ IBLPass::IBLPass(const std::shared_ptr<GraphicsContext>& context, ResourceHandle
     , _environmentMap(environmentMap)
 {
     bb::SamplerCreation createInfo {
-        .name = "IBL sampler",
         .maxLod = 6.0f,
     };
 
@@ -23,7 +22,7 @@ IBLPass::IBLPass(const std::shared_ptr<GraphicsContext>& context, ResourceHandle
     createInfo.addressModeW = bb::SamplerAddressMode::CLAMP_TO_EDGE;
     createInfo.addressModeV = bb::SamplerAddressMode::CLAMP_TO_EDGE;
 
-    _sampler = _context->Resources()->GetSamplerResourceManager().Create(createInfo);
+    _sampler = _context->Resources()->GetSamplerResourceManager().Create(createInfo, "IBL sampler");
 
     CreateIrradianceCubemap();
     CreatePrefilterCubemap();
@@ -79,7 +78,7 @@ void IBLPass::RecordCommands(vk::CommandBuffer commandBuffer)
 
         IrradiancePushConstant pc {
             .index = static_cast<uint32_t>(i),
-            .hdriIndex = _environmentMap.Index(),
+            .hdriIndex = _environmentMap.getIndex(),
         };
 
         commandBuffer.pushConstants<IrradiancePushConstant>(_irradiancePipelineLayout, vk::ShaderStageFlagBits::eFragment, 0, { pc });
@@ -135,7 +134,7 @@ void IBLPass::RecordCommands(vk::CommandBuffer commandBuffer)
             PrefilterPushConstant pc {
                 .faceIndex = static_cast<uint32_t>(j),
                 .roughness = static_cast<float>(i) / static_cast<float>(prefilterMap.mips - 1),
-                .hdriIndex = _environmentMap.Index(),
+                .hdriIndex = _environmentMap.getIndex(),
             };
 
             commandBuffer.pushConstants<PrefilterPushConstant>(_prefilterPipelineLayout, vk::ShaderStageFlagBits::eFragment, 0, { pc });

@@ -9,10 +9,11 @@
 #include "gpu_scene.hpp"
 #include "graphics_context.hpp"
 #include "graphics_resources.hpp"
-#include "resource_management/buffer_resource_manager.hpp"
 #include "resource_management/image_resource_manager.hpp"
+#include "resources/buffer.hpp"
 #include "vulkan_context.hpp"
 #include "vulkan_helper.hpp"
+
 
 FrameGraphNodeCreation::FrameGraphNodeCreation(FrameGraphRenderPass& renderPass, FrameGraphRenderPassType queueType)
     : queueType(queueType)
@@ -28,7 +29,7 @@ FrameGraphNodeCreation& FrameGraphNodeCreation::AddInput(ResourceHandle<GPUImage
     return *this;
 }
 
-FrameGraphNodeCreation& FrameGraphNodeCreation::AddInput(ResourceHandle<Buffer> buffer, FrameGraphResourceType type, vk::PipelineStageFlags2 stageUsage)
+FrameGraphNodeCreation& FrameGraphNodeCreation::AddInput(ResourceHandle<bb::Buffer> buffer, FrameGraphResourceType type, vk::PipelineStageFlags2 stageUsage)
 {
     FrameGraphResourceCreation& creation = inputs.emplace_back(FrameGraphResourceInfo::StageBuffer { .handle = buffer, .stageUsage = stageUsage });
     creation.type = type;
@@ -45,7 +46,7 @@ FrameGraphNodeCreation& FrameGraphNodeCreation::AddOutput(ResourceHandle<GPUImag
     return *this;
 }
 
-FrameGraphNodeCreation& FrameGraphNodeCreation::AddOutput(ResourceHandle<Buffer> buffer, FrameGraphResourceType type, vk::PipelineStageFlags2 stageUsage, bool allowSimultaneousWrites)
+FrameGraphNodeCreation& FrameGraphNodeCreation::AddOutput(ResourceHandle<bb::Buffer> buffer, FrameGraphResourceType type, vk::PipelineStageFlags2 stageUsage, bool allowSimultaneousWrites)
 {
     FrameGraphResourceCreation& creation = outputs.emplace_back(FrameGraphResourceInfo::StageBuffer { .handle = buffer, .stageUsage = stageUsage });
     creation.type = type;
@@ -474,7 +475,7 @@ void FrameGraph::CreateBufferBarrier(const FrameGraphResource& resource, Resourc
 {
     auto resources { _context->Resources() };
     auto stageBuffer = std::get<FrameGraphResourceInfo::StageBuffer>(resource.info.resource);
-    const Buffer* buffer = resources->GetBufferResourceManager().Access(stageBuffer.handle);
+    const bb::Buffer* buffer = resources->GetBufferResourceManager().Access(stageBuffer.handle);
 
     switch (state)
     {
@@ -648,7 +649,7 @@ const std::string& FrameGraph::GetResourceName(FrameGraphResourceType type, cons
 
     if (HasAnyFlags(type, FrameGraphResourceType::eBuffer))
     {
-        const Buffer* buffer = resources->GetBufferResourceManager().Access(std::get<FrameGraphResourceInfo::StageBuffer>(resource).handle);
+        const bb::Buffer* buffer = resources->GetBufferResourceManager().Access(std::get<FrameGraphResourceInfo::StageBuffer>(resource).handle);
         return buffer->name;
     }
 

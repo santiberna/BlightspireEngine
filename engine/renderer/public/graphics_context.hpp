@@ -9,11 +9,15 @@
 
 class VulkanContext;
 class GraphicsResources;
-struct Buffer;
 struct VulkanInitInfo;
-struct Sampler;
+
 struct GPUImage;
 struct SDL_Window;
+
+namespace bb
+{
+struct Buffer;
+}
 
 constexpr uint32_t MAX_BINDLESS_RESOURCES = 1024;
 
@@ -40,7 +44,7 @@ private:
     std::shared_ptr<VulkanContext> _vulkanContext;
     std::shared_ptr<GraphicsResources> _graphicsResources;
 
-    ResourceHandle<Sampler> _sampler;
+    ResourceHandle<bb::Sampler> _sampler;
     ResourceHandle<GPUImage> _fallbackImage;
 
     struct BindlessObjects;

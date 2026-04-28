@@ -59,7 +59,7 @@ VkResult util::vmaCreateBuffer(VmaAllocator allocator, const VkBufferCreateInfo*
     if (result == VK_SUCCESS)
     {
         TracyAllocN(*pAllocation, pAllocationInfo->size, "GPU Memory usage");
-        TracyAllocN(*pAllocation, pAllocationInfo->size, "GPU Memory usage (Buffer)");
+        TracyAllocN(*pAllocation, pAllocationInfo->size, "GPU Memory usage (bb::Buffer)");
     }
 #endif
 
@@ -70,7 +70,7 @@ void util::vmaDestroyBuffer(VmaAllocator allocator, VkBuffer buffer, VmaAllocati
 {
 #ifdef TRACY_ENABLE
     TracyFreeN(allocation, "GPU Memory usage");
-    TracyFreeN(allocation, "GPU Memory usage (Buffer)");
+    TracyFreeN(allocation, "GPU Memory usage (bb::Buffer)");
 #endif
 
     ::vmaDestroyBuffer(allocator, buffer, allocation);

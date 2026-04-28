@@ -5,11 +5,12 @@
 #include "graphics_context.hpp"
 #include "graphics_resources.hpp"
 #include "pipeline_builder.hpp"
-#include "resource_management/buffer_resource_manager.hpp"
 #include "resource_management/image_resource_manager.hpp"
+#include "resources/buffer.hpp"
 #include "shaders/shader_loader.hpp"
 #include "vulkan_context.hpp"
 #include "vulkan_helper.hpp"
+
 
 GenerateDrawsPass::GenerateDrawsPass(const std::shared_ptr<GraphicsContext>& context, const CameraBatch& cameraBatch, const bool drawStatic, const bool drawDynamic)
     : _context(context)
@@ -36,7 +37,7 @@ void GenerateDrawsPass::RecordCommands(vk::CommandBuffer commandBuffer, uint32_t
     PushConstants staticPc {
         .isPrepass = _isPrepass,
         .mipSize = std::fmax(static_cast<float>(depthImage->width), static_cast<float>(depthImage->height)),
-        .hzbIndex = _cameraBatch.HZBImage().Index(),
+        .hzbIndex = _cameraBatch.HZBImage().getIndex(),
         .drawCommandsCount = scene.gpuScene->StaticDrawCount(),
         .isReverseZ = _cameraBatch.Camera().UsesReverseZ(),
         .drawStaticDraws = static_cast<uint32_t>(_shouldDrawStatic),

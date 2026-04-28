@@ -10,8 +10,8 @@
 #include "shaders/shader_loader.hpp"
 #include "vulkan_context.hpp"
 
-#include "resource_management/buffer_resource_manager.hpp"
-#include "resource_management/sampler_resource_manager.hpp"
+#include "resources/buffer.hpp"
+#include "resources/sampler.hpp"
 #include <random>
 #include <single_time_commands.hpp>
 
@@ -22,8 +22,8 @@ SSAOPass::SSAOPass(const std::shared_ptr<GraphicsContext>& context, const Settin
     , _gBuffers(gBuffers)
     , _ssaoTarget(ssaoTarget)
 {
-    _pushConstants.normalIndex = _gBuffers.Attachments()[1].Index();
-    _pushConstants.depthIndex = _gBuffers.Depth().Index();
+    _pushConstants.normalIndex = _gBuffers.Attachments()[1].getIndex();
+    _pushConstants.depthIndex = _gBuffers.Depth().getIndex();
 
     CreateBuffers();
     CreateDescriptorSetLayouts();
@@ -153,14 +153,8 @@ void SSAOPass::CreateBuffers()
 
     // Sample Kernel buffer
     {
-        BufferCreation creation {};
-        creation.SetName("Sample Kernel")
-            .SetSize(ssaoKernel.size() * sizeof(glm::vec4))
-            .SetIsMappable(false)
-            .SetMemoryUsage(VMA_MEMORY_USAGE_AUTO)
-            .SetUsageFlags(vk::BufferUsageFlagBits::eUniformBuffer | vk::BufferUsageFlagBits::eTransferDst);
-
-        _sampleKernelBuffer = resources->GetBufferResourceManager().Create(creation);
+        bb::Flags<bb::BufferFlags> flags = { bb::BufferFlags::UNIFORM_USAGE, bb::BufferFlags::TRANSFER_DST };
+        _sampleKernelBuffer = resources->GetBufferResourceManager().Create(ssaoKernel.size() * sizeof(glm::vec4), flags, "Sample Kernel");
         cmdBuffer.CopyIntoLocalBuffer(ssaoKernel, 0, resources->GetBufferResourceManager().Access(_sampleKernelBuffer)->buffer);
     }
 
@@ -185,7 +179,7 @@ void SSAOPass::CreateBuffers()
     noiseImage.format = bb::ImageFormat::R32G32B32A32_SFLOAT;
 
     bb::SamplerCreation noiseSampler {};
-    noiseSampler.name = "SSAO_Noise_Sampler";
+
     noiseSampler.addressModeU = bb::SamplerAddressMode::REPEAT;
     noiseSampler.addressModeV = bb::SamplerAddressMode::REPEAT;
     noiseSampler.addressModeW = bb::SamplerAddressMode::REPEAT;
@@ -204,9 +198,9 @@ void SSAOPass::CreateBuffers()
 
     SingleTimeCommands commands { *_context->GetVulkanContext() };
 
-    _noiseSampler = _context->Resources()->GetSamplerResourceManager().Create(noiseSampler);
+    _noiseSampler = _context->Resources()->GetSamplerResourceManager().Create(noiseSampler, "SSAO Noise Sampler");
     _ssaoNoise = _context->Resources()->GetImageResourceManager().Create(noiseImage, _noiseSampler, bb::TextureFlags::COMMON_FLAGS, "SSAO Noise Image", &commands);
-    _pushConstants.ssaoNoiseIndex = _ssaoNoise.Index();
+    _pushConstants.ssaoNoiseIndex = _ssaoNoise.getIndex();
 }
 void SSAOPass::CreateDescriptorSetLayouts()
 {

@@ -3,12 +3,18 @@
 #include "resource_manager.hpp"
 #include "vulkan_include.hpp"
 
+#include <memory>
+
 class GPUScene;
 class GraphicsContext;
 struct GPUImage;
-struct Buffer;
-struct Sampler;
+
 class CameraResource;
+
+namespace bb
+{
+struct Buffer;
+}
 
 class CameraBatch
 {
@@ -17,15 +23,15 @@ public:
     {
         Draw(const std::shared_ptr<GraphicsContext>& context, const std::string& name, uint32_t instanceCount, vk::DescriptorSetLayout drawDSL, vk::DescriptorSetLayout visibilityDSL, vk::DescriptorSetLayout redirectDSL);
 
-        ResourceHandle<Buffer> drawBuffer;
-        ResourceHandle<Buffer> redirectBuffer;
-        ResourceHandle<Buffer> visibilityBuffer;
+        ResourceHandle<bb::Buffer> drawBuffer;
+        ResourceHandle<bb::Buffer> redirectBuffer;
+        ResourceHandle<bb::Buffer> visibilityBuffer;
         vk::DescriptorSet drawDescriptor;
         vk::DescriptorSet redirectDescriptor;
         vk::DescriptorSet visibilityDescriptor;
 
     private:
-        vk::DescriptorSet CreateDescriptor(const std::shared_ptr<GraphicsContext>& context, vk::DescriptorSetLayout dsl, ResourceHandle<Buffer> buffer);
+        vk::DescriptorSet CreateDescriptor(const std::shared_ptr<GraphicsContext>& context, vk::DescriptorSetLayout dsl, ResourceHandle<bb::Buffer> buffer);
     };
 
     CameraBatch(const std::shared_ptr<GraphicsContext>& context, const std::string& name, const CameraResource& camera, ResourceHandle<GPUImage> depthImage, vk::DescriptorSetLayout drawDSL, vk::DescriptorSetLayout visibilityDSL, vk::DescriptorSetLayout redirectDSL);
@@ -43,7 +49,7 @@ private:
     const CameraResource& _camera;
 
     ResourceHandle<GPUImage> _hzbImage;
-    ResourceHandle<Sampler> _hzbSampler;
+    ResourceHandle<bb::Sampler> _hzbSampler;
 
     ResourceHandle<GPUImage> _depthImage;
 

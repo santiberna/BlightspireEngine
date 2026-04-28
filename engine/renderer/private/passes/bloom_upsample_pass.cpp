@@ -84,7 +84,7 @@ void BloomUpsamplePass::RecordCommands(vk::CommandBuffer commandBuffer, uint32_t
             uint32_t sourceIndex;
             uint32_t mip;
         } pushConstants {};
-        pushConstants.sourceIndex = _bloomImage.Index();
+        pushConstants.sourceIndex = _bloomImage.getIndex();
         pushConstants.mip = mip;
 
         commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, _pipeline);

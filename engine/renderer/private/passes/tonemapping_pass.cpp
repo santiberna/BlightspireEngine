@@ -5,12 +5,13 @@
 #include "graphics_context.hpp"
 #include "graphics_resources.hpp"
 #include "pipeline_builder.hpp"
-#include "resource_management/buffer_resource_manager.hpp"
 #include "resource_management/image_resource_manager.hpp"
+#include "resources/buffer.hpp"
 #include "settings.hpp"
 #include "shaders/shader_loader.hpp"
 #include "vulkan_context.hpp"
 #include "vulkan_helper.hpp"
+
 
 TonemappingPass::TonemappingPass(const std::shared_ptr<GraphicsContext>& context, const Settings::Tonemapping& settings, ResourceHandle<GPUImage> hdrTarget, ResourceHandle<GPUImage> bloomTarget, ResourceHandle<GPUImage> volumetricTarget, ResourceHandle<GPUImage> outputTarget, const SwapChain& _swapChain, const GBuffers& gBuffers, const BloomSettings& bloomSettings)
     : _context(context)
@@ -28,13 +29,13 @@ TonemappingPass::TonemappingPass(const std::shared_ptr<GraphicsContext>& context
     CreateDescriptorSets();
     CreatePipeline();
 
-    _pushConstants.hdrTargetIndex = hdrTarget.Index();
-    _pushConstants.bloomTargetIndex = bloomTarget.Index();
-    _pushConstants.depthIndex = gBuffers.Depth().Index();
-    _pushConstants.volumetricIndex = volumetricTarget.Index();
+    _pushConstants.hdrTargetIndex = hdrTarget.getIndex();
+    _pushConstants.bloomTargetIndex = bloomTarget.getIndex();
+    _pushConstants.depthIndex = gBuffers.Depth().getIndex();
+    _pushConstants.volumetricIndex = volumetricTarget.getIndex();
     _pushConstants.screenWidth = _gBuffers.Size().x;
     _pushConstants.screenHeight = _gBuffers.Size().y;
-    _pushConstants.normalRIndex = _gBuffers.Attachments()[1].Index();
+    _pushConstants.normalRIndex = _gBuffers.Attachments()[1].getIndex();
 }
 
 TonemappingPass::~TonemappingPass()
@@ -186,14 +187,8 @@ void TonemappingPass::CreatePaletteBuffer()
     std::vector<glm::vec4> colors(_maxColorsInPalette);
     vk::DeviceSize bufferSize = sizeof(glm::vec4) * _maxColorsInPalette;
 
-    BufferCreation creation;
-    creation.SetName("Palette Buffer")
-        .SetSize(bufferSize)
-        .SetIsMappable(true)
-        .SetMemoryUsage(VMA_MEMORY_USAGE_AUTO)
-        .SetUsageFlags(vk::BufferUsageFlagBits::eUniformBuffer | vk::BufferUsageFlagBits::eTransferDst);
-
-    _colorPaletteBuffer = _context->Resources()->GetBufferResourceManager().Create(creation);
+    bb::Flags<bb::BufferFlags> flags = { bb::BufferFlags::UNIFORM_USAGE, bb::BufferFlags::TRANSFER_DST, bb::BufferFlags::MAPPABLE };
+    _colorPaletteBuffer = _context->Resources()->GetBufferResourceManager().Create(bufferSize, flags, "Palette Buffer");
 
     // Immediately update the buffer with the initial palette data.
     UpdatePaletteBuffer(colors);

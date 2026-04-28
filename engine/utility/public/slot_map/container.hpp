@@ -23,13 +23,15 @@ template <typename T>
 class SlotMapIterator
 {
 public:
-    using iterator_category = std::forward_iterator_tag;
-    using value_type = std::pair<SlotHandle<T>, T&>;
+    using iterator_category = std::forward_iterator_tag; // NOLINT
+    using value_type = std::pair<SlotHandle<T>, T&>; // NOLINT
 
     value_type operator*() const
     {
         auto& entry = storage->at(index);
-        SlotHandle<T> key { index, entry.version };
+        SlotHandle<T> key;
+        key.index = index;
+        key.version = entry.version;
         return { key, *entry.value };
     }
 
@@ -68,13 +70,15 @@ template <typename T>
 class SlotMapConstIterator
 {
 public:
-    using iterator_category = std::forward_iterator_tag;
-    using value_type = std::pair<SlotHandle<T>, const T&>;
+    using iterator_category = std::forward_iterator_tag; // NOLINT
+    using value_type = std::pair<SlotHandle<T>, const T&>; // NOLINT
 
     value_type operator*() const
     {
         auto& entry = storage->at(index);
-        SlotHandle<T> key { index, entry.version };
+        SlotHandle<T> key;
+        key.index = index;
+        key.version = entry.version;
         return { key, *entry.value };
     }
 
@@ -118,11 +122,14 @@ public:
 
     SlotHandle<T> insert(T value)
     {
+        SlotHandle<T> out {};
         if (free_list.empty())
         {
             auto& back = storage.emplace_back();
             back.value = std::move(value);
-            return SlotHandle<T> { storage.size() - 1, back.version };
+
+            out.index = storage.size() - 1;
+            out.version = back.version;
         }
         else
         {
@@ -131,8 +138,11 @@ public:
 
             auto& entry = storage.at(index);
             entry.value = std::move(value);
-            return SlotHandle<T> { index, entry.version };
+
+            out.index = index;
+            out.version = entry.version;
         }
+        return out;
     }
 
     void remove(const SlotHandle<T>& key)
@@ -149,7 +159,12 @@ public:
         }
     }
 
-    size_t size() const
+    size_t storageSize() const
+    {
+        return storage.size();
+    }
+
+    size_t storageCount() const
     {
         return storage.size() - free_list.size();
     }

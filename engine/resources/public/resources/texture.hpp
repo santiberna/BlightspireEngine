@@ -4,21 +4,15 @@
 #include "resources/sampler.hpp"
 #include "vulkan_fwd.hpp"
 
-#include "enum_utils.hpp"
 #include "resource_manager.hpp"
 #include "vulkan_include.hpp"
-
-#include <optional>
 
 class SingleTimeCommands;
 class VulkanContext;
 
 struct GPUImage
 {
-    friend class ImageResourceManager;
     GPUImage() = default;
-
-public:
     ~GPUImage();
 
     GPUImage(GPUImage&& other) noexcept;
@@ -36,7 +30,7 @@ public:
     std::vector<Layer> layerViews {};
     vk::ImageView view; // Same as first view in view, or refers to a cubemap view
     VmaAllocation allocation {};
-    ResourceHandle<Sampler> sampler {};
+    ResourceHandle<bb::Sampler> sampler {};
 
     uint16_t width { 1 };
     uint16_t height { 1 };

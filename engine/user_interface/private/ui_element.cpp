@@ -1,7 +1,6 @@
 #include "ui_element.hpp"
 #include "ui_input.hpp"
 #include "viewport.hpp"
-#include <ranges>
 
 void UIElement::SetLocation(const glm::vec2& location) noexcept
 {

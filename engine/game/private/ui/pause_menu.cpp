@@ -2,7 +2,7 @@
 #include "graphics_context.hpp"
 #include "graphics_resources.hpp"
 #include "resource_management/image_resource_manager.hpp"
-#include "resource_management/sampler_resource_manager.hpp"
+#include "resources/sampler.hpp"
 #include "ui/ui_menus.hpp"
 #include "ui_button.hpp"
 #include "ui_image.hpp"

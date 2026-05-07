@@ -526,22 +526,56 @@ void DrawLightingSettings(Settings& settings)
 
 void DrawSettingsFileDialog(Engine& engine, DataStore<Settings>& settings)
 {
-    ImGui::Begin("Settings file dialog", nullptr);
+    ImGui::Begin("Renderer settings file dialog", nullptr);
 
     std::vector<std::string> files = fileIO::ListFilesInDirectory("game/config/renderer");
     static char buf[512] = {};
     ImGui::InputText("Name", buf, sizeof(buf));
     ImGui::SameLine();
-    if(ImGui::Button("Create"))
+
+    bool nameEmpty = buf[0] == 0;
+
+    if(nameEmpty)
     {
-        fileIO::OpenWriteStream(std::string("game/config/renderer/") + buf + ".json");
+        ImVec4 col = ImGui::GetStyleColorVec4(ImGuiCol_Button);
+        ImVec4 textCol = ImGui::GetStyleColorVec4(ImGuiCol_Text);
+
+        col.w = 0.5f;
+        textCol.w = 0.5f;
+
+        ImGui::PushStyleColor(ImGuiCol_Button, col);
+        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, col);
+        ImGui::PushStyleColor(ImGuiCol_ButtonActive, col);
+        ImGui::PushStyleColor(ImGuiCol_Text, textCol);
+    }
+
+    if(ImGui::Button("Create and copy current") && !nameEmpty)
+    {
+        if(buf[0] != 0)
+        {
+            std::string path = std::string("game/config/renderer/") + buf + ".json";
+            auto wStream = fileIO::OpenWriteStream(path);
+
+            auto rStream = fileIO::OpenReadStream(settings.GetCurrentPath());
+            if(rStream && wStream)
+            {
+                wStream.value() << rStream.value().rdbuf();
+            }
+        }
+    }
+
+    if(nameEmpty)
+    {
+         ImGui::PopStyleColor(4);
     }
 
     for(const auto& file : files)
     {
         size_t index = file.find(".json");
         ImGui::Text("%s", index != std::string::npos ? file.substr(0, index).c_str() : file.c_str());
+
         ImGui::SameLine();
+
         std::string str = "game/config/renderer/";
         str.append(file);
         if(str == settings.GetCurrentPath())

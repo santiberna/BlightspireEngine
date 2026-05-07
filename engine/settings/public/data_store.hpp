@@ -30,6 +30,11 @@ public:
         ReadFile();
     }
 
+    const std::string GetCurrentPath() const
+    {
+        return _path;
+    }
+
     ~DataStore() = default;
 
     T data;

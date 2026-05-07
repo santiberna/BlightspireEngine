@@ -529,19 +529,35 @@ void DrawSettingsFileDialog(Engine& engine, DataStore<Settings>& settings)
     ImGui::Begin("Settings file dialog", nullptr);
 
     std::vector<std::string> files = fileIO::ListFilesInDirectory("game/config/renderer");
+    static char buf[512] = {};
+    ImGui::InputText("Name", buf, sizeof(buf));
+    ImGui::SameLine();
+    if(ImGui::Button("Create"))
+    {
+        fileIO::OpenWriteStream(std::string("game/config/renderer/") + buf + ".json");
+    }
+
     for(const auto& file : files)
     {
-        ImGui::Text(file.c_str());
+        size_t index = file.find(".json");
+        ImGui::Text("%s", index != std::string::npos ? file.substr(0, index).c_str() : file.c_str());
         ImGui::SameLine();
         std::string str = "game/config/renderer/";
         str.append(file);
-        ImGui::PushID(str.c_str());
-        if(ImGui::Button("Set as path"))
+        if(str == settings.GetCurrentPath())
         {
-            engine.GetModule<RendererModule>().GetRenderer()->FlushCommands();
-            settings.ChangePath(str);
+            ImGui::Text("Current");
         }
-        ImGui::PopID();
+        else
+        {
+            ImGui::PushID(str.c_str());
+            if(ImGui::Button("Set as path"))
+            {
+                engine.GetModule<RendererModule>().GetRenderer()->FlushCommands();
+                settings.ChangePath(str);
+            }
+            ImGui::PopID();
+        }
     }
 
     ImGui::End();

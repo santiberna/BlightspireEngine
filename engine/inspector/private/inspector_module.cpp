@@ -5,6 +5,7 @@
 #include "gpu_scene.hpp"
 #include "graphics_context.hpp"
 #include "imgui_backend.hpp"
+#include "imgui_internal.h"
 #include "implot.h"
 #include "magic_enum.hpp"
 #include "main_script.hpp"
@@ -212,17 +213,15 @@ void InspectorModule::Tick([[maybe_unused]] Engine& engine)
             ImGui::EndMenu();
         }
 
-        if (ImGui::BeginMenu("Dump VMA stats"))
+        if(ImGui::Button("Dump VMA stats"))
         {
             DumpVMAStats(engine);
-            ImGui::EndMenu();
         }
-        // This should be at the end of the menu bar
 
-        if (ImGui::BeginMenu("Exit Program"))
+        // This should be at the end of the menu bar
+        if (ImGui::Button("Exit Program"))
         {
             engine.RequestShutdown(0);
-            ImGui::EndMenu();
         }
 
         ImGui::EndMainMenuBar();
@@ -528,28 +527,38 @@ void DrawSettingsFileDialog(Engine& engine, DataStore<Settings>& settings)
 {
     ImGui::Begin("Renderer settings file dialog", nullptr);
 
+    bool settingsHasCurrent = !settings.GetCurrentPath().empty();
+
+    if(!settingsHasCurrent)
+    {
+        ImGui::BeginDisabled();
+    }
+
+    if(ImGui::Button("Save changes"))
+    {
+        engine.GetModule<RendererModule>().GetRenderer()->GetSettings().Write();
+    }
+
+    if(!settingsHasCurrent)
+    {
+        ImGui::EndDisabled();
+    }
+
     std::vector<std::string> files = fileIO::ListFilesInDirectory("game/config/renderer");
     static char buf[512] = {};
     ImGui::InputText("Name", buf, sizeof(buf));
     ImGui::SameLine();
 
-    bool nameEmpty = buf[0] == 0;
+    bool canCreatenew =
+        buf[0] != 0 &&
+        !settings.GetCurrentPath().empty();
 
-    if(nameEmpty)
+    if(!canCreatenew)
     {
-        ImVec4 col = ImGui::GetStyleColorVec4(ImGuiCol_Button);
-        ImVec4 textCol = ImGui::GetStyleColorVec4(ImGuiCol_Text);
-
-        col.w = 0.5f;
-        textCol.w = 0.5f;
-
-        ImGui::PushStyleColor(ImGuiCol_Button, col);
-        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, col);
-        ImGui::PushStyleColor(ImGuiCol_ButtonActive, col);
-        ImGui::PushStyleColor(ImGuiCol_Text, textCol);
+        ImGui::BeginDisabled();
     }
 
-    if(ImGui::Button("Create and copy current") && !nameEmpty)
+    if(ImGui::Button("Create & Copy current"))
     {
         if(buf[0] != 0)
         {
@@ -564,9 +573,9 @@ void DrawSettingsFileDialog(Engine& engine, DataStore<Settings>& settings)
         }
     }
 
-    if(nameEmpty)
+    if(!canCreatenew)
     {
-         ImGui::PopStyleColor(4);
+        ImGui::EndDisabled();
     }
 
     for(const auto& file : files)

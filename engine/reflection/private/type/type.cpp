@@ -14,7 +14,7 @@ Type::~Type() = default;
 
 std::type_index Type::getIndex() const { return { *this->index }; }
 
-std::optional<uint64_t> Type::getConstant(std::string_view name) const
+std::optional<bb::u64> Type::getConstant(std::string_view name) const
 {
     if (auto it = this->constants.find(name); it != this->constants.end())
     {

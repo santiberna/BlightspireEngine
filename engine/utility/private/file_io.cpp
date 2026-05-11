@@ -67,7 +67,7 @@ std::vector<std::string> fileIO::ListFilesInDirectory(const std::string& path)
 std::vector<std::byte> fileIO::DumpStreamIntoBytes(std::istream& stream)
 {
     stream.seekg(0, std::ios::end);
-    size_t size = stream.tellg();
+    bb::usize size = stream.tellg();
     std::vector<std::byte> out(size, {});
     stream.seekg(0);
     stream.read(std::bit_cast<char*>(out.data()), size);
@@ -77,7 +77,7 @@ std::vector<std::byte> fileIO::DumpStreamIntoBytes(std::istream& stream)
 std::string fileIO::DumpStreamIntoString(std::istream& stream)
 {
     stream.seekg(0, std::ios::end);
-    size_t size = stream.tellg();
+    bb::usize size = stream.tellg();
     std::string out(size, {});
     stream.seekg(0);
     stream.read(std::bit_cast<char*>(out.data()), size);
@@ -90,7 +90,7 @@ struct STBIStreamContext
 };
 
 // Callback to read data from the stream
-int32_t stbi_read(void* user, char* data, int32_t size)
+bb::i32 stbi_read(void* user, char* data, bb::i32 size)
 {
     auto* ctx = static_cast<STBIStreamContext*>(user);
     ctx->stream->read(data, size);
@@ -98,7 +98,7 @@ int32_t stbi_read(void* user, char* data, int32_t size)
 }
 
 // Callback to skip bytes in the stream
-void stbi_skip(void* user, int32_t n)
+void stbi_skip(void* user, bb::i32 n)
 {
     auto* ctx = static_cast<STBIStreamContext*>(user);
     ctx->stream->clear(); // clear fail bits
@@ -113,7 +113,7 @@ int stbi_eof(void* user)
 }
 
 // Load float image from ifstream
-float* fileIO::LoadFloatImageFromIfstream(PhysFS::ifstream& file, int32_t* x, int32_t* y, int32_t* channels_in_file, int32_t desired_channels)
+float* fileIO::LoadFloatImageFromIfstream(PhysFS::ifstream& file, bb::i32* x, bb::i32* y, bb::i32* channels_in_file, bb::i32 desired_channels)
 {
     STBIStreamContext ctx { &file };
 
@@ -126,7 +126,7 @@ float* fileIO::LoadFloatImageFromIfstream(PhysFS::ifstream& file, int32_t* x, in
     return stbi_loadf_from_callbacks(&callbacks, &ctx, x, y, channels_in_file, desired_channels);
 }
 
-std::byte* fileIO::LoadImageFromIfstream(PhysFS::ifstream& file, int32_t* x, int32_t* y, int32_t* channels_in_file, int32_t desired_channels)
+std::byte* fileIO::LoadImageFromIfstream(PhysFS::ifstream& file, bb::i32* x, bb::i32* y, bb::i32* channels_in_file, bb::i32 desired_channels)
 {
     STBIStreamContext ctx { &file };
 

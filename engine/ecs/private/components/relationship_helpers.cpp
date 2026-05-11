@@ -109,7 +109,7 @@ void RelationshipHelpers::OnDestroyRelationship(entt::registry& reg, entt::entit
     {
         entt::entity current = relationship.first;
         // Don't decrement this relationship components child counter or the loop would end early
-        for (size_t i {}; i < relationship.childrenCount; ++i)
+        for (bb::usize i {}; i < relationship.childrenCount; ++i)
         {
             RelationshipComponent& childRelationship = reg.get<RelationshipComponent>(current);
 

@@ -40,3 +40,24 @@
 #if !defined(__LP64__) && !defined(_WIN64) && (!defined(__x86_64__) || defined(__ILP32__))
 #error "Blightspire does not support x32 architectures"
 #endif
+
+namespace bb
+{
+// NOLINTBEGIN
+using u8 = unsigned char;
+using u16 = unsigned short;
+using u32 = unsigned int;
+using u64 = unsigned long long;
+using i8 = signed char;
+using i16 = signed short;
+using i32 = signed int;
+using i64 = signed long long;
+using f32 = float;
+using f64 = double;
+using usize = unsigned long long;
+using isize = signed long long;
+enum class byte : bb::u8
+{
+};
+// NOLINTEND
+}

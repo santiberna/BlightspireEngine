@@ -32,11 +32,11 @@ struct GPUImage
     VmaAllocation allocation {};
     ResourceHandle<bb::Sampler> sampler {};
 
-    uint16_t width { 1 };
-    uint16_t height { 1 };
-    uint16_t depth { 1 };
-    uint16_t layers { 1 };
-    uint8_t mips { 1 };
+    bb::u16 width { 1 };
+    bb::u16 height { 1 };
+    bb::u16 depth { 1 };
+    bb::u16 layers { 1 };
+    bb::u8 mips { 1 };
     vk::ImageUsageFlags flags { 0 };
     bool isHDR;
     ImageType type;

@@ -39,13 +39,13 @@
 
 Achievement CreateAchievement(SteamAchievementEnum achievements)
 {
-    return Achievement { static_cast<int32_t>(achievements), magic_enum::enum_name(achievements) };
+    return Achievement { static_cast<bb::i32>(achievements), magic_enum::enum_name(achievements) };
 }
 
 Stat CreateStat(SteamStatEnum stats, EStatTypes type)
 {
     return Stat {
-        static_cast<int32_t>(stats),
+        static_cast<bb::i32>(stats),
         type, std::string(magic_enum::enum_name(stats))
     };
 }

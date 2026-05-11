@@ -1,9 +1,8 @@
 #pragma once
-#include <cstdint>
 
 // Modified from SDL_mouse.h
 
-enum class MouseButton : uint32_t
+enum class MouseButton : bb::u32
 {
     eBUTTON_LEFT = 1,
     eBUTTON_MIDDLE = 2,

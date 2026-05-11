@@ -26,12 +26,12 @@ public:
     NON_COPYABLE(SwapChain);
 
     void Resize(const glm::uvec2& screenSize);
-    size_t GetImageCount() const { return _images.size(); };
+    bb::usize GetImageCount() const { return _images.size(); };
     vk::SwapchainKHR GetSwapChain() const { return _swapChain; }
-    vk::ImageView GetImageView(uint32_t index) const { return _imageViews[index]; }
+    vk::ImageView GetImageView(bb::u32 index) const { return _imageViews[index]; }
     vk::Extent2D GetExtent() const { return _extent; }
     vk::Format GetFormat() const { return _format; }
-    vk::Image GetImage(uint32_t index) const { return _images[index]; }
+    vk::Image GetImage(bb::u32 index) const { return _images[index]; }
     glm::uvec2 GetImageSize() const { return _imageSize; }
 
     bool SetPresentMode(vk::PresentModeKHR presentMode);

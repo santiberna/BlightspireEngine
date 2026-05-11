@@ -3,9 +3,9 @@
 #include <string>
 #include <tracy/Tracy.hpp>
 
-ThreadPool::ThreadPool(uint32_t threadCount)
+ThreadPool::ThreadPool(bb::u32 threadCount)
 {
-    for (uint32_t i = 0; i < threadCount; i++)
+    for (bb::u32 i = 0; i < threadCount; i++)
     {
         _threads.emplace_back(std::thread(WorkerMain, this, i));
     }
@@ -58,7 +58,7 @@ void ThreadPool::FinishPendingWork()
         { return _tasks.empty(); });
 }
 
-void ThreadPool::WorkerMain(ThreadPool* pool, uint32_t ID)
+void ThreadPool::WorkerMain(ThreadPool* pool, bb::u32 ID)
 {
     std::string threadName = "WorkerThread " + std::to_string(ID);
     tracy::SetThreadNameWithHint(threadName.c_str(), 1);

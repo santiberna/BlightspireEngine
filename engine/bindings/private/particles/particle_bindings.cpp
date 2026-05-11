@@ -11,11 +11,11 @@ void LoadEmitterPresets(ParticleModule& self)
 {
     self.LoadEmitterPresets();
 }
-void SpawnEmitter(ParticleModule& self, WrenEntity& entity, std::string emitterPresetName, uint8_t flags, glm::vec3 position = { 0.0f, 0.0f, 0.0f }, glm::vec3 velocity = { 0.0f, 0.0f, 0.0f })
+void SpawnEmitter(ParticleModule& self, WrenEntity& entity, std::string emitterPresetName, bb::u8 flags, glm::vec3 position = { 0.0f, 0.0f, 0.0f }, glm::vec3 velocity = { 0.0f, 0.0f, 0.0f })
 {
     self.SpawnEmitter(entity.entity, emitterPresetName, static_cast<SpawnEmitterFlagBits>(flags), position, velocity);
 }
-void SpawnBurst(ParticleModule& self, WrenEntity& entity, uint32_t count, float maxInterval, float startTime = 0.0f, bool loop = true, uint32_t cycles = 0)
+void SpawnBurst(ParticleModule& self, WrenEntity& entity, bb::u32 count, float maxInterval, float startTime = 0.0f, bool loop = true, bb::u32 cycles = 0)
 {
     self.SpawnBurst(entity.entity, count, maxInterval, startTime, loop, cycles);
 }

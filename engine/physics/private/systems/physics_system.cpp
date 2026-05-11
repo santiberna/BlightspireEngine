@@ -138,7 +138,7 @@ void PhysicsSystem::InspectRigidBody(RigidbodyComponent& rb)
 
     // JPH::EMotionType rbType = _physicsModule.GetBodyInterface().GetMotionType(rb.bodyID);
     // const char* rbTypeNames[] = { "Static", "Kinematic", "Dynamic" };
-    // const char* currentItem = rbTypeNames[static_cast<uint8_t>(rbType)];
+    // const char* currentItem = rbTypeNames[static_cast<bb::u8>(rbType)];
 
     // if (ImGui::BeginCombo("Body type", currentItem))
     // {

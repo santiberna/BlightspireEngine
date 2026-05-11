@@ -32,7 +32,7 @@ public:
 
     void SetMousePositionToAbsoluteMousePosition();
 
-    void GetMousePosition(int32_t& x, int32_t& y) const;
+    void GetMousePosition(bb::i32& x, bb::i32& y) const;
 
     [[nodiscard]] virtual bool IsGamepadAvailable() const = 0;
     [[nodiscard]] virtual GamepadType GetGamepadType() const = 0;

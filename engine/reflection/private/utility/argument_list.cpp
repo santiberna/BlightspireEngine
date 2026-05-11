@@ -14,4 +14,4 @@ using namespace reflection;
     return out;
 }
 
-[[nodiscard]] ValueRef ArgumentList::get(size_t i) const { return this->values[i]; }
+[[nodiscard]] ValueRef ArgumentList::get(bb::usize i) const { return this->values[i]; }

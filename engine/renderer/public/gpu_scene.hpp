@@ -37,20 +37,20 @@ struct RenderSceneDescription
     ECSModule& ecs;
     std::shared_ptr<BatchBuffer> staticBatchBuffer;
     std::shared_ptr<BatchBuffer> skinnedBatchBuffer;
-    uint32_t targetSwapChainImageIndex;
+    bb::u32 targetSwapChainImageIndex;
     float deltaTime;
     TracyVkCtx& tracyContext;
 };
 
-constexpr uint32_t MAX_STATIC_INSTANCES = 1 << 14;
-constexpr uint32_t MAX_SKINNED_INSTANCES = 1 << 13;
-constexpr uint32_t MAX_POINT_LIGHTS = 1 << 13;
-constexpr uint32_t MAX_BONES = 1 << 14;
-constexpr uint32_t MAX_LIGHTS_PER_CLUSTER = 256;
-constexpr uint32_t MAX_DECALS = 32;
+constexpr bb::u32 MAX_STATIC_INSTANCES = 1 << 14;
+constexpr bb::u32 MAX_SKINNED_INSTANCES = 1 << 13;
+constexpr bb::u32 MAX_POINT_LIGHTS = 1 << 13;
+constexpr bb::u32 MAX_BONES = 1 << 14;
+constexpr bb::u32 MAX_LIGHTS_PER_CLUSTER = 256;
+constexpr bb::u32 MAX_DECALS = 32;
 
-constexpr uint32_t CLUSTER_X = 16, CLUSTER_Y = 9, CLUSTER_Z = 24;
-constexpr uint32_t CLUSTER_SIZE = CLUSTER_X * CLUSTER_Y * CLUSTER_Z;
+constexpr bb::u32 CLUSTER_X = 16, CLUSTER_Y = 9, CLUSTER_Z = 24;
+constexpr bb::u32 CLUSTER_SIZE = CLUSTER_X * CLUSTER_Y * CLUSTER_Z;
 
 struct DrawIndexedIndirectCommand
 {
@@ -59,10 +59,10 @@ struct DrawIndexedIndirectCommand
 
 struct DrawIndexedDirectCommand
 {
-    uint32_t instanceIndex {};
-    uint32_t indexCount {};
-    uint32_t firstIndex {};
-    int32_t vertexOffset {};
+    bb::u32 instanceIndex {};
+    bb::u32 indexCount {};
+    bb::u32 firstIndex {};
+    bb::i32 vertexOffset {};
 };
 
 class GPUScene
@@ -74,19 +74,19 @@ public:
     NON_COPYABLE(GPUScene);
     NON_MOVABLE(GPUScene);
 
-    void Update(uint32_t frameIndex);
+    void Update(bb::u32 frameIndex);
     void UpdateGlobalIndexBuffer(vk::CommandBuffer& commandBuffer);
 
     void SpawnDecal(glm::vec3 normal, glm::vec3 position, glm::vec2 size, std::string albedoName);
     void ResetDecals();
 
-    const vk::DescriptorSet& GetSceneDescriptorSet(uint32_t frameIndex) const { return _sceneFrameData.at(frameIndex).descriptorSet; }
-    const vk::DescriptorSet& GetStaticInstancesDescriptorSet(uint32_t frameIndex) const { return _staticInstancesFrameData.at(frameIndex).descriptorSet; }
-    const vk::DescriptorSet& GetSkinnedInstancesDescriptorSet(uint32_t frameIndex) const { return _skinnedInstancesFrameData.at(frameIndex).descriptorSet; }
-    const vk::DescriptorSet& GetPointLightDescriptorSet(uint32_t frameIndex) const { return _pointLightFrameData.at(frameIndex).descriptorSet; }
+    const vk::DescriptorSet& GetSceneDescriptorSet(bb::u32 frameIndex) const { return _sceneFrameData.at(frameIndex).descriptorSet; }
+    const vk::DescriptorSet& GetStaticInstancesDescriptorSet(bb::u32 frameIndex) const { return _staticInstancesFrameData.at(frameIndex).descriptorSet; }
+    const vk::DescriptorSet& GetSkinnedInstancesDescriptorSet(bb::u32 frameIndex) const { return _skinnedInstancesFrameData.at(frameIndex).descriptorSet; }
+    const vk::DescriptorSet& GetPointLightDescriptorSet(bb::u32 frameIndex) const { return _pointLightFrameData.at(frameIndex).descriptorSet; }
     const vk::DescriptorSet& GetClusterDescriptorSet() const { return _clusterData.descriptorSet; }
-    const vk::DescriptorSet& GetClusterCullingDescriptorSet(uint32_t frameIndex) const { return _clusterCullingData.descriptorSets.at(frameIndex); }
-    const vk::DescriptorSet& GetDecalDescriptorSet(uint32_t frameIndex) const { return _decalFrameData[frameIndex].descriptorSet; }
+    const vk::DescriptorSet& GetClusterCullingDescriptorSet(bb::u32 frameIndex) const { return _clusterCullingData.descriptorSets.at(frameIndex); }
+    const vk::DescriptorSet& GetDecalDescriptorSet(bb::u32 frameIndex) const { return _decalFrameData[frameIndex].descriptorSet; }
     const vk::DescriptorSetLayout& GetSceneDescriptorSetLayout() const { return _sceneDescriptorSetLayout; }
     const vk::DescriptorSetLayout& GetObjectInstancesDescriptorSetLayout() const { return _objectInstancesDSL; }
     const vk::DescriptorSetLayout& GetPointLightDescriptorSetLayout() const { return _pointLightDSL; }
@@ -96,28 +96,28 @@ public:
     const vk::DescriptorSetLayout& GetDecalDescriptorSetLayout() const { return _decalDescriptorSetLayout; }
 
     vk::DescriptorSetLayout DrawBufferLayout() const { return _drawBufferDSL; }
-    ResourceHandle<bb::Buffer> StaticDrawBuffer(uint32_t frameIndex) const { return _staticDraws[frameIndex].buffer; }
-    vk::DescriptorSet StaticDrawDescriptorSet(uint32_t frameIndex) const { return _staticDraws[frameIndex].descriptorSet; }
-    ResourceHandle<bb::Buffer> SkinnedDrawBuffer(uint32_t frameIndex) const { return _skinnedDraws[frameIndex].buffer; }
-    vk::DescriptorSet SkinnedDrawDescriptorSet(uint32_t frameIndex) const { return _skinnedDraws[frameIndex].descriptorSet; }
+    ResourceHandle<bb::Buffer> StaticDrawBuffer(bb::u32 frameIndex) const { return _staticDraws[frameIndex].buffer; }
+    vk::DescriptorSet StaticDrawDescriptorSet(bb::u32 frameIndex) const { return _staticDraws[frameIndex].descriptorSet; }
+    ResourceHandle<bb::Buffer> SkinnedDrawBuffer(bb::u32 frameIndex) const { return _skinnedDraws[frameIndex].buffer; }
+    vk::DescriptorSet SkinnedDrawDescriptorSet(bb::u32 frameIndex) const { return _skinnedDraws[frameIndex].descriptorSet; }
 
     const vk::DescriptorSetLayout GetSkinDescriptorSetLayout() const { return _skinDescriptorSetLayout; }
-    const vk::DescriptorSet GetSkinDescriptorSet(uint32_t frameIndex) const { return _skinDescriptorSets[frameIndex]; }
+    const vk::DescriptorSet GetSkinDescriptorSet(bb::u32 frameIndex) const { return _skinDescriptorSets[frameIndex]; }
 
-    uint32_t StaticDrawCount() const { return _staticDrawCommands.size(); };
+    bb::u32 StaticDrawCount() const { return _staticDrawCommands.size(); };
     const std::vector<DrawIndexedIndirectCommand>& StaticDrawCommands() const { return _staticDrawCommands; }
     const std::vector<DrawIndexedDirectCommand>& ForegroundStaticDrawCommands() const { return _foregroundStaticDrawCommands; }
     ResourceHandle<bb::Buffer>& GetClusterBuffer() { return _clusterData.buffer; }
-    ResourceHandle<bb::Buffer>& GetClusterCullingBuffer(uint32_t index) { return _clusterCullingData.buffers.at(index); }
+    ResourceHandle<bb::Buffer>& GetClusterCullingBuffer(bb::u32 index) { return _clusterCullingData.buffers.at(index); }
     ResourceHandle<bb::Buffer>& GetGlobalIndexBuffer() { return _clusterCullingData.globalIndexBuffer; }
 
-    uint32_t SkinnedDrawCount() const { return _skinnedDrawCommands.size(); };
+    bb::u32 SkinnedDrawCount() const { return _skinnedDrawCommands.size(); };
     const std::vector<DrawIndexedIndirectCommand>& SkinnedDrawCommands() const { return _skinnedDrawCommands; }
     const std::vector<DrawIndexedDirectCommand>& ForegroundSkinnedDrawCommands() const { return _foregroundSkinnedDrawCommands; }
-    uint32_t DrawCommandIndexCount(std::vector<DrawIndexedIndirectCommand> commands) const
+    bb::u32 DrawCommandIndexCount(std::vector<DrawIndexedIndirectCommand> commands) const
     {
-        uint32_t count { 0 };
-        for (size_t i = 0; i < commands.size(); ++i)
+        bb::u32 count { 0 };
+        for (bb::usize i = 0; i < commands.size(); ++i)
         {
             const auto& command = commands[i];
             count += command.command.indexCount;
@@ -153,7 +153,7 @@ private:
         glm::vec4 color {};
         float poissonWorldOffset {};
         float poissonConstant {};
-        uint32_t padding[2];
+        bb::u32 padding[2];
     };
 
     struct alignas(16) PointLightData
@@ -167,21 +167,21 @@ private:
     struct alignas(16) PointLightArray
     {
         std::array<PointLightData, MAX_POINT_LIGHTS> lights {};
-        uint32_t count {};
+        bb::u32 count {};
     };
 
     struct alignas(16) SceneData
     {
         DirectionalLightData directionalLight {};
 
-        uint32_t irradianceIndex {};
-        uint32_t prefilterIndex {};
-        uint32_t brdfLUTIndex {};
-        uint32_t staticShadowMapIndex {};
+        bb::u32 irradianceIndex {};
+        bb::u32 prefilterIndex {};
+        bb::u32 brdfLUTIndex {};
+        bb::u32 staticShadowMapIndex {};
 
-        uint32_t dynamicShadowMapIndex {};
+        bb::u32 dynamicShadowMapIndex {};
         float fogDensity {};
-        uint32_t padding[2];
+        bb::u32 padding[2];
 
         glm::vec3 fogColor {};
 
@@ -191,25 +191,25 @@ private:
     {
         glm::mat4 model {};
 
-        uint32_t materialIndex {};
+        bb::u32 materialIndex {};
         float boundingRadius {};
-        uint32_t boneOffset {};
+        bb::u32 boneOffset {};
         bool isStaticDraw {};
         float transparency = 1.0f;
-        uint32_t padding[3];
+        bb::u32 padding[3];
     };
 
     struct alignas(16) DecalData
     {
         glm::mat4 invModel {};
         glm::vec3 orientation {};
-        uint32_t albedoIndex {};
+        bb::u32 albedoIndex {};
     };
 
     struct alignas(16) DecalArray
     {
         std::array<DecalData, MAX_DECALS> decals {};
-        uint32_t count {};
+        bb::u32 count {};
     };
 
     struct FrameData
@@ -259,7 +259,7 @@ private:
     ClusterCullingData _clusterCullingData;
 
     DecalArray _decals {};
-    uint32_t _decalIndex {};
+    bb::u32 _decalIndex {};
 
     ResourceHandle<GPUImage>& GetDecalImage(std::string fileName);
     std::unordered_map<std::string, ResourceHandle<GPUImage>> _decalImages;
@@ -291,16 +291,16 @@ private:
     vk::DescriptorSetLayout _redirectDSL;
     vk::DescriptorSetLayout _hzbImageDSL;
 
-    std::unordered_map<entt::entity, uint32_t> _skeletonBoneOffset {};
+    std::unordered_map<entt::entity, bb::u32> _skeletonBoneOffset {};
 
-    void UpdateSceneData(uint32_t frameIndex);
-    void UpdatePointLightArray(uint32_t frameIndex);
-    void UpdateObjectInstancesData(uint32_t frameIndex);
-    void UpdateDirectionalLightData(SceneData& scene, uint32_t frameIndex);
-    void UpdatePointLightData(PointLightArray& pointLightArray, uint32_t frameIndex);
-    void UpdateCameraData(uint32_t frameIndex);
-    void UpdateSkinBuffers(uint32_t frameIndex);
-    void UpdateDecalBuffer(uint32_t frameIndex);
+    void UpdateSceneData(bb::u32 frameIndex);
+    void UpdatePointLightArray(bb::u32 frameIndex);
+    void UpdateObjectInstancesData(bb::u32 frameIndex);
+    void UpdateDirectionalLightData(SceneData& scene, bb::u32 frameIndex);
+    void UpdatePointLightData(PointLightArray& pointLightArray, bb::u32 frameIndex);
+    void UpdateCameraData(bb::u32 frameIndex);
+    void UpdateSkinBuffers(bb::u32 frameIndex);
+    void UpdateDecalBuffer(bb::u32 frameIndex);
 
     void InitializeSceneBuffers();
     void InitializePointLightBuffer();
@@ -327,12 +327,12 @@ private:
     void CreateSkinDescriptorSets();
     void CreateDecalDescriptorSets();
 
-    void UpdateSceneDescriptorSet(uint32_t frameIndex);
-    void UpdatePointLightDescriptorSet(uint32_t frameIndex);
-    void UpdateAtomicGlobalDescriptorSet(uint32_t frameIndex);
-    void UpdateObjectInstancesDescriptorSet(uint32_t frameIndex);
-    void UpdateSkinDescriptorSet(uint32_t frameIndex);
-    void UpdateDecalDescriptorSet(uint32_t frameIndex);
+    void UpdateSceneDescriptorSet(bb::u32 frameIndex);
+    void UpdatePointLightDescriptorSet(bb::u32 frameIndex);
+    void UpdateAtomicGlobalDescriptorSet(bb::u32 frameIndex);
+    void UpdateObjectInstancesDescriptorSet(bb::u32 frameIndex);
+    void UpdateSkinDescriptorSet(bb::u32 frameIndex);
+    void UpdateDecalDescriptorSet(bb::u32 frameIndex);
 
     void CreateSceneBuffers();
     void CreatePointLightBuffer();
@@ -345,7 +345,7 @@ private:
     void InitializeIndirectDrawBuffer();
     void InitializeIndirectDrawDescriptor();
 
-    void WriteDraws(uint32_t frameIndex);
+    void WriteDraws(bb::u32 frameIndex);
 
     void CreateShadowMapResources();
 };

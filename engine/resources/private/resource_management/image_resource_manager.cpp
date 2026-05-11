@@ -55,7 +55,7 @@ vk::Format toVkFormat(bb::ImageFormat format)
     }
 }
 
-uint32_t formatStride(bb::ImageFormat format)
+bb::u32 formatStride(bb::ImageFormat format)
 {
     switch (format)
     {
@@ -134,7 +134,7 @@ ResourceHandle<GPUImage> ImageResourceManager::Create(
     }
     if (flags.has(bb::TextureFlags::GEN_MIPMAPS))
     {
-        out.mips = static_cast<uint8_t>(std::floor(std::log2(std::max(out.width, out.height)))) + 1;
+        out.mips = static_cast<bb::u8>(std::floor(std::log2(std::max(out.width, out.height)))) + 1;
     }
 
     vk::ImageCreateInfo imageCreateInfo {};
@@ -182,7 +182,7 @@ ResourceHandle<GPUImage> ImageResourceManager::Create(
 
     vk::Device device = _context->Device();
 
-    for (size_t i = 0; i < imageCreateInfo.arrayLayers; ++i)
+    for (bb::usize i = 0; i < imageCreateInfo.arrayLayers; ++i)
     {
         viewCreateInfo.subresourceRange.levelCount = out.mips;
         viewCreateInfo.subresourceRange.baseMipLevel = 0;
@@ -190,7 +190,7 @@ ResourceHandle<GPUImage> ImageResourceManager::Create(
         GPUImage::Layer& layer = out.layerViews.emplace_back();
         layer.view = device.createImageView(viewCreateInfo).value;
 
-        for (size_t j = 0; j < imageCreateInfo.mipLevels; ++j)
+        for (bb::usize j = 0; j < imageCreateInfo.mipLevels; ++j)
         {
             viewCreateInfo.subresourceRange.levelCount = 1;
             viewCreateInfo.subresourceRange.baseMipLevel = j;
@@ -224,7 +224,7 @@ ResourceHandle<GPUImage> ImageResourceManager::Create(
             ZoneScopedN("Mip creation dispatch");
             util::TransitionImageLayout(commandBuffer, out.handle, out.format, vk::ImageLayout::eTransferDstOptimal, vk::ImageLayout::eTransferSrcOptimal, 1, 0, 1);
 
-            for (uint32_t i = 1; i < out.mips; ++i)
+            for (bb::u32 i = 1; i < out.mips; ++i)
             {
                 vk::ImageBlit blit {};
                 blit.srcSubresource.aspectMask = vk::ImageAspectFlagBits::eColor;
@@ -266,7 +266,7 @@ ResourceHandle<GPUImage> ImageResourceManager::Create(
             _context->DebugSetObjectName(out.handle, imageStr.c_str());
             ss.str("");
 
-            for (size_t i = 0; i < imageCreateInfo.arrayLayers; ++i)
+            for (bb::usize i = 0; i < imageCreateInfo.arrayLayers; ++i)
             {
                 ss << "[VIEW " << i << "] ";
                 ss << name;
@@ -337,7 +337,7 @@ ResourceHandle<GPUImage> ImageResourceManager::Create(
     }
     if (flags.has(bb::TextureFlags::GEN_MIPMAPS))
     {
-        out.mips = static_cast<uint8_t>(std::floor(std::log2(std::max(out.width, out.height)))) + 1;
+        out.mips = static_cast<bb::u8>(std::floor(std::log2(std::max(out.width, out.height)))) + 1;
     }
 
     vk::ImageCreateInfo imageCreateInfo {};
@@ -387,7 +387,7 @@ ResourceHandle<GPUImage> ImageResourceManager::Create(
 
     vk::Device device = _context->Device();
 
-    for (size_t i = 0; i < imageCreateInfo.arrayLayers; ++i)
+    for (bb::usize i = 0; i < imageCreateInfo.arrayLayers; ++i)
     {
         viewCreateInfo.subresourceRange.levelCount = out.mips;
         viewCreateInfo.subresourceRange.baseMipLevel = 0;
@@ -395,7 +395,7 @@ ResourceHandle<GPUImage> ImageResourceManager::Create(
         GPUImage::Layer& layer = out.layerViews.emplace_back();
         layer.view = device.createImageView(viewCreateInfo).value;
 
-        for (size_t j = 0; j < imageCreateInfo.mipLevels; ++j)
+        for (bb::usize j = 0; j < imageCreateInfo.mipLevels; ++j)
         {
             viewCreateInfo.subresourceRange.levelCount = 1;
             viewCreateInfo.subresourceRange.baseMipLevel = j;
@@ -427,7 +427,7 @@ ResourceHandle<GPUImage> ImageResourceManager::Create(
             _context->DebugSetObjectName(out.handle, imageStr.c_str());
             ss.str("");
 
-            for (size_t i = 0; i < imageCreateInfo.arrayLayers; ++i)
+            for (bb::usize i = 0; i < imageCreateInfo.arrayLayers; ++i)
             {
                 ss << "[VIEW " << i << "] ";
                 ss << name;

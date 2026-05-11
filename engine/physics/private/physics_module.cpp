@@ -147,7 +147,7 @@ std::vector<RayHitInfo> PhysicsModule::ShootRay(const glm::vec3& origin, const g
     collector2.Sort();
 
     hitInfos.resize(collector2.mHits.size());
-    int32_t iterator = 0;
+    bb::i32 iterator = 0;
 
     for (auto hit : collector2.mHits)
     {
@@ -177,7 +177,7 @@ std::vector<RayHitInfo> PhysicsModule::ShootRay(const glm::vec3& origin, const g
     return hitInfos;
 }
 
-std::vector<RayHitInfo> PhysicsModule::ShootMultipleRays(const glm::vec3& origin, const glm::vec3& direction, float distance, uint32_t numRays, float angle) const
+std::vector<RayHitInfo> PhysicsModule::ShootMultipleRays(const glm::vec3& origin, const glm::vec3& direction, float distance, bb::u32 numRays, float angle) const
 {
     std::vector<RayHitInfo> results;
 
@@ -195,7 +195,7 @@ std::vector<RayHitInfo> PhysicsModule::ShootMultipleRays(const glm::vec3& origin
     // Calculate the angle step based on the number of rays (ensuring symmetrical distribution)
     float angleStep = glm::radians(angle) / (numRays / 2);
 
-    for (uint32_t i = 0; i < numRays; ++i)
+    for (bb::u32 i = 0; i < numRays; ++i)
     {
         float angleOffset = (i - (numRays - 1) / 2.0f) * angleStep;
         glm::vec3 rotatedDirection = glm::rotateY(direction, angleOffset);

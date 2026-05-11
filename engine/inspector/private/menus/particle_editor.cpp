@@ -174,17 +174,17 @@ void ParticleEditor::RenderEmitterPresetEditor()
 
         // flag dropdown
         ImGui::Text("Rendering Flags:");
-        ImGui::CheckboxFlags("Unlit##Emitter Preset Flag", &selectedPreset.flags, static_cast<uint32_t>(ParticleRenderFlagBits::eUnlit));
-        ImGui::CheckboxFlags("No Shadow##Emitter Preset Flag", &selectedPreset.flags, static_cast<uint32_t>(ParticleRenderFlagBits::eNoShadow));
-        ImGui::CheckboxFlags("Frame Blend##Emitter Preset Flag", &selectedPreset.flags, static_cast<uint32_t>(ParticleRenderFlagBits::eFrameBlend));
-        ImGui::CheckboxFlags("Lock Y##Emitter Preset Flag", &selectedPreset.flags, static_cast<uint32_t>(ParticleRenderFlagBits::eLockY));
+        ImGui::CheckboxFlags("Unlit##Emitter Preset Flag", &selectedPreset.flags, static_cast<bb::u32>(ParticleRenderFlagBits::eUnlit));
+        ImGui::CheckboxFlags("No Shadow##Emitter Preset Flag", &selectedPreset.flags, static_cast<bb::u32>(ParticleRenderFlagBits::eNoShadow));
+        ImGui::CheckboxFlags("Frame Blend##Emitter Preset Flag", &selectedPreset.flags, static_cast<bb::u32>(ParticleRenderFlagBits::eFrameBlend));
+        ImGui::CheckboxFlags("Lock Y##Emitter Preset Flag", &selectedPreset.flags, static_cast<bb::u32>(ParticleRenderFlagBits::eLockY));
         if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled) && ImGui::BeginTooltip())
         {
             ImGui::TextUnformatted("Makes this emitter's particle billboards only rotate around the Y axis.");
 
             ImGui::EndTooltip();
         }
-        ImGui::CheckboxFlags("Is Local##Emitter Preset Flag", &selectedPreset.flags, static_cast<uint32_t>(ParticleRenderFlagBits::eIsLocal));
+        ImGui::CheckboxFlags("Is Local##Emitter Preset Flag", &selectedPreset.flags, static_cast<bb::u32>(ParticleRenderFlagBits::eIsLocal));
         if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled) && ImGui::BeginTooltip())
         {
             ImGui::TextUnformatted("Makes this emitter's particles follow its emitter's position");
@@ -213,7 +213,7 @@ void ParticleEditor::RenderEmitterPresetEditor()
 
             for (auto it = selectedPreset.bursts.begin(); it != selectedPreset.bursts.end();)
             {
-                int32_t index = std::distance(selectedPreset.bursts.begin(), it);
+                bb::i32 index = std::distance(selectedPreset.bursts.begin(), it);
                 ImGui::TableNextRow();
 
                 auto copyIt = it;
@@ -224,9 +224,9 @@ void ParticleEditor::RenderEmitterPresetEditor()
                 ImGui::Text("Burst %i", index);
 
                 ImGui::TableNextColumn();
-                int32_t burstCount = static_cast<int32_t>(burst.count);
+                bb::i32 burstCount = static_cast<bb::i32>(burst.count);
                 ImGui::DragInt(std::string("##Preset Burst Count " + std::to_string(index)).c_str(), &burstCount);
-                burst.count = static_cast<uint32_t>(burstCount);
+                burst.count = static_cast<bb::u32>(burstCount);
 
                 ImGui::TableNextColumn();
                 ImGui::DragFloat(std::string("##Preset Burst Start Time " + std::to_string(index)).c_str(), &burst.startTime, 0.1f, 0.0f, 100.0f);
@@ -238,9 +238,9 @@ void ParticleEditor::RenderEmitterPresetEditor()
                 ImGui::Checkbox(std::string("##Preset Burst Loop " + std::to_string(index)).c_str(), &burst.loop);
 
                 ImGui::TableNextColumn();
-                int32_t burstCycles = static_cast<int32_t>(burst.cycles);
+                bb::i32 burstCycles = static_cast<bb::i32>(burst.cycles);
                 ImGui::DragInt(std::string("##Preset Burst Cycles " + std::to_string(index)).c_str(), &burstCycles);
-                burst.cycles = static_cast<uint32_t>(burstCycles);
+                burst.cycles = static_cast<bb::u32>(burstCycles);
 
                 ImGui::TableNextColumn();
                 ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.65f, 0.15f, 0.15f, 1.f));

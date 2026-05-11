@@ -30,7 +30,7 @@ LightingPass::LightingPass(const std::shared_ptr<GraphicsContext>& context, cons
     CreatePipeline();
 }
 
-void LightingPass::RecordCommands(vk::CommandBuffer commandBuffer, uint32_t currentFrame, const RenderSceneDescription& scene)
+void LightingPass::RecordCommands(vk::CommandBuffer commandBuffer, bb::u32 currentFrame, const RenderSceneDescription& scene)
 {
     _pushConstants.ambientStrength = _lightingSettings.ambientStrength;
     _pushConstants.ambientShadowStrength = _lightingSettings.ambientShadowStrength;

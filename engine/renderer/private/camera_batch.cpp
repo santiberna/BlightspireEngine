@@ -11,7 +11,7 @@
 #include "shaders/shader_loader.hpp"
 #include "vulkan_context.hpp"
 
-CameraBatch::Draw::Draw(const std::shared_ptr<GraphicsContext>& context, const std::string& name, uint32_t instanceCount, vk::DescriptorSetLayout drawDSL, vk::DescriptorSetLayout visibilityDSL, vk::DescriptorSetLayout redirectDSL)
+CameraBatch::Draw::Draw(const std::shared_ptr<GraphicsContext>& context, const std::string& name, bb::u32 instanceCount, vk::DescriptorSetLayout drawDSL, vk::DescriptorSetLayout visibilityDSL, vk::DescriptorSetLayout redirectDSL)
 {
     auto& buffers = context->Resources()->GetBufferResourceManager();
 
@@ -24,7 +24,7 @@ CameraBatch::Draw::Draw(const std::shared_ptr<GraphicsContext>& context, const s
     bb::Flags<bb::BufferFlags> flagsVisBuf = { bb::BufferFlags::STORAGE_USAGE };
 
     drawBuffer = buffers.Create(instanceCount * sizeof(DrawIndexedIndirectCommand), flagsDrawBuf, drawBuf.c_str());
-    redirectBuffer = buffers.Create(sizeof(uint32_t) + (instanceCount * sizeof(uint32_t)), flagsRedirectBuf, redirectBuf.c_str());
+    redirectBuffer = buffers.Create(sizeof(bb::u32) + (instanceCount * sizeof(bb::u32)), flagsRedirectBuf, redirectBuf.c_str());
     visibilityBuffer = buffers.Create(instanceCount / 8, flagsVisBuf, visBuf.c_str());
 
     drawDescriptor = CreateDescriptor(context, drawDSL, drawBuffer);
@@ -70,7 +70,7 @@ CameraBatch::CameraBatch(const std::shared_ptr<GraphicsContext>& context, const 
     , _skinnedDraw(context, "Skinned" + name, MAX_SKINNED_INSTANCES, drawDSL, visibilityDSL, redirectDSL)
 {
     const auto* depthImageAccess = _context->Resources()->GetImageResourceManager().Access(_depthImage);
-    uint16_t hzbSize = math::RoundUpToPowerOfTwo(std::max(depthImageAccess->width, depthImageAccess->height));
+    bb::u16 hzbSize = math::RoundUpToPowerOfTwo(std::max(depthImageAccess->width, depthImageAccess->height));
 
     bb::SamplerCreation samplerCreation {};
     samplerCreation.minFilter = bb::SamplerFilter::LINEAR;

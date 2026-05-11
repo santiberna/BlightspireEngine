@@ -57,11 +57,11 @@ TEST(ThreadPoolTests, TaskCancelled)
 TEST(ThreadPoolTests, TaskParallelism)
 {
     constexpr int WAIT_TIME = 10;
-    uint32_t THREAD_COUNT = 6;
+    bb::u32 THREAD_COUNT = 6;
 
     ThreadPool pool { THREAD_COUNT };
 
-    for (uint32_t i = 0; i < THREAD_COUNT; i++)
+    for (bb::u32 i = 0; i < THREAD_COUNT; i++)
     {
         pool.QueueWork(WaitTask { WAIT_TIME });
     }

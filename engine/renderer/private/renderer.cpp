@@ -365,7 +365,7 @@ Renderer::Renderer(ApplicationModule& application, Viewport& viewport, const std
 
     static std::array<std::string, MAX_FRAMES_IN_FLIGHT> contextNames { "Command bb::Buffer 0", "Command bb::Buffer 1", "Command bb::Buffer 2" };
 
-    for (size_t i = 0; i < _tracyContexts.size(); ++i)
+    for (bb::usize i = 0; i < _tracyContexts.size(); ++i)
     {
         _tracyContexts[i] = TracyVkContextCalibrated(
             _context->GetVulkanContext()->Instance(),
@@ -382,12 +382,12 @@ Renderer::Renderer(ApplicationModule& application, Viewport& viewport, const std
 std::vector<ResourceHandle<GPUModel>> Renderer::LoadModels(const std::vector<CPUModel>& cpuModels)
 {
     // TODO: Use this later to determine batch buffer size.
-    // uint32_t totalVertexSize {};
-    // uint32_t totalIndexSize {};
+    // bb::u32 totalVertexSize {};
+    // bb::u32 totalIndexSize {};
     // for (const auto& path : models)
     // {
-    //     uint32_t vertexSize;
-    //     uint32_t indexSize;
+    //     bb::u32 vertexSize;
+    //     bb::u32 indexSize;
 
     //     _modelLoader->ReadGeometrySize(path, vertexSize, indexSize);
     //     totalVertexSize += vertexSize;
@@ -423,7 +423,7 @@ Renderer::~Renderer()
 {
     vk::Device device = _context->GetVulkanContext()->Device();
 
-    for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
+    for (bb::usize i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
     {
         device.destroy(_inFlightFences[i]);
         device.destroy(_renderFinishedSemaphores[i]);
@@ -432,7 +432,7 @@ Renderer::~Renderer()
 
     _swapChain.reset();
 
-    for (size_t i = 0; i < _tracyContexts.size(); ++i)
+    for (bb::usize i = 0; i < _tracyContexts.size(); ++i)
     {
         TracyVkDestroy(_tracyContexts[i]);
     }
@@ -450,7 +450,7 @@ void Renderer::CreateCommandBuffers()
         "Failed allocating command buffer!");
 }
 
-void Renderer::RecordCommandBuffer(const vk::CommandBuffer& commandBuffer, uint32_t swapChainImageIndex, float deltaTime)
+void Renderer::RecordCommandBuffer(const vk::CommandBuffer& commandBuffer, bb::u32 swapChainImageIndex, float deltaTime)
 {
     ZoneScoped;
     TracyVkZone(_tracyContexts[_currentFrame], commandBuffer, "Render all");
@@ -478,13 +478,13 @@ void Renderer::CreateSyncObjects()
     fenceCreateInfo.flags = vk::FenceCreateFlagBits::eSignaled;
 
     std::string errorMsg { "Failed creating sync object!" };
-    for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
+    for (bb::usize i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
     {
         util::VK_ASSERT(device.createSemaphore(&semaphoreCreateInfo, nullptr, &_imageAvailableSemaphores[i]), errorMsg);
         util::VK_ASSERT(device.createFence(&fenceCreateInfo, nullptr, &_inFlightFences[i]), errorMsg);
     }
 
-    for (size_t i = 0; i < _swapChain->GetImageCount(); ++i)
+    for (bb::usize i = 0; i < _swapChain->GetImageCount(); ++i)
         util::VK_ASSERT(device.createSemaphore(&semaphoreCreateInfo, nullptr, &_renderFinishedSemaphores[i]), errorMsg);
 }
 
@@ -595,7 +595,7 @@ void Renderer::Render(float deltaTime)
 
     {
         ZoneNamedN(zz, "Wait On Fence", true);
-        result = device.waitForFences(1, &_inFlightFences[_currentFrame], vk::True, std::numeric_limits<uint64_t>::max());
+        result = device.waitForFences(1, &_inFlightFences[_currentFrame], vk::True, std::numeric_limits<bb::u64>::max());
         util::VK_ASSERT(result, "Failed waiting on in flight fence!");
     }
 
@@ -610,11 +610,11 @@ void Renderer::Render(float deltaTime)
     _bloomSettings->Update(_currentFrame);
     _viewport.SubmitDrawInfo(_uiPass->GetDrawList());
 
-    uint32_t imageIndex {};
+    bb::u32 imageIndex {};
     {
         ZoneNamedN(zz, "Acquire Next Image", true);
 
-        result = device.acquireNextImageKHR(_swapChain->GetSwapChain(), std::numeric_limits<uint64_t>::max(),
+        result = device.acquireNextImageKHR(_swapChain->GetSwapChain(), std::numeric_limits<bb::u64>::max(),
             _imageAvailableSemaphores[_currentFrame], nullptr, &imageIndex);
 
         if (result == vk::Result::eErrorOutOfDateKHR || result == vk::Result::eSuboptimalKHR)

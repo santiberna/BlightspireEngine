@@ -53,7 +53,7 @@ void IBLPass::RecordCommands(vk::CommandBuffer commandBuffer)
 
     util::TransitionImageLayout(commandBuffer, irradianceMap.handle, irradianceMap.format, vk::ImageLayout::eUndefined, vk::ImageLayout::eColorAttachmentOptimal, 6, 0, 1);
 
-    for (size_t i = 0; i < 6; ++i)
+    for (bb::usize i = 0; i < 6; ++i)
     {
         vk::RenderingAttachmentInfoKHR finalColorAttachmentInfo {
             .imageView = irradianceMap.layerViews[i].view,
@@ -65,7 +65,7 @@ void IBLPass::RecordCommands(vk::CommandBuffer commandBuffer)
         vk::RenderingInfoKHR renderingInfo {
             .renderArea = {
                 .offset = vk::Offset2D { 0, 0 },
-                .extent = vk::Extent2D { static_cast<uint32_t>(irradianceMap.width), static_cast<uint32_t>(irradianceMap.height) },
+                .extent = vk::Extent2D { static_cast<bb::u32>(irradianceMap.width), static_cast<bb::u32>(irradianceMap.height) },
             },
             .layerCount = 1,
             .colorAttachmentCount = 1,
@@ -77,7 +77,7 @@ void IBLPass::RecordCommands(vk::CommandBuffer commandBuffer)
         commandBuffer.beginRenderingKHR(&renderingInfo);
 
         IrradiancePushConstant pc {
-            .index = static_cast<uint32_t>(i),
+            .index = static_cast<bb::u32>(i),
             .hdriIndex = _environmentMap.getIndex(),
         };
 
@@ -105,9 +105,9 @@ void IBLPass::RecordCommands(vk::CommandBuffer commandBuffer)
 
     auto& layers = prefilterMap.layerViews;
 
-    for (size_t i = 0; i < prefilterMap.mips; ++i)
+    for (bb::usize i = 0; i < prefilterMap.mips; ++i)
     {
-        for (size_t j = 0; j < 6; ++j)
+        for (bb::usize j = 0; j < 6; ++j)
         {
             vk::RenderingAttachmentInfoKHR finalColorAttachmentInfo {
                 .imageView = layers[j].mipViews[i],
@@ -115,7 +115,7 @@ void IBLPass::RecordCommands(vk::CommandBuffer commandBuffer)
                 .loadOp = vk::AttachmentLoadOp::eLoad,
                 .storeOp = vk::AttachmentStoreOp::eStore,
             };
-            uint32_t size = static_cast<uint32_t>(prefilterMap.width >> i);
+            bb::u32 size = static_cast<bb::u32>(prefilterMap.width >> i);
 
             vk::RenderingInfoKHR renderingInfo {
                 .renderArea = {
@@ -132,7 +132,7 @@ void IBLPass::RecordCommands(vk::CommandBuffer commandBuffer)
             commandBuffer.beginRenderingKHR(&renderingInfo);
 
             PrefilterPushConstant pc {
-                .faceIndex = static_cast<uint32_t>(j),
+                .faceIndex = static_cast<bb::u32>(j),
                 .roughness = static_cast<float>(i) / static_cast<float>(prefilterMap.mips - 1),
                 .hdriIndex = _environmentMap.getIndex(),
             };

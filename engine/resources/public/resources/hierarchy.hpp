@@ -25,39 +25,39 @@ struct NodeLightData
 struct NodeMeshData
 {
     MeshType type {};
-    uint32_t index {};
+    bb::u32 index {};
 };
 
 struct NodeJointData
 {
-    uint32_t index {};
+    bb::u32 index {};
     glm::mat4 inverseBind = glm::mat4(1.0f);
 };
 
 struct NodePhysicsData
 {
-    uint32_t colliderIndex {};
+    bb::u32 colliderIndex {};
 };
 
 struct Node
 {
     std::string name {};
     glm::mat4 transform { 1.0f };
-    std::vector<uint32_t> childrenIndices {};
+    std::vector<bb::u32> childrenIndices {};
 
     std::optional<NodeMeshData> mesh {};
     std::optional<NodeLightData> light {};
     std::optional<NodeJointData> joint {};
     std::optional<NodePhysicsData> physics {};
 
-    std::unordered_map<uint32_t, TransformAnimationSpline> animationSplines {};
-    std::optional<uint32_t> skeletonNode {};
+    std::unordered_map<bb::u32, TransformAnimationSpline> animationSplines {};
+    std::optional<bb::u32> skeletonNode {};
 };
 
 struct Hierarchy
 {
-    uint32_t root {};
+    bb::u32 root {};
     std::vector<Node> nodes {};
 
-    std::optional<uint32_t> skeletonRoot = std::nullopt;
+    std::optional<bb::u32> skeletonRoot = std::nullopt;
 };

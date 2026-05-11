@@ -58,7 +58,7 @@ void Editor::DrawHierarchy()
 
         if (relationship != nullptr && relationship->childrenCount > 0)
         {
-            const bool nodeOpen = ImGui::TreeNodeEx(std::bit_cast<void*>(static_cast<size_t>(entity)), nodeFlags, "%s", name);
+            const bool nodeOpen = ImGui::TreeNodeEx(std::bit_cast<void*>(static_cast<bb::usize>(entity)), nodeFlags, "%s", name);
 
             if (ImGui::IsItemClicked())
             {
@@ -68,7 +68,7 @@ void Editor::DrawHierarchy()
             if (nodeOpen)
             {
                 entt::entity current = relationship->first;
-                for (size_t i = 0; i < relationship->childrenCount; ++i)
+                for (bb::usize i = 0; i < relationship->childrenCount; ++i)
                 {
                     if (_ecs.GetRegistry().valid(current))
                     {
@@ -82,7 +82,7 @@ void Editor::DrawHierarchy()
         }
         else
         {
-            ImGui::TreeNodeEx(std::bit_cast<void*>(static_cast<size_t>(entity)), nodeFlags | ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen, "%s", name);
+            ImGui::TreeNodeEx(std::bit_cast<void*>(static_cast<bb::usize>(entity)), nodeFlags | ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen, "%s", name);
             if (ImGui::IsItemClicked())
             {
                 _selectedEntity = entity;

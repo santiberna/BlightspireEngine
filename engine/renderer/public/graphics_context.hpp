@@ -19,7 +19,7 @@ namespace bb
 struct Buffer;
 }
 
-constexpr uint32_t MAX_BINDLESS_RESOURCES = 1024;
+constexpr bb::u32 MAX_BINDLESS_RESOURCES = 1024;
 
 class GraphicsContext
 {

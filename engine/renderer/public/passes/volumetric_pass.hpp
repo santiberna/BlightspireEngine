@@ -5,7 +5,6 @@
 #include "settings.hpp"
 #include "swap_chain.hpp"
 
-#include <cstdint>
 #include <memory>
 
 class BloomSettings;
@@ -18,7 +17,7 @@ public:
     VolumetricPass(const std::shared_ptr<GraphicsContext>& context, ResourceHandle<GPUImage> hdrTarget, ResourceHandle<GPUImage> bloomTarget, ResourceHandle<GPUImage> outputTarget, const GBuffers& gBuffers, const BloomSettings& bloomSettings, ECSModule& ecs);
     ~VolumetricPass() final;
 
-    void RecordCommands(vk::CommandBuffer commandBuffer, uint32_t currentFrame, const RenderSceneDescription& scene) final;
+    void RecordCommands(vk::CommandBuffer commandBuffer, bb::u32 currentFrame, const RenderSceneDescription& scene) final;
 
     void AddGunShot(const glm::vec3 origin, const glm::vec3 direction)
     {
@@ -64,15 +63,15 @@ private:
 
     struct PushConstants
     {
-        uint32_t hdrTargetIndex;
-        uint32_t bloomTargetIndex;
-        uint32_t depthIndex;
-        uint32_t normalRIndex;
+        bb::u32 hdrTargetIndex;
+        bb::u32 bloomTargetIndex;
+        bb::u32 depthIndex;
+        bb::u32 normalRIndex;
 
-        uint32_t screenWidth;
-        uint32_t screenHeight;
+        bb::u32 screenWidth;
+        bb::u32 screenHeight;
         float time;
-        uint32_t _padding1;
+        bb::u32 _padding1;
     } _pushConstants;
 
     std::shared_ptr<GraphicsContext> _context;

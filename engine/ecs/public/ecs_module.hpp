@@ -57,7 +57,7 @@ public:
     }
 
     template <typename A>
-    void save(A& archive, [[maybe_unused]] uint32_t version) const;
+    void save(A& archive, [[maybe_unused]] bb::u32 version) const;
 
 private:
     entt::registry registry {};
@@ -65,7 +65,7 @@ private:
 };
 
 template <typename A>
-void ECSModule::save(A& archive, [[maybe_unused]] uint32_t version) const
+void ECSModule::save(A& archive, [[maybe_unused]] bb::u32 version) const
 {
     auto entityView = registry.view<entt::entity>();
     for (auto entity : entityView)

@@ -14,7 +14,6 @@
 #include "vulkan_context.hpp"
 #include "vulkan_helper.hpp"
 
-
 FrameGraphNodeCreation::FrameGraphNodeCreation(FrameGraphRenderPass& renderPass, FrameGraphRenderPassType queueType)
     : queueType(queueType)
     , renderPass(renderPass)
@@ -97,7 +96,7 @@ void FrameGraph::Build()
     CreateMemoryBarriers();
 }
 
-void FrameGraph::RecordCommands(vk::CommandBuffer commandBuffer, uint32_t currentFrame, const RenderSceneDescription& scene)
+void FrameGraph::RecordCommands(vk::CommandBuffer commandBuffer, bb::u32 currentFrame, const RenderSceneDescription& scene)
 {
     auto vkContext { _context->GetVulkanContext() };
 
@@ -154,7 +153,7 @@ void FrameGraph::ProcessNodes()
         node.edges.clear();
     }
 
-    for (uint32_t i = 0; i < _nodes.size(); i++)
+    for (bb::u32 i = 0; i < _nodes.size(); i++)
     {
         const FrameGraphNode& node = _nodes[i];
 
@@ -509,7 +508,7 @@ void FrameGraph::CreateBufferBarrier(const FrameGraphResource& resource, Resourc
 
 void FrameGraph::SortGraph()
 {
-    enum class NodeStatus : uint8_t
+    enum class NodeStatus : bb::u8
     {
         eNotProcessed,
         eVisited,
@@ -524,7 +523,7 @@ void FrameGraph::SortGraph()
     std::vector<FrameGraphNodeHandle> nodesToProcess {};
     nodesToProcess.reserve(_nodes.size());
 
-    for (uint32_t i = 0; i < _nodes.size(); ++i)
+    for (bb::u32 i = 0; i < _nodes.size(); ++i)
     {
         if (!_nodes[i].isEnabled)
         {
@@ -579,7 +578,7 @@ void FrameGraph::SortGraph()
 
     _sortedNodes.clear();
 
-    for (int32_t i = reverseSortedNodes.size() - 1; i >= 0; --i)
+    for (bb::i32 i = reverseSortedNodes.size() - 1; i >= 0; --i)
     {
         _sortedNodes.push_back(reverseSortedNodes[i]);
     }

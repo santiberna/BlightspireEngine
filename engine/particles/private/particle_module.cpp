@@ -243,7 +243,7 @@ void ParticleModule::SpawnEmitter(entt::entity entity, std::string emitterPreset
     }
 }
 
-void ParticleModule::SpawnBurst(entt::entity entity, uint32_t count, float maxInterval, float startTime, bool loop, uint32_t cycles)
+void ParticleModule::SpawnBurst(entt::entity entity, bb::u32 count, float maxInterval, float startTime, bool loop, bb::u32 cycles)
 {
     ParticleBurst burst;
     burst.count = count;
@@ -263,6 +263,6 @@ void ParticleModule::SpawnBurst(entt::entity entity, const ParticleBurst& burst)
     }
     else
     {
-        spdlog::error("Particle Emitter component from entity %i not found!", static_cast<size_t>(entity));
+        spdlog::error("Particle Emitter component from entity %i not found!", static_cast<bb::usize>(entity));
     }
 }

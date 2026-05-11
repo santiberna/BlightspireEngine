@@ -26,7 +26,7 @@ struct Settings
         float edgeThresholdMin = 0.0312;
         float edgeThresholdMax = 0.125;
         float subPixelQuality = 1.2f;
-        int32_t iterations = 12;
+        bb::i32 iterations = 12;
     } fxaa;
 
     struct Bloom

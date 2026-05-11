@@ -11,11 +11,11 @@ struct SDL_Window;
 
 struct QueueFamilyIndices
 {
-    std::optional<uint32_t> graphicsFamily;
-    std::optional<uint32_t> presentFamily;
+    std::optional<bb::u32> graphicsFamily;
+    std::optional<bb::u32> presentFamily;
 };
 
-enum class BindlessBinding : std::uint8_t
+enum class BindlessBinding : bb::u8
 {
     eImage = 0,
     eStorageImage,
@@ -45,7 +45,7 @@ public:
 
     template <typename T>
     void DebugSetObjectName(T vulkanObject, const char* name) const;
-    void DebugSetObjectName(void* vulkanObject, uint32_t objectType, const char* name) const;
+    void DebugSetObjectName(void* vulkanObject, bb::u32 objectType, const char* name) const;
 
 private:
     struct Impl;
@@ -55,5 +55,5 @@ private:
 template <typename T>
 void VulkanContext::DebugSetObjectName(T vulkanObject, const char* name) const
 {
-    DebugSetObjectName(std::bit_cast<void*>(vulkanObject), static_cast<uint32_t>(T::objectType), name);
+    DebugSetObjectName(std::bit_cast<void*>(vulkanObject), static_cast<bb::u32>(T::objectType), name);
 }

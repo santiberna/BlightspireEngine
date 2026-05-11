@@ -3,8 +3,7 @@
 #include <algorithm>
 #include <spdlog/spdlog.h>
 
-
-void AnimationControlComponent::PlayByIndex(uint32_t animationIndex, float speed, bool looping, float blendTime, bool blendMatch)
+void AnimationControlComponent::PlayByIndex(bb::u32 animationIndex, float speed, bool looping, float blendTime, bool blendMatch)
 {
     bool useBlend = blendTime > 0.0f && activeAnimation.has_value();
     if (useBlend)
@@ -96,7 +95,7 @@ std::optional<std::string> AnimationControlComponent::CurrentAnimationName()
     return animations[activeAnimation.value()].name;
 }
 
-std::optional<uint32_t> AnimationControlComponent::CurrentAnimationIndex()
+std::optional<bb::u32> AnimationControlComponent::CurrentAnimationIndex()
 {
     return activeAnimation;
 }

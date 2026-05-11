@@ -1,4 +1,5 @@
 #include "log_setup.hpp"
+#include "common.hpp"
 
 #include <ctime>
 #include <spdlog/sinks/rotating_file_sink.h>
@@ -82,8 +83,8 @@ void bb::setupFileLogger()
 
     const std::string fullName = logFileDir + logFileName + logFileExtension;
 
-    constexpr size_t maxFileSize = 1048576 * 5;
-    constexpr size_t maxFiles = 3;
+    constexpr bb::usize maxFileSize = 1048576 * 5;
+    constexpr bb::usize maxFiles = 3;
 
     auto fileLogger = spdlog::rotating_logger_mt("bblog", fullName, maxFileSize, maxFiles);
 

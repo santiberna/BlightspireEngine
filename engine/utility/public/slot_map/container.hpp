@@ -1,6 +1,5 @@
 #pragma once
 
-#include "common.hpp"
 #include "slot_map/handle.hpp"
 
 #include <optional>
@@ -13,7 +12,7 @@ template <typename T>
 class SlotMapEntry
 {
     std::optional<T> value {};
-    size_t version = 1;
+    bb::usize version = 1;
     friend SlotMap<T>;
     friend SlotMapIterator<T>;
     friend SlotMapConstIterator<T>;
@@ -54,7 +53,7 @@ private:
         }
     }
 
-    SlotMapIterator(std::vector<SlotMapEntry<T>>* storage, size_t index)
+    SlotMapIterator(std::vector<SlotMapEntry<T>>* storage, bb::usize index)
         : storage(storage)
         , index(index)
     {
@@ -63,7 +62,7 @@ private:
 
     friend class SlotMap<T>;
     std::vector<SlotMapEntry<T>>* storage;
-    size_t index {};
+    bb::usize index {};
 };
 
 template <typename T>
@@ -101,7 +100,7 @@ private:
         }
     }
 
-    SlotMapConstIterator(const std::vector<SlotMapEntry<T>>* storage, size_t index)
+    SlotMapConstIterator(const std::vector<SlotMapEntry<T>>* storage, bb::usize index)
         : storage(storage)
         , index(index)
     {
@@ -110,7 +109,7 @@ private:
 
     friend class SlotMap<T>;
     const std::vector<SlotMapEntry<T>>* storage;
-    size_t index {};
+    bb::usize index {};
 };
 template <typename T>
 class SlotMap
@@ -133,7 +132,7 @@ public:
         }
         else
         {
-            size_t index = free_list.back();
+            bb::usize index = free_list.back();
             free_list.pop_back();
 
             auto& entry = storage.at(index);
@@ -159,12 +158,12 @@ public:
         }
     }
 
-    size_t storageSize() const
+    bb::usize storageSize() const
     {
         return storage.size();
     }
 
-    size_t storageCount() const
+    bb::usize storageCount() const
     {
         return storage.size() - free_list.size();
     }
@@ -209,7 +208,7 @@ public:
 
 private:
     std::vector<SlotMapEntry<T>> storage {};
-    std::vector<size_t> free_list {};
+    std::vector<bb::usize> free_list {};
 };
 
 }

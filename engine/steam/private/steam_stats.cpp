@@ -26,7 +26,7 @@ bool SteamStatManager::StoreStats()
     if (_initialized)
     {
         // load stats
-        for (size_t i = 0; i < _stats.size(); ++i)
+        for (bb::usize i = 0; i < _stats.size(); ++i)
         {
             Stat& stat = _stats[i];
             switch (stat.type)
@@ -96,7 +96,7 @@ void SteamStatManager::OnUserStatsReceived(UserStatsReceived_t* pCallback)
         {
             spdlog::info("Received stats from Steam");
 
-            for (size_t i = 0; i < _stats.size(); ++i)
+            for (bb::usize i = 0; i < _stats.size(); ++i)
             {
                 Stat& stat = _stats[i];
 

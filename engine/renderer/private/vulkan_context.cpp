@@ -15,7 +15,7 @@ VULKAN_HPP_DEFAULT_DISPATCH_LOADER_DYNAMIC_STORAGE
 
 namespace
 {
-constexpr uint32_t VULKAN_API_VERSION = vk::makeApiVersion(0, 1, 4, 0);
+constexpr bb::u32 VULKAN_API_VERSION = vk::makeApiVersion(0, 1, 4, 0);
 
 #if BB_DEVELOPMENT
 constexpr const char* VALIDATION_LAYER = "VK_LAYER_KHRONOS_validation";
@@ -120,13 +120,13 @@ QueueFamilyIndices FindQueueFamilies(vk::PhysicalDevice device, vk::SurfaceKHR s
 {
     QueueFamilyIndices indices {};
 
-    uint32_t queueFamilyCount { 0 };
+    bb::u32 queueFamilyCount { 0 };
     device.getQueueFamilyProperties(&queueFamilyCount, nullptr);
 
     std::vector<vk::QueueFamilyProperties> queueFamilies(queueFamilyCount);
     device.getQueueFamilyProperties(&queueFamilyCount, queueFamilies.data());
 
-    for (size_t i = 0; i < queueFamilies.size(); ++i)
+    for (bb::usize i = 0; i < queueFamilies.size(); ++i)
     {
         if (queueFamilies[i].queueFlags & vk::QueueFlagBits::eGraphics)
             indices.graphicsFamily = i;
@@ -147,7 +147,7 @@ QueueFamilyIndices FindQueueFamilies(vk::PhysicalDevice device, vk::SurfaceKHR s
     return indices;
 }
 
-uint32_t RateDeviceSuitability(vk::PhysicalDevice deviceToRate, vk::SurfaceKHR surface)
+bb::u32 RateDeviceSuitability(vk::PhysicalDevice deviceToRate, vk::SurfaceKHR surface)
 {
     vk::StructureChain<vk::PhysicalDeviceFeatures2, vk::PhysicalDeviceDescriptorIndexingFeatures> structureChain;
 
@@ -160,7 +160,7 @@ uint32_t RateDeviceSuitability(vk::PhysicalDevice deviceToRate, vk::SurfaceKHR s
 
     QueueFamilyIndices familyIndices = FindQueueFamilies(deviceToRate, surface);
 
-    uint32_t score { 0 };
+    bb::u32 score { 0 };
 
     // Failed if geometry shader is not supported.
     if (!deviceFeatures.features.geometryShader)
@@ -210,7 +210,7 @@ struct VulkanContext::Impl
     vk::CommandPool command_pool;
     VmaAllocator vma_allocator;
     QueueFamilyIndices queue_family_indices;
-    uint32_t minUniformBufferOffsetAlignment;
+    bb::u32 minUniformBufferOffsetAlignment;
 
 #if BB_DEVELOPMENT
     vk::DebugUtilsMessengerEXT debug_messenger;
@@ -259,7 +259,7 @@ VulkanContext::VulkanContext(SDL_Window* window)
     requested_extensions.insert(requested_extensions.end(), std::begin(INSTANCE_EXTENSIONS), std::end(INSTANCE_EXTENSIONS));
 #endif
 
-    uint32_t sdl_extensions_count = 0;
+    bb::u32 sdl_extensions_count = 0;
     const char* const* extension_array = SDL_Vulkan_GetInstanceExtensions(&sdl_extensions_count);
     requested_extensions.insert(requested_extensions.end(), extension_array, extension_array + sdl_extensions_count);
 
@@ -293,7 +293,7 @@ VulkanContext::VulkanContext(SDL_Window* window)
     instance_info.flags = vk::InstanceCreateFlags {};
     instance_info.pApplicationInfo = &appInfo;
 
-    instance_info.enabledExtensionCount = static_cast<uint32_t>(requested_extensions.size());
+    instance_info.enabledExtensionCount = static_cast<bb::u32>(requested_extensions.size());
     instance_info.ppEnabledExtensionNames = requested_extensions.data(); // Extensions.
 
 #if BB_DEVELOPMENT
@@ -345,7 +345,7 @@ VulkanContext::VulkanContext(SDL_Window* window)
 
     for (const auto& device : devices)
     {
-        uint32_t score = RateDeviceSuitability(device, m_impl->surface);
+        bb::u32 score = RateDeviceSuitability(device, m_impl->surface);
         if (score > 0)
             candidates.emplace(score, device);
     }
@@ -357,10 +357,10 @@ VulkanContext::VulkanContext(SDL_Window* window)
     m_impl->queue_family_indices = FindQueueFamilies(m_impl->physical_device, m_impl->surface);
 
     std::vector<vk::DeviceQueueCreateInfo> queueCreateInfos {};
-    std::set<uint32_t> uniqueQueueFamilies = { m_impl->queue_family_indices.graphicsFamily.value(), m_impl->queue_family_indices.presentFamily.value() };
+    std::set<bb::u32> uniqueQueueFamilies = { m_impl->queue_family_indices.graphicsFamily.value(), m_impl->queue_family_indices.presentFamily.value() };
     float queuePriority { 1.0f };
 
-    for (uint32_t familyQueueIndex : uniqueQueueFamilies)
+    for (bb::u32 familyQueueIndex : uniqueQueueFamilies)
         queueCreateInfos.emplace_back(vk::DeviceQueueCreateInfo { .flags = vk::DeviceQueueCreateFlags {}, .queueFamilyIndex = familyQueueIndex, .queueCount = 1, .pQueuePriorities = &queuePriority });
 
     vk::StructureChain<vk::DeviceCreateInfo, vk::PhysicalDeviceFeatures2, vk::PhysicalDeviceDynamicRenderingFeaturesKHR, vk::PhysicalDeviceDescriptorIndexingFeatures, vk::PhysicalDeviceSynchronization2Features> structureChain;
@@ -386,10 +386,10 @@ VulkanContext::VulkanContext(SDL_Window* window)
     dynamicRenderingFeaturesKhr.dynamicRendering = true;
 
     auto& createInfo = structureChain.get<vk::DeviceCreateInfo>();
-    createInfo.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size());
+    createInfo.queueCreateInfoCount = static_cast<bb::u32>(queueCreateInfos.size());
     createInfo.pQueueCreateInfos = queueCreateInfos.data();
     createInfo.pEnabledFeatures = nullptr;
-    createInfo.enabledExtensionCount = static_cast<uint32_t>(DEVICE_EXTENSIONS.size());
+    createInfo.enabledExtensionCount = static_cast<bb::u32>(DEVICE_EXTENSIONS.size());
     createInfo.ppEnabledExtensionNames = DEVICE_EXTENSIONS.data();
 
     util::VK_ASSERT(m_impl->physical_device.createDevice(&createInfo, nullptr, &m_impl->device), "Failed creating a logical device!");
@@ -444,10 +444,10 @@ VulkanContext::VulkanContext(SDL_Window* window)
     spdlog::info("##### SYSTEM INFO #####");
     spdlog::info("Operating System: {}", bb::getOsName());
 
-    uint32_t apiVersion = vk::enumerateInstanceVersion().value;
-    uint32_t major = VK_VERSION_MAJOR(apiVersion);
-    uint32_t minor = VK_VERSION_MINOR(apiVersion);
-    uint32_t patch = VK_VERSION_PATCH(apiVersion);
+    bb::u32 apiVersion = vk::enumerateInstanceVersion().value;
+    bb::u32 major = VK_VERSION_MAJOR(apiVersion);
+    bb::u32 minor = VK_VERSION_MINOR(apiVersion);
+    bb::u32 patch = VK_VERSION_PATCH(apiVersion);
     spdlog::info("Vulkan Version Installed: {}.{}.{}", major, minor, patch);
 
     spdlog::info("GPU: {}", std::string(properties.deviceName));
@@ -483,7 +483,7 @@ VkCommandPool VulkanContext::CommandPool() const { return m_impl->command_pool; 
 VmaAllocator VulkanContext::MemoryAllocator() const { return m_impl->vma_allocator; }
 const QueueFamilyIndices& VulkanContext::QueueFamilies() const { return m_impl->queue_family_indices; }
 
-void VulkanContext::DebugSetObjectName(void* vulkanObject, uint32_t objectType, const char* name) const
+void VulkanContext::DebugSetObjectName(void* vulkanObject, bb::u32 objectType, const char* name) const
 {
 #if BB_DEVELOPMENT
     if (name == nullptr)
@@ -493,7 +493,7 @@ void VulkanContext::DebugSetObjectName(void* vulkanObject, uint32_t objectType, 
 
     vk::DebugUtilsObjectNameInfoEXT name_info {
         .objectType = static_cast<vk::ObjectType>(objectType),
-        .objectHandle = std::bit_cast<uint64_t>(vulkanObject),
+        .objectHandle = std::bit_cast<bb::u64>(vulkanObject),
         .pObjectName = name
     };
 

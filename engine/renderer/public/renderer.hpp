@@ -138,12 +138,12 @@ private:
     ResourceHandle<GPUImage> _hdrTarget;
     ResourceHandle<GPUImage> _ssaoTarget;
 
-    uint32_t _currentFrame { 0 };
+    bb::u32 _currentFrame { 0 };
 
     std::array<TracyVkCtx, MAX_FRAMES_IN_FLIGHT> _tracyContexts;
 
     void CreateCommandBuffers();
-    void RecordCommandBuffer(const vk::CommandBuffer& commandBuffer, uint32_t swapChainImageIndex, float deltaTime);
+    void RecordCommandBuffer(const vk::CommandBuffer& commandBuffer, bb::u32 swapChainImageIndex, float deltaTime);
     void CreateSyncObjects();
     void InitializeHDRTarget();
     void InitializeBloomTargets();

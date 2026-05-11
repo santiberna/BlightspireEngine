@@ -92,7 +92,7 @@ class SetAtFreeModule : public ModuleInterface
     };
 
 public:
-    uint32_t* target = nullptr;
+    bb::u32* target = nullptr;
 };
 
 class SetAtFreeModule2 : public ModuleInterface
@@ -110,7 +110,7 @@ class SetAtFreeModule2 : public ModuleInterface
     };
 
 public:
-    uint32_t* target = nullptr;
+    bb::u32* target = nullptr;
 };
 
 };
@@ -167,7 +167,7 @@ TEST(EngineModuleTests, EngineReset)
 
 TEST(EngineModuleTests, ModuleDeallocation)
 {
-    uint32_t target {};
+    bb::u32 target {};
     {
         MainEngine e {};
         e.GetModule<TestModules::SetAtFreeModule>().target = &target;

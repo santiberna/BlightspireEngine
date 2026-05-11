@@ -44,7 +44,7 @@ void RigidbodyComponent::OnConstructCallback(entt::registry& registry, entt::ent
     JPH::EActivation activation = motionType == JPH::EMotionType::Dynamic ? JPH::EActivation::Activate : JPH::EActivation::DontActivate;
 
     rb.bodyID = rb.bodyInterface->CreateAndAddBody(creation, activation);
-    rb.bodyInterface->SetUserData(rb.bodyID, static_cast<uint64_t>(entity));
+    rb.bodyInterface->SetUserData(rb.bodyID, static_cast<bb::u64>(entity));
 }
 
 void RigidbodyComponent::OnDestroyCallback(entt::registry& registry, entt::entity entity)

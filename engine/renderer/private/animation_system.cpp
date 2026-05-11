@@ -195,7 +195,7 @@ void AnimationSystem::RecursiveCalculateMatrix(entt::entity entity, const glm::m
 
     matrix.world = parentMatrix * translationMatrix * rotationMatrix * scaleMatrix;
 
-    for (size_t i = 0; i < node.children.size(); ++i)
+    for (bb::usize i = 0; i < node.children.size(); ++i)
     {
         if (node.children[i] == entt::null)
         {

@@ -6,7 +6,7 @@
 
 namespace bindings
 {
-int32_t AnimationControlComponentGetAnimationCount(WrenComponent<AnimationControlComponent>& component)
+bb::i32 AnimationControlComponentGetAnimationCount(WrenComponent<AnimationControlComponent>& component)
 {
     return component.component->animations.size();
 }
@@ -34,7 +34,7 @@ Animation::PlaybackOptions AnimationControlComponentCurrentPlayback(WrenComponen
 {
     return component.component->CurrentPlayback();
 }
-std::optional<uint32_t> AnimationControlComponentCurrentAnimationIndex(WrenComponent<AnimationControlComponent>& component)
+std::optional<bb::u32> AnimationControlComponentCurrentAnimationIndex(WrenComponent<AnimationControlComponent>& component)
 {
     return component.component->CurrentAnimationIndex();
 }

@@ -21,7 +21,7 @@ struct EnemyTag
 {
 };
 
-enum class SteamAchievementEnum : int32_t
+enum class SteamAchievementEnum : bb::i32
 {
     SKELETONS_KILLED_1,
     EYES_KILLED_1,
@@ -32,7 +32,7 @@ enum class SteamAchievementEnum : int32_t
     RELIC_1
 };
 
-enum class SteamStatEnum : int32_t
+enum class SteamStatEnum : bb::i32
 {
     SKELETONS_KILLED = 3,
     EYES_KILLED = 6,

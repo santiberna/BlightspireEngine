@@ -141,7 +141,7 @@ std::vector<BindingOriginVisual> SteamActionManager::GetDigitalActionGamepadOrig
     }
 
     std::array<EInputActionOrigin, STEAM_INPUT_MAX_ORIGINS> origins {};
-    uint32_t originsNum = SteamInput()->GetDigitalActionOrigins(_steamInputDeviceManager.GetGamepadHandle(), actionSetCache.actionSetHandle, itr->second, origins.data());
+    bb::u32 originsNum = SteamInput()->GetDigitalActionOrigins(_steamInputDeviceManager.GetGamepadHandle(), actionSetCache.actionSetHandle, itr->second, origins.data());
 
     // Action not bound to any input
     if (originsNum == 0)
@@ -149,7 +149,7 @@ std::vector<BindingOriginVisual> SteamActionManager::GetDigitalActionGamepadOrig
         return {};
     }
 
-    for (uint32_t i = 0; i < originsNum; ++i)
+    for (bb::u32 i = 0; i < originsNum; ++i)
     {
         BindingOriginVisual& visual = visuals.emplace_back();
         visual.bindingInputName = SteamInput()->GetStringForActionOrigin(origins[i]);
@@ -190,7 +190,7 @@ std::vector<BindingOriginVisual> SteamActionManager::GetAnalogActionGamepadOrigi
     }
 
     std::array<EInputActionOrigin, STEAM_INPUT_MAX_ORIGINS> origins {};
-    uint32_t originsNum = SteamInput()->GetAnalogActionOrigins(_steamInputDeviceManager.GetGamepadHandle(), actionSetCache.actionSetHandle, itr->second, origins.data());
+    bb::u32 originsNum = SteamInput()->GetAnalogActionOrigins(_steamInputDeviceManager.GetGamepadHandle(), actionSetCache.actionSetHandle, itr->second, origins.data());
 
     // Action not bound to any input
     if (originsNum == 0)
@@ -198,7 +198,7 @@ std::vector<BindingOriginVisual> SteamActionManager::GetAnalogActionGamepadOrigi
         return {};
     }
 
-    for (uint32_t i = 0; i < originsNum; ++i)
+    for (bb::u32 i = 0; i < originsNum; ++i)
     {
         BindingOriginVisual& visual = visuals.emplace_back();
         visual.bindingInputName = SteamInput()->GetStringForActionOrigin(origins[i]);
@@ -229,7 +229,7 @@ void SteamActionManager::CacheSteamInputHandles()
 
     _steamGameActionsCache.resize(_gameActions.size());
 
-    for (uint32_t i = 0; i < _gameActions.size(); ++i)
+    for (bb::u32 i = 0; i < _gameActions.size(); ++i)
     {
         SteamActionSetCache& cache = _steamGameActionsCache[i];
 

@@ -33,7 +33,7 @@ BuildHzbPass::~BuildHzbPass()
     device.destroy(_hzbUpdateTemplate);
 }
 
-void BuildHzbPass::RecordCommands(vk::CommandBuffer commandBuffer, [[maybe_unused]] uint32_t currentFrame, [[maybe_unused]] const RenderSceneDescription& scene)
+void BuildHzbPass::RecordCommands(vk::CommandBuffer commandBuffer, [[maybe_unused]] bb::u32 currentFrame, [[maybe_unused]] const RenderSceneDescription& scene)
 {
     TracyVkZone(scene.tracyContext, commandBuffer, "Build HZB");
 
@@ -41,9 +41,9 @@ void BuildHzbPass::RecordCommands(vk::CommandBuffer commandBuffer, [[maybe_unuse
     const auto* hzb = imageResourceManager.Access(_cameraBatch.HZBImage());
     const auto* depth = imageResourceManager.Access(_cameraBatch.DepthImage());
 
-    for (size_t i = 0; i < hzb->mips; ++i)
+    for (bb::usize i = 0; i < hzb->mips; ++i)
     {
-        uint32_t mipSize = hzb->width >> i;
+        bb::u32 mipSize = hzb->width >> i;
 
         vk::ImageView inputTexture = i == 0 ? depth->view : hzb->layerViews[0].mipViews[i - 1];
         vk::ImageView outputTexture = hzb->layerViews[0].mipViews[i];
@@ -64,9 +64,9 @@ void BuildHzbPass::RecordCommands(vk::CommandBuffer commandBuffer, [[maybe_unuse
 
         commandBuffer.bindPipeline(vk::PipelineBindPoint::eCompute, _buildHzbPipeline);
 
-        commandBuffer.pushConstants<uint32_t>(_buildHzbPipelineLayout, vk::ShaderStageFlagBits::eCompute, 0, { mipSize });
+        commandBuffer.pushConstants<bb::u32>(_buildHzbPipelineLayout, vk::ShaderStageFlagBits::eCompute, 0, { mipSize });
 
-        uint32_t groupSize = math::DivideRoundingUp(mipSize, 16);
+        bb::u32 groupSize = math::DivideRoundingUp(mipSize, 16);
         commandBuffer.dispatch(groupSize, groupSize, 1);
 
         util::TransitionImageLayout(commandBuffer, hzb->handle, hzb->format, vk::ImageLayout::eGeneral, vk::ImageLayout::eShaderReadOnlyOptimal, 1, i, 1);

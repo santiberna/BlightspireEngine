@@ -17,7 +17,7 @@ public:
     ShadowPass(const std::shared_ptr<GraphicsContext>& context, const GPUScene& gpuScene, const CameraBatch& cameraBatch);
     ~ShadowPass() final;
 
-    void RecordCommands(vk::CommandBuffer commandBuffer, uint32_t currentFrame, const RenderSceneDescription& scene) final;
+    void RecordCommands(vk::CommandBuffer commandBuffer, bb::u32 currentFrame, const RenderSceneDescription& scene) final;
 
     NON_MOVABLE(ShadowPass);
     NON_COPYABLE(ShadowPass);
@@ -35,5 +35,5 @@ private:
     void CreateStaticPipeline(const GPUScene& gpuScene);
     void CreateSkinnedPipeline(const GPUScene& gpuScene);
 
-    void DrawGeometry(vk::CommandBuffer commandBuffer, uint32_t currentFrame, const RenderSceneDescription& scene, bool prepass);
+    void DrawGeometry(vk::CommandBuffer commandBuffer, bb::u32 currentFrame, const RenderSceneDescription& scene, bool prepass);
 };

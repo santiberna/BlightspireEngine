@@ -24,7 +24,7 @@ BloomSettings::~BloomSettings()
     device.destroy(_descriptorSetLayout);
 }
 
-void BloomSettings::Update(uint32_t currentFrame)
+void BloomSettings::Update(bb::u32 currentFrame)
 {
     _data.strength = _settings.strength;
     _data.colorWeights = _settings.colorWeights;
@@ -60,7 +60,7 @@ void BloomSettings::CreateUniformBuffers()
     auto vkContext { _context->GetVulkanContext() };
     auto resources { _context->Resources() };
 
-    for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
+    for (bb::usize i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
     {
         std::string name = "[] Bloom settings UBO";
 
@@ -85,13 +85,13 @@ void BloomSettings::CreateUniformBuffers()
     util::VK_ASSERT(device.allocateDescriptorSets(&allocateInfo, _frameData.descriptorSets.data()),
         "Failed allocating descriptor sets!");
 
-    for (size_t i = 0; i < _frameData.descriptorSets.size(); ++i)
+    for (bb::usize i = 0; i < _frameData.descriptorSets.size(); ++i)
     {
         UpdateDescriptorSet(i);
     }
 }
 
-void BloomSettings::UpdateDescriptorSet(uint32_t currentFrame)
+void BloomSettings::UpdateDescriptorSet(bb::u32 currentFrame)
 {
     auto vkContext { _context->GetVulkanContext() };
     auto resources { _context->Resources() };

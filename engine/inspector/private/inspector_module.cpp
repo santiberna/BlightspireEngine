@@ -403,8 +403,8 @@ void DrawTonemappingSettings(Settings& settings)
     ImGui::SeparatorText("Tonemapping");
     ImGui::SliderFloat("Exposure", &tonemapping.exposure, 0.0f, 2.0f);
 
-    int32_t value = static_cast<int32_t>(tonemapping.tonemappingFunction);
-    int32_t i { 0 };
+    bb::i32 value = static_cast<bb::i32>(tonemapping.tonemappingFunction);
+    bb::i32 i { 0 };
     for (const auto& name : magic_enum::enum_names<TonemappingFunctions>())
     {
         ImGui::RadioButton(name.data(), &value, i++);
@@ -458,7 +458,7 @@ void DrawTonemappingSettings(Settings& settings)
     ImGui::DragFloat("Palette Amount", &tonemapping.paletteAmount, 0.01f);
 
     // Iterate over the palette vector
-    for (size_t i = 0; i < tonemapping.palette.size();)
+    for (bb::usize i = 0; i < tonemapping.palette.size();)
     {
         // Push a unique ID so that ImGui can differentiate each item
         ImGui::PushID(static_cast<int>(i));

@@ -31,7 +31,7 @@ SSAOPass::SSAOPass(const std::shared_ptr<GraphicsContext>& context, const Settin
     CreatePipeline();
 }
 
-void SSAOPass::RecordCommands(vk::CommandBuffer commandBuffer, uint32_t currentFrame, [[maybe_unused]] const RenderSceneDescription& scene)
+void SSAOPass::RecordCommands(vk::CommandBuffer commandBuffer, bb::u32 currentFrame, [[maybe_unused]] const RenderSceneDescription& scene)
 {
     TracyVkZone(scene.tracyContext, commandBuffer, "SSAO Pass");
 
@@ -120,7 +120,7 @@ void SSAOPass::CreateBuffers()
     std::uniform_real_distribution<float> randomFloats(0.0, 1.0); // random floats between [0.0, 1.0]
     std::default_random_engine generator;
     std::vector<glm::vec4> ssaoKernel;
-    for (uint32_t i = 0; i < 32; ++i)
+    for (bb::u32 i = 0; i < 32; ++i)
     {
         glm::vec4 sample(
             randomFloats(generator) * 2.0 - 1.0,
@@ -138,7 +138,7 @@ void SSAOPass::CreateBuffers()
     }
 
     std::vector<glm::vec4> ssaoNoise;
-    for (uint32_t i = 0; i < 16; i++)
+    for (bb::u32 i = 0; i < 16; i++)
     {
         glm::vec4 noise(
             randomFloats(generator) * 2.0 - 1.0,
@@ -160,7 +160,7 @@ void SSAOPass::CreateBuffers()
 
     std::shared_ptr<std::byte[]> byteData = std::make_shared<std::byte[]>(ssaoNoise.size() * sizeof(float) * 4);
 
-    for (size_t i = 0; i < ssaoNoise.size(); i++)
+    for (bb::usize i = 0; i < ssaoNoise.size(); i++)
     {
         // No clamping, store raw floats (including negative)
         const auto& color = ssaoNoise[i];

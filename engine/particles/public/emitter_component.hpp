@@ -5,8 +5,7 @@
 #include <entt/entity/registry.hpp>
 #include <imgui_entt_entity_editor.hpp>
 
-
-enum class EmitterPresetID : uint8_t;
+enum class EmitterPresetID : bb::u8;
 
 struct ActiveEmitterTag
 {
@@ -20,7 +19,7 @@ struct TestEmitterTag
 struct ParticleEmitterComponent
 {
     bool emitOnce = true;
-    uint32_t count = 0;
+    bb::u32 count = 0;
     float maxEmitDelay = 1.0f;
     float currentEmitDelay = 0.0f;
     glm::vec3 positionOffset = glm::vec3(0.0f);

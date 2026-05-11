@@ -82,19 +82,19 @@ void GraphicsContext::CreateBindlessDescriptorSet()
     vk::DescriptorSetLayoutBinding& combinedImageSampler = bindings[0];
     combinedImageSampler.descriptorType = vk::DescriptorType::eCombinedImageSampler;
     combinedImageSampler.descriptorCount = MAX_BINDLESS_RESOURCES;
-    combinedImageSampler.binding = static_cast<uint32_t>(BindlessBinding::eImage);
+    combinedImageSampler.binding = static_cast<bb::u32>(BindlessBinding::eImage);
     combinedImageSampler.stageFlags = vk::ShaderStageFlagBits::eAllGraphics | vk::ShaderStageFlagBits::eCompute;
 
     vk::DescriptorSetLayoutBinding& storageImage = bindings[1];
     storageImage.descriptorType = vk::DescriptorType::eStorageImage;
     storageImage.descriptorCount = MAX_BINDLESS_RESOURCES;
-    storageImage.binding = static_cast<uint32_t>(BindlessBinding::eStorageImage);
+    storageImage.binding = static_cast<bb::u32>(BindlessBinding::eStorageImage);
     storageImage.stageFlags = vk::ShaderStageFlagBits::eAllGraphics | vk::ShaderStageFlagBits::eCompute;
 
     vk::DescriptorSetLayoutBinding& materialBinding = bindings[2];
     materialBinding.descriptorType = vk::DescriptorType::eUniformBuffer;
     materialBinding.descriptorCount = 1;
-    materialBinding.binding = static_cast<uint32_t>(BindlessBinding::eStorageBuffer);
+    materialBinding.binding = static_cast<bb::u32>(BindlessBinding::eStorageBuffer);
     materialBinding.stageFlags = vk::ShaderStageFlagBits::eAllGraphics | vk::ShaderStageFlagBits::eCompute;
 
     vk::StructureChain<vk::DescriptorSetLayoutCreateInfo, vk::DescriptorSetLayoutBindingFlagsCreateInfo> structureChain;
@@ -152,7 +152,7 @@ void GraphicsContext::UpdateBindlessImages()
         _sampler = samplers.GetDefaultSampler();
     }
 
-    for (uint32_t i = 0; i < MAX_BINDLESS_RESOURCES; ++i)
+    for (bb::u32 i = 0; i < MAX_BINDLESS_RESOURCES; ++i)
     {
         auto* fallback = imageResourceManager.Access(_fallbackImage);
         bindless->_bindlessImageInfos.at(i).imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
@@ -177,10 +177,10 @@ void GraphicsContext::UpdateBindlessImages()
         bindless->_bindlessImageInfos.at(i).sampler = samplers.Access(texture.sampler)->sampler;
     }
 
-    for (uint32_t i = 0; i < MAX_BINDLESS_RESOURCES; ++i)
+    for (bb::u32 i = 0; i < MAX_BINDLESS_RESOURCES; ++i)
     {
         bindless->_bindlessImageWrites.at(i).dstSet = bindless->_bindlessSet;
-        bindless->_bindlessImageWrites.at(i).dstBinding = static_cast<uint32_t>(BindlessBinding::eImage);
+        bindless->_bindlessImageWrites.at(i).dstBinding = static_cast<bb::u32>(BindlessBinding::eImage);
         bindless->_bindlessImageWrites.at(i).dstArrayElement = i;
         bindless->_bindlessImageWrites.at(i).descriptorType = vk::DescriptorType::eCombinedImageSampler;
         bindless->_bindlessImageWrites.at(i).descriptorCount = 1;
@@ -217,7 +217,7 @@ void GraphicsContext::UpdateBindlessMaterials()
     bindless->_bindlessMaterialInfo.range = sizeof(GPUMaterial::GPUInfo) * materialResourceManager.Resources().storageSize();
 
     bindless->_bindlessMaterialWrite.dstSet = bindless->_bindlessSet;
-    bindless->_bindlessMaterialWrite.dstBinding = static_cast<uint32_t>(BindlessBinding::eStorageBuffer);
+    bindless->_bindlessMaterialWrite.dstBinding = static_cast<bb::u32>(BindlessBinding::eStorageBuffer);
     bindless->_bindlessMaterialWrite.dstArrayElement = 0;
     bindless->_bindlessMaterialWrite.descriptorType = vk::DescriptorType::eUniformBuffer;
     bindless->_bindlessMaterialWrite.descriptorCount = 1;

@@ -13,7 +13,6 @@
 #include "vulkan_context.hpp"
 #include "vulkan_helper.hpp"
 
-
 #include <array>
 #include <imgui_impl_vulkan.h>
 #include <vector>
@@ -36,7 +35,7 @@ DebugPass::~DebugPass()
     device.destroy(_pipelineLayout);
 }
 
-void DebugPass::RecordCommands(vk::CommandBuffer commandBuffer, uint32_t currentFrame, const RenderSceneDescription& scene)
+void DebugPass::RecordCommands(vk::CommandBuffer commandBuffer, bb::u32 currentFrame, const RenderSceneDescription& scene)
 {
     TracyVkZone(scene.tracyContext, commandBuffer, "Debug Pass");
 
@@ -89,7 +88,7 @@ void DebugPass::RecordCommands(vk::CommandBuffer commandBuffer, uint32_t current
     vk::Buffer buf = buffer->buffer;
     commandBuffer.bindVertexBuffers(0, 1, &buf, offsets.data());
 
-    uint32_t vertexCount = static_cast<uint32_t>(_linesData.size());
+    bb::u32 vertexCount = static_cast<bb::u32>(_linesData.size());
     commandBuffer.draw(vertexCount, 1, 0, 0);
 
     _context->GetDrawStats().Draw(vertexCount);

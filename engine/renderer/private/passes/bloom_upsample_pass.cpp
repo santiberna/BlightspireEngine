@@ -23,16 +23,16 @@ BloomUpsamplePass::~BloomUpsamplePass()
     device.destroy(_pipelineLayout);
 }
 
-void BloomUpsamplePass::RecordCommands(vk::CommandBuffer commandBuffer, uint32_t currentFrame, const RenderSceneDescription& scene)
+void BloomUpsamplePass::RecordCommands(vk::CommandBuffer commandBuffer, bb::u32 currentFrame, const RenderSceneDescription& scene)
 {
     TracyVkZone(scene.tracyContext, commandBuffer, "Bloom Upsample Pass");
 
     const GPUImage* image = _context->Resources()->GetImageResourceManager().Access(_bloomImage);
 
-    constexpr uint8_t MAX_BLOOM_MIPS = 3;
-    const uint32_t mips = glm::min<uint8_t>(image->mips - 1, MAX_BLOOM_MIPS);
+    constexpr bb::u8 MAX_BLOOM_MIPS = 3;
+    const bb::u32 mips = glm::min<bb::u8>(image->mips - 1, MAX_BLOOM_MIPS);
 
-    uint32_t startTargetMip = mips - 1;
+    bb::u32 startTargetMip = mips - 1;
     glm::vec2 resolution = glm::vec2(image->width >> startTargetMip, image->height >> startTargetMip);
 
     vk::ImageMemoryBarrier2 startBarrier {};
@@ -48,9 +48,9 @@ void BloomUpsamplePass::RecordCommands(vk::CommandBuffer commandBuffer, uint32_t
     startDependencyInfo.pImageMemoryBarriers = &startBarrier;
     commandBuffer.pipelineBarrier2(startDependencyInfo);
 
-    for (uint32_t mip = mips; mip > 0; --mip)
+    for (bb::u32 mip = mips; mip > 0; --mip)
     {
-        uint32_t nextMip = mip - 1;
+        bb::u32 nextMip = mip - 1;
 
         vk::RenderingAttachmentInfoKHR finalColorAttachmentInfo {
             .imageView = image->layerViews[0].mipViews[nextMip],
@@ -61,7 +61,7 @@ void BloomUpsamplePass::RecordCommands(vk::CommandBuffer commandBuffer, uint32_t
 
         vk::Rect2D renderArea {
             .offset = { 0, 0 },
-            .extent = { static_cast<uint32_t>(resolution.x), static_cast<uint32_t>(resolution.y) },
+            .extent = { static_cast<bb::u32>(resolution.x), static_cast<bb::u32>(resolution.y) },
         };
 
         vk::RenderingInfoKHR renderingInfo {
@@ -81,8 +81,8 @@ void BloomUpsamplePass::RecordCommands(vk::CommandBuffer commandBuffer, uint32_t
 
         struct PushConstants
         {
-            uint32_t sourceIndex;
-            uint32_t mip;
+            bb::u32 sourceIndex;
+            bb::u32 mip;
         } pushConstants {};
         pushConstants.sourceIndex = _bloomImage.getIndex();
         pushConstants.mip = mip;

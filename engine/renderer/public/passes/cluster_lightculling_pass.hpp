@@ -15,7 +15,7 @@ public:
         ResourceHandle<bb::Buffer>& lightCells, ResourceHandle<bb::Buffer>& lightIndices);
     ~ClusterLightCullingPass() final;
 
-    void RecordCommands(vk::CommandBuffer commandBuffer, uint32_t currentFrame, const RenderSceneDescription& scene) final;
+    void RecordCommands(vk::CommandBuffer commandBuffer, bb::u32 currentFrame, const RenderSceneDescription& scene) final;
 
     NON_MOVABLE(ClusterLightCullingPass);
     NON_COPYABLE(ClusterLightCullingPass);

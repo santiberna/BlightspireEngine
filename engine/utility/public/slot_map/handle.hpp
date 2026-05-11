@@ -1,6 +1,6 @@
 #pragma once
 
-#include <cstdint>
+#include "common.hpp"
 
 namespace bb
 {
@@ -22,11 +22,11 @@ public:
     explicit operator bool() const { return isValid(); }
 
     [[nodiscard]] bool isValid() const { return version != 0; }
-    [[nodiscard]] uint32_t getIndex() const { return index; }
+    [[nodiscard]] bb::u32 getIndex() const { return index; }
 
 private:
-    uint32_t index {};
-    uint32_t version {};
+    bb::u32 index {};
+    bb::u32 version {};
 
     friend SlotMap<T>;
     friend SlotMapIterator<T>;

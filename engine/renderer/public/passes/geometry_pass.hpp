@@ -18,7 +18,7 @@ public:
     GeometryPass(const std::shared_ptr<GraphicsContext>& context, const GBuffers& gBuffers, const CameraBatch& cameraBatch);
     ~GeometryPass() final;
 
-    void RecordCommands(vk::CommandBuffer commandBuffer, uint32_t currentFrame, const RenderSceneDescription& scene) final;
+    void RecordCommands(vk::CommandBuffer commandBuffer, bb::u32 currentFrame, const RenderSceneDescription& scene) final;
 
     NON_MOVABLE(GeometryPass);
     NON_COPYABLE(GeometryPass);
@@ -26,8 +26,8 @@ public:
 private:
     struct PushConstants
     {
-        uint32_t isDirectCommand {};
-        uint32_t directInstanceIndex {};
+        bb::u32 isDirectCommand {};
+        bb::u32 directInstanceIndex {};
     };
 
     std::shared_ptr<GraphicsContext> _context;
@@ -43,7 +43,7 @@ private:
     void CreateStaticPipeline();
     void CreateSkinnedPipeline();
 
-    void DrawGeometry(vk::CommandBuffer commandBuffer, uint32_t currentFrame, const RenderSceneDescription& scene, bool prepass);
-    void DrawIndirectGeometry(vk::CommandBuffer commandBuffer, uint32_t currentFrame, const RenderSceneDescription& scene);
-    void DrawDirectGeometry(vk::CommandBuffer commandBuffer, uint32_t currentFrame, const RenderSceneDescription& scene);
+    void DrawGeometry(vk::CommandBuffer commandBuffer, bb::u32 currentFrame, const RenderSceneDescription& scene, bool prepass);
+    void DrawIndirectGeometry(vk::CommandBuffer commandBuffer, bb::u32 currentFrame, const RenderSceneDescription& scene);
+    void DrawDirectGeometry(vk::CommandBuffer commandBuffer, bb::u32 currentFrame, const RenderSceneDescription& scene);
 };

@@ -18,13 +18,13 @@ namespace bb
 struct Buffer;
 }
 
-enum class FrameGraphRenderPassType : uint8_t
+enum class FrameGraphRenderPassType : bb::u8
 {
     eGraphics,
     eCompute,
 };
 
-enum class FrameGraphResourceType : uint8_t
+enum class FrameGraphResourceType : bb::u8
 {
     eNone = 1 << 0,
 
@@ -42,8 +42,8 @@ enum class FrameGraphResourceType : uint8_t
 };
 GENERATE_ENUM_FLAG_OPERATORS(FrameGraphResourceType)
 
-using FrameGraphNodeHandle = uint32_t;
-using FrameGraphResourceHandle = uint32_t;
+using FrameGraphNodeHandle = bb::u32;
+using FrameGraphResourceHandle = bb::u32;
 
 struct FrameGraphResourceInfo
 {
@@ -83,7 +83,7 @@ struct FrameGraphResource
 
     FrameGraphResourceType type = FrameGraphResourceType::eNone;
     FrameGraphResourceInfo info;
-    uint32_t version = 0;
+    bb::u32 version = 0;
 
     FrameGraphNodeHandle producer = 0;
     FrameGraphResourceHandle output = 0;
@@ -96,7 +96,7 @@ class FrameGraphRenderPass
 {
 public:
     virtual ~FrameGraphRenderPass() = default;
-    virtual void RecordCommands(vk::CommandBuffer commandBuffer, [[maybe_unused]] uint32_t currentFrame, [[maybe_unused]] const RenderSceneDescription& scene) = 0;
+    virtual void RecordCommands(vk::CommandBuffer commandBuffer, [[maybe_unused]] bb::u32 currentFrame, [[maybe_unused]] const RenderSceneDescription& scene) = 0;
 };
 
 struct FrameGraphNodeCreation
@@ -157,14 +157,14 @@ public:
     void Build();
 
     // Calls all the render passes from the built graph.
-    void RecordCommands(vk::CommandBuffer commandBuffer, uint32_t currentFrame, const RenderSceneDescription& scene);
+    void RecordCommands(vk::CommandBuffer commandBuffer, bb::u32 currentFrame, const RenderSceneDescription& scene);
 
     // Adds a new node to the graph. To actually use the node, you also need to build the graph, by calling FrameGraph::Build().
     FrameGraph& AddNode(const FrameGraphNodeCreation& creation);
 
 private:
     // Used to track resource states when generating memory barriers.
-    enum class ResourceState : uint8_t
+    enum class ResourceState : bb::u8
     {
         eFirstOuput,
         eReusedOutputAfterOutput,

@@ -21,7 +21,7 @@ class CameraBatch
 public:
     struct Draw
     {
-        Draw(const std::shared_ptr<GraphicsContext>& context, const std::string& name, uint32_t instanceCount, vk::DescriptorSetLayout drawDSL, vk::DescriptorSetLayout visibilityDSL, vk::DescriptorSetLayout redirectDSL);
+        Draw(const std::shared_ptr<GraphicsContext>& context, const std::string& name, bb::u32 instanceCount, vk::DescriptorSetLayout drawDSL, vk::DescriptorSetLayout visibilityDSL, vk::DescriptorSetLayout redirectDSL);
 
         ResourceHandle<bb::Buffer> drawBuffer;
         ResourceHandle<bb::Buffer> redirectBuffer;

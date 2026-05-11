@@ -38,8 +38,8 @@ void LoadingScreen::SetDisplayText(std::string text)
     std::array<std::string, MAX_LINE_BREAKS> lines;
     lines.fill("");
 
-    uint32_t i = 0;
-    size_t offset = text.find("\n");
+    bb::u32 i = 0;
+    bb::usize offset = text.find("\n");
     while (true)
     {
         if (offset == std::string::npos)
@@ -57,7 +57,7 @@ void LoadingScreen::SetDisplayText(std::string text)
 
     float totalTextHeightOffset = (static_cast<float>(_font.lock()->metrics.resolutionY) * static_cast<float>(i)) / 2.0f;
 
-    for (size_t i = 0; i < lines.size(); i++)
+    for (bb::usize i = 0; i < lines.size(); i++)
     {
         auto line = lines[i];
         auto textElement = _displayTexts[i].lock();

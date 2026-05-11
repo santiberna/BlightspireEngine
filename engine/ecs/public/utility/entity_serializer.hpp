@@ -12,7 +12,7 @@ public:
     }
 
     template <class Archive>
-    void save(Archive& archive, uint32_t const version) const;
+    void save(Archive& archive, bb::u32 const version) const;
 
 private:
     const entt::registry& _registry;
@@ -20,7 +20,7 @@ private:
 };
 
 template <class Archive>
-void EntitySerializer::save(Archive& archive, uint32_t version) const
+void EntitySerializer::save(Archive& archive, bb::u32 version) const
 {
     [[maybe_unused]] static auto trySaveComponent = [&]<typename T>()
     {

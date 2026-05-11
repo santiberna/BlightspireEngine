@@ -28,13 +28,13 @@ ClusterGenerationPass::~ClusterGenerationPass()
     device.destroy(_pipelineLayout);
 }
 
-void ClusterGenerationPass::RecordCommands(vk::CommandBuffer commandBuffer, uint32_t currentFrame, const RenderSceneDescription& scene)
+void ClusterGenerationPass::RecordCommands(vk::CommandBuffer commandBuffer, bb::u32 currentFrame, const RenderSceneDescription& scene)
 {
     TracyVkZone(scene.tracyContext, commandBuffer, "Cluster AABB Generation");
     commandBuffer.bindPipeline(vk::PipelineBindPoint::eCompute, _pipeline);
 
     _pushConstants.screenSize = glm::vec2(_swapChain.GetExtent().width, _swapChain.GetExtent().height);
-    _numTilesX = static_cast<uint32_t>(std::ceil(_pushConstants.screenSize.x / CLUSTER_X));
+    _numTilesX = static_cast<bb::u32>(std::ceil(_pushConstants.screenSize.x / CLUSTER_X));
     _pushConstants.tileSizes = glm::uvec4(CLUSTER_X, CLUSTER_Y, CLUSTER_Z, _numTilesX);
     _pushConstants.normPerTileSize = glm::vec2(1.0f / _pushConstants.tileSizes.x, 1.0f / _pushConstants.tileSizes.y);
 

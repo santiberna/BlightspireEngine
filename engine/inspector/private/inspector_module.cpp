@@ -597,7 +597,7 @@ void DrawSettingsFileDialog(Engine& engine, DataStore<Settings>& settings)
             if(ImGui::Button("Set as path"))
             {
                 engine.GetModule<RendererModule>().GetRenderer()->FlushCommands();
-                settings.ChangePath(str);
+                settings.SetPathAndReimport(str);
             }
             ImGui::PopID();
         }

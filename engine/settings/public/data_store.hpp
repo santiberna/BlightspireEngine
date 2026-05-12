@@ -24,7 +24,7 @@ public:
         }
     }
 
-    void ChangePath(const std::string& path)
+    void SetPathAndReimport(const std::string& path)
     {
         _path = path;
         ReadFile();

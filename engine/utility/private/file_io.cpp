@@ -52,7 +52,13 @@ bool fileIO::MakeDirectory(const std::string& path)
 
 std::vector<std::string> fileIO::ListFilesInDirectory(const std::string& path)
 {
+    if(!PHYSFS_isDirectory(path.c_str()))
+    {
+        return {};
+    }
+
     std::vector<std::string> files;
+
     PhysFS::enumerate(path, [](void *data, const char *origdir, const char *fname)->PHYSFS_EnumerateCallbackResult
     {
         std::vector<std::string>& files = *reinterpret_cast<std::vector<std::string>*>(data);

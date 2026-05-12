@@ -32,6 +32,7 @@
 #include "vma_include.hpp"
 
 #include <spdlog/spdlog.h>
+#include <misc/cpp/imgui_stdlib.h>
 
 InspectorModule::InspectorModule() = default;
 
@@ -544,13 +545,13 @@ void DrawSettingsFileDialog(Engine& engine, DataStore<Settings>& settings)
         ImGui::EndDisabled();
     }
 
-    std::vector<std::string> files = fileIO::ListFilesInDirectory("game/config/renderer");
-    static char buf[512] = {};
-    ImGui::InputText("Name", buf, sizeof(buf));
+    static std::string buf;
+    ImGui::InputText("Name", &buf);
+
     ImGui::SameLine();
 
     bool canCreatenew =
-        buf[0] != 0 &&
+        !buf.empty() &&
         !settings.GetCurrentPath().empty();
 
     if(!canCreatenew)
@@ -560,23 +561,24 @@ void DrawSettingsFileDialog(Engine& engine, DataStore<Settings>& settings)
 
     if(ImGui::Button("Create & Copy current"))
     {
-        if(buf[0] != 0)
-        {
-            std::string path = std::string("game/config/renderer/") + buf + ".json";
-            auto wStream = fileIO::OpenWriteStream(path);
+        std::string path = std::string("game/config/renderer/") + buf + ".json";
+        auto wStream = fileIO::OpenWriteStream(path);
 
-            auto rStream = fileIO::OpenReadStream(settings.GetCurrentPath());
-            if(rStream && wStream)
-            {
-                wStream.value() << rStream.value().rdbuf();
-            }
+        auto rStream = fileIO::OpenReadStream(settings.GetCurrentPath());
+        if(rStream && wStream)
+        {
+            wStream.value() << rStream.value().rdbuf();
         }
+
+        buf.clear();
     }
 
     if(!canCreatenew)
     {
         ImGui::EndDisabled();
     }
+
+    std::vector<std::string> files = fileIO::ListFilesInDirectory("game/config/renderer");
 
     for(const auto& file : files)
     {

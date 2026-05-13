@@ -46,8 +46,13 @@ bool Exists(const std::string& path);
 /// </summary>
 bool MakeDirectory(const std::string& path);
 
-float* LoadFloatImageFromIfstream(PhysFS::ifstream& file, bb::i32* x, bb::i32* y, bb::i32* channels_in_file, bb::i32 desired_channels);
-std::byte* LoadImageFromIfstream(PhysFS::ifstream& file, bb::i32* x, bb::i32* y, bb::i32* channels_in_file, bb::i32 desired_channels);
+/// <summary>
+/// List all files in the directory at path
+/// </summary>
+std::vector<std::string> ListFilesInDirectory(const std::string& path);
+
+float* LoadFloatImageFromIfstream(PhysFS::ifstream& file, int32_t* x, int32_t* y, int32_t* channels_in_file, int32_t desired_channels);
+std::byte* LoadImageFromIfstream(PhysFS::ifstream& file, int32_t* x, int32_t* y, int32_t* channels_in_file, int32_t desired_channels);
 
 void Init(bool useStandard);
 void Deinit();

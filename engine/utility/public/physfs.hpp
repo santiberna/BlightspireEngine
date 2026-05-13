@@ -118,7 +118,7 @@ string getRealDir(string const& filename);
 
 StringList enumerateFile(string const& directory);
 
-void enumerateFiles(string const& directory, EnumFilesCallback callback, void* extra);
+void enumerate(string const& directory, EnumFilesCallback callback, void* extra);
 
 bool exists(string const& filename);
 

@@ -5,6 +5,7 @@
 #include "gpu_scene.hpp"
 #include "graphics_context.hpp"
 #include "imgui_backend.hpp"
+#include "imgui_internal.h"
 #include "implot.h"
 #include "magic_enum.hpp"
 #include "main_script.hpp"
@@ -31,6 +32,7 @@
 #include "vma_include.hpp"
 
 #include <spdlog/spdlog.h>
+#include <misc/cpp/imgui_stdlib.h>
 
 InspectorModule::InspectorModule() = default;
 
@@ -46,6 +48,7 @@ void DrawFXAASettings(Settings& settings);
 void DrawFogSettings(Settings& settings);
 void DrawTonemappingSettings(Settings& settings);
 void DrawLightingSettings(Settings& settings);
+void DrawSettingsFileDialog(Engine& engine, DataStore<Settings>& settings);
 void DrawShadowMapInspect(Engine& engine, ImGuiBackend& imguiBackend);
 
 inline void SetupImGuiStyle();
@@ -125,6 +128,7 @@ void InspectorModule::Tick([[maybe_unused]] Engine& engine)
 
         if (ImGui::BeginMenu("Renderer"))
         {
+            ImGui::MenuItem("Settings file dialog", nullptr, &_openWindows["Settings File Dialog"]);
             ImGui::MenuItem("Performance Tracker", nullptr, &_openWindows["Performance"]);
             ImGui::MenuItem("Draw Stats", nullptr, &_openWindows["RenderStats"]);
             ImGui::MenuItem("Shadow map visualisation", nullptr, &_openWindows["Shadow Map"]);
@@ -210,17 +214,15 @@ void InspectorModule::Tick([[maybe_unused]] Engine& engine)
             ImGui::EndMenu();
         }
 
-        if (ImGui::BeginMenu("Dump VMA stats"))
+        if(ImGui::Button("Dump VMA stats"))
         {
             DumpVMAStats(engine);
-            ImGui::EndMenu();
         }
-        // This should be at the end of the menu bar
 
-        if (ImGui::BeginMenu("Exit Program"))
+        // This should be at the end of the menu bar
+        if (ImGui::Button("Exit Program"))
         {
             engine.RequestShutdown(0);
-            ImGui::EndMenu();
         }
 
         ImGui::EndMainMenuBar();
@@ -286,6 +288,10 @@ void InspectorModule::Tick([[maybe_unused]] Engine& engine)
     if (_openWindows["Lighting"])
     {
         DrawLightingSettings(settings);
+    }
+    if(_openWindows["Settings File Dialog"])
+    {
+        DrawSettingsFileDialog(engine, engine.GetModule<RendererModule>().GetRenderer()->GetSettings());
     }
 
     {
@@ -514,6 +520,90 @@ void DrawLightingSettings(Settings& settings)
     ImGui::DragFloat("Ambient Strength", &lighting.ambientStrength, 0.01f, 0.0f, 16.0f);
     ImGui::DragFloat("Ambient Shadow Strength", &lighting.ambientShadowStrength, 0.01f, 0.0f, 1.0f);
     ImGui::DragFloat("Decals Normal Wrap Threshold", &lighting.decalNormalThreshold, 0.1f, 0.0f, 180.0f);
+
+    ImGui::End();
+}
+
+void DrawSettingsFileDialog(Engine& engine, DataStore<Settings>& settings)
+{
+    ImGui::Begin("Renderer settings file dialog", nullptr);
+
+    bool settingsHasCurrent = !settings.GetCurrentPath().empty();
+
+    if(!settingsHasCurrent)
+    {
+        ImGui::BeginDisabled();
+    }
+
+    if(ImGui::Button("Save changes"))
+    {
+        engine.GetModule<RendererModule>().GetRenderer()->GetSettings().Write();
+    }
+
+    if(!settingsHasCurrent)
+    {
+        ImGui::EndDisabled();
+    }
+
+    static std::string buf;
+    ImGui::InputText("Name", &buf);
+
+    ImGui::SameLine();
+
+    bool canCreatenew =
+        !buf.empty() &&
+        !settings.GetCurrentPath().empty();
+
+    if(!canCreatenew)
+    {
+        ImGui::BeginDisabled();
+    }
+
+    if(ImGui::Button("Create & Copy current"))
+    {
+        std::string path = std::string("game/config/renderer/") + buf + ".json";
+        auto wStream = fileIO::OpenWriteStream(path);
+
+        auto rStream = fileIO::OpenReadStream(settings.GetCurrentPath());
+        if(rStream && wStream)
+        {
+            wStream.value() << rStream.value().rdbuf();
+        }
+
+        buf.clear();
+    }
+
+    if(!canCreatenew)
+    {
+        ImGui::EndDisabled();
+    }
+
+    std::vector<std::string> files = fileIO::ListFilesInDirectory("game/config/renderer");
+
+    for(const auto& file : files)
+    {
+        size_t index = file.find(".json");
+        ImGui::Text("%s", index != std::string::npos ? file.substr(0, index).c_str() : file.c_str());
+
+        ImGui::SameLine();
+
+        std::string str = "game/config/renderer/";
+        str.append(file);
+        if(str == settings.GetCurrentPath())
+        {
+            ImGui::Text("Current");
+        }
+        else
+        {
+            ImGui::PushID(str.c_str());
+            if(ImGui::Button("Set as path"))
+            {
+                engine.GetModule<RendererModule>().GetRenderer()->FlushCommands();
+                settings.SetPathAndReimport(str);
+            }
+            ImGui::PopID();
+        }
+    }
 
     ImGui::End();
 }

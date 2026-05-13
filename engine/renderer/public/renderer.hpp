@@ -25,6 +25,7 @@ class SSAOPass;
 class LightingPass;
 class SkydomePass;
 class VolumetricPass;
+class DOFPass;
 class TonemappingPass;
 class FXAAPass;
 class UIPass;
@@ -68,6 +69,7 @@ public:
     SSAOPass& GetSSAOPipeline() const { return *_ssaoPass; }
     FXAAPass& GetFXAAPipeline() const { return *_fxaaPass; }
     ShadowPass& GetShadowPipeline() const { return *_shadowPass; }
+    DOFPass& GetDOFPass() const { return *_dofPass; }
     TonemappingPass& GetTonemappingPipeline() const { return *_tonemappingPass; }
     VolumetricPass& GetVolumetricPipeline() const { return *_volumetricPass; }
     ParticlePass& GetParticlePipeline() const { return *_particlePass; }
@@ -100,6 +102,7 @@ private:
     std::unique_ptr<LightingPass> _lightingPass;
     std::unique_ptr<SkydomePass> _skydomePass;
     std::unique_ptr<VolumetricPass> _volumetricPass;
+    std::unique_ptr<DOFPass> _dofPass;
     std::unique_ptr<TonemappingPass> _tonemappingPass;
     std::unique_ptr<FXAAPass> _fxaaPass;
     std::unique_ptr<UIPass> _uiPass;

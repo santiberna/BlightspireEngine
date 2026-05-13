@@ -36,6 +36,7 @@
 #include "passes/shadow_pass.hpp"
 #include "passes/skydome_pass.hpp"
 #include "passes/ssao_pass.hpp"
+#include "passes/dof_pass.hpp"
 #include "passes/tonemapping_pass.hpp"
 #include "passes/ui_pass.hpp"
 #include "resource_management/image_resource_manager.hpp"
@@ -132,6 +133,7 @@ Renderer::Renderer(ApplicationModule& application, Viewport& viewport, const std
     _shadowPass = std::make_unique<ShadowPass>(_context, *_gpuScene, _gpuScene->ShadowCameraBatch());
     _skydomePass = std::make_unique<SkydomePass>(_context, uvSphere, _hdrTarget, _bloomTarget, _environmentMap, *_gBuffers, *_bloomSettings);
     _volumetricPass = std::make_unique<VolumetricPass>(_context, _hdrTarget, _bloomTarget, _volumetricTarget, *_gBuffers, *_bloomSettings, _ecs);
+    _dofPass = std::make_unique<DOFPass>(_context);
     _tonemappingPass = std::make_unique<TonemappingPass>(_context, _settings.data.tonemapping, _hdrTarget, _bloomTarget, _volumetricTarget, _tonemappingTarget, *_swapChain, *_gBuffers, *_bloomSettings);
     _fxaaPass = std::make_unique<FXAAPass>(_context, _settings.data.fxaa, *_gBuffers, _fxaaTarget, _tonemappingTarget);
     _uiPass = std::make_unique<UIPass>(_context, _fxaaTarget, *_swapChain);
@@ -288,6 +290,10 @@ Renderer::Renderer(ApplicationModule& application, Viewport& viewport, const std
         .AddInput(_gBuffers->Depth(), FrameGraphResourceType::eTexture)
         .AddOutput(_volumetricTarget, FrameGraphResourceType::eAttachment);
 
+    FrameGraphNodeCreation dofPass { *_dofPass };
+    dofPass.SetName("Dof pass")
+        .SetDebugLabelColor(GetColor(ColorType::LightLavender));
+
     FrameGraphNodeCreation toneMappingPass { *_tonemappingPass };
     toneMappingPass.SetName("Tonemapping pass")
         .SetDebugLabelColor(GetColor(ColorType::Seafoam))
@@ -354,6 +360,7 @@ Renderer::Renderer(ApplicationModule& application, Viewport& viewport, const std
         .AddNode(bloomDownsamplePass)
         .AddNode(bloomUpsamplePass)
         .AddNode(volumetricPass)
+        .AddNode(dofPass)
         .AddNode(toneMappingPass)
         .AddNode(fxaaPass)
         .AddNode(uiPass)

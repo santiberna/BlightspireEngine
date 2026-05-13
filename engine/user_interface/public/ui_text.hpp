@@ -1,11 +1,10 @@
 #pragma once
 
+#include "fonts.hpp"
 #include "ui_element.hpp"
 
-#include "fonts.hpp"
 #include <glm/glm.hpp>
 #include <string>
-#include <ui_element.hpp>
 
 struct UIFont;
 

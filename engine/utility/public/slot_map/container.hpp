@@ -1,6 +1,5 @@
 #pragma once
 
-#include "common.hpp"
 #include "slot_map/handle.hpp"
 
 #include <optional>
@@ -13,7 +12,7 @@ template <typename T>
 class SlotMapEntry
 {
     std::optional<T> value {};
-    size_t version = 1;
+    bb::usize version = 1;
     friend SlotMap<T>;
     friend SlotMapIterator<T>;
     friend SlotMapConstIterator<T>;
@@ -23,13 +22,15 @@ template <typename T>
 class SlotMapIterator
 {
 public:
-    using iterator_category = std::forward_iterator_tag;
-    using value_type = std::pair<SlotHandle<T>, T&>;
+    using iterator_category = std::forward_iterator_tag; // NOLINT
+    using value_type = std::pair<SlotHandle<T>, T&>; // NOLINT
 
     value_type operator*() const
     {
         auto& entry = storage->at(index);
-        SlotHandle<T> key { index, entry.version };
+        SlotHandle<T> key;
+        key.index = index;
+        key.version = entry.version;
         return { key, *entry.value };
     }
 
@@ -52,7 +53,7 @@ private:
         }
     }
 
-    SlotMapIterator(std::vector<SlotMapEntry<T>>* storage, size_t index)
+    SlotMapIterator(std::vector<SlotMapEntry<T>>* storage, bb::usize index)
         : storage(storage)
         , index(index)
     {
@@ -61,20 +62,22 @@ private:
 
     friend class SlotMap<T>;
     std::vector<SlotMapEntry<T>>* storage;
-    size_t index {};
+    bb::usize index {};
 };
 
 template <typename T>
 class SlotMapConstIterator
 {
 public:
-    using iterator_category = std::forward_iterator_tag;
-    using value_type = std::pair<SlotHandle<T>, const T&>;
+    using iterator_category = std::forward_iterator_tag; // NOLINT
+    using value_type = std::pair<SlotHandle<T>, const T&>; // NOLINT
 
     value_type operator*() const
     {
         auto& entry = storage->at(index);
-        SlotHandle<T> key { index, entry.version };
+        SlotHandle<T> key;
+        key.index = index;
+        key.version = entry.version;
         return { key, *entry.value };
     }
 
@@ -97,7 +100,7 @@ private:
         }
     }
 
-    SlotMapConstIterator(const std::vector<SlotMapEntry<T>>* storage, size_t index)
+    SlotMapConstIterator(const std::vector<SlotMapEntry<T>>* storage, bb::usize index)
         : storage(storage)
         , index(index)
     {
@@ -106,7 +109,7 @@ private:
 
     friend class SlotMap<T>;
     const std::vector<SlotMapEntry<T>>* storage;
-    size_t index {};
+    bb::usize index {};
 };
 template <typename T>
 class SlotMap
@@ -118,21 +121,27 @@ public:
 
     SlotHandle<T> insert(T value)
     {
+        SlotHandle<T> out {};
         if (free_list.empty())
         {
             auto& back = storage.emplace_back();
             back.value = std::move(value);
-            return SlotHandle<T> { storage.size() - 1, back.version };
+
+            out.index = storage.size() - 1;
+            out.version = back.version;
         }
         else
         {
-            size_t index = free_list.back();
+            bb::usize index = free_list.back();
             free_list.pop_back();
 
             auto& entry = storage.at(index);
             entry.value = std::move(value);
-            return SlotHandle<T> { index, entry.version };
+
+            out.index = index;
+            out.version = entry.version;
         }
+        return out;
     }
 
     void remove(const SlotHandle<T>& key)
@@ -149,7 +158,12 @@ public:
         }
     }
 
-    size_t size() const
+    bb::usize storageSize() const
+    {
+        return storage.size();
+    }
+
+    bb::usize storageCount() const
     {
         return storage.size() - free_list.size();
     }
@@ -194,7 +208,7 @@ public:
 
 private:
     std::vector<SlotMapEntry<T>> storage {};
-    std::vector<size_t> free_list {};
+    std::vector<bb::usize> free_list {};
 };
 
 }

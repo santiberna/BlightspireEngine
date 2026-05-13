@@ -1,8 +1,10 @@
 #pragma once
 
+#include "common.hpp"
 #include "resource_manager.hpp"
-#include <common.hpp>
+
 #include <glm/glm.hpp>
+#include <memory>
 #include <string>
 #include <unordered_map>
 
@@ -15,7 +17,7 @@ struct UIFont
     {
         glm::ivec2 size;
         glm::ivec2 bearing;
-        uint16_t advance;
+        bb::u16 advance;
 
         glm::vec2 uvMin;
         glm::vec2 uvMax;
@@ -23,16 +25,16 @@ struct UIFont
 
     struct FontMetrics
     {
-        uint16_t resolutionY {};
-        uint16_t ascent {};
-        uint16_t descent {};
-        uint16_t lineGap {};
-        uint16_t charSpacing {};
+        bb::u16 resolutionY {};
+        bb::u16 ascent {};
+        bb::u16 descent {};
+        bb::u16 lineGap {};
+        bb::u16 charSpacing {};
     };
 
-    std::unordered_map<uint8_t, Character> characters;
+    std::unordered_map<bb::u8, Character> characters;
     ResourceHandle<GPUImage> fontAtlas;
     FontMetrics metrics;
 };
 
-[[nodiscard]] std::shared_ptr<UIFont> LoadFromFile(const std::string& path, uint16_t characterHeight, GraphicsContext& context);
+[[nodiscard]] std::shared_ptr<UIFont> LoadFromFile(const std::string& path, bb::u16 characterHeight, GraphicsContext& context);

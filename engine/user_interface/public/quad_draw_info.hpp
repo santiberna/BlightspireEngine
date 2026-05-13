@@ -1,6 +1,7 @@
 #pragma once
+#include "common.hpp"
+
 #include <glm/glm.hpp>
-#include <stdint.h>
 
 struct alignas(16) QuadDrawInfo
 {
@@ -8,6 +9,6 @@ struct alignas(16) QuadDrawInfo
     glm::vec4 color = { 1.f, 1.f, 1.f, 1.f };
     glm::vec2 uvMin = { 0.f, 0.f };
     glm::vec2 uvMax = { 1.f, 1.f };
-    uint32_t textureIndex { 0 };
-    uint32_t useRedAsAlpha = false;
+    bb::u32 textureIndex { 0 };
+    bb::u32 useRedAsAlpha = false;
 };

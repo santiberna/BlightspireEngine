@@ -12,11 +12,7 @@ public:
     DataStore(std::string path)
         : _path(std::move(path))
     {
-        if (auto stream = fileIO::OpenReadStream(_path))
-        {
-            cereal::JSONInputArchive archive { stream.value() };
-            archive(cereal::make_nvp("data", data));
-        }
+        ReadFile();
     }
 
     void Write()
@@ -28,10 +24,30 @@ public:
         }
     }
 
+    void SetPathAndReimport(const std::string& path)
+    {
+        _path = path;
+        ReadFile();
+    }
+
+    const std::string GetCurrentPath() const
+    {
+        return _path;
+    }
+
     ~DataStore() = default;
 
     T data;
 
 private:
+    void ReadFile()
+    {
+        if (auto stream = fileIO::OpenReadStream(_path))
+        {
+            cereal::JSONInputArchive archive { stream.value() };
+            archive(cereal::make_nvp("data", data));
+        }
+    }
+
     std::string _path;
 };

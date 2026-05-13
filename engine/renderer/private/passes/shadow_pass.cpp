@@ -6,8 +6,8 @@
 #include "graphics_context.hpp"
 #include "graphics_resources.hpp"
 #include "pipeline_builder.hpp"
-#include "resource_management/buffer_resource_manager.hpp"
 #include "resource_management/image_resource_manager.hpp"
+#include "resources/buffer.hpp"
 #include "shaders/shader_loader.hpp"
 #include "vulkan_context.hpp"
 
@@ -30,7 +30,7 @@ ShadowPass::~ShadowPass()
     device.destroy(_skinnedPipelineLayout);
 }
 
-void ShadowPass::RecordCommands(vk::CommandBuffer commandBuffer, uint32_t currentFrame, const RenderSceneDescription& scene)
+void ShadowPass::RecordCommands(vk::CommandBuffer commandBuffer, bb::u32 currentFrame, const RenderSceneDescription& scene)
 {
     TracyVkZone(scene.tracyContext, commandBuffer, "Shadow Pass");
 
@@ -107,7 +107,7 @@ void ShadowPass::CreateSkinnedPipeline(const GPUScene& gpuScene)
     _skinnedPipeline = std::get<1>(result);
 }
 
-void ShadowPass::DrawGeometry(vk::CommandBuffer commandBuffer, uint32_t currentFrame, const RenderSceneDescription& scene, bool prepass)
+void ShadowPass::DrawGeometry(vk::CommandBuffer commandBuffer, bb::u32 currentFrame, const RenderSceneDescription& scene, bool prepass)
 {
     auto vkContext { _context->GetVulkanContext() };
     auto resources { _context->Resources() };

@@ -32,7 +32,7 @@ void PathfindingModule::Tick([[maybe_unused]] Engine& engine)
         _debugLines.clear();
         for (const auto& path : _computedPaths)
         {
-            for (size_t i = 0; i < path.waypoints.size() - 1; i++)
+            for (bb::usize i = 0; i < path.waypoints.size() - 1; i++)
             {
                 glm::vec3 from = path.waypoints[i].centre;
                 glm::vec3 to = path.waypoints[i + 1].centre;
@@ -59,10 +59,10 @@ PathfindingModule::~PathfindingModule()
 {
 }
 
-int32_t PathfindingModule::SetNavigationMesh(std::string_view filePath)
+bb::i32 PathfindingModule::SetNavigationMesh(std::string_view filePath)
 {
     CPUModel navmesh = ModelLoading::LoadGLTF(nullptr, filePath, false);
-    uint32_t meshIndex = std::numeric_limits<uint32_t>::max();
+    bb::u32 meshIndex = std::numeric_limits<bb::u32>::max();
     glm::mat4 transform = glm::mat4(1.0f);
 
     const Node* rootNode = &navmesh.hierarchy.nodes[navmesh.hierarchy.root];
@@ -84,7 +84,7 @@ int32_t PathfindingModule::SetNavigationMesh(std::string_view filePath)
             }
         }
 
-        for (size_t i = 0; i < topNodeTransform.first->childrenIndices.size(); i++)
+        for (bb::usize i = 0; i < topNodeTransform.first->childrenIndices.size(); i++)
         {
             const Node* pNode = &navmesh.hierarchy.nodes[topNodeTransform.first->childrenIndices[i]];
             glm::mat4 transform = topNodeTransform.second * pNode->transform;
@@ -93,7 +93,7 @@ int32_t PathfindingModule::SetNavigationMesh(std::string_view filePath)
         }
     }
 
-    if (meshIndex == std::numeric_limits<uint32_t>::max())
+    if (meshIndex == std::numeric_limits<bb::u32>::max())
         return {};
 
     CPUMesh navmeshMesh = navmesh.meshes[meshIndex]; // GLTF model should consist of only a single mesh
@@ -102,12 +102,12 @@ int32_t PathfindingModule::SetNavigationMesh(std::string_view filePath)
 
     _triangles.clear();
 
-    std::unordered_map<uint32_t, std::vector<uint32_t>> indicesToTriangles;
+    std::unordered_map<bb::u32, std::vector<bb::u32>> indicesToTriangles;
 
     // We store all the triangles with their indices and center points
     //
     // We also store the triangles that use an index to find adjacent triangles
-    for (size_t i = 0; i < navmeshMesh.indices.size(); i += 3)
+    for (bb::usize i = 0; i < navmeshMesh.indices.size(); i += 3)
     {
         TriangleInfo info {};
         info.indices[0] = navmeshMesh.indices[i];
@@ -121,7 +121,7 @@ int32_t PathfindingModule::SetNavigationMesh(std::string_view filePath)
         info.centre = (p0 + p1 + p2) / 3.0f;
         info.centre = glm::vec3(transform * glm::vec4(info.centre, 1.0f));
 
-        size_t triangleIdx = _triangles.size();
+        bb::usize triangleIdx = _triangles.size();
         _triangles.push_back(info);
 
         indicesToTriangles[info.indices[0]].push_back(triangleIdx);
@@ -130,22 +130,22 @@ int32_t PathfindingModule::SetNavigationMesh(std::string_view filePath)
     }
 
     // Loop over all triangles in the mesh
-    for (size_t i = 0; i < _triangles.size(); i++)
+    for (bb::usize i = 0; i < _triangles.size(); i++)
     {
         TriangleInfo& triangle = _triangles[i];
 
         // We store all triangles that share indices with the current triangle
         // If a triangle shares two indices with the current triangle, it's adjacent to the current triangle
-        std::unordered_multiset<uint32_t> sharedTriangles;
+        std::unordered_multiset<bb::u32> sharedTriangles;
 
         // For each index in the current triangle
-        for (uint32_t j = 0; j < 3; j++)
+        for (bb::u32 j = 0; j < 3; j++)
         {
             // Get all triangles that use this index
-            const std::vector<uint32_t>& indexTriangles = indicesToTriangles[triangle.indices[j]];
+            const std::vector<bb::u32>& indexTriangles = indicesToTriangles[triangle.indices[j]];
 
             // Loop over every triangle that shares this index
-            for (uint32_t triangleIdx : indexTriangles)
+            for (bb::u32 triangleIdx : indexTriangles)
             {
                 // Don't add current triangle to list, obviously
                 if (triangleIdx == i)
@@ -156,7 +156,7 @@ int32_t PathfindingModule::SetNavigationMesh(std::string_view filePath)
         }
 
         // Loop over all triangles that share indices with the current triangle
-        for (const uint32_t& triangleIdx : sharedTriangles)
+        for (const bb::u32& triangleIdx : sharedTriangles)
         {
             if (sharedTriangles.count(triangleIdx) > 1)
             {
@@ -164,7 +164,7 @@ int32_t PathfindingModule::SetNavigationMesh(std::string_view filePath)
                 bool insert = true;
 
                 // Check if the triangle is already inserted as neighbour (limitation of iterating over std::unordered_multiset)
-                for (uint32_t k = 0; k < triangle.adjacentTriangleCount; k++)
+                for (bb::u32 k = 0; k < triangle.adjacentTriangleCount; k++)
                 {
                     if (triangle.adjacentTriangleIndices[k] == triangleIdx)
                     {
@@ -180,11 +180,11 @@ int32_t PathfindingModule::SetNavigationMesh(std::string_view filePath)
     }
 
     // Now that we have adjacency information about the triangles we can start constructing a node tree
-    for (size_t i = 0; i < _triangles.size(); i++)
+    for (bb::usize i = 0; i < _triangles.size(); i++)
     {
         TriangleInfo& info = _triangles[i];
 
-        for (size_t j = 0; j < info.adjacentTriangleCount; j++)
+        for (bb::usize j = 0; j < info.adjacentTriangleCount; j++)
         {
             _trianglesToNeighbours[i][j] = info.adjacentTriangleIndices[j];
         }
@@ -204,7 +204,7 @@ ComputedPath PathfindingModule::FindPath(glm::vec3 startPos, glm::vec3 endPos)
 
     // Heuristic function
     IterablePriorityQueue<TriangleNode, std::vector<TriangleNode>, std::greater<TriangleNode>> openList;
-    std::unordered_map<uint32_t, TriangleNode> closedList;
+    std::unordered_map<bb::u32, TriangleNode> closedList;
 
     // startPos = glm::vec3(_inverseTransform * glm::vec4(startPos, 1.0f));
     // endPos = glm::vec3(_inverseTransform * glm::vec4(endPos, 1.0f));
@@ -212,9 +212,9 @@ ComputedPath PathfindingModule::FindPath(glm::vec3 startPos, glm::vec3 endPos)
     // Find closest triangle // TODO: More efficient way of finding closes triangle
     float closestStartTriangleDistance = std::numeric_limits<float>::infinity(),
           closestDestinationTriangleDistance = std::numeric_limits<float>::infinity();
-    uint32_t closestStartTriangleIndex = std::numeric_limits<uint32_t>::max(),
-             closestDestinationTriangleIndex = std::numeric_limits<uint32_t>::max();
-    for (size_t i = 0; i < _triangles.size(); i++)
+    bb::u32 closestStartTriangleIndex = std::numeric_limits<bb::u32>::max(),
+            closestDestinationTriangleIndex = std::numeric_limits<bb::u32>::max();
+    for (bb::usize i = 0; i < _triangles.size(); i++)
     {
         float distance_to_start_triangle = glm::distance(startPos, _triangles[i].centre);
         float distance_to_finish_triangle = glm::distance(endPos, _triangles[i].centre);
@@ -239,7 +239,7 @@ ComputedPath PathfindingModule::FindPath(glm::vec3 startPos, glm::vec3 endPos)
     node.estimateToGoal = Heuristic(startPos, endPos);
     node.totalEstimatedCost = node.totalCost + node.estimateToGoal;
     node.triangleIndex = closestStartTriangleIndex;
-    node.parentTriangleIndex = std::numeric_limits<uint32_t>::max();
+    node.parentTriangleIndex = std::numeric_limits<bb::u32>::max();
 
     openList.push(node);
 
@@ -262,7 +262,7 @@ ComputedPath PathfindingModule::FindPath(glm::vec3 startPos, glm::vec3 endPos)
         const TriangleInfo& triangleInfo = _triangles[topNode.triangleIndex];
 
         // For all this triangle's neighbours
-        for (uint32_t i = 0; i < triangleInfo.adjacentTriangleCount; i++)
+        for (bb::u32 i = 0; i < triangleInfo.adjacentTriangleCount; i++)
         {
             // Skip already evaluated nodes
             if (closedList.contains(triangleInfo.adjacentTriangleIndices[i]))
@@ -319,7 +319,7 @@ float PathfindingModule::DirectedHeuristic(glm::vec3 startPos, glm::vec3 endPos,
     return powf((1.0f - dot), 3.0f) * towardsEndLength;
 }
 
-ComputedPath PathfindingModule::ReconstructPath(const uint32_t finalTriangleIndex, std::unordered_map<uint32_t, TriangleNode>& nodes)
+ComputedPath PathfindingModule::ReconstructPath(const bb::u32 finalTriangleIndex, std::unordered_map<bb::u32, TriangleNode>& nodes)
 {
     ComputedPath path = {};
 
@@ -330,12 +330,12 @@ ComputedPath PathfindingModule::ReconstructPath(const uint32_t finalTriangleInde
     pathNode.centre = _triangles[finalTriangleIndex].centre;
     path.waypoints.push_back(pathNode);
 
-    uint32_t previousTriangleIndex = finalTriangleIndex;
-    uint32_t parentTriangleIndex = finalTriangleNode.parentTriangleIndex;
+    bb::u32 previousTriangleIndex = finalTriangleIndex;
+    bb::u32 parentTriangleIndex = finalTriangleNode.parentTriangleIndex;
 
     while (true)
     {
-        if (parentTriangleIndex == std::numeric_limits<uint32_t>::max())
+        if (parentTriangleIndex == std::numeric_limits<bb::u32>::max())
         {
             pathNode.centre = _triangles[previousTriangleIndex].centre;
             path.waypoints.push_back(pathNode);
@@ -346,19 +346,19 @@ ComputedPath PathfindingModule::ReconstructPath(const uint32_t finalTriangleInde
         pathNode.centre = _triangles[parentTriangleIndex].centre;
 
 #ifdef TRIANGLE_EDGE_CENTERS
-        std::unordered_map<uint32_t, uint32_t> triangleIndices;
-        for (int32_t i = 0; i < 3; i++)
+        std::unordered_map<bb::u32, bb::u32> triangleIndices;
+        for (bb::i32 i = 0; i < 3; i++)
         {
             triangleIndices[_triangles[previousTriangleIndex].indices[i]]++;
         }
-        for (int32_t i = 0; i < 3; i++)
+        for (bb::i32 i = 0; i < 3; i++)
         {
             triangleIndices[_triangles[parentTriangleIndex].indices[i]]++;
         }
 
-        uint32_t adjacentEdgeIndices[2] = {};
+        bb::u32 adjacentEdgeIndices[2] = {};
 
-        uint32_t i = 0;
+        bb::u32 i = 0;
         for (const auto& [index, count] : triangleIndices)
         {
             if (count == 2)

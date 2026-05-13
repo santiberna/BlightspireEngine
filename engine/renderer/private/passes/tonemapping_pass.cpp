@@ -5,8 +5,8 @@
 #include "graphics_context.hpp"
 #include "graphics_resources.hpp"
 #include "pipeline_builder.hpp"
-#include "resource_management/buffer_resource_manager.hpp"
 #include "resource_management/image_resource_manager.hpp"
+#include "resources/buffer.hpp"
 #include "settings.hpp"
 #include "shaders/shader_loader.hpp"
 #include "vulkan_context.hpp"
@@ -28,13 +28,13 @@ TonemappingPass::TonemappingPass(const std::shared_ptr<GraphicsContext>& context
     CreateDescriptorSets();
     CreatePipeline();
 
-    _pushConstants.hdrTargetIndex = hdrTarget.Index();
-    _pushConstants.bloomTargetIndex = bloomTarget.Index();
-    _pushConstants.depthIndex = gBuffers.Depth().Index();
-    _pushConstants.volumetricIndex = volumetricTarget.Index();
+    _pushConstants.hdrTargetIndex = hdrTarget.getIndex();
+    _pushConstants.bloomTargetIndex = bloomTarget.getIndex();
+    _pushConstants.depthIndex = gBuffers.Depth().getIndex();
+    _pushConstants.volumetricIndex = volumetricTarget.getIndex();
     _pushConstants.screenWidth = _gBuffers.Size().x;
     _pushConstants.screenHeight = _gBuffers.Size().y;
-    _pushConstants.normalRIndex = _gBuffers.Attachments()[1].Index();
+    _pushConstants.normalRIndex = _gBuffers.Attachments()[1].getIndex();
 }
 
 TonemappingPass::~TonemappingPass()
@@ -46,13 +46,13 @@ TonemappingPass::~TonemappingPass()
     _context->Resources()->GetBufferResourceManager().Destroy(_colorPaletteBuffer);
 }
 
-void TonemappingPass::RecordCommands(vk::CommandBuffer commandBuffer, uint32_t currentFrame, [[maybe_unused]] const RenderSceneDescription& scene)
+void TonemappingPass::RecordCommands(vk::CommandBuffer commandBuffer, bb::u32 currentFrame, [[maybe_unused]] const RenderSceneDescription& scene)
 {
     TracyVkZone(scene.tracyContext, commandBuffer, "Tonemapping Pass");
 
     timePassed += scene.deltaTime / 1000.0f;
     _pushConstants.exposure = _settings.exposure;
-    _pushConstants.tonemappingFunction = static_cast<uint32_t>(_settings.tonemappingFunction);
+    _pushConstants.tonemappingFunction = static_cast<bb::u32>(_settings.tonemappingFunction);
     _pushConstants.rayOrigin.a -= (0.2 * (scene.deltaTime / 1000.0f));
 
     _pushConstants.enableFlags = 0;
@@ -186,14 +186,8 @@ void TonemappingPass::CreatePaletteBuffer()
     std::vector<glm::vec4> colors(_maxColorsInPalette);
     vk::DeviceSize bufferSize = sizeof(glm::vec4) * _maxColorsInPalette;
 
-    BufferCreation creation;
-    creation.SetName("Palette Buffer")
-        .SetSize(bufferSize)
-        .SetIsMappable(true)
-        .SetMemoryUsage(VMA_MEMORY_USAGE_AUTO)
-        .SetUsageFlags(vk::BufferUsageFlagBits::eUniformBuffer | vk::BufferUsageFlagBits::eTransferDst);
-
-    _colorPaletteBuffer = _context->Resources()->GetBufferResourceManager().Create(creation);
+    bb::Flags<bb::BufferFlags> flags = { bb::BufferFlags::UNIFORM_USAGE, bb::BufferFlags::TRANSFER_DST, bb::BufferFlags::MAPPABLE };
+    _colorPaletteBuffer = _context->Resources()->GetBufferResourceManager().Create(bufferSize, flags, "Palette Buffer");
 
     // Immediately update the buffer with the initial palette data.
     UpdatePaletteBuffer(colors);

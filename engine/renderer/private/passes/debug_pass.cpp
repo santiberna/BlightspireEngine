@@ -6,8 +6,8 @@
 #include "graphics_context.hpp"
 #include "graphics_resources.hpp"
 #include "pipeline_builder.hpp"
-#include "resource_management/buffer_resource_manager.hpp"
 #include "resource_management/image_resource_manager.hpp"
+#include "resources/buffer.hpp"
 #include "shaders/shader_loader.hpp"
 #include "swap_chain.hpp"
 #include "vulkan_context.hpp"
@@ -35,7 +35,7 @@ DebugPass::~DebugPass()
     device.destroy(_pipelineLayout);
 }
 
-void DebugPass::RecordCommands(vk::CommandBuffer commandBuffer, uint32_t currentFrame, const RenderSceneDescription& scene)
+void DebugPass::RecordCommands(vk::CommandBuffer commandBuffer, bb::u32 currentFrame, const RenderSceneDescription& scene)
 {
     TracyVkZone(scene.tracyContext, commandBuffer, "Debug Pass");
 
@@ -82,11 +82,13 @@ void DebugPass::RecordCommands(vk::CommandBuffer commandBuffer, uint32_t current
 
     commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, _pipelineLayout, 0, { scene.gpuScene->MainCamera().DescriptorSet(currentFrame) }, {});
 
-    const Buffer* buffer = _context->Resources()->GetBufferResourceManager().Access(_vertexBuffer);
+    const bb::Buffer* buffer = _context->Resources()->GetBufferResourceManager().Access(_vertexBuffer);
     const std::array<vk::DeviceSize, 1> offsets = { 0 };
-    commandBuffer.bindVertexBuffers(0, 1, &buffer->buffer, offsets.data());
 
-    uint32_t vertexCount = static_cast<uint32_t>(_linesData.size());
+    vk::Buffer buf = buffer->buffer;
+    commandBuffer.bindVertexBuffers(0, 1, &buf, offsets.data());
+
+    bb::u32 vertexCount = static_cast<bb::u32>(_linesData.size());
     commandBuffer.draw(vertexCount, 1, 0, 0);
 
     _context->GetDrawStats().Draw(vertexCount);
@@ -145,18 +147,15 @@ void DebugPass::CreatePipeline()
 void DebugPass::CreateVertexBuffer()
 {
     const vk::DeviceSize bufferSize = sizeof(glm::vec3) * 4_mb;
-    BufferCreation vertexBufferCreation {};
-    vertexBufferCreation.SetSize(bufferSize)
-        .SetUsageFlags(vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eVertexBuffer)
-        .SetIsMappable(true)
-        .SetMemoryUsage(VMA_MEMORY_USAGE_AUTO_PREFER_HOST)
-        .SetName("Debug vertex buffer");
 
-    _vertexBuffer = _context->Resources()->GetBufferResourceManager().Create(vertexBufferCreation);
+    _vertexBuffer = _context->Resources()->GetBufferResourceManager().Create(
+        bufferSize,
+        { bb::BufferFlags::VERTEX_USAGE, bb::BufferFlags::TRANSFER_DST, bb::BufferFlags::MAPPABLE },
+        "Debug vertex buffer");
 }
 
 void DebugPass::UpdateVertexData()
 {
-    const Buffer* buffer = _context->Resources()->GetBufferResourceManager().Access(_vertexBuffer);
+    const bb::Buffer* buffer = _context->Resources()->GetBufferResourceManager().Access(_vertexBuffer);
     std::memcpy(buffer->mappedPtr, _linesData.data(), _linesData.size() * sizeof(glm::vec3));
 }

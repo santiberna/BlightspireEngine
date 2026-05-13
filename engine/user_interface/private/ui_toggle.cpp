@@ -1,6 +1,8 @@
 #include "ui_toggle.hpp"
+#include "input/action_manager.hpp"
 #include "input/input_device_manager.hpp"
 #include "ui_input.hpp"
+
 #include <glm/gtc/matrix_transform.hpp>
 
 void UIToggle::Update(const InputManagers& inputManagers, UIInputContext& inputContext)
@@ -76,7 +78,7 @@ void UIToggle::SubmitDrawInfo(std::vector<QuadDrawInfo>& drawList) const
         QuadDrawInfo info {
             .matrix = matrix,
             .color = selected ? SELECTED : NORMAL,
-            .textureIndex = state ? style.filled.Index() : style.empty.Index(),
+            .textureIndex = state ? style.filled.getIndex() : style.empty.getIndex(),
         };
 
         info.useRedAsAlpha = false;

@@ -26,5 +26,5 @@ void FrameCounter::SetVal(float fps)
         runningAverage = fps;
 
     runningAverage = runningAverage * (1.0f - BIAS) + fps * BIAS;
-    text.lock()->SetText(fmt::format("{}", static_cast<uint32_t>(runningAverage)));
+    text.lock()->SetText(fmt::format("{}", static_cast<bb::u32>(runningAverage)));
 }

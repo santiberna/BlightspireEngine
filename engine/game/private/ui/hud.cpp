@@ -34,7 +34,7 @@ std::shared_ptr<HUD> HUD::Create(const bb::UIResources& resources, const glm::uv
     hud->hitmarkerCrit.lock()->visibility = UIElement::VisibilityState::eNotUpdatedAndInvisible;
 
     // dashes
-    for (size_t i = 0; i < hud->dashCharges.size(); i++)
+    for (bb::usize i = 0; i < hud->dashCharges.size(); i++)
     {
         hud->dashCharges[i] = hud->AddChild<UIImage>(resources.hud_dash_charge, (glm::vec2(21 + 9.f * i, 19) * 8.0f), glm::vec2(6.f) * 8.f);
         hud->dashCharges[i].lock()->anchorPoint = UIElement::AnchorPoint::eBottomLeft;

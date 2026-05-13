@@ -3,14 +3,14 @@
 #include "graphics_context.hpp"
 #include "graphics_resources.hpp"
 #include "pipeline_builder.hpp"
-#include "resource_management/buffer_resource_manager.hpp"
+#include "resources/buffer.hpp"
 #include "shaders/shader_loader.hpp"
 #include "vulkan_context.hpp"
 #include "vulkan_helper.hpp"
 
 ClusterLightCullingPass::ClusterLightCullingPass(const std::shared_ptr<GraphicsContext>& context, GPUScene& gpuScene,
-    ResourceHandle<Buffer>& clusterBuffer, ResourceHandle<Buffer>& globalIndex,
-    ResourceHandle<Buffer>& lightCells, ResourceHandle<Buffer>& lightIndices)
+    ResourceHandle<bb::Buffer>& clusterBuffer, ResourceHandle<bb::Buffer>& globalIndex,
+    ResourceHandle<bb::Buffer>& lightCells, ResourceHandle<bb::Buffer>& lightIndices)
     : _context(context)
     , _gpuScene(gpuScene)
     , _clusterBuffer(clusterBuffer)
@@ -28,7 +28,7 @@ ClusterLightCullingPass::~ClusterLightCullingPass()
     device.destroy(_pipelineLayout);
 }
 
-void ClusterLightCullingPass::RecordCommands(vk::CommandBuffer commandBuffer, uint32_t currentFrame, const RenderSceneDescription& scene)
+void ClusterLightCullingPass::RecordCommands(vk::CommandBuffer commandBuffer, bb::u32 currentFrame, const RenderSceneDescription& scene)
 {
     TracyVkZone(scene.tracyContext, commandBuffer, "Cluster Light Culling Pipeline");
     commandBuffer.bindPipeline(vk::PipelineBindPoint::eCompute, _pipeline);
@@ -53,7 +53,7 @@ void ClusterLightCullingPass::CreatePipeline()
     };
 
     vk::PipelineLayoutCreateInfo pipelineLayoutCreateInfo {
-        .setLayoutCount = static_cast<uint32_t>(layouts.size()),
+        .setLayoutCount = static_cast<bb::u32>(layouts.size()),
         .pSetLayouts = layouts.data(),
     };
 

@@ -8,7 +8,7 @@ class BloomDownsamplePass final : public FrameGraphRenderPass
 public:
     BloomDownsamplePass(const std::shared_ptr<GraphicsContext>& context, ResourceHandle<GPUImage> bloomImage);
     ~BloomDownsamplePass() final;
-    void RecordCommands(vk::CommandBuffer commandBuffer, uint32_t currentFrame, const RenderSceneDescription& scene) final;
+    void RecordCommands(vk::CommandBuffer commandBuffer, bb::u32 currentFrame, const RenderSceneDescription& scene) final;
 
 private:
     std::shared_ptr<GraphicsContext> _context;

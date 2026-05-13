@@ -3,14 +3,13 @@
 #include "frame_graph.hpp"
 
 class CameraBatch;
-struct Sampler;
 
 class BuildHzbPass final : public FrameGraphRenderPass
 {
 public:
     BuildHzbPass(const std::shared_ptr<GraphicsContext>& context, CameraBatch& cameraBatch, vk::DescriptorSetLayout hzbImageDSL);
     ~BuildHzbPass() final;
-    void RecordCommands(vk::CommandBuffer commandBuffer, uint32_t currentFrame, const RenderSceneDescription& scene) final;
+    void RecordCommands(vk::CommandBuffer commandBuffer, bb::u32 currentFrame, const RenderSceneDescription& scene) final;
 
 private:
     std::shared_ptr<GraphicsContext> _context;
@@ -21,7 +20,7 @@ private:
     vk::DescriptorSetLayout _hzbImageDSL;
     vk::DescriptorUpdateTemplate _hzbUpdateTemplate;
 
-    ResourceHandle<Sampler> _hzbSampler;
+    ResourceHandle<bb::Sampler> _hzbSampler;
 
     void CreateSampler();
     void CreatPipeline();

@@ -2,13 +2,13 @@
 #include "graphics_context.hpp"
 #include "graphics_resources.hpp"
 #include "resource_management/image_resource_manager.hpp"
+#include "resources/sampler.hpp"
 #include "ui/ui_menus.hpp"
 #include "ui_button.hpp"
 #include "ui_image.hpp"
 #include "ui_text.hpp"
 
 #include <glm/glm.hpp>
-#include <resource_management/sampler_resource_manager.hpp>
 
 std::shared_ptr<MainMenu> MainMenu::Create(const bb::UIResources& resources, const glm::uvec2& screenResolution, std::shared_ptr<UIFont> font)
 {

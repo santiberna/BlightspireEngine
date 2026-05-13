@@ -10,8 +10,8 @@
 #include "graphics_context.hpp"
 #include "graphics_resources.hpp"
 #include "pipeline_builder.hpp"
-#include "resource_management/buffer_resource_manager.hpp"
 #include "resource_management/image_resource_manager.hpp"
+#include "resources/buffer.hpp"
 #include "shaders/shader_loader.hpp"
 #include "vulkan_context.hpp"
 
@@ -33,7 +33,7 @@ GeometryPass::~GeometryPass()
     device.destroy(_skinnedPipelineLayout);
 }
 
-void GeometryPass::RecordCommands(vk::CommandBuffer commandBuffer, uint32_t currentFrame, const RenderSceneDescription& scene)
+void GeometryPass::RecordCommands(vk::CommandBuffer commandBuffer, bb::u32 currentFrame, const RenderSceneDescription& scene)
 {
     TracyVkZone(scene.tracyContext, commandBuffer, "Geometry Pass");
 
@@ -66,7 +66,7 @@ void GeometryPass::CreateStaticPipeline()
     depthStencilStateCreateInfo.stencilTestEnable = false;
 
     std::vector<vk::Format> formats(DEFERRED_ATTACHMENT_COUNT);
-    for (size_t i = 0; i < DEFERRED_ATTACHMENT_COUNT; ++i)
+    for (bb::usize i = 0; i < DEFERRED_ATTACHMENT_COUNT; ++i)
         formats.at(i) = _context->Resources()->GetImageResourceManager().Access(_gBuffers.Attachments().at(i))->format;
 
     std::vector<std::byte> vertSpv = shader::ReadFile("shaders/bin/geom.vert.spv");
@@ -112,7 +112,7 @@ void GeometryPass::CreateSkinnedPipeline()
     const ImageResourceManager& imageResourceManager = _context->Resources()->GetImageResourceManager();
 
     std::vector<vk::Format> formats(DEFERRED_ATTACHMENT_COUNT);
-    for (size_t i = 0; i < DEFERRED_ATTACHMENT_COUNT; ++i)
+    for (bb::usize i = 0; i < DEFERRED_ATTACHMENT_COUNT; ++i)
     {
         formats.at(i) = imageResourceManager.Access(_gBuffers.Attachments().at(i))->format;
     }
@@ -134,10 +134,10 @@ void GeometryPass::CreateSkinnedPipeline()
     _skinnedPipeline = std::get<1>(result);
 }
 
-void GeometryPass::DrawGeometry(vk::CommandBuffer commandBuffer, uint32_t currentFrame, const RenderSceneDescription& scene, bool prepass)
+void GeometryPass::DrawGeometry(vk::CommandBuffer commandBuffer, bb::u32 currentFrame, const RenderSceneDescription& scene, bool prepass)
 {
     std::array<vk::RenderingAttachmentInfoKHR, DEFERRED_ATTACHMENT_COUNT> colorAttachmentInfos {};
-    for (size_t i = 0; i < colorAttachmentInfos.size(); ++i)
+    for (bb::usize i = 0; i < colorAttachmentInfos.size(); ++i)
     {
         vk::RenderingAttachmentInfoKHR& info { colorAttachmentInfos.at(i) };
         info.imageLayout = vk::ImageLayout::eColorAttachmentOptimal;
@@ -147,7 +147,7 @@ void GeometryPass::DrawGeometry(vk::CommandBuffer commandBuffer, uint32_t curren
     }
 
     const ImageResourceManager& imageResourceManager = _context->Resources()->GetImageResourceManager();
-    for (size_t i = 0; i < DEFERRED_ATTACHMENT_COUNT; ++i)
+    for (bb::usize i = 0; i < DEFERRED_ATTACHMENT_COUNT; ++i)
     {
         colorAttachmentInfos.at(i).imageView = imageResourceManager.Access(_gBuffers.Attachments().at(i))->view;
     }
@@ -175,7 +175,7 @@ void GeometryPass::DrawGeometry(vk::CommandBuffer commandBuffer, uint32_t curren
     commandBuffer.endRenderingKHR();
 }
 
-void GeometryPass::DrawIndirectGeometry(vk::CommandBuffer commandBuffer, uint32_t currentFrame, const RenderSceneDescription& scene)
+void GeometryPass::DrawIndirectGeometry(vk::CommandBuffer commandBuffer, bb::u32 currentFrame, const RenderSceneDescription& scene)
 {
     if (scene.gpuScene->StaticDrawCount() > 0)
     {
@@ -245,7 +245,7 @@ void GeometryPass::DrawIndirectGeometry(vk::CommandBuffer commandBuffer, uint32_
     }
 }
 
-void GeometryPass::DrawDirectGeometry(vk::CommandBuffer commandBuffer, uint32_t currentFrame, const RenderSceneDescription& scene)
+void GeometryPass::DrawDirectGeometry(vk::CommandBuffer commandBuffer, bb::u32 currentFrame, const RenderSceneDescription& scene)
 {
     const std::vector<DrawIndexedDirectCommand>& staticCommands = scene.gpuScene->ForegroundStaticDrawCommands();
 

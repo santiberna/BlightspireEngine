@@ -28,7 +28,7 @@ public:
     }
 
     void ClearLines() { _linesData.clear(); }
-    void RecordCommands(vk::CommandBuffer commandBuffer, uint32_t currentFrame, const RenderSceneDescription& scene) final;
+    void RecordCommands(vk::CommandBuffer commandBuffer, bb::u32 currentFrame, const RenderSceneDescription& scene) final;
 
     NON_MOVABLE(DebugPass);
     NON_COPYABLE(DebugPass);
@@ -43,7 +43,7 @@ private:
     vk::Pipeline _pipeline;
 
     std::vector<glm::vec3> _linesData;
-    ResourceHandle<Buffer> _vertexBuffer;
+    ResourceHandle<bb::Buffer> _vertexBuffer;
 
     void CreatePipeline();
     void CreateVertexBuffer();

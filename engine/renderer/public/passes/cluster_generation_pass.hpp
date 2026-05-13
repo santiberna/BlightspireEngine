@@ -15,7 +15,7 @@ public:
     ClusterGenerationPass(const std::shared_ptr<GraphicsContext>& context, const GBuffers& gBuffers, const SwapChain& swapChain, GPUScene& gpuScene);
     ~ClusterGenerationPass() final;
 
-    void RecordCommands(vk::CommandBuffer commandBuffer, uint32_t currentFrame, const RenderSceneDescription& scene) final;
+    void RecordCommands(vk::CommandBuffer commandBuffer, bb::u32 currentFrame, const RenderSceneDescription& scene) final;
 
     NON_MOVABLE(ClusterGenerationPass);
     NON_COPYABLE(ClusterGenerationPass);
@@ -28,7 +28,7 @@ private:
         glm::vec2 normPerTileSize;
     } _pushConstants;
 
-    uint32_t _numTilesX { 0 }, _numTilesY { 0 };
+    bb::u32 _numTilesX { 0 }, _numTilesY { 0 };
 
     void CreatePipeline();
     void CreateDescriptorSet();

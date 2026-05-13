@@ -45,8 +45,6 @@ class GPUScene;
 class FrameGraph;
 class Viewport;
 
-struct Sampler;
-
 class Renderer
 {
 public:
@@ -122,7 +120,7 @@ private:
     ResourceHandle<GPUImage> _volumetricTarget;
     ResourceHandle<GPUImage> _fxaaTarget;
 
-    ResourceHandle<Sampler> _bloomSampler;
+    ResourceHandle<bb::Sampler> _bloomSampler;
 
     std::unique_ptr<FrameGraph> _frameGraph;
     std::unique_ptr<SwapChain> _swapChain;
@@ -140,12 +138,12 @@ private:
     ResourceHandle<GPUImage> _hdrTarget;
     ResourceHandle<GPUImage> _ssaoTarget;
 
-    uint32_t _currentFrame { 0 };
+    bb::u32 _currentFrame { 0 };
 
     std::array<TracyVkCtx, MAX_FRAMES_IN_FLIGHT> _tracyContexts;
 
     void CreateCommandBuffers();
-    void RecordCommandBuffer(const vk::CommandBuffer& commandBuffer, uint32_t swapChainImageIndex, float deltaTime);
+    void RecordCommandBuffer(const vk::CommandBuffer& commandBuffer, bb::u32 swapChainImageIndex, float deltaTime);
     void CreateSyncObjects();
     void InitializeHDRTarget();
     void InitializeBloomTargets();

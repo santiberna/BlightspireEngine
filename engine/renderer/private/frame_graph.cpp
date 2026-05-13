@@ -9,8 +9,8 @@
 #include "gpu_scene.hpp"
 #include "graphics_context.hpp"
 #include "graphics_resources.hpp"
-#include "resource_management/buffer_resource_manager.hpp"
 #include "resource_management/image_resource_manager.hpp"
+#include "resources/buffer.hpp"
 #include "vulkan_context.hpp"
 #include "vulkan_helper.hpp"
 
@@ -28,7 +28,7 @@ FrameGraphNodeCreation& FrameGraphNodeCreation::AddInput(ResourceHandle<GPUImage
     return *this;
 }
 
-FrameGraphNodeCreation& FrameGraphNodeCreation::AddInput(ResourceHandle<Buffer> buffer, FrameGraphResourceType type, vk::PipelineStageFlags2 stageUsage)
+FrameGraphNodeCreation& FrameGraphNodeCreation::AddInput(ResourceHandle<bb::Buffer> buffer, FrameGraphResourceType type, vk::PipelineStageFlags2 stageUsage)
 {
     FrameGraphResourceCreation& creation = inputs.emplace_back(FrameGraphResourceInfo::StageBuffer { .handle = buffer, .stageUsage = stageUsage });
     creation.type = type;
@@ -45,7 +45,7 @@ FrameGraphNodeCreation& FrameGraphNodeCreation::AddOutput(ResourceHandle<GPUImag
     return *this;
 }
 
-FrameGraphNodeCreation& FrameGraphNodeCreation::AddOutput(ResourceHandle<Buffer> buffer, FrameGraphResourceType type, vk::PipelineStageFlags2 stageUsage, bool allowSimultaneousWrites)
+FrameGraphNodeCreation& FrameGraphNodeCreation::AddOutput(ResourceHandle<bb::Buffer> buffer, FrameGraphResourceType type, vk::PipelineStageFlags2 stageUsage, bool allowSimultaneousWrites)
 {
     FrameGraphResourceCreation& creation = outputs.emplace_back(FrameGraphResourceInfo::StageBuffer { .handle = buffer, .stageUsage = stageUsage });
     creation.type = type;
@@ -96,7 +96,7 @@ void FrameGraph::Build()
     CreateMemoryBarriers();
 }
 
-void FrameGraph::RecordCommands(vk::CommandBuffer commandBuffer, uint32_t currentFrame, const RenderSceneDescription& scene)
+void FrameGraph::RecordCommands(vk::CommandBuffer commandBuffer, bb::u32 currentFrame, const RenderSceneDescription& scene)
 {
     auto vkContext { _context->GetVulkanContext() };
 
@@ -153,7 +153,7 @@ void FrameGraph::ProcessNodes()
         node.edges.clear();
     }
 
-    for (uint32_t i = 0; i < _nodes.size(); i++)
+    for (bb::u32 i = 0; i < _nodes.size(); i++)
     {
         const FrameGraphNode& node = _nodes[i];
 
@@ -474,7 +474,7 @@ void FrameGraph::CreateBufferBarrier(const FrameGraphResource& resource, Resourc
 {
     auto resources { _context->Resources() };
     auto stageBuffer = std::get<FrameGraphResourceInfo::StageBuffer>(resource.info.resource);
-    const Buffer* buffer = resources->GetBufferResourceManager().Access(stageBuffer.handle);
+    const bb::Buffer* buffer = resources->GetBufferResourceManager().Access(stageBuffer.handle);
 
     switch (state)
     {
@@ -508,7 +508,7 @@ void FrameGraph::CreateBufferBarrier(const FrameGraphResource& resource, Resourc
 
 void FrameGraph::SortGraph()
 {
-    enum class NodeStatus : uint8_t
+    enum class NodeStatus : bb::u8
     {
         eNotProcessed,
         eVisited,
@@ -523,7 +523,7 @@ void FrameGraph::SortGraph()
     std::vector<FrameGraphNodeHandle> nodesToProcess {};
     nodesToProcess.reserve(_nodes.size());
 
-    for (uint32_t i = 0; i < _nodes.size(); ++i)
+    for (bb::u32 i = 0; i < _nodes.size(); ++i)
     {
         if (!_nodes[i].isEnabled)
         {
@@ -578,7 +578,7 @@ void FrameGraph::SortGraph()
 
     _sortedNodes.clear();
 
-    for (int32_t i = reverseSortedNodes.size() - 1; i >= 0; --i)
+    for (bb::i32 i = reverseSortedNodes.size() - 1; i >= 0; --i)
     {
         _sortedNodes.push_back(reverseSortedNodes[i]);
     }
@@ -648,7 +648,7 @@ const std::string& FrameGraph::GetResourceName(FrameGraphResourceType type, cons
 
     if (HasAnyFlags(type, FrameGraphResourceType::eBuffer))
     {
-        const Buffer* buffer = resources->GetBufferResourceManager().Access(std::get<FrameGraphResourceInfo::StageBuffer>(resource).handle);
+        const bb::Buffer* buffer = resources->GetBufferResourceManager().Access(std::get<FrameGraphResourceInfo::StageBuffer>(resource).handle);
         return buffer->name;
     }
 

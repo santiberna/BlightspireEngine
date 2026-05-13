@@ -70,7 +70,7 @@ void UIPass::CreatePipeLine()
     _pipeline = std::get<1>(result);
 }
 
-void UIPass::RecordCommands(vk::CommandBuffer commandBuffer, [[maybe_unused]] uint32_t currentFrame, [[maybe_unused]] const RenderSceneDescription& scene)
+void UIPass::RecordCommands(vk::CommandBuffer commandBuffer, [[maybe_unused]] bb::u32 currentFrame, [[maybe_unused]] const RenderSceneDescription& scene)
 {
     TracyVkZone(scene.tracyContext, commandBuffer, "UI Pass");
 
@@ -104,9 +104,9 @@ void UIPass::RecordCommands(vk::CommandBuffer commandBuffer, [[maybe_unused]] ui
         _pushConstants.quad = quad;
         _pushConstants.quad.matrix = _projectionMatrix * _pushConstants.quad.matrix;
 
-        if (_pushConstants.quad.textureIndex == ResourceHandle<GPUImage>::Null().Index())
+        if (_pushConstants.quad.textureIndex == 0)
         {
-            _pushConstants.quad.textureIndex = fallbackImage.Index();
+            _pushConstants.quad.textureIndex = fallbackImage.getIndex();
         }
 
         commandBuffer.pushConstants<UIPushConstants>(_pipelineLayout, vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment, 0, _pushConstants);

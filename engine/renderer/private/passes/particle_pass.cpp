@@ -9,8 +9,8 @@
 #include "gpu_scene.hpp"
 #include "graphics_context.hpp"
 #include "graphics_resources.hpp"
-#include "resource_management/buffer_resource_manager.hpp"
 #include "resource_management/image_resource_manager.hpp"
+#include "resources/buffer.hpp"
 #include "shaders/shader_loader.hpp"
 #include "single_time_commands.hpp"
 #include "vertex.hpp"
@@ -52,7 +52,7 @@ ParticlePass::~ParticlePass()
     {
         device.destroy(layout);
     }
-    // Buffer stuff
+    // bb::Buffer stuff
     for (auto& storageBuffer : _particlesBuffers)
     {
         resources->GetBufferResourceManager().Destroy(storageBuffer);
@@ -63,7 +63,7 @@ ParticlePass::~ParticlePass()
     resources->GetBufferResourceManager().Destroy(_emittersBuffer);
     resources->GetBufferResourceManager().Destroy(_vertexBuffer);
     resources->GetBufferResourceManager().Destroy(_indexBuffer);
-    for (uint32_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
+    for (bb::u32 i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
     {
         util::vmaDestroyBuffer(vkContext->MemoryAllocator(), _emitterStagingBuffer[i], _emitterStagingBufferAllocation[i]);
         util::vmaDestroyBuffer(vkContext->MemoryAllocator(), _localEmitterStagingBuffer[i], _localEmitterStagingBufferAllocation[i]);
@@ -76,7 +76,7 @@ ParticlePass::~ParticlePass()
     device.destroy(_drawCommandsDescriptorSetLayout);
 }
 
-void ParticlePass::RecordCommands(vk::CommandBuffer commandBuffer, uint32_t currentFrame, const RenderSceneDescription& scene)
+void ParticlePass::RecordCommands(vk::CommandBuffer commandBuffer, bb::u32 currentFrame, const RenderSceneDescription& scene)
 {
     TracyVkZone(scene.tracyContext, commandBuffer, "Particle Pass");
 
@@ -102,10 +102,10 @@ void ParticlePass::RecordKickOff(vk::CommandBuffer commandBuffer)
 
     util::BeginLabel(commandBuffer, "Kick-off particle pass", glm::vec3 { 255.0f, 105.0f, 180.0f } / 255.0f);
 
-    commandBuffer.bindPipeline(vk::PipelineBindPoint::eCompute, _pipelines[static_cast<uint32_t>(ShaderStages::eKickOff)]);
+    commandBuffer.bindPipeline(vk::PipelineBindPoint::eCompute, _pipelines[static_cast<bb::u32>(ShaderStages::eKickOff)]);
 
-    commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eCompute, _pipelineLayouts[static_cast<uint32_t>(ShaderStages::eKickOff)], 1, _particlesBuffersDescriptorSet, {});
-    commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eCompute, _pipelineLayouts[static_cast<uint32_t>(ShaderStages::eKickOff)], 2, _drawCommandsDescriptorSet, {});
+    commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eCompute, _pipelineLayouts[static_cast<bb::u32>(ShaderStages::eKickOff)], 1, _particlesBuffersDescriptorSet, {});
+    commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eCompute, _pipelineLayouts[static_cast<bb::u32>(ShaderStages::eKickOff)], 2, _drawCommandsDescriptorSet, {});
 
     commandBuffer.dispatch(1, 1, 1);
 
@@ -133,17 +133,17 @@ void ParticlePass::RecordEmit(vk::CommandBuffer commandBuffer)
     barrier.dstAccessMask = vk::AccessFlagBits::eShaderRead;
     commandBuffer.pipelineBarrier(vk::PipelineStageFlagBits::eTransfer, vk::PipelineStageFlagBits::eComputeShader, vk::DependencyFlags { 0 }, {}, barrier, {});
 
-    commandBuffer.bindPipeline(vk::PipelineBindPoint::eCompute, _pipelines[static_cast<uint32_t>(ShaderStages::eEmit)]);
+    commandBuffer.bindPipeline(vk::PipelineBindPoint::eCompute, _pipelines[static_cast<bb::u32>(ShaderStages::eEmit)]);
 
-    commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eCompute, _pipelineLayouts[static_cast<uint32_t>(ShaderStages::eEmit)], 1, _particlesBuffersDescriptorSet, {});
-    commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eCompute, _pipelineLayouts[static_cast<uint32_t>(ShaderStages::eEmit)], 2, _emittersDescriptorSet, {});
+    commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eCompute, _pipelineLayouts[static_cast<bb::u32>(ShaderStages::eEmit)], 1, _particlesBuffersDescriptorSet, {});
+    commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eCompute, _pipelineLayouts[static_cast<bb::u32>(ShaderStages::eEmit)], 2, _emittersDescriptorSet, {});
 
     // spawn as many threads as there's particles to emit
-    uint32_t bufferOffset = 0;
-    for (bufferOffset = 0; bufferOffset < std::min(static_cast<uint32_t>(_emitters.size()), MAX_EMITTERS); bufferOffset++)
+    bb::u32 bufferOffset = 0;
+    for (bufferOffset = 0; bufferOffset < std::min(static_cast<bb::u32>(_emitters.size()), MAX_EMITTERS); bufferOffset++)
     {
         _emitPushConstant.bufferOffset = bufferOffset;
-        commandBuffer.pushConstants<EmitPushConstant>(_pipelineLayouts[static_cast<uint32_t>(ShaderStages::eEmit)], vk::ShaderStageFlagBits::eCompute, 0, { _emitPushConstant });
+        commandBuffer.pushConstants<EmitPushConstant>(_pipelineLayouts[static_cast<bb::u32>(ShaderStages::eEmit)], vk::ShaderStageFlagBits::eCompute, 0, { _emitPushConstant });
         // +63 so we always dispatch at least once.
         commandBuffer.dispatch((_emitters[bufferOffset].count + 63) / 64, 1, 1);
     }
@@ -158,7 +158,7 @@ void ParticlePass::RecordEmit(vk::CommandBuffer commandBuffer)
     util::EndLabel(commandBuffer);
 }
 
-void ParticlePass::RecordSimulate(vk::CommandBuffer commandBuffer, const CameraResource& camera, float deltaTime, uint32_t currentFrame)
+void ParticlePass::RecordSimulate(vk::CommandBuffer commandBuffer, const CameraResource& camera, float deltaTime, bb::u32 currentFrame)
 {
     auto vkContext { _context->GetVulkanContext() };
     auto resources { _context->Resources() };
@@ -174,17 +174,17 @@ void ParticlePass::RecordSimulate(vk::CommandBuffer commandBuffer, const CameraR
 
     util::BeginLabel(commandBuffer, "Simulate particle pass", glm::vec3 { 255.0f, 105.0f, 180.0f } / 255.0f);
 
-    commandBuffer.bindPipeline(vk::PipelineBindPoint::eCompute, _pipelines[static_cast<uint32_t>(ShaderStages::eSimulate)]);
+    commandBuffer.bindPipeline(vk::PipelineBindPoint::eCompute, _pipelines[static_cast<bb::u32>(ShaderStages::eSimulate)]);
 
-    commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eCompute, _pipelineLayouts[static_cast<uint32_t>(ShaderStages::eSimulate)], 1, _particlesBuffersDescriptorSet, {});
-    commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eCompute, _pipelineLayouts[static_cast<uint32_t>(ShaderStages::eSimulate)], 2, _culledInstancesDescriptorSet, {});
-    commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eCompute, _pipelineLayouts[static_cast<uint32_t>(ShaderStages::eSimulate)], 3, camera.DescriptorSet(currentFrame), {});
-    commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eCompute, _pipelineLayouts[static_cast<uint32_t>(ShaderStages::eSimulate)], 4, _localEmittersDescriptorSet, {});
-    commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eCompute, _pipelineLayouts[static_cast<uint32_t>(ShaderStages::eSimulate)], 5, _drawCommandsDescriptorSet, {});
+    commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eCompute, _pipelineLayouts[static_cast<bb::u32>(ShaderStages::eSimulate)], 1, _particlesBuffersDescriptorSet, {});
+    commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eCompute, _pipelineLayouts[static_cast<bb::u32>(ShaderStages::eSimulate)], 2, _culledInstancesDescriptorSet, {});
+    commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eCompute, _pipelineLayouts[static_cast<bb::u32>(ShaderStages::eSimulate)], 3, camera.DescriptorSet(currentFrame), {});
+    commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eCompute, _pipelineLayouts[static_cast<bb::u32>(ShaderStages::eSimulate)], 4, _localEmittersDescriptorSet, {});
+    commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eCompute, _pipelineLayouts[static_cast<bb::u32>(ShaderStages::eSimulate)], 5, _drawCommandsDescriptorSet, {});
 
     _simulatePushConstant.deltaTime = deltaTime * 1e-3;
     _simulatePushConstant.localEmitterCount = _localEmitters.size();
-    commandBuffer.pushConstants<SimulatePushConstant>(_pipelineLayouts[static_cast<uint32_t>(ShaderStages::eSimulate)], vk::ShaderStageFlagBits::eCompute, 0, { _simulatePushConstant });
+    commandBuffer.pushConstants<SimulatePushConstant>(_pipelineLayouts[static_cast<bb::u32>(ShaderStages::eSimulate)], vk::ShaderStageFlagBits::eCompute, 0, { _simulatePushConstant });
 
     commandBuffer.dispatch(MAX_PARTICLES / 256, 1, 1);
     _localEmitters.clear();
@@ -197,7 +197,7 @@ void ParticlePass::RecordSimulate(vk::CommandBuffer commandBuffer, const CameraR
     util::EndLabel(commandBuffer);
 }
 
-void ParticlePass::RecordRenderIndexedIndirect(vk::CommandBuffer commandBuffer, const RenderSceneDescription& scene, uint32_t currentFrame)
+void ParticlePass::RecordRenderIndexedIndirect(vk::CommandBuffer commandBuffer, const RenderSceneDescription& scene, bb::u32 currentFrame)
 {
     auto vkContext { _context->GetVulkanContext() };
     auto resources { _context->Resources() };
@@ -244,14 +244,14 @@ void ParticlePass::RecordRenderIndexedIndirect(vk::CommandBuffer commandBuffer, 
     commandBuffer.setViewport(0, 1, &_gBuffers.Viewport());
     commandBuffer.setScissor(0, 1, &_gBuffers.Scissor());
 
-    commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, _pipelines[static_cast<uint32_t>(ShaderStages::eRenderIndexedIndirect)]);
+    commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, _pipelines[static_cast<bb::u32>(ShaderStages::eRenderIndexedIndirect)]);
 
     vk::DescriptorSet bindlessSet = _context->BindlessSet();
-    commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, _pipelineLayouts[static_cast<uint32_t>(ShaderStages::eRenderIndexedIndirect)], 0, bindlessSet, {});
-    commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, _pipelineLayouts[static_cast<uint32_t>(ShaderStages::eRenderIndexedIndirect)], 1, _culledInstancesDescriptorSet, {});
-    commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, _pipelineLayouts[static_cast<uint32_t>(ShaderStages::eRenderIndexedIndirect)], 2, scene.gpuScene->MainCamera().DescriptorSet(currentFrame), {});
-    commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, _pipelineLayouts[static_cast<uint32_t>(ShaderStages::eRenderIndexedIndirect)], 3, scene.gpuScene->GetSceneDescriptorSet(currentFrame), {});
-    commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, _pipelineLayouts[static_cast<uint32_t>(ShaderStages::eRenderIndexedIndirect)], 4, _bloomSettings.GetDescriptorSetData(currentFrame), {});
+    commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, _pipelineLayouts[static_cast<bb::u32>(ShaderStages::eRenderIndexedIndirect)], 0, bindlessSet, {});
+    commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, _pipelineLayouts[static_cast<bb::u32>(ShaderStages::eRenderIndexedIndirect)], 1, _culledInstancesDescriptorSet, {});
+    commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, _pipelineLayouts[static_cast<bb::u32>(ShaderStages::eRenderIndexedIndirect)], 2, scene.gpuScene->MainCamera().DescriptorSet(currentFrame), {});
+    commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, _pipelineLayouts[static_cast<bb::u32>(ShaderStages::eRenderIndexedIndirect)], 3, scene.gpuScene->GetSceneDescriptorSet(currentFrame), {});
+    commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, _pipelineLayouts[static_cast<bb::u32>(ShaderStages::eRenderIndexedIndirect)], 4, _bloomSettings.GetDescriptorSetData(currentFrame), {});
 
     vk::Buffer vertexBuffer = resources->GetBufferResourceManager().Access(_vertexBuffer)->buffer;
     vk::Buffer indexBuffer = resources->GetBufferResourceManager().Access(_indexBuffer)->buffer;
@@ -266,7 +266,7 @@ void ParticlePass::RecordRenderIndexedIndirect(vk::CommandBuffer commandBuffer, 
     util::EndLabel(commandBuffer);
 }
 
-void ParticlePass::UpdateEmitters(vk::CommandBuffer commandBuffer, uint32_t currentFrame)
+void ParticlePass::UpdateEmitters(vk::CommandBuffer commandBuffer, bb::u32 currentFrame)
 {
     auto vkContext { _context->GetVulkanContext() };
     auto resources { _context->Resources() };
@@ -338,7 +338,7 @@ void ParticlePass::UpdateEmitters(vk::CommandBuffer commandBuffer, uint32_t curr
     // copy over local emitters to buffer
     if (!_localEmitters.empty())
     {
-        vk::DeviceSize bufferSize = glm::min(static_cast<uint32_t>(_localEmitters.size()), MAX_EMITTERS) * sizeof(LocalEmitter);
+        vk::DeviceSize bufferSize = glm::min(static_cast<bb::u32>(_localEmitters.size()), MAX_EMITTERS) * sizeof(LocalEmitter);
 
         // copy data to staging buffer
         vmaCopyMemoryToAllocation(vkContext->MemoryAllocator(), _localEmitters.data(), _localEmitterStagingBufferAllocation[currentFrame], 0, bufferSize);
@@ -359,7 +359,7 @@ void ParticlePass::UpdateEmitters(vk::CommandBuffer commandBuffer, uint32_t curr
     // copy over emitters
     if (!_emitters.empty())
     {
-        vk::DeviceSize bufferSize = glm::min(static_cast<uint32_t>(_emitters.size()), MAX_EMITTERS) * sizeof(Emitter);
+        vk::DeviceSize bufferSize = glm::min(static_cast<bb::u32>(_emitters.size()), MAX_EMITTERS) * sizeof(Emitter);
 
         // copy data to staging buffer
         vmaCopyMemoryToAllocation(vkContext->MemoryAllocator(), _emitters.data(), _emitterStagingBufferAllocation[currentFrame], 0, bufferSize);
@@ -380,7 +380,7 @@ void ParticlePass::UpdateEmitters(vk::CommandBuffer commandBuffer, uint32_t curr
 
 void ParticlePass::UpdateAliveLists()
 {
-    std::swap(_particlesBuffers[static_cast<uint32_t>(ParticleBufferUsage::eAliveNew)], _particlesBuffers[static_cast<uint32_t>(ParticleBufferUsage::eAliveCurrent)]);
+    std::swap(_particlesBuffers[static_cast<bb::u32>(ParticleBufferUsage::eAliveNew)], _particlesBuffers[static_cast<bb::u32>(ParticleBufferUsage::eAliveCurrent)]);
     UpdateParticleBuffersDescriptorSets();
 }
 
@@ -392,7 +392,7 @@ void ParticlePass::ResetParticles()
     auto cmdBuffer = SingleTimeCommands(*_context->GetVulkanContext());
 
     std::vector<ParticleCounters> counters(1);
-    cmdBuffer.CopyIntoLocalBuffer(counters, 0, resources->GetBufferResourceManager().Access(_particlesBuffers[static_cast<uint32_t>(ParticleBufferUsage::eCounter)])->buffer);
+    cmdBuffer.CopyIntoLocalBuffer(counters, 0, resources->GetBufferResourceManager().Access(_particlesBuffers[static_cast<bb::u32>(ParticleBufferUsage::eCounter)])->buffer);
 
     _emitters.clear();
     _localEmitters.clear();
@@ -411,7 +411,7 @@ void ParticlePass::CreatePipelines()
         pipelineLayoutCreateInfo.pSetLayouts = layouts.data();
         pipelineLayoutCreateInfo.pushConstantRangeCount = 0;
 
-        _pipelineLayouts[static_cast<uint32_t>(ShaderStages::eKickOff)] = device.createPipelineLayout(pipelineLayoutCreateInfo).value;
+        _pipelineLayouts[static_cast<bb::u32>(ShaderStages::eKickOff)] = device.createPipelineLayout(pipelineLayoutCreateInfo).value;
 
         std::vector<std::byte> byteCode = shader::ReadFile("shaders/bin/kick_off.comp.spv");
 
@@ -425,12 +425,12 @@ void ParticlePass::CreatePipelines()
 
         vk::ComputePipelineCreateInfo computePipelineCreateInfo {
             .stage = shaderStageCreateInfo,
-            .layout = _pipelineLayouts[static_cast<uint32_t>(ShaderStages::eKickOff)],
+            .layout = _pipelineLayouts[static_cast<bb::u32>(ShaderStages::eKickOff)],
         };
 
         auto result = device.createComputePipeline(nullptr, computePipelineCreateInfo, nullptr);
         util::VK_ASSERT(result.result, "Failed creating the kick_off compute pipeline!");
-        _pipelines[static_cast<uint32_t>(ShaderStages::eKickOff)] = result.value;
+        _pipelines[static_cast<bb::u32>(ShaderStages::eKickOff)] = result.value;
 
         device.destroy(shaderModule);
     }
@@ -450,7 +450,7 @@ void ParticlePass::CreatePipelines()
         pipelineLayoutCreateInfo.pushConstantRangeCount = 1;
         pipelineLayoutCreateInfo.pPushConstantRanges = &pcRange;
 
-        _pipelineLayouts[static_cast<uint32_t>(ShaderStages::eEmit)] = device.createPipelineLayout(pipelineLayoutCreateInfo).value;
+        _pipelineLayouts[static_cast<bb::u32>(ShaderStages::eEmit)] = device.createPipelineLayout(pipelineLayoutCreateInfo).value;
 
         auto byteCode = shader::ReadFile("shaders/bin/emit.comp.spv");
 
@@ -464,12 +464,12 @@ void ParticlePass::CreatePipelines()
 
         vk::ComputePipelineCreateInfo computePipelineCreateInfo {
             .stage = shaderStageCreateInfo,
-            .layout = _pipelineLayouts[static_cast<uint32_t>(ShaderStages::eEmit)],
+            .layout = _pipelineLayouts[static_cast<bb::u32>(ShaderStages::eEmit)],
         };
 
         auto result = device.createComputePipeline(nullptr, computePipelineCreateInfo, nullptr);
         util::VK_ASSERT(result.result, "Failed creating the emit compute pipeline!");
-        _pipelines[static_cast<uint32_t>(ShaderStages::eEmit)] = result.value;
+        _pipelines[static_cast<bb::u32>(ShaderStages::eEmit)] = result.value;
 
         device.destroy(shaderModule);
     }
@@ -489,7 +489,7 @@ void ParticlePass::CreatePipelines()
         pipelineLayoutCreateInfo.pushConstantRangeCount = 1;
         pipelineLayoutCreateInfo.pPushConstantRanges = &pcRange;
 
-        _pipelineLayouts[static_cast<uint32_t>(ShaderStages::eSimulate)] = device.createPipelineLayout(pipelineLayoutCreateInfo).value;
+        _pipelineLayouts[static_cast<bb::u32>(ShaderStages::eSimulate)] = device.createPipelineLayout(pipelineLayoutCreateInfo).value;
 
         std::vector<std::byte> byteCode = shader::ReadFile("shaders/bin/simulate.comp.spv");
 
@@ -503,12 +503,12 @@ void ParticlePass::CreatePipelines()
 
         vk::ComputePipelineCreateInfo computePipelineCreateInfo {
             .stage = shaderStageCreateInfo,
-            .layout = _pipelineLayouts[static_cast<uint32_t>(ShaderStages::eSimulate)],
+            .layout = _pipelineLayouts[static_cast<bb::u32>(ShaderStages::eSimulate)],
         };
 
         auto result = device.createComputePipeline(nullptr, computePipelineCreateInfo, nullptr);
         util::VK_ASSERT(result.result, "Failed creating the simulate compute pipeline!");
-        _pipelines[static_cast<uint32_t>(ShaderStages::eSimulate)] = result.value;
+        _pipelines[static_cast<bb::u32>(ShaderStages::eSimulate)] = result.value;
 
         device.destroy(shaderModule);
     }
@@ -551,8 +551,8 @@ void ParticlePass::CreatePipelines()
                           .SetDepthStencilState(depthStencilStateCreateInfo)
                           .BuildPipeline();
 
-        _pipelineLayouts.at(static_cast<uint32_t>(ShaderStages::eRenderIndexedIndirect)) = std::get<0>(result);
-        _pipelines.at(static_cast<uint32_t>(ShaderStages::eRenderIndexedIndirect)) = std::get<1>(result);
+        _pipelineLayouts.at(static_cast<bb::u32>(ShaderStages::eRenderIndexedIndirect)) = std::get<0>(result);
+        _pipelines.at(static_cast<bb::u32>(ShaderStages::eRenderIndexedIndirect)) = std::get<1>(result);
     }
 }
 
@@ -564,7 +564,7 @@ void ParticlePass::CreateDescriptorSetLayouts()
     { // Particle Storage Buffers
         std::array<vk::DescriptorSetLayoutBinding, 5> bindings {};
         std::array<vk::DescriptorBindingFlags, 5> flags {};
-        for (size_t i = 0; i < bindings.size(); i++)
+        for (bb::usize i = 0; i < bindings.size(); i++)
         {
             vk::DescriptorSetLayoutBinding& descriptorSetLayoutBinding { bindings[i] };
             descriptorSetLayoutBinding.binding = i;
@@ -590,7 +590,7 @@ void ParticlePass::CreateDescriptorSetLayouts()
             "Failed creating particle buffers descriptor set layout!");
     }
 
-    { // Emitter Uniform Buffer
+    { // Emitter Uniform bb::Buffer
         std::array<vk::DescriptorSetLayoutBinding, 1> bindings {};
 
         vk::DescriptorSetLayoutBinding& descriptorSetLayoutBinding { bindings[0] };
@@ -608,7 +608,7 @@ void ParticlePass::CreateDescriptorSetLayouts()
             "Failed creating emitter buffer descriptor set layout!");
     }
 
-    { // Local Emitter Uniform Buffer
+    { // Local Emitter Uniform bb::Buffer
         std::array<vk::DescriptorSetLayoutBinding, 1> bindings {};
 
         vk::DescriptorSetLayoutBinding& descriptorSetLayoutBinding { bindings[0] };
@@ -626,7 +626,7 @@ void ParticlePass::CreateDescriptorSetLayouts()
             "Failed creating local emitter buffer descriptor set layout!");
     }
 
-    { // Particle Instances Storage Buffer
+    { // Particle Instances Storage bb::Buffer
         std::vector<vk::DescriptorSetLayoutBinding> bindings {};
 
         vk::DescriptorSetLayoutBinding& descriptorSetLayoutBinding { bindings.emplace_back() };
@@ -672,13 +672,13 @@ void ParticlePass::CreateDescriptorSets()
         std::array<vk::DescriptorSet, 1> descriptorSets;
 
         util::VK_ASSERT(device.allocateDescriptorSets(&allocateInfo, descriptorSets.data()),
-            "Failed allocating Particle Storage Buffer descriptor sets!");
+            "Failed allocating Particle Storage bb::Buffer descriptor sets!");
 
         _particlesBuffersDescriptorSet = descriptorSets[0];
         UpdateParticleBuffersDescriptorSets();
     }
 
-    { // Culled Instances Storage Buffer
+    { // Culled Instances Storage bb::Buffer
         vk::DescriptorSetAllocateInfo allocateInfo {};
         allocateInfo.descriptorPool = vkContext->DescriptorPool();
         allocateInfo.descriptorSetCount = 1;
@@ -686,7 +686,7 @@ void ParticlePass::CreateDescriptorSets()
 
         std::array<vk::DescriptorSet, 1> descriptorSets;
         util::VK_ASSERT(device.allocateDescriptorSets(&allocateInfo, descriptorSets.data()),
-            "Failed allocating Particle Instances Storage Buffer descriptor sets!");
+            "Failed allocating Particle Instances Storage bb::Buffer descriptor sets!");
 
         _culledInstancesDescriptorSet = descriptorSets[0];
         UpdateParticleInstancesBufferDescriptorSet();
@@ -700,7 +700,7 @@ void ParticlePass::CreateDescriptorSets()
 
         std::array<vk::DescriptorSet, 1> descriptorSets;
         util::VK_ASSERT(device.allocateDescriptorSets(&allocateInfo, descriptorSets.data()),
-            "Failed allocating Emitter Uniform Buffer descriptor sets!");
+            "Failed allocating Emitter Uniform bb::Buffer descriptor sets!");
 
         _emittersDescriptorSet = descriptorSets[0];
         UpdateEmittersBuffersDescriptorSets();
@@ -714,7 +714,7 @@ void ParticlePass::CreateDescriptorSets()
 
         std::array<vk::DescriptorSet, 1> descriptorSets;
         util::VK_ASSERT(device.allocateDescriptorSets(&allocateInfo, descriptorSets.data()),
-            "Failed allocating Local Emitter Uniform Buffer descriptor sets!");
+            "Failed allocating Local Emitter Uniform bb::Buffer descriptor sets!");
 
         _localEmittersDescriptorSet = descriptorSets[0];
         UpdateLocalEmittersBuffersDescriptorSets();
@@ -728,7 +728,7 @@ void ParticlePass::CreateDescriptorSets()
 
         std::array<vk::DescriptorSet, 1> descriptorSets;
         util::VK_ASSERT(device.allocateDescriptorSets(&allocateInfo, descriptorSets.data()),
-            "Failed allocating Particle Draw Commands Buffer descriptor set!");
+            "Failed allocating Particle Draw Commands bb::Buffer descriptor set!");
 
         _drawCommandsDescriptorSet = descriptorSets[0];
         UpdateDrawCommandsBufferDescriptorSet();
@@ -744,7 +744,7 @@ void ParticlePass::UpdateParticleBuffersDescriptorSets()
     std::array<vk::WriteDescriptorSet, 5> descriptorWrites {};
 
     // Particle SSB (binding = 0)
-    uint32_t index = static_cast<uint32_t>(ParticleBufferUsage::eParticle);
+    bb::u32 index = static_cast<bb::u32>(ParticleBufferUsage::eParticle);
     vk::DescriptorBufferInfo particleBufferInfo {};
     particleBufferInfo.buffer = resources->GetBufferResourceManager().Access(_particlesBuffers[index])->buffer;
     particleBufferInfo.offset = 0;
@@ -758,11 +758,11 @@ void ParticlePass::UpdateParticleBuffersDescriptorSets()
     particleBufferWrite.pBufferInfo = &particleBufferInfo;
 
     // Alive NEW list SSB (binding = 1)
-    index = static_cast<uint32_t>(ParticleBufferUsage::eAliveNew);
+    index = static_cast<bb::u32>(ParticleBufferUsage::eAliveNew);
     vk::DescriptorBufferInfo aliveNEWBufferInfo {};
     aliveNEWBufferInfo.buffer = resources->GetBufferResourceManager().Access(_particlesBuffers[index])->buffer;
     aliveNEWBufferInfo.offset = 0;
-    aliveNEWBufferInfo.range = sizeof(uint32_t) * MAX_PARTICLES;
+    aliveNEWBufferInfo.range = sizeof(bb::u32) * MAX_PARTICLES;
     vk::WriteDescriptorSet& aliveNEWBufferWrite { descriptorWrites[index] };
     aliveNEWBufferWrite.dstSet = _particlesBuffersDescriptorSet;
     aliveNEWBufferWrite.dstBinding = index;
@@ -772,11 +772,11 @@ void ParticlePass::UpdateParticleBuffersDescriptorSets()
     aliveNEWBufferWrite.pBufferInfo = &aliveNEWBufferInfo;
 
     // Alive CURRENT list SSB (binding = 2)
-    index = static_cast<uint32_t>(ParticleBufferUsage::eAliveCurrent);
+    index = static_cast<bb::u32>(ParticleBufferUsage::eAliveCurrent);
     vk::DescriptorBufferInfo aliveCURRENTBufferInfo {};
     aliveCURRENTBufferInfo.buffer = resources->GetBufferResourceManager().Access(_particlesBuffers[index])->buffer;
     aliveCURRENTBufferInfo.offset = 0;
-    aliveCURRENTBufferInfo.range = sizeof(uint32_t) * MAX_PARTICLES;
+    aliveCURRENTBufferInfo.range = sizeof(bb::u32) * MAX_PARTICLES;
     vk::WriteDescriptorSet& aliveCURRENTBufferWrite { descriptorWrites[index] };
     aliveCURRENTBufferWrite.dstSet = _particlesBuffersDescriptorSet;
     aliveCURRENTBufferWrite.dstBinding = index;
@@ -786,11 +786,11 @@ void ParticlePass::UpdateParticleBuffersDescriptorSets()
     aliveCURRENTBufferWrite.pBufferInfo = &aliveCURRENTBufferInfo;
 
     // Dead list SSB (binding = 3)
-    index = static_cast<uint32_t>(ParticleBufferUsage::eDead);
+    index = static_cast<bb::u32>(ParticleBufferUsage::eDead);
     vk::DescriptorBufferInfo deadBufferInfo {};
     deadBufferInfo.buffer = resources->GetBufferResourceManager().Access(_particlesBuffers[index])->buffer;
     deadBufferInfo.offset = 0;
-    deadBufferInfo.range = sizeof(uint32_t) * MAX_PARTICLES;
+    deadBufferInfo.range = sizeof(bb::u32) * MAX_PARTICLES;
     vk::WriteDescriptorSet& deadBufferWrite { descriptorWrites[index] };
     deadBufferWrite.dstSet = _particlesBuffersDescriptorSet;
     deadBufferWrite.dstBinding = index;
@@ -800,7 +800,7 @@ void ParticlePass::UpdateParticleBuffersDescriptorSets()
     deadBufferWrite.pBufferInfo = &deadBufferInfo;
 
     // Counter SSB (binding = 4)
-    index = static_cast<uint32_t>(ParticleBufferUsage::eCounter);
+    index = static_cast<bb::u32>(ParticleBufferUsage::eCounter);
     vk::DescriptorBufferInfo counterBufferInfo {};
     counterBufferInfo.buffer = resources->GetBufferResourceManager().Access(_particlesBuffers[index])->buffer;
     counterBufferInfo.offset = 0;
@@ -929,14 +929,8 @@ void ParticlePass::CreateBuffers()
             indirectCommand.command.vertexOffset = 0;
             std::vector<DrawIndexedIndirectCommand> data { indirectCommand };
 
-            BufferCreation creation {};
-            creation.SetName("Particle Draw Indirect buffer")
-                .SetSize(sizeof(DrawIndexedIndirectCommand))
-                .SetIsMappable(false)
-                .SetMemoryUsage(VMA_MEMORY_USAGE_AUTO_PREFER_DEVICE)
-                .SetUsageFlags(vk::BufferUsageFlagBits::eStorageBuffer | vk::BufferUsageFlagBits::eIndirectBuffer | vk::BufferUsageFlagBits::eTransferDst);
-
-            _drawCommandsBuffer = resources->GetBufferResourceManager().Create(creation);
+            bb::Flags<bb::BufferFlags> flags = { bb::BufferFlags::STORAGE_USAGE, bb::BufferFlags::TRANSFER_DST, bb::BufferFlags::INDIRECT_USAGE };
+            _drawCommandsBuffer = resources->GetBufferResourceManager().Create(sizeof(DrawIndexedIndirectCommand), flags, "Particle Draw Indirect");
             cmdBuffer.CopyIntoLocalBuffer(data, 0, resources->GetBufferResourceManager().Access(_drawCommandsBuffer)->buffer);
         }
 
@@ -944,37 +938,28 @@ void ParticlePass::CreateBuffers()
             std::vector<Particle> particles(MAX_PARTICLES);
             vk::DeviceSize bufferSize = sizeof(Particle) * MAX_PARTICLES;
 
-            BufferCreation creation {};
-            creation.SetName("Particle SSB")
-                .SetSize(bufferSize)
-                .SetIsMappable(false)
-                .SetMemoryUsage(VMA_MEMORY_USAGE_AUTO_PREFER_DEVICE)
-                .SetUsageFlags(vk::BufferUsageFlagBits::eStorageBuffer | vk::BufferUsageFlagBits::eTransferDst);
-            _particlesBuffers[static_cast<uint32_t>(ParticleBufferUsage::eParticle)] = resources->GetBufferResourceManager().Create(creation);
-            cmdBuffer.CopyIntoLocalBuffer(particles, 0, resources->GetBufferResourceManager().Access(_particlesBuffers[static_cast<uint32_t>(ParticleBufferUsage::eParticle)])->buffer);
+            bb::Flags<bb::BufferFlags> flags = { bb::BufferFlags::STORAGE_USAGE, bb::BufferFlags::TRANSFER_DST };
+            _particlesBuffers[static_cast<bb::u32>(ParticleBufferUsage::eParticle)] = resources->GetBufferResourceManager().Create(bufferSize, flags, "Particle SSB");
+            cmdBuffer.CopyIntoLocalBuffer(particles, 0, resources->GetBufferResourceManager().Access(_particlesBuffers[static_cast<bb::u32>(ParticleBufferUsage::eParticle)])->buffer);
         }
 
         { // Alive and Dead SSBs
-            vk::DeviceSize bufferSize = sizeof(uint32_t) * MAX_PARTICLES;
+            vk::DeviceSize bufferSize = sizeof(bb::u32) * MAX_PARTICLES;
 
-            for (size_t i = static_cast<size_t>(ParticleBufferUsage::eAliveNew); i <= static_cast<size_t>(ParticleBufferUsage::eDead); i++)
+            for (bb::usize i = static_cast<bb::usize>(ParticleBufferUsage::eAliveNew); i <= static_cast<bb::usize>(ParticleBufferUsage::eDead); i++)
             {
-                std::vector<uint32_t> indices(MAX_PARTICLES);
-                if (i == static_cast<size_t>(ParticleBufferUsage::eDead))
+                std::vector<bb::u32> indices(MAX_PARTICLES);
+                if (i == static_cast<bb::usize>(ParticleBufferUsage::eDead))
                 {
-                    for (uint32_t j = 0; j < MAX_PARTICLES; ++j)
+                    for (bb::u32 j = 0; j < MAX_PARTICLES; ++j)
                     {
                         indices[j] = j;
                     }
                 }
 
-                BufferCreation creation {};
-                creation.SetName("Index " + std::to_string(i) + " list SSB")
-                    .SetSize(bufferSize)
-                    .SetIsMappable(false)
-                    .SetMemoryUsage(VMA_MEMORY_USAGE_AUTO_PREFER_DEVICE)
-                    .SetUsageFlags(vk::BufferUsageFlagBits::eStorageBuffer | vk::BufferUsageFlagBits::eTransferDst);
-                _particlesBuffers[i] = resources->GetBufferResourceManager().Create(creation);
+                std::string name = "Index " + std::to_string(i) + " list SSB";
+                bb::Flags<bb::BufferFlags> flags = { bb::BufferFlags::STORAGE_USAGE, bb::BufferFlags::TRANSFER_DST };
+                _particlesBuffers[i] = resources->GetBufferResourceManager().Create(bufferSize, flags, name.c_str());
                 cmdBuffer.CopyIntoLocalBuffer(indices, 0, resources->GetBufferResourceManager().Access(_particlesBuffers[i])->buffer);
             }
         }
@@ -983,27 +968,17 @@ void ParticlePass::CreateBuffers()
             std::vector<ParticleCounters> particleCounters(1);
             vk::DeviceSize bufferSize = sizeof(ParticleCounters);
 
-            BufferCreation creation {};
-            creation.SetName("Counters SSB")
-                .SetSize(bufferSize)
-                .SetIsMappable(false)
-                .SetMemoryUsage(VMA_MEMORY_USAGE_AUTO_PREFER_DEVICE)
-                .SetUsageFlags(vk::BufferUsageFlagBits::eStorageBuffer | vk::BufferUsageFlagBits::eTransferDst);
-            _particlesBuffers[static_cast<uint32_t>(ParticleBufferUsage::eCounter)] = resources->GetBufferResourceManager().Create(creation);
-            cmdBuffer.CopyIntoLocalBuffer(particleCounters, 0, resources->GetBufferResourceManager().Access(_particlesBuffers[static_cast<uint32_t>(ParticleBufferUsage::eCounter)])->buffer);
+            bb::Flags<bb::BufferFlags> flags = { bb::BufferFlags::STORAGE_USAGE, bb::BufferFlags::TRANSFER_DST };
+            _particlesBuffers[static_cast<bb::u32>(ParticleBufferUsage::eCounter)] = resources->GetBufferResourceManager().Create(bufferSize, flags, "Counters SSB");
+            cmdBuffer.CopyIntoLocalBuffer(particleCounters, 0, resources->GetBufferResourceManager().Access(_particlesBuffers[static_cast<bb::u32>(ParticleBufferUsage::eCounter)])->buffer);
         }
 
         { // Culled Instance SSB
             vk::DeviceSize bufferSize = sizeof(ParticleInstance) * MAX_PARTICLES;
             std::vector<std::byte> culledInstances(bufferSize);
 
-            BufferCreation creation {};
-            creation.SetName("Culled Instance SSB")
-                .SetSize(bufferSize)
-                .SetIsMappable(false)
-                .SetMemoryUsage(VMA_MEMORY_USAGE_AUTO_PREFER_DEVICE)
-                .SetUsageFlags(vk::BufferUsageFlagBits::eStorageBuffer | vk::BufferUsageFlagBits::eTransferDst);
-            _culledInstancesBuffer = resources->GetBufferResourceManager().Create(creation);
+            bb::Flags<bb::BufferFlags> flags = { bb::BufferFlags::STORAGE_USAGE, bb::BufferFlags::TRANSFER_DST };
+            _culledInstancesBuffer = resources->GetBufferResourceManager().Create(bufferSize, flags, "Culled Instance SSB");
             cmdBuffer.CopyIntoLocalBuffer(culledInstances, 0, resources->GetBufferResourceManager().Access(_culledInstancesBuffer)->buffer);
         }
 
@@ -1016,27 +991,17 @@ void ParticlePass::CreateBuffers()
             };
             vk::DeviceSize bufferSize = sizeof(Vertex) * billboardPositions.size();
 
-            BufferCreation creation {};
-            creation.SetName("Billboard vertex buffer")
-                .SetSize(bufferSize)
-                .SetUsageFlags(vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eVertexBuffer)
-                .SetIsMappable(false)
-                .SetMemoryUsage(VMA_MEMORY_USAGE_GPU_ONLY);
-            _vertexBuffer = resources->GetBufferResourceManager().Create(creation);
+            bb::Flags<bb::BufferFlags> flags = { bb::BufferFlags::VERTEX_USAGE, bb::BufferFlags::TRANSFER_DST };
+            _vertexBuffer = resources->GetBufferResourceManager().Create(bufferSize, flags, "Billboard vertex buffer");
             cmdBuffer.CopyIntoLocalBuffer(billboardPositions, 0, resources->GetBufferResourceManager().Access(_vertexBuffer)->buffer);
         }
 
         { // Billboard index buffer
-            std::vector<uint32_t> billboardIndices = { 0, 1, 3, 0, 3, 2 };
-            vk::DeviceSize bufferSize = sizeof(uint32_t) * billboardIndices.size();
+            std::vector<bb::u32> billboardIndices = { 0, 1, 3, 0, 3, 2 };
+            vk::DeviceSize bufferSize = sizeof(bb::u32) * billboardIndices.size();
 
-            BufferCreation creation {};
-            creation.SetName("Billboard index buffer")
-                .SetSize(bufferSize)
-                .SetUsageFlags(vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eIndexBuffer)
-                .SetIsMappable(false)
-                .SetMemoryUsage(VMA_MEMORY_USAGE_GPU_ONLY);
-            _indexBuffer = resources->GetBufferResourceManager().Create(creation);
+            bb::Flags<bb::BufferFlags> flags = { bb::BufferFlags::INDEX_USAGE, bb::BufferFlags::TRANSFER_DST };
+            _indexBuffer = resources->GetBufferResourceManager().Create(bufferSize, flags, "Billboard index buffer");
             cmdBuffer.CopyIntoLocalBuffer(billboardIndices, 0, resources->GetBufferResourceManager().Access(_indexBuffer)->buffer);
         }
 
@@ -1044,19 +1009,14 @@ void ParticlePass::CreateBuffers()
             std::vector<LocalEmitter> localEmitters(MAX_EMITTERS);
             vk::DeviceSize bufferSize = sizeof(LocalEmitter) * MAX_EMITTERS;
 
-            BufferCreation creation {};
-            creation.SetName("Local Emitter UB")
-                .SetSize(bufferSize)
-                .SetIsMappable(false)
-                .SetMemoryUsage(VMA_MEMORY_USAGE_AUTO_PREFER_DEVICE)
-                .SetUsageFlags(vk::BufferUsageFlagBits::eUniformBuffer | vk::BufferUsageFlagBits::eTransferDst);
-            _localEmittersBuffer = resources->GetBufferResourceManager().Create(creation);
+            bb::Flags<bb::BufferFlags> flags = { bb::BufferFlags::UNIFORM_USAGE, bb::BufferFlags::TRANSFER_DST };
+            _localEmittersBuffer = resources->GetBufferResourceManager().Create(bufferSize, flags, "Local Emitter UB");
             cmdBuffer.CopyIntoLocalBuffer(localEmitters, 0, resources->GetBufferResourceManager().Access(_localEmittersBuffer)->buffer);
         }
 
         { // Local Emitter Staging buffer
             vk::DeviceSize bufferSize = MAX_EMITTERS * sizeof(LocalEmitter);
-            for (uint32_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
+            for (bb::u32 i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
             {
                 util::CreateBuffer(*vkContext, bufferSize, vk::BufferUsageFlagBits::eTransferSrc, _localEmitterStagingBuffer[i], true, _localEmitterStagingBufferAllocation[i], VMA_MEMORY_USAGE_CPU_ONLY, "Local Emitter Staging buffer");
             }
@@ -1065,18 +1025,13 @@ void ParticlePass::CreateBuffers()
 
     { // Emitter UB
         vk::DeviceSize bufferSize = sizeof(Emitter) * MAX_EMITTERS;
-        BufferCreation creation {};
-        creation.SetName("Emitter UB")
-            .SetSize(bufferSize)
-            .SetIsMappable(false)
-            .SetMemoryUsage(VMA_MEMORY_USAGE_AUTO_PREFER_DEVICE)
-            .SetUsageFlags(vk::BufferUsageFlagBits::eUniformBuffer | vk::BufferUsageFlagBits::eTransferDst);
-        _emittersBuffer = resources->GetBufferResourceManager().Create(creation);
+        bb::Flags<bb::BufferFlags> flags = { bb::BufferFlags::UNIFORM_USAGE, bb::BufferFlags::TRANSFER_DST };
+        _emittersBuffer = resources->GetBufferResourceManager().Create(bufferSize, flags, "Emitter UB");
     }
 
     { // Emitter Staging buffer
         vk::DeviceSize bufferSize = MAX_EMITTERS * sizeof(Emitter);
-        for (uint32_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
+        for (bb::u32 i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
         {
             util::CreateBuffer(*vkContext, bufferSize, vk::BufferUsageFlagBits::eTransferSrc, _emitterStagingBuffer[i], true, _emitterStagingBufferAllocation[i], VMA_MEMORY_USAGE_CPU_ONLY, "Emitter Staging buffer");
         }

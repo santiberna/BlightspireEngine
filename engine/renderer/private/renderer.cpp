@@ -38,11 +38,11 @@
 #include "passes/ssao_pass.hpp"
 #include "passes/tonemapping_pass.hpp"
 #include "passes/ui_pass.hpp"
-#include "resource_management/buffer_resource_manager.hpp"
 #include "resource_management/image_resource_manager.hpp"
 #include "resource_management/mesh_resource_manager.hpp"
 #include "resource_management/model_resource_manager.hpp"
-#include "resource_management/sampler_resource_manager.hpp"
+#include "resources/buffer.hpp"
+#include "resources/sampler.hpp"
 #include "single_time_commands.hpp"
 #include "viewport.hpp"
 #include "vulkan_context.hpp"
@@ -54,7 +54,7 @@ Renderer::Renderer(ApplicationModule& application, Viewport& viewport, const std
     , _application(application)
     , _viewport(viewport)
     , _ecs(ecs)
-    , _settings("game/config/settings.json")
+    , _settings("game/config/renderer/settings.json")
 {
     ZoneScopedN("Renderer Initialization");
     _bloomSettings = std::make_unique<BloomSettings>(_context, _settings.data.bloom);
@@ -90,7 +90,7 @@ Renderer::Renderer(ApplicationModule& application, Viewport& viewport, const std
     {
         ZoneScopedN("UV sphere render");
         SingleTimeCommands commandBufferPrimitive { *_context->GetVulkanContext() };
-        uvSphere = _context->Resources()->GetMeshResourceManager().Create(commandBufferPrimitive, GenerateUVSphere(32, 32), ResourceHandle<GPUMaterial>::Null(), *_staticBatchBuffer);
+        uvSphere = _context->Resources()->GetMeshResourceManager().Create(commandBufferPrimitive, GenerateUVSphere(32, 32), ResourceHandle<GPUMaterial> {}, *_staticBatchBuffer);
     }
 
     {
@@ -363,9 +363,9 @@ Renderer::Renderer(ApplicationModule& application, Viewport& viewport, const std
         .AddNode(presentationPass)
         .Build();
 
-    static std::array<std::string, MAX_FRAMES_IN_FLIGHT> contextNames { "Command Buffer 0", "Command Buffer 1", "Command Buffer 2" };
+    static std::array<std::string, MAX_FRAMES_IN_FLIGHT> contextNames { "Command bb::Buffer 0", "Command bb::Buffer 1", "Command bb::Buffer 2" };
 
-    for (size_t i = 0; i < _tracyContexts.size(); ++i)
+    for (bb::usize i = 0; i < _tracyContexts.size(); ++i)
     {
         _tracyContexts[i] = TracyVkContextCalibrated(
             _context->GetVulkanContext()->Instance(),
@@ -382,12 +382,12 @@ Renderer::Renderer(ApplicationModule& application, Viewport& viewport, const std
 std::vector<ResourceHandle<GPUModel>> Renderer::LoadModels(const std::vector<CPUModel>& cpuModels)
 {
     // TODO: Use this later to determine batch buffer size.
-    // uint32_t totalVertexSize {};
-    // uint32_t totalIndexSize {};
+    // bb::u32 totalVertexSize {};
+    // bb::u32 totalIndexSize {};
     // for (const auto& path : models)
     // {
-    //     uint32_t vertexSize;
-    //     uint32_t indexSize;
+    //     bb::u32 vertexSize;
+    //     bb::u32 indexSize;
 
     //     _modelLoader->ReadGeometrySize(path, vertexSize, indexSize);
     //     totalVertexSize += vertexSize;
@@ -423,7 +423,7 @@ Renderer::~Renderer()
 {
     vk::Device device = _context->GetVulkanContext()->Device();
 
-    for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
+    for (bb::usize i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
     {
         device.destroy(_inFlightFences[i]);
         device.destroy(_renderFinishedSemaphores[i]);
@@ -432,7 +432,7 @@ Renderer::~Renderer()
 
     _swapChain.reset();
 
-    for (size_t i = 0; i < _tracyContexts.size(); ++i)
+    for (bb::usize i = 0; i < _tracyContexts.size(); ++i)
     {
         TracyVkDestroy(_tracyContexts[i]);
     }
@@ -450,7 +450,7 @@ void Renderer::CreateCommandBuffers()
         "Failed allocating command buffer!");
 }
 
-void Renderer::RecordCommandBuffer(const vk::CommandBuffer& commandBuffer, uint32_t swapChainImageIndex, float deltaTime)
+void Renderer::RecordCommandBuffer(const vk::CommandBuffer& commandBuffer, bb::u32 swapChainImageIndex, float deltaTime)
 {
     ZoneScoped;
     TracyVkZone(_tracyContexts[_currentFrame], commandBuffer, "Render all");
@@ -478,13 +478,13 @@ void Renderer::CreateSyncObjects()
     fenceCreateInfo.flags = vk::FenceCreateFlagBits::eSignaled;
 
     std::string errorMsg { "Failed creating sync object!" };
-    for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
+    for (bb::usize i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
     {
         util::VK_ASSERT(device.createSemaphore(&semaphoreCreateInfo, nullptr, &_imageAvailableSemaphores[i]), errorMsg);
         util::VK_ASSERT(device.createFence(&fenceCreateInfo, nullptr, &_inFlightFences[i]), errorMsg);
     }
 
-    for (size_t i = 0; i < _swapChain->GetImageCount(); ++i)
+    for (bb::usize i = 0; i < _swapChain->GetImageCount(); ++i)
         util::VK_ASSERT(device.createSemaphore(&semaphoreCreateInfo, nullptr, &_renderFinishedSemaphores[i]), errorMsg);
 }
 
@@ -505,7 +505,7 @@ void Renderer::InitializeBloomTargets()
     auto& samplerResourceManager = _context->Resources()->GetSamplerResourceManager();
 
     bb::SamplerCreation samplerCreation {};
-    samplerCreation.name = "Bloom Sampler",
+
     samplerCreation.minLod = 0.0f;
     samplerCreation.maxLod = 4.0f;
     samplerCreation.mipmapMode = bb::SamplerFilter::LINEAR;
@@ -513,7 +513,7 @@ void Renderer::InitializeBloomTargets()
     samplerCreation.addressModeW = bb::SamplerAddressMode::CLAMP_TO_EDGE;
     samplerCreation.addressModeV = bb::SamplerAddressMode::CLAMP_TO_EDGE;
 
-    _bloomSampler = samplerResourceManager.Create(samplerCreation);
+    _bloomSampler = samplerResourceManager.Create(samplerCreation, "Bloom Sampler");
 
     auto size = _swapChain->GetImageSize();
 
@@ -595,7 +595,7 @@ void Renderer::Render(float deltaTime)
 
     {
         ZoneNamedN(zz, "Wait On Fence", true);
-        result = device.waitForFences(1, &_inFlightFences[_currentFrame], vk::True, std::numeric_limits<uint64_t>::max());
+        result = device.waitForFences(1, &_inFlightFences[_currentFrame], vk::True, std::numeric_limits<bb::u64>::max());
         util::VK_ASSERT(result, "Failed waiting on in flight fence!");
     }
 
@@ -610,11 +610,11 @@ void Renderer::Render(float deltaTime)
     _bloomSettings->Update(_currentFrame);
     _viewport.SubmitDrawInfo(_uiPass->GetDrawList());
 
-    uint32_t imageIndex {};
+    bb::u32 imageIndex {};
     {
         ZoneNamedN(zz, "Acquire Next Image", true);
 
-        result = device.acquireNextImageKHR(_swapChain->GetSwapChain(), std::numeric_limits<uint64_t>::max(),
+        result = device.acquireNextImageKHR(_swapChain->GetSwapChain(), std::numeric_limits<bb::u64>::max(),
             _imageAvailableSemaphores[_currentFrame], nullptr, &imageIndex);
 
         if (result == vk::Result::eErrorOutOfDateKHR || result == vk::Result::eSuboptimalKHR)
@@ -629,7 +629,7 @@ void Renderer::Render(float deltaTime)
     }
 
     {
-        ZoneNamedN(zz, "Reset Command Buffer", true);
+        ZoneNamedN(zz, "Reset Command bb::Buffer", true);
         _commandBuffers[_currentFrame].reset();
     }
 
@@ -693,8 +693,6 @@ void Renderer::Render(float deltaTime)
     {
         util::VK_ASSERT(result, "Failed acquiring next image from swap chain!");
     }
-
-    _context->Resources()->Clean();
 
     _currentFrame = (_currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
 }

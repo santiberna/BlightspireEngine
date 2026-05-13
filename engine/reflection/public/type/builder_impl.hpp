@@ -48,7 +48,7 @@ TypeBuilder<T>& TypeBuilder<T>::addMethod(
 }
 
 template <typename T>
-TypeBuilder<T>& TypeBuilder<T>::addConstant(std::string_view name, uint64_t value)
+TypeBuilder<T>& TypeBuilder<T>::addConstant(std::string_view name, bb::u64 value)
 {
     auto [ret, ok] = for_type->constants.emplace(std::string(name), value);
     assert(ok && "Adding field with the same name! Check your type definition!");

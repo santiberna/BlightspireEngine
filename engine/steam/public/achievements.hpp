@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include "common.hpp"
 #include "steam_include.hpp"
 
 #include <span>
@@ -7,7 +8,7 @@
 
 struct Achievement
 {
-    Achievement(int32_t id, const std::string_view& apiId)
+    Achievement(bb::i32 id, const std::string_view& apiId)
         : id(id)
         , apiId(apiId)
         , name()
@@ -18,18 +19,18 @@ struct Achievement
     }
     Achievement() = default;
 
-    int32_t id = 0;
+    bb::i32 id = 0;
     std::string apiId = "";
     char name[128];
     char description[256];
     bool achieved = false;
-    int32_t iconImage = 0;
+    bb::i32 iconImage = 0;
 };
 
 class SteamAchievementManager
 {
 private:
-    uint64_t _appID; // Our current AppID
+    bb::u64 _appID; // Our current AppID
     std::vector<Achievement> _achievements;
     bool _initialized; // Have we called Request stats and received the callback?
 

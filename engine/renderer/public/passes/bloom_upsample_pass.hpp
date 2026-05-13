@@ -9,7 +9,7 @@ class BloomUpsamplePass final : public FrameGraphRenderPass
 public:
     BloomUpsamplePass(const std::shared_ptr<GraphicsContext>& context, ResourceHandle<GPUImage> bloomImage, const BloomSettings& bloomSettings);
     ~BloomUpsamplePass() final;
-    void RecordCommands(vk::CommandBuffer commandBuffer, uint32_t currentFrame, const RenderSceneDescription& scene) final;
+    void RecordCommands(vk::CommandBuffer commandBuffer, bb::u32 currentFrame, const RenderSceneDescription& scene) final;
 
 private:
     std::shared_ptr<GraphicsContext> _context;

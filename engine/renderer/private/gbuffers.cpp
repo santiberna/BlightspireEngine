@@ -3,7 +3,7 @@
 #include "graphics_context.hpp"
 #include "graphics_resources.hpp"
 #include "resource_management/image_resource_manager.hpp"
-#include "resource_management/sampler_resource_manager.hpp"
+#include "resources/sampler.hpp"
 #include "vulkan_context.hpp"
 #include "vulkan_helper.hpp"
 
@@ -59,7 +59,7 @@ void GBuffers::CreateGBuffers()
 void GBuffers::CreateDepthResources()
 {
     bb::SamplerCreation depthSampler {};
-    depthSampler.name = "Nearest_Depth_Sampler";
+
     depthSampler.addressModeU = bb::SamplerAddressMode::CLAMP_TO_EDGE;
     depthSampler.addressModeV = bb::SamplerAddressMode::CLAMP_TO_EDGE;
     depthSampler.addressModeW = bb::SamplerAddressMode::CLAMP_TO_EDGE;
@@ -75,7 +75,7 @@ void GBuffers::CreateDepthResources()
 
     depthSampler.unnormalizedCoordinates = false;
     depthSampler.borderColor = bb::SamplerBorderColor::OPAQUE_BLACK_INT;
-    _depthSampler = _context->Resources()->GetSamplerResourceManager().Create(depthSampler);
+    _depthSampler = _context->Resources()->GetSamplerResourceManager().Create(depthSampler, "Nearest Depth Sampler");
 
     bb::Flags<bb::TextureFlags> flags;
 

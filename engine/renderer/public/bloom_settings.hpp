@@ -19,14 +19,14 @@ public:
     struct FrameData
     {
         std::array<vk::DescriptorSet, MAX_FRAMES_IN_FLIGHT> descriptorSets;
-        std::array<ResourceHandle<Buffer>, MAX_FRAMES_IN_FLIGHT> buffers;
+        std::array<ResourceHandle<bb::Buffer>, MAX_FRAMES_IN_FLIGHT> buffers;
     };
 
     BloomSettings(const std::shared_ptr<GraphicsContext>& context, const Settings::Bloom& settings);
     ~BloomSettings();
     void Render();
-    void Update(uint32_t currentFrame);
-    const vk::DescriptorSet& GetDescriptorSetData(uint32_t currentFrame) const { return _frameData.descriptorSets[currentFrame]; }
+    void Update(bb::u32 currentFrame);
+    const vk::DescriptorSet& GetDescriptorSetData(bb::u32 currentFrame) const { return _frameData.descriptorSets[currentFrame]; }
     const vk::DescriptorSetLayout& GetDescriptorSetLayout() const { return _descriptorSetLayout; }
 
 private:
@@ -58,5 +58,5 @@ private:
 
     void CreateDescriptorSetLayout();
     void CreateUniformBuffers();
-    void UpdateDescriptorSet(uint32_t currentFrame);
+    void UpdateDescriptorSet(bb::u32 currentFrame);
 };

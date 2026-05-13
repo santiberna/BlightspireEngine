@@ -89,5 +89,5 @@ ResourceHandle<GPUModel> ModelResourceManager::Create(const CPUModel& data, Batc
         ZoneScopedN("Wait until uploaded");
     }
 
-    return ResourceManager::Create(std::move(model));
+    return m_storage.insert(std::move(model));
 }

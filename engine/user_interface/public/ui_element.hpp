@@ -1,12 +1,11 @@
 #pragma once
 
 #include "common.hpp"
-#include "input/action_manager.hpp"
+
 #include "quad_draw_info.hpp"
 #include "ui_navigation.hpp"
 
 #include <algorithm>
-#include <cstdint>
 #include <glm/vec2.hpp>
 #include <memory>
 #include <vector>
@@ -37,7 +36,7 @@ public:
     } anchorPoint
         = AnchorPoint::eMiddle;
     UINavigationTargets navigationTargets = {};
-    int16_t zLevel = 1;
+    bb::i16 zLevel = 1;
 
     glm::vec4 display_color = glm::vec4(1, 1, 1, 1);
 

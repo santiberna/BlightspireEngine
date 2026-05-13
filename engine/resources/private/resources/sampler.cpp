@@ -2,6 +2,9 @@
 #include "vulkan_context.hpp"
 #include "vulkan_include.hpp"
 
+#include <magic_enum.hpp>
+#include <spdlog/spdlog.h>
+
 namespace
 {
 
@@ -81,15 +84,39 @@ vk::BorderColor toVkBorderColor(bb::SamplerBorderColor color)
 
 }
 
-Sampler::Sampler(const bb::SamplerCreation& creation, const VulkanContext* context)
-    : _context(context)
+bb::SamplerManager::SamplerManager(const VulkanContext& context)
+    : m_context(context)
+{
+    m_default_sampler = Create(SamplerCreation {}, "Default Handle");
+}
+
+bb::SamplerManager::~SamplerManager()
+{
+    for (auto [handle, sampler] : m_storage)
+    {
+        vk::Device device = m_context.Device();
+        device.destroy(sampler.sampler);
+    }
+}
+
+void bb::SamplerManager::Destroy(const ResourceHandle<bb::Sampler>& handle)
+{
+    if (const auto* sampler = m_storage.get(handle))
+    {
+        vk::Device device = m_context.Device();
+        device.destroy(sampler->sampler);
+        m_storage.remove(handle);
+    }
+}
+
+ResourceHandle<bb::Sampler> bb::SamplerManager::Create(const bb::SamplerCreation& creation, const char* name)
 {
     vk::StructureChain<vk::SamplerCreateInfo, vk::SamplerReductionModeCreateInfo> structureChain {};
 
     vk::SamplerCreateInfo& createInfo { structureChain.get<vk::SamplerCreateInfo>() };
     if (creation.useMaxAnisotropy)
     {
-        vk::PhysicalDevice physical = _context->PhysicalDevice();
+        vk::PhysicalDevice physical = m_context.PhysicalDevice();
         auto properties = physical.getProperties();
         createInfo.maxAnisotropy = properties.limits.maxSamplerAnisotropy;
     }
@@ -118,43 +145,15 @@ Sampler::Sampler(const bb::SamplerCreation& creation, const VulkanContext* conte
     createInfo.minLod = creation.minLod;
     createInfo.maxLod = creation.maxLod;
 
-    vk::Device device = _context->Device();
-    sampler = device.createSampler(createInfo).value;
+    vk::Device device = m_context.Device();
+    auto result = device.createSampler(createInfo);
 
-    _context->DebugSetObjectName(vk::Sampler(sampler), creation.name.c_str());
-}
-
-Sampler::~Sampler()
-{
-    if (!_context)
+    if (!result.has_value())
     {
-        return;
+        spdlog::warn("Failed to create sampler {}: {}", name, magic_enum::enum_name(result.result));
+        return {};
     }
 
-    vk::Device device = _context->Device();
-    device.destroy(sampler);
-}
-
-Sampler::Sampler(Sampler&& other) noexcept
-    : sampler(other.sampler)
-    , _context(other._context)
-{
-    other.sampler = nullptr;
-    other._context = nullptr;
-}
-
-Sampler& Sampler::operator=(Sampler&& other) noexcept
-{
-    if (this == &other)
-    {
-        return *this;
-    }
-
-    sampler = other.sampler;
-    _context = other._context;
-
-    other.sampler = nullptr;
-    other._context = nullptr;
-
-    return *this;
+    m_context.DebugSetObjectName(result.value, name);
+    return m_storage.insert(Sampler { result.value });
 }

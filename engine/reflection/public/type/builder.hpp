@@ -28,7 +28,7 @@ public:
     template <typename Ret, typename... Args>
     TypeBuilder& addMethod(std::string_view name, Method::ConstMemberPointer<T, Ret, Args...> ptr);
 
-    TypeBuilder& addConstant(std::string_view name, uint64_t value);
+    TypeBuilder& addConstant(std::string_view name, bb::u64 value);
 
     template <typename... Args>
     TypeBuilder& addConstructor();

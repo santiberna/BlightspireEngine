@@ -5,8 +5,8 @@
 #include "graphics_context.hpp"
 #include "graphics_resources.hpp"
 #include "pipeline_builder.hpp"
-#include "resource_management/buffer_resource_manager.hpp"
 #include "resource_management/image_resource_manager.hpp"
+#include "resources/buffer.hpp"
 #include "shaders/shader_loader.hpp"
 #include "vulkan_context.hpp"
 #include "vulkan_helper.hpp"
@@ -27,7 +27,7 @@ GenerateDrawsPass::~GenerateDrawsPass()
     device.destroy(_generateDrawsPipelineLayout);
 }
 
-void GenerateDrawsPass::RecordCommands(vk::CommandBuffer commandBuffer, uint32_t currentFrame, const RenderSceneDescription& scene)
+void GenerateDrawsPass::RecordCommands(vk::CommandBuffer commandBuffer, bb::u32 currentFrame, const RenderSceneDescription& scene)
 {
     const auto& imageResourceManager = _context->Resources()->GetImageResourceManager();
     const auto& bufferResourceManager = _context->Resources()->GetBufferResourceManager();
@@ -36,20 +36,20 @@ void GenerateDrawsPass::RecordCommands(vk::CommandBuffer commandBuffer, uint32_t
     PushConstants staticPc {
         .isPrepass = _isPrepass,
         .mipSize = std::fmax(static_cast<float>(depthImage->width), static_cast<float>(depthImage->height)),
-        .hzbIndex = _cameraBatch.HZBImage().Index(),
+        .hzbIndex = _cameraBatch.HZBImage().getIndex(),
         .drawCommandsCount = scene.gpuScene->StaticDrawCount(),
         .isReverseZ = _cameraBatch.Camera().UsesReverseZ(),
-        .drawStaticDraws = static_cast<uint32_t>(_shouldDrawStatic),
+        .drawStaticDraws = static_cast<bb::u32>(_shouldDrawStatic),
     };
     PushConstants skinnedPc = staticPc;
     skinnedPc.drawCommandsCount = scene.gpuScene->SkinnedDrawCount();
-    skinnedPc.drawStaticDraws = static_cast<uint32_t>(_shouldDrawDynamic);
+    skinnedPc.drawStaticDraws = static_cast<bb::u32>(_shouldDrawDynamic);
 
     std::array<vk::Buffer, 2> buffers;
     buffers[0] = bufferResourceManager.Access(_cameraBatch.StaticDraw().redirectBuffer)->buffer;
     buffers[1] = bufferResourceManager.Access(_cameraBatch.SkinnedDraw().redirectBuffer)->buffer;
-    commandBuffer.fillBuffer(buffers[0], 0, sizeof(uint32_t), 0);
-    commandBuffer.fillBuffer(buffers[1], 0, sizeof(uint32_t), 0);
+    commandBuffer.fillBuffer(buffers[0], 0, sizeof(bb::u32), 0);
+    commandBuffer.fillBuffer(buffers[1], 0, sizeof(bb::u32), 0);
 
     std::array<vk::BufferMemoryBarrier, 2> fillBarriers;
     fillBarriers[0] = {
@@ -59,7 +59,7 @@ void GenerateDrawsPass::RecordCommands(vk::CommandBuffer commandBuffer, uint32_t
         .dstQueueFamilyIndex = vk::QueueFamilyIgnored,
         .buffer = buffers[0],
         .offset = 0,
-        .size = sizeof(uint32_t),
+        .size = sizeof(bb::u32),
     };
     fillBarriers[1] = fillBarriers[0];
     fillBarriers[1].buffer = buffers[1];
@@ -108,7 +108,7 @@ void GenerateDrawsPass::RecordCommands(vk::CommandBuffer commandBuffer, uint32_t
     _isPrepass = !_isPrepass;
 }
 
-void GenerateDrawsPass::RecordPrepassCommands(vk::CommandBuffer commandBuffer, uint32_t currentFrame, const CameraBatch::Draw& draw, vk::DescriptorSet sceneDraws, vk::DescriptorSet sceneInstances, uint32_t drawCount, const PushConstants& pc)
+void GenerateDrawsPass::RecordPrepassCommands(vk::CommandBuffer commandBuffer, bb::u32 currentFrame, const CameraBatch::Draw& draw, vk::DescriptorSet sceneDraws, vk::DescriptorSet sceneInstances, bb::u32 drawCount, const PushConstants& pc)
 {
     const auto& bufferResourceManager = _context->Resources()->GetBufferResourceManager();
 
@@ -140,7 +140,7 @@ void GenerateDrawsPass::RecordPrepassCommands(vk::CommandBuffer commandBuffer, u
     commandBuffer.pipelineBarrier(vk::PipelineStageFlagBits::eComputeShader, vk::PipelineStageFlagBits::eDrawIndirect, {}, {}, barriers[0], {});
 }
 
-void GenerateDrawsPass::RecordSecondPassCommands(vk::CommandBuffer commandBuffer, uint32_t currentFrame, const CameraBatch::Draw& draw, vk::DescriptorSet sceneDraws, vk::DescriptorSet sceneInstances, uint32_t drawCount, const PushConstants& pc)
+void GenerateDrawsPass::RecordSecondPassCommands(vk::CommandBuffer commandBuffer, bb::u32 currentFrame, const CameraBatch::Draw& draw, vk::DescriptorSet sceneDraws, vk::DescriptorSet sceneInstances, bb::u32 drawCount, const PushConstants& pc)
 {
     const auto& bufferResourceManager = _context->Resources()->GetBufferResourceManager();
 

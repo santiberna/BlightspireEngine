@@ -1,7 +1,6 @@
 #include "ui_element.hpp"
 #include "ui_input.hpp"
 #include "viewport.hpp"
-#include <ranges>
 
 void UIElement::SetLocation(const glm::vec2& location) noexcept
 {
@@ -34,7 +33,7 @@ void UIElement::Update(const InputManagers& inputManagers, UIInputContext& uiInp
             }
         }
 
-        for (int32_t i = _children.size() - 1; i >= 0; --i)
+        for (bb::i32 i = _children.size() - 1; i >= 0; --i)
         {
             _children[i]->Update(inputManagers, uiInputContext);
         }

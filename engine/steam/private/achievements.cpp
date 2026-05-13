@@ -55,7 +55,7 @@ void SteamAchievementManager::OnUserStatsReceived(UserStatsReceived_t* pCallback
             _initialized = true;
 
             // load achievements
-            for (int32_t i = _achievements.size() - 1; i >= 0; --i)
+            for (bb::i32 i = _achievements.size() - 1; i >= 0; --i)
             {
                 Achievement& ach = _achievements[i];
 

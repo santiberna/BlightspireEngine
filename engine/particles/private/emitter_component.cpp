@@ -32,9 +32,9 @@ void ParticleEmitterComponent::Inspect()
         ImGui::EndTooltip();
     }
     ImGui::DragFloat("Frame Rate##Emitter Preset", &emitter.frameRate, 0.0f, 50.0f);
-    int32_t emitterCount = static_cast<int32_t>(count);
+    bb::i32 emitterCount = static_cast<bb::i32>(count);
     ImGui::DragInt("Count##Particle Emitter", &emitterCount, 1, 0, 1024);
-    count = static_cast<uint32_t>(emitterCount);
+    count = static_cast<bb::u32>(emitterCount);
     ImGui::DragFloat3("Velocity##Particle Emitter", &emitter.velocity.x, 0.1f, -100.0f, 100.0f);
     ImGui::DragFloat("Mass##Particle Emitter", &emitter.mass, 1.0f, -100.0f, 100.0f);
     ImGui::DragFloat("Rotation##Particle Emitter", &emitter.rotationVelocity.x, 1.0f, -100.0f, 100.0f);
@@ -70,11 +70,11 @@ void ParticleEmitterComponent::Inspect()
 
     // flag dropdown
     ImGui::Text("Rendering Flags:");
-    uint32_t flags = emitter.flags;
-    ImGui::CheckboxFlags("Unlit##Emitter Preset Flag", &flags, static_cast<uint32_t>(ParticleRenderFlagBits::eUnlit));
-    ImGui::CheckboxFlags("No Shadow##Emitter Preset Flag", &flags, static_cast<uint32_t>(ParticleRenderFlagBits::eNoShadow));
-    ImGui::CheckboxFlags("Frame Blend##Emitter Preset Flag", &flags, static_cast<uint32_t>(ParticleRenderFlagBits::eFrameBlend));
-    ImGui::CheckboxFlags("Lock Y##Emitter Preset Flag", &flags, static_cast<uint32_t>(ParticleRenderFlagBits::eLockY));
+    bb::u32 flags = emitter.flags;
+    ImGui::CheckboxFlags("Unlit##Emitter Preset Flag", &flags, static_cast<bb::u32>(ParticleRenderFlagBits::eUnlit));
+    ImGui::CheckboxFlags("No Shadow##Emitter Preset Flag", &flags, static_cast<bb::u32>(ParticleRenderFlagBits::eNoShadow));
+    ImGui::CheckboxFlags("Frame Blend##Emitter Preset Flag", &flags, static_cast<bb::u32>(ParticleRenderFlagBits::eFrameBlend));
+    ImGui::CheckboxFlags("Lock Y##Emitter Preset Flag", &flags, static_cast<bb::u32>(ParticleRenderFlagBits::eLockY));
     emitter.flags = flags;
 
     ImGui::Text("Bursts:");
@@ -96,7 +96,7 @@ void ParticleEmitterComponent::Inspect()
 
         for (auto it = bursts.begin(); it != bursts.end();)
         {
-            int32_t index = std::distance(bursts.begin(), it);
+            bb::i32 index = std::distance(bursts.begin(), it);
 
             auto copyIt = it;
             it++;
@@ -108,9 +108,9 @@ void ParticleEmitterComponent::Inspect()
             ImGui::Text("Burst %i", index);
 
             ImGui::TableNextColumn();
-            int32_t burstCount = static_cast<int32_t>(burst.count);
+            bb::i32 burstCount = static_cast<bb::i32>(burst.count);
             ImGui::DragInt(std::string("##Emitter Burst Count " + std::to_string(index)).c_str(), &burstCount);
-            burst.count = static_cast<uint32_t>(burstCount);
+            burst.count = static_cast<bb::u32>(burstCount);
 
             ImGui::TableNextColumn();
             ImGui::DragFloat(std::string("##Emitter Burst Start Time " + std::to_string(index)).c_str(), &burst.startTime, 0.1f, 0.0f, 100.0f);
@@ -122,9 +122,9 @@ void ParticleEmitterComponent::Inspect()
             ImGui::Checkbox(std::string("##Emitter Burst Loop " + std::to_string(index)).c_str(), &burst.loop);
 
             ImGui::TableNextColumn();
-            int32_t burstCycles = static_cast<int32_t>(burst.cycles);
+            bb::i32 burstCycles = static_cast<bb::i32>(burst.cycles);
             ImGui::DragInt(std::string("##Emitter Burst Cycles " + std::to_string(index)).c_str(), &burstCycles);
-            burst.cycles = static_cast<uint32_t>(burstCycles);
+            burst.cycles = static_cast<bb::u32>(burstCycles);
 
             ImGui::TableNextColumn();
             ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.65f, 0.15f, 0.15f, 1.f));

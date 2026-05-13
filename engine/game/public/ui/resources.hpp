@@ -12,7 +12,7 @@ struct UIResources
 {
     static UIResources Load(GraphicsContext& context);
 
-    ResourceHandle<Sampler> ui_sampler;
+    ResourceHandle<bb::Sampler> ui_sampler;
     ResourceHandle<GPUImage> partial_black_bg;
     ResourceHandle<GPUImage> full_black_bg;
     ResourceHandle<GPUImage> hud_crosshair;

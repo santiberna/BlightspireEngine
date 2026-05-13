@@ -2,7 +2,6 @@
 #include "wren_entity.hpp"
 #include "wren_include.hpp"
 
-
 #include "animation.hpp"
 #include "audio_emitter_component.hpp"
 #include "audio_listener_component.hpp"
@@ -199,9 +198,9 @@ float TransparencyGet(WrenComponent<TransparencyComponent>& component)
     return component.component->transparency;
 }
 
-uint32_t GetEntity(WrenEntity& self)
+bb::u32 GetEntity(WrenEntity& self)
 {
-    return static_cast<uint32_t>(self.entity);
+    return static_cast<bb::u32>(self.entity);
 }
 
 bool EntityEquality(WrenEntity& self, WrenEntity& other)
@@ -251,7 +250,7 @@ void AddRenderInForegroundRecursive(entt::registry& registry, entt::entity entit
     RelationshipComponent& relationship = registry.get<RelationshipComponent>(entity);
     entt::entity current = relationship.first;
 
-    for (size_t i = 0; i < relationship.childrenCount; ++i)
+    for (bb::usize i = 0; i < relationship.childrenCount; ++i)
     {
         if (registry.valid(current))
         {

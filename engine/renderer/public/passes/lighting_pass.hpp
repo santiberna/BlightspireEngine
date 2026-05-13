@@ -4,7 +4,6 @@
 #include "gbuffers.hpp"
 #include "settings.hpp"
 
-#include <cstdint>
 #include <memory>
 
 class BloomSettings;
@@ -20,7 +19,7 @@ public:
     LightingPass(const std::shared_ptr<GraphicsContext>& context, const Settings::Lighting& lightingSettings, const GPUScene& scene, const GBuffers& gBuffers, const ResourceHandle<GPUImage>& hdrTarget, const ResourceHandle<GPUImage>& brightnessTarget, const BloomSettings& bloomSettings, const ResourceHandle<GPUImage>& ssaoTarget);
     ~LightingPass() final;
 
-    void RecordCommands(vk::CommandBuffer commandBuffer, uint32_t currentFrame, const RenderSceneDescription& scene) final;
+    void RecordCommands(vk::CommandBuffer commandBuffer, bb::u32 currentFrame, const RenderSceneDescription& scene) final;
 
     NON_MOVABLE(LightingPass);
     NON_COPYABLE(LightingPass);
@@ -28,10 +27,10 @@ public:
 private:
     struct PushConstants
     {
-        uint32_t albedoMIndex;
-        uint32_t normalRIndex;
-        uint32_t ssaoIndex;
-        uint32_t depthIndex;
+        bb::u32 albedoMIndex;
+        bb::u32 normalRIndex;
+        bb::u32 ssaoIndex;
+        bb::u32 depthIndex;
         glm::vec2 screenSize;
         glm::vec2 padding;
         glm::ivec3 clusterDimensions;

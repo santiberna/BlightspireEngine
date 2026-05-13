@@ -81,7 +81,7 @@ void UpdateGrenadeBar(HUD& self, const float charge)
 void SetDashChargeColor(HUD& self, int chargeIndex, const glm::vec3& color, float opacity)
 {
 
-    if (chargeIndex >= 0 && static_cast<size_t>(chargeIndex) < self.dashCharges.size())
+    if (chargeIndex >= 0 && static_cast<bb::usize>(chargeIndex) < self.dashCharges.size())
     {
         auto charge = self.dashCharges[chargeIndex].lock();
         if (!charge)
@@ -95,7 +95,7 @@ void SetDashChargeColor(HUD& self, int chargeIndex, const glm::vec3& color, floa
 
 void UpdateDashCharges(HUD& self, int charges)
 {
-    for (int32_t i = 0; i < static_cast<int32_t>(self.dashCharges.size()); i++)
+    for (bb::i32 i = 0; i < static_cast<bb::i32>(self.dashCharges.size()); i++)
     {
         if (auto locked = self.dashCharges[i].lock(); locked != nullptr)
         {
@@ -111,7 +111,7 @@ void UpdateDashCharges(HUD& self, int charges)
     }
 }
 
-void SetDirectionalIndicatorRotationAndOpacity(HUD& self, uint8_t index, float angle, float opacity)
+void SetDirectionalIndicatorRotationAndOpacity(HUD& self, bb::u8 index, float angle, float opacity)
 {
     index = index % HUD::DIRECTIONAL_INDICATOR_COUNT;
 
@@ -275,7 +275,7 @@ void ShowActionBinding(HUD& self, const CachedBindingOriginVisual& visual)
     }
 
     std::shared_ptr<UIImage> bindingGlyph = self.actionBindingGlyph.lock();
-    if (bindingGlyph && !visual.glyphImage.IsNull())
+    if (bindingGlyph && visual.glyphImage.isValid())
     {
         bindingGlyph->SetImage(visual.glyphImage);
         bindingGlyph->visibility = UIElement::VisibilityState::eNotUpdatedAndVisible;

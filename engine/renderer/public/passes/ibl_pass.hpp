@@ -7,7 +7,6 @@
 #include <memory>
 
 class GraphicsContext;
-struct Sampler;
 
 class IBLPass
 {
@@ -26,15 +25,15 @@ public:
 private:
     struct PrefilterPushConstant
     {
-        uint32_t faceIndex;
+        bb::u32 faceIndex;
         float roughness;
-        uint32_t hdriIndex;
+        bb::u32 hdriIndex;
     };
 
     struct IrradiancePushConstant
     {
-        uint32_t index;
-        uint32_t hdriIndex;
+        bb::u32 index;
+        bb::u32 hdriIndex;
     };
 
     std::shared_ptr<GraphicsContext> _context;
@@ -51,7 +50,7 @@ private:
     ResourceHandle<GPUImage> _prefilterMap;
     ResourceHandle<GPUImage> _brdfLUT;
 
-    ResourceHandle<Sampler> _sampler;
+    ResourceHandle<bb::Sampler> _sampler;
 
     void CreateIrradiancePipeline();
     void CreatePrefilterPipeline();

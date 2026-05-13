@@ -3,15 +3,15 @@
 #include <array>
 #include <glm/vec3.hpp>
 
-constexpr uint32_t Vec3ToUint32(const glm::vec3& color)
+constexpr bb::u32 Vec3ToUint32(const glm::vec3& color)
 {
-    uint8_t r = static_cast<uint8_t>(color.r * 255.0f);
-    uint8_t g = static_cast<uint8_t>(color.g * 255.0f);
-    uint8_t b = static_cast<uint8_t>(color.b * 255.0f);
+    bb::u8 r = static_cast<bb::u8>(color.r * 255.0f);
+    bb::u8 g = static_cast<bb::u8>(color.g * 255.0f);
+    bb::u8 b = static_cast<bb::u8>(color.b * 255.0f);
     return (r << 16) | (g << 8) | b;
 }
 
-constexpr glm::vec3 Uint32ToVec3(uint32_t color)
+constexpr glm::vec3 Uint32ToVec3(bb::u32 color)
 {
     float r = static_cast<float>((color >> 16) & 0xFF) / 255.0f;
     float g = static_cast<float>((color >> 8) & 0xFF) / 255.0f;
@@ -118,5 +118,5 @@ constexpr std::array<glm::vec3, 48> COLORS = {
 
 constexpr glm::vec3 GetColor(ColorType color)
 {
-    return COLORS[static_cast<size_t>(color)];
+    return COLORS[static_cast<bb::usize>(color)];
 }

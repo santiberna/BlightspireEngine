@@ -27,7 +27,7 @@ ModuleTickOrder ApplicationModule::Init(Engine& engine)
         return priority;
     }
 
-    int32_t displayCount {};
+    bb::i32 displayCount {};
     SDL_DisplayID* displayIds = SDL_GetDisplays(&displayCount);
     const SDL_DisplayMode* dm = SDL_GetCurrentDisplayMode(*displayIds);
     glm::ivec2 screenSize { dm->w, dm->h };
@@ -54,7 +54,7 @@ ModuleTickOrder ApplicationModule::Init(Engine& engine)
     }
 
     auto stream = fileIO::OpenReadStream("assets/textures/icon.png");
-    int32_t width, height, nrChannels;
+    bb::i32 width, height, nrChannels;
     stbi_uc* pixels = nullptr;
 
     if (stream.has_value())
@@ -175,7 +175,7 @@ void ApplicationModule::OpenExternalBrowser(const std::string& url)
 
 glm::uvec2 ApplicationModule::DisplaySize() const
 {
-    int32_t w {}, h {};
+    bb::i32 w {}, h {};
     SDL_GetWindowSize(_window, &w, &h);
     return glm::uvec2 { w, h };
 }

@@ -25,7 +25,7 @@ void SwapChain::CreateSwapChain(const glm::uvec2& screenSize)
     auto surfaceFormat = ChooseSwapSurfaceFormat(swapChainSupport.formats);
     auto extent = ChooseSwapExtent(swapChainSupport.capabilities, screenSize);
 
-    uint32_t imageCount = std::clamp(3u, swapChainSupport.capabilities.minImageCount, swapChainSupport.capabilities.maxImageCount); // Make use of triple buffering.
+    bb::u32 imageCount = std::clamp(3u, swapChainSupport.capabilities.minImageCount, swapChainSupport.capabilities.maxImageCount); // Make use of triple buffering.
     if (swapChainSupport.capabilities.maxImageCount > 0 && imageCount > swapChainSupport.capabilities.maxImageCount)
         imageCount = swapChainSupport.capabilities.maxImageCount;
 
@@ -42,7 +42,7 @@ void SwapChain::CreateSwapChain(const glm::uvec2& screenSize)
     if (swapChainSupport.capabilities.supportedUsageFlags & vk::ImageUsageFlagBits::eTransferDst)
         createInfo.imageUsage |= vk::ImageUsageFlagBits::eTransferDst;
 
-    uint32_t queueFamilyIndices[] = { vkContext->QueueFamilies().graphicsFamily.value(), vkContext->QueueFamilies().presentFamily.value() };
+    bb::u32 queueFamilyIndices[] = { vkContext->QueueFamilies().graphicsFamily.value(), vkContext->QueueFamilies().presentFamily.value() };
     if (vkContext->QueueFamilies().graphicsFamily != vkContext->QueueFamilies().presentFamily)
     {
         createInfo.imageSharingMode = vk::SharingMode::eConcurrent;
@@ -89,7 +89,7 @@ void SwapChain::CreateSwapChainImageViews()
     vk::Device device = vkContext->Device();
 
     _imageViews.resize(_images.size());
-    for (size_t i = 0; i < _imageViews.size(); ++i)
+    for (bb::usize i = 0; i < _imageViews.size(); ++i)
     {
         vk::ImageViewCreateInfo createInfo {
             .flags = vk::ImageViewCreateFlags {},
@@ -159,7 +159,7 @@ vk::SurfaceFormatKHR SwapChain::ChooseSwapSurfaceFormat(const std::vector<vk::Su
 
 vk::Extent2D SwapChain::ChooseSwapExtent(const vk::SurfaceCapabilitiesKHR& capabilities, const glm::uvec2& screenSize)
 {
-    if (capabilities.currentExtent.width != std::numeric_limits<uint32_t>::max())
+    if (capabilities.currentExtent.width != std::numeric_limits<bb::u32>::max())
         return capabilities.currentExtent;
 
     vk::Extent2D extent = { screenSize.x, screenSize.y };

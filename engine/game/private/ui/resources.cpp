@@ -2,7 +2,7 @@
 
 #include "graphics_resources.hpp"
 #include "resource_management/image_resource_manager.hpp"
-#include "resource_management/sampler_resource_manager.hpp"
+#include "resources/sampler.hpp"
 
 bb::UIResources bb::UIResources::Load(GraphicsContext& context)
 {
@@ -17,7 +17,7 @@ bb::UIResources bb::UIResources::Load(GraphicsContext& context)
         SamplerCreation info;
         info.minFilter = bb::SamplerFilter::NEAREST;
         info.magFilter = bb::SamplerFilter::NEAREST;
-        out.ui_sampler = sampler_manager.Create(info);
+        out.ui_sampler = sampler_manager.Create(info, "UI Sampler");
     }
 
     // Black backdrop

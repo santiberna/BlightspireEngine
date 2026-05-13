@@ -2,7 +2,7 @@
 
 #include <algorithm>
 #include <cassert>
-#include <cstdint>
+
 #include <entt/entity/registry.hpp>
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
@@ -46,7 +46,7 @@ struct AnimationSpline
         {
             return values.back();
         }
-        uint32_t i = it - timestamps.begin();
+        bb::u32 i = it - timestamps.begin();
 
         float t = (time - timestamps[i - 1]) / (timestamps[i] - timestamps[i - 1]);
         return interpolate(values[i - 1], values[i], t);
@@ -106,12 +106,12 @@ struct Animation
 struct AnimationControlComponent
 {
     std::vector<Animation> animations;
-    std::optional<uint32_t> activeAnimation { std::nullopt };
-    std::optional<uint32_t> transitionAnimation { std::nullopt };
+    std::optional<bb::u32> activeAnimation { std::nullopt };
+    std::optional<bb::u32> transitionAnimation { std::nullopt };
     float blendTime;
     float remainingBlendTime;
 
-    void PlayByIndex(uint32_t animationIndex, float speed = 1.0f, bool looping = false, float blendTime = 0.0f, bool blendMatch = false);
+    void PlayByIndex(bb::u32 animationIndex, float speed = 1.0f, bool looping = false, float blendTime = 0.0f, bool blendMatch = false);
     void Play(const std::string& name, float speed = 1.0f, bool looping = false, float blendTime = 0.0f, bool blendMatch = false);
     void Stop();
     void Pause();
@@ -119,7 +119,7 @@ struct AnimationControlComponent
     void SetAnimationTime(float time);
     Animation::PlaybackOptions CurrentPlayback();
     std::optional<std::string> CurrentAnimationName();
-    std::optional<uint32_t> CurrentAnimationIndex();
+    std::optional<bb::u32> CurrentAnimationIndex();
     bool AnimationFinished();
 };
 namespace EnttEditor

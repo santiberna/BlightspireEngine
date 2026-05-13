@@ -6,8 +6,8 @@
 #include "graphics_context.hpp"
 #include "graphics_resources.hpp"
 #include "pipeline_builder.hpp"
-#include "resource_management/buffer_resource_manager.hpp"
 #include "resource_management/image_resource_manager.hpp"
+#include "resources/buffer.hpp"
 #include "settings.hpp"
 #include "shaders/shader_loader.hpp"
 #include "vulkan_context.hpp"
@@ -30,19 +30,19 @@ VolumetricPass::VolumetricPass(const std::shared_ptr<GraphicsContext>& context, 
     CreateDescriptorSets();
     CreatePipeline();
 
-    _pushConstants.hdrTargetIndex = hdrTarget.Index();
-    _pushConstants.bloomTargetIndex = bloomTarget.Index();
-    _pushConstants.depthIndex = gBuffers.Depth().Index();
+    _pushConstants.hdrTargetIndex = hdrTarget.getIndex();
+    _pushConstants.bloomTargetIndex = bloomTarget.getIndex();
+    _pushConstants.depthIndex = gBuffers.Depth().getIndex();
     _pushConstants.screenWidth = _gBuffers.Size().x / 4.0;
     _pushConstants.screenHeight = _gBuffers.Size().y / 4.0;
-    _pushConstants.normalRIndex = _gBuffers.Attachments()[1].Index();
+    _pushConstants.normalRIndex = _gBuffers.Attachments()[1].getIndex();
 
-    for (size_t i = 0; i < gunShots.size(); ++i)
+    for (bb::usize i = 0; i < gunShots.size(); ++i)
     {
         gunShots[i].origin = glm::vec4(0.0f, 0.0f, 0.0f, 0.0f);
         gunShots[i].direction = glm::vec4(0.0f, 0.0f, 0.0f, 0.0f);
     }
-    for (size_t i = 0; i < playerTrailPositions.size(); ++i)
+    for (bb::usize i = 0; i < playerTrailPositions.size(); ++i)
     {
         playerTrailPositions[i] = glm::vec4(0.0f, 0.0f, 0.0f, 0.0f);
     }
@@ -57,19 +57,19 @@ VolumetricPass::~VolumetricPass()
     _context->Resources()->GetBufferResourceManager().Destroy(_fogTrailsBuffer);
 }
 
-void VolumetricPass::RecordCommands(vk::CommandBuffer commandBuffer, uint32_t currentFrame, [[maybe_unused]] const RenderSceneDescription& scene)
+void VolumetricPass::RecordCommands(vk::CommandBuffer commandBuffer, bb::u32 currentFrame, [[maybe_unused]] const RenderSceneDescription& scene)
 {
     TracyVkZone(scene.tracyContext, commandBuffer, "Tonemapping Pass");
 
     timePassed += scene.deltaTime / 1000.0f;
 
-    for (uint32_t i = 0; i < gunShots.size(); ++i)
+    for (bb::u32 i = 0; i < gunShots.size(); ++i)
     {
         gunShots[i].origin.a -= (0.2 * (scene.deltaTime / 1000.0f));
     }
 
     // leave a delayed trail positions for the player
-    for (uint32_t i = 0; i < playerTrailPositions.size(); ++i)
+    for (bb::u32 i = 0; i < playerTrailPositions.size(); ++i)
     {
         playerTrailPositions[i].a -= (0.45 * (scene.deltaTime / 1000.0f));
         // Update the player position trail
@@ -167,14 +167,8 @@ void VolumetricPass::CreateFogTrailsBuffer()
 {
     const vk::DeviceSize bufferSize = (gunShots.size() * sizeof(glm::vec4) * 2) + (playerTrailPositions.size() * sizeof(glm::vec4));
 
-    BufferCreation creation;
-    creation.SetName("Fog Trails Buffer")
-        .SetSize(bufferSize)
-        .SetIsMappable(true)
-        .SetMemoryUsage(VMA_MEMORY_USAGE_AUTO)
-        .SetUsageFlags(vk::BufferUsageFlagBits::eUniformBuffer | vk::BufferUsageFlagBits::eTransferDst);
-
-    _fogTrailsBuffer = _context->Resources()->GetBufferResourceManager().Create(creation);
+    bb::Flags<bb::BufferFlags> flags = { bb::BufferFlags::UNIFORM_USAGE, bb::BufferFlags::TRANSFER_DST, bb::BufferFlags::MAPPABLE };
+    _fogTrailsBuffer = _context->Resources()->GetBufferResourceManager().Create(bufferSize, flags, "Fog Trails Buffer");
 
     // Immediately update the buffer with the initial palette data.
     UpdateFogTrailsBuffer();

@@ -74,6 +74,7 @@ Renderer::Renderer(ApplicationModule& application, Viewport& viewport, const std
         InitializeVolumetricTarget();
         InitializeTonemappingTarget();
         InitializeFXAATarget();
+        InitializeDOFTarget();
     }
 
     {
@@ -133,7 +134,7 @@ Renderer::Renderer(ApplicationModule& application, Viewport& viewport, const std
     _shadowPass = std::make_unique<ShadowPass>(_context, *_gpuScene, _gpuScene->ShadowCameraBatch());
     _skydomePass = std::make_unique<SkydomePass>(_context, uvSphere, _hdrTarget, _bloomTarget, _environmentMap, *_gBuffers, *_bloomSettings);
     _volumetricPass = std::make_unique<VolumetricPass>(_context, _hdrTarget, _bloomTarget, _volumetricTarget, *_gBuffers, *_bloomSettings, _ecs);
-    _dofPass = std::make_unique<DOFPass>(_context);
+    _dofPass = std::make_unique<DOFPass>(_context, _volumetricTarget);
     _tonemappingPass = std::make_unique<TonemappingPass>(_context, _settings.data.tonemapping, _hdrTarget, _bloomTarget, _volumetricTarget, _tonemappingTarget, *_swapChain, *_gBuffers, *_bloomSettings);
     _fxaaPass = std::make_unique<FXAAPass>(_context, _settings.data.fxaa, *_gBuffers, _fxaaTarget, _tonemappingTarget);
     _uiPass = std::make_unique<UIPass>(_context, _fxaaTarget, *_swapChain);
@@ -292,7 +293,9 @@ Renderer::Renderer(ApplicationModule& application, Viewport& viewport, const std
 
     FrameGraphNodeCreation dofPass { *_dofPass };
     dofPass.SetName("Dof pass")
-        .SetDebugLabelColor(GetColor(ColorType::LightLavender));
+        .SetDebugLabelColor(GetColor(ColorType::LightLavender))
+        .AddInput(_volumetricTarget, FrameGraphResourceType::eTexture)
+        .AddOutput(_dofTarget, FrameGraphResourceType::eAttachment);
 
     FrameGraphNodeCreation toneMappingPass { *_tonemappingPass };
     toneMappingPass.SetName("Tonemapping pass")
@@ -580,6 +583,15 @@ void Renderer::InitializeSSAOTarget()
 
     _ssaoTarget = _context->Resources()->GetImageResourceManager().Create(
         image, { bb::TextureFlags::COLOR_ATTACH, bb::TextureFlags::SAMPLED }, "SSAO Target");
+}
+void Renderer::InitializeDOFTarget()
+{
+    bb::Image2D image{};
+    image.width = _swapChain->GetImageSize().x;
+    image.height = _swapChain->GetImageSize().y;
+    image.format = bb::ImageFormat::R32G32B32A32_SFLOAT;
+
+    _dofTarget = _context->Resources()->GetImageResourceManager().Create(image, { bb::TextureFlags::COLOR_ATTACH, bb::TextureFlags::SAMPLED }, "DOF Target");
 }
 void Renderer::LoadEnvironmentMap()
 {

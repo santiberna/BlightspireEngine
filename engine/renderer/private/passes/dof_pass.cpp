@@ -6,11 +6,14 @@
 #include "shaders/shader_loader.hpp"
 #include "spdlog/spdlog.h"
 #include "vulkan_context.hpp"
+#include "resource_management/image_resource_manager.hpp"
+#include "graphics_resources.hpp"
 
 #include <tracy/TracyVulkan.hpp>
 
-DOFPass::DOFPass(const std::shared_ptr<GraphicsContext>& context)
-    :_context(context)
+DOFPass::DOFPass(const std::shared_ptr<GraphicsContext>& context, ResourceHandle<GPUImage> sourceTarget) :
+    _context(context),
+    _source(sourceTarget)
 {
     CreatePipeline();
 }

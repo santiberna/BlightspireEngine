@@ -122,6 +122,7 @@ private:
     ResourceHandle<GPUImage> _tonemappingTarget;
     ResourceHandle<GPUImage> _volumetricTarget;
     ResourceHandle<GPUImage> _fxaaTarget;
+    ResourceHandle<GPUImage> _dofTarget;
 
     ResourceHandle<bb::Sampler> _bloomSampler;
 
@@ -154,6 +155,7 @@ private:
     void InitializeVolumetricTarget();
     void InitializeFXAATarget();
     void InitializeSSAOTarget();
+    void InitializeDOFTarget();
     void LoadEnvironmentMap();
     void UpdateBindless();
 };

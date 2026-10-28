@@ -43,7 +43,7 @@ target_compile_definitions(VulkanAPI
 FetchContent_Declare(
         FastGLTF
         GIT_REPOSITORY https://github.com/spnda/fastgltf.git
-        GIT_TAG main
+        GIT_TAG v0.9.1
         GIT_PROGRESS TRUE
 )
 

@@ -103,6 +103,7 @@ void PipelineBuilder::ReflectPushConstants(const PipelineBuilder::ShaderStage& s
             .offset = pushConstant->offset,
             .size = pushConstant->size,
         };
+        assert(pushRange.size <= 128);
 
         _pushConstantRanges.emplace_back(pushRange);
     }

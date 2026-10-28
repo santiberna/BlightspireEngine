@@ -415,7 +415,8 @@ VulkanContext::VulkanContext(SDL_Window* window)
         { vk::DescriptorType::eStorageBuffer, 1024 },
         { vk::DescriptorType::eUniformBufferDynamic, 1024 },
         { vk::DescriptorType::eStorageBufferDynamic, 1024 },
-        { vk::DescriptorType::eInputAttachment, 1024 }
+        { vk::DescriptorType::eInputAttachment, 1024 },
+        { vk::DescriptorType::eStorageImage, 1024 },
     };
 
     vk::DescriptorPoolCreateInfo pool_info {};

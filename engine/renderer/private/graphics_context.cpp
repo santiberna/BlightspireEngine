@@ -66,8 +66,8 @@ void GraphicsContext::CreateBindlessDescriptorSet()
         vk::DescriptorPoolSize { vk::DescriptorType::eCombinedImageSampler, MAX_BINDLESS_RESOURCES },
         vk::DescriptorPoolSize { vk::DescriptorType::eCombinedImageSampler, MAX_BINDLESS_RESOURCES },
         vk::DescriptorPoolSize { vk::DescriptorType::eCombinedImageSampler, MAX_BINDLESS_RESOURCES },
-        vk::DescriptorPoolSize { vk::DescriptorType::eCombinedImageSampler, MAX_BINDLESS_RESOURCES },
-        vk::DescriptorPoolSize { vk::DescriptorType::eStorageBuffer, 1 },
+        vk::DescriptorPoolSize { vk::DescriptorType::eStorageImage, MAX_BINDLESS_RESOURCES },
+        vk::DescriptorPoolSize { vk::DescriptorType::eUniformBuffer, 1 },
     };
 
     vk::DescriptorPoolCreateInfo poolCreateInfo {};

@@ -18,10 +18,10 @@ public:
 
     void RecordCommands(vk::CommandBuffer commandBuffer, bb::u32 currentFrame, const RenderSceneDescription& scene) final;
 
-    void SetFlashColor(const glm::vec4& color) { _pushConstants.flashColor = color; }
+    void SetFlashColor(const glm::vec4& color) { _tonemappingSettings.flashColor = color; }
 
-    void SetShotRayOrigin(const glm::vec3& origin) { _pushConstants.rayOrigin = glm::vec4(origin, 0.3f); }
-    void SetShotRayDirection(const glm::vec3& direction) { _pushConstants.rayDirection = glm::vec4(direction, 0.3f); }
+    void SetShotRayOrigin(const glm::vec3& origin) { _tonemappingSettings.rayOrigin = glm::vec4(origin, 0.3f); }
+    void SetShotRayDirection(const glm::vec3& direction) { _tonemappingSettings.rayDirection = glm::vec4(direction, 0.3f); }
 
     NON_COPYABLE(TonemappingPass);
     NON_MOVABLE(TonemappingPass);
@@ -37,7 +37,7 @@ private:
         // Add more flags as needed.
     };
 
-    struct PushConstants
+    struct TonemappingSettings
     {
         // Register 0 (16 bytes)
         bb::u32 hdrTargetIndex;
@@ -91,7 +91,7 @@ private:
 
         glm::vec4 rayOrigin;
         glm::vec4 rayDirection;
-    } _pushConstants;
+    } _tonemappingSettings;
 
     std::shared_ptr<GraphicsContext> _context;
     const Settings::Tonemapping& _settings;
@@ -113,9 +113,17 @@ private:
     const BloomSettings& _bloomSettings;
     float timePassed = 0.0f;
 
+    vk::DescriptorSetLayout _settingsDescriptorSetLayout;
+    std::array<vk::DescriptorSet, MAX_FRAMES_IN_FLIGHT> _settingsDescriptorSets;
+    std::array<ResourceHandle<bb::Buffer>, MAX_FRAMES_IN_FLIGHT> _settingsBuffers;
+
     void CreatePipeline();
     void UpdatePaletteBuffer(const std::vector<glm::vec4>& paletteColors);
     void CreatePaletteBuffer();
     void CreateDescriptorSetLayouts();
     void CreateDescriptorSets();
+
+    void CreateSettingsDescriptorSetLayout(const std::shared_ptr<GraphicsContext>& context);
+    void CreateSettingsBuffers();
+    void CreateSettingsDescriptorSets();
 };

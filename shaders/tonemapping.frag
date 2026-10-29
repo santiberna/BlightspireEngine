@@ -15,7 +15,7 @@
 #define ENABLE_PIXELIZATION (1 << 3)
 #define ENABLE_PALETTE (1 << 4)
 
-layout (push_constant) uniform PushConstants
+struct TonemappingSettings
 {
     uint hdrTargetIndex;
     uint bloomTargetIndex;
@@ -63,9 +63,7 @@ layout (push_constant) uniform PushConstants
     vec4 rayOrigin;
 
     vec4 rayDirection;
-
-
-} pc;
+};
 
 layout (set = 1, binding = 0) uniform BloomSettingsUBO
 {
@@ -83,6 +81,10 @@ layout (set = 3, binding = 0) uniform SceneUBO
 
 layout (set = 4, binding = 0) uniform ColorPaletteUBO {
     vec4 palette[64];
+};
+
+layout (set = 5, binding = 0) uniform SettingsUBO {
+    TonemappingSettings settings;
 };
 
 layout (location = 0) in vec2 texCoords;
@@ -155,7 +157,7 @@ float getwaves(vec2 position, int iterations) {
         vec2 p = vec2(sin(iter), cos(iter));
 
         // calculate wave data
-        vec2 res = wavedx(position, p, frequency, pc.time * timeMultiplier + wavePhaseShift);
+        vec2 res = wavedx(position, p, frequency, settings.time * timeMultiplier + wavePhaseShift);
 
         // shift position around according to wave drag and derivative of the wave
         position += p * res.y * weight * DRAG_MULT;
@@ -217,7 +219,7 @@ float intersectPlane(vec3 origin, vec3 direction, vec3 point, vec3 normal) {
 // Some very barebones but fast atmosphere approximation
 vec3 extra_cheap_atmosphere(vec3 raydir, vec3 sundir) {
 
-    vec3 waterColor = pc.waterColor.rgb * pc.waterColor.w;
+    vec3 waterColor = settings.waterColor.rgb * settings.waterColor.w;
     //sundir.y = max(sundir.y, -0.07);
     float special_trick = 1.0 / (raydir.y * 1.0 + 0.1);
     float special_trick2 = 1.0 / (sundir.y * 11.0 + 1.0);
@@ -265,7 +267,7 @@ float getLinearSceneDepth(float rawDepthValue, float near, float far) {
 void main()
 {
     vec2 newTexCoords = texCoords;
-    const uint enableFlags = pc.enableFlags;
+    const uint enableFlags = settings.enableFlags;
     const bool vignetteEnabled = bool(enableFlags & ENABLE_VIGNETTE);
     const bool lensDistortionEnabled = bool(enableFlags & ENABLE_LENS_DISTORTION);
     const bool toneAdjustmentsEnabled = bool(enableFlags & ENABLE_TONE_ADJUSTMENTS);
@@ -274,49 +276,49 @@ void main()
 
     if (lensDistortionEnabled)
     {
-        newTexCoords = LensDistortionUV(texCoords, pc.lensDistortionIntensity, pc.lensDistortionCubicIntensity);
-        newTexCoords = (newTexCoords - 0.5) * pc.screenScale + 0.5;
+        newTexCoords = LensDistortionUV(texCoords, settings.lensDistortionIntensity, settings.lensDistortionCubicIntensity);
+        newTexCoords = (newTexCoords - 0.5) * settings.screenScale + 0.5;
     }
     // Prepare the circle parameters, cycling the circle size over time.
-    const vec3 bloomColor = texture(bindless_color_textures[nonuniformEXT (pc.bloomTargetIndex)], newTexCoords).rgb;
-    float depthSample = texture(bindless_depth_textures[nonuniformEXT (pc.depthIndex)], newTexCoords).r;
+    const vec3 bloomColor = texture(bindless_color_textures[nonuniformEXT (settings.bloomTargetIndex)], newTexCoords).rgb;
+    float depthSample = texture(bindless_depth_textures[nonuniformEXT (settings.depthIndex)], newTexCoords).r;
 
     vec3 hdrColor = vec3(0.0);
-    const ivec2 texSize = textureSize(bindless_color_textures[nonuniformEXT(pc.depthIndex)], 0);
+    const ivec2 texSize = textureSize(bindless_color_textures[nonuniformEXT(settings.depthIndex)], 0);
     if (pixelizationEnabled)
     {
-        const vec2 uv = ComputePixelatedUV(depthSample, pc.pixelizationLevels, pc.minPixelSize, pc.maxPixelSize, newTexCoords, vec2(pc.screenWidth, pc.screenHeight));
+        const vec2 uv = ComputePixelatedUV(depthSample, settings.pixelizationLevels, settings.minPixelSize, settings.maxPixelSize, newTexCoords, vec2(settings.screenWidth, settings.screenHeight));
         newTexCoords = uv;
         const ivec2 pixelCoords = ivec2(newTexCoords * vec2(texSize));
-        hdrColor = texelFetch(bindless_color_textures[nonuniformEXT (pc.hdrTargetIndex)], pixelCoords, 0).rgb;
+        hdrColor = texelFetch(bindless_color_textures[nonuniformEXT (settings.hdrTargetIndex)], pixelCoords, 0).rgb;
     } else
     {
         const ivec2 pixelCoords = ivec2(newTexCoords * vec2(texSize));
-        hdrColor = texelFetch(bindless_color_textures[nonuniformEXT (pc.hdrTargetIndex)], pixelCoords, 0).rgb;
+        hdrColor = texelFetch(bindless_color_textures[nonuniformEXT (settings.hdrTargetIndex)], pixelCoords, 0).rgb;
     }
 
 /**    if (paletteEnabled)
     {
-        hdrColor = ComputeQuantizedColor(hdrColor, pc.ditherAmount, pc.paletteAmount);
+        hdrColor = ComputeQuantizedColor(hdrColor, settings.ditherAmount, settings.paletteAmount);
     }*/
 
     vec3 bloom = bloomColor * bloomSettings.strength;
     hdrColor += bloom;
-    vec3 color = vec3(1.0) - exp(-hdrColor * pc.exposure);
+    vec3 color = vec3(1.0) - exp(-hdrColor * settings.exposure);
 
     //sample the depth again, maybe we now need to use pixelization
     ivec2 pixelCoords = ivec2(newTexCoords * vec2(texSize));
-    float pixelatedDepthSample = texelFetch(bindless_color_textures[nonuniformEXT (pc.depthIndex)], pixelCoords, 0).r;
+    float pixelatedDepthSample = texelFetch(bindless_color_textures[nonuniformEXT (settings.depthIndex)], pixelCoords, 0).r;
 
     const vec3 earlyRay = rayDirection(camera.fov, texSize, vec2(pixelCoords));
     const vec3 rayDirection = normalize(transpose(mat3(camera.view)) * earlyRay);
 
     ivec2 halfPixelCoords = ivec2(newTexCoords * (vec2(texSize) / 6.0));
-    vec4 volumetricSample = texelFetch(bindless_color_textures[nonuniformEXT (pc.volumetricIndex)], halfPixelCoords, 0);
+    vec4 volumetricSample = texelFetch(bindless_color_textures[nonuniformEXT (settings.volumetricIndex)], halfPixelCoords, 0);
 
     if (pixelatedDepthSample <= 0.0f)
     {
-        vec3 waterColor = pc.voidColor.rgb;
+        vec3 waterColor = settings.voidColor.rgb;
         {//water
          ivec2 pixelCoords = ivec2(newTexCoords * vec2(texSize));
 
@@ -331,7 +333,7 @@ void main()
              vec3 waterPlaneLow = vec3(0.0, -WATER_DEPTH, 0.0);
 
              // define ray origin, moving around
-             vec3 origin = vec3((pc.time * 0.2) + camera.cameraPosition.x * 0.275, CAMERA_HEIGHT + camera.cameraPosition.y * 0.275, 1 + camera.cameraPosition.z * 0.275);
+             vec3 origin = vec3((settings.time * 0.2) + camera.cameraPosition.x * 0.275, CAMERA_HEIGHT + camera.cameraPosition.y * 0.275, 1 + camera.cameraPosition.z * 0.275);
 
              // calculate intersections and reconstruct positions
              float highPlaneHit = intersectPlane(origin, rayDirection, waterPlaneHigh, vec3(0.0, 1.0, 0.0));
@@ -357,8 +359,8 @@ void main()
              R.y = abs(R.y);
 
              // calculate the reflection and approximate subsurface scattering
-             vec3 reflection = getAtmosphere(R) + getSun(R) * pc.sunColor.rgb;
-             vec3 scattering = pc.voidColor.rgb * 0.1 * (0.2 + (waterHitPos.y + WATER_DEPTH) / WATER_DEPTH);
+             vec3 reflection = getAtmosphere(R) + getSun(R) * settings.sunColor.rgb;
+             vec3 scattering = settings.voidColor.rgb * 0.1 * (0.2 + (waterHitPos.y + WATER_DEPTH) / WATER_DEPTH);
 
              // return the combined result
              waterColor = fresnel * reflection + scattering;
@@ -382,10 +384,10 @@ void main()
 
     if (paletteEnabled)
     {
-        color = ComputeQuantizedColor(color, pc.ditherAmount, pc.paletteAmount);
+        color = ComputeQuantizedColor(color, settings.ditherAmount, settings.paletteAmount);
     }
 
-    switch (pc.tonemappingFunction)
+    switch (settings.tonemappingFunction)
     {
         case ACES: color = aces(color); break;
         case AGX: color = agx(color); break;
@@ -404,19 +406,19 @@ void main()
 
     if (toneAdjustmentsEnabled)
     {
-        color = (SaturationMatrix(pc.saturation) * vec4(color, 1.0)).rgb;
-        BrightnessAdjust(color, pc.brightness);
-        ContrastAdjust(color, pc.contrast);
-        color = Vibrance(color, pc.vibrance);
-        color = ShiftHue(color, pc.hue);
+        color = (SaturationMatrix(settings.saturation) * vec4(color, 1.0)).rgb;
+        BrightnessAdjust(color, settings.brightness);
+        ContrastAdjust(color, settings.contrast);
+        color = Vibrance(color, settings.vibrance);
+        color = ShiftHue(color, settings.hue);
     }
 
     if (vignetteEnabled)
     {
-        color = Vignette(color, texCoords, pc.vignetteIntensity);
+        color = Vignette(color, texCoords, settings.vignetteIntensity);
     }
 
-    color = ScreenFlash(color, pc.flashColor.rgb, texCoords, pc.flashColor.a);
+    color = ScreenFlash(color, settings.flashColor.rgb, texCoords, settings.flashColor.a);
 
 
     outColor = vec4(color, 1.0);
@@ -471,20 +473,20 @@ vec3 Sky(in vec3 ro, in vec3 rd, in vec3 waterColor)
     vec3 lightDir = normalize(scene.directionalLight.direction.xyz); //sunDirection
     float sundot = clamp(dot(rd, lightDir), 0.0, 1.0);
 
-    vec3 cloudCol = pc.cloudsColor.rgb;
-    vec3 skyCol = pc.skyColor.rgb - rd.y * .2 * vec3(1., .5, 1.) + .15 * .5;
-    //vec3 skyCol = pc.skyColor.rgb - rd.y * rd.y * 0.5;
-    skyCol = mix(skyCol, 0.85 * pc.skyColor.rgb, pow(1.0 - max(rd.y, 0.0), 4.0));
+    vec3 cloudCol = settings.cloudsColor.rgb;
+    vec3 skyCol = settings.skyColor.rgb - rd.y * .2 * vec3(1., .5, 1.) + .15 * .5;
+    //vec3 skyCol = settings.skyColor.rgb - rd.y * rd.y * 0.5;
+    skyCol = mix(skyCol, 0.85 * settings.skyColor.rgb, pow(1.0 - max(rd.y, 0.0), 4.0));
 
     // sun
-    vec3 sun = 0.2 * pc.sunColor.rgb * pow(sundot, 8.0);
-    sun += 0.95 * pc.sunColor.rgb * pow(sundot, 2048.0);
-    sun += 0.2 * pc.sunColor.rgb * pow(sundot, 128.0);
+    vec3 sun = 0.2 * settings.sunColor.rgb * pow(sundot, 8.0);
+    sun += 0.95 * settings.sunColor.rgb * pow(sundot, 2048.0);
+    sun += 0.2 * settings.sunColor.rgb * pow(sundot, 128.0);
     sun = clamp(sun, 0.0, 1.0);
     skyCol += sun;
 
     // clouds
-    float t = pc.time * pc.cloudsSpeed;
+    float t = settings.time * settings.cloudsSpeed;
     float den = fbm(vec2(p.x - t, p.y - t));
     skyCol = mix(skyCol, cloudCol, smoothstep(.4, .8, den));
 
@@ -493,7 +495,7 @@ vec3 Sky(in vec3 ro, in vec3 rd, in vec3 waterColor)
     skyCol = mix(skyCol, waterColor, pow(1.0 - max(rd.y, 0.0), 16.0));
 
     // HORIZON FOG — applies to everything equally
-    vec3 fogColor = pc.voidColor.rgb; // or your choice
+    vec3 fogColor = settings.voidColor.rgb; // or your choice
     float horizonFogAmount = 1.0 - smoothstep(0.0, 0.2, abs(rd.y));
     skyCol = mix(skyCol, fogColor, horizonFogAmount);
 
@@ -516,7 +518,7 @@ vec3 ComputeQuantizedColor(vec3 color, float ditherAmount, float blendFactor)
     // Snap to the closest color from the palette
     float bestDistance = 1000.0;
     vec3 bestColor = vec3(0.0);
-    for (int i = 0; i < pc.paletteSize; i++) {
+    for (int i = 0; i < settings.paletteSize; i++) {
         float d = distance(color, palette[i].rgb);
         if (d < bestDistance) {
             bestDistance = d;
@@ -533,11 +535,11 @@ vec2 ComputePixelatedUV(float depthSample, float levels, float minPixelSize, flo
 {
 /**
     // Clamp and quantize the depth sample to one of the discrete levels.
-    float t = clamp(depthSample * pc.pixelizationDepthBias, 0.0, 1.0);
+    float t = clamp(depthSample * settings.pixelizationDepthBias, 0.0, 1.0);
     t = floor(t * levels) / (levels - 1.0);
 
     // Now use the quantized value in the mix function.
-    const float diameter = mix(pc.minPixelSize, pc.maxPixelSize, t);
+    const float diameter = mix(settings.minPixelSize, settings.maxPixelSize, t);
 
     // Compute "pixelated" (stepped) texture coordinates using the floor() function.
     // The position is adjusted to match the circles, i.e. so a pixelated block is at the center of the
@@ -559,7 +561,7 @@ vec2 ComputePixelatedUV(float depthSample, float levels, float minPixelSize, flo
     // Clamp and quantize the depth sample to one of the discrete levels.
 
 
-    float inetrpolationValue = min(1.0, depthSample * pc.pixelizationDepthBias);
+    float inetrpolationValue = min(1.0, depthSample * settings.pixelizationDepthBias);
     float granularity = mix(minPixelSize, maxPixelSize, inetrpolationValue);
     granularity = round(clamp(granularity, minPixelSize, maxPixelSize));
     float dx = granularity / screenSize.x;

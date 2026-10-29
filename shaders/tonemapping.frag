@@ -322,7 +322,7 @@ void main()
         {//water
          ivec2 pixelCoords = ivec2(newTexCoords * vec2(texSize));
 
-         if (rayDirection.y < 0 && false)
+         if (rayDirection.y < 0)
          {
 
 

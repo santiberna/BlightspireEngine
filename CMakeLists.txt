@@ -72,7 +72,13 @@ target_link_libraries(Blightspire
 
 ### SHADERS COMPILE STEP ###
 if (COMPILE_SHADERS)
-    message(STATUS "### Shaders will be compiled on build")
+    message(STATUS "### GLSL shaders will be compiled on build")
     add_subdirectory(shaders)
     add_dependencies(Blightspire Shaders)
+endif ()
+
+if (COMPILE_SHADERS)
+    message(STATUS "### Slang shaders will be compiled on build")
+    add_subdirectory(slang_shaders)
+    add_dependencies(Blightspire SlangShaders)
 endif ()

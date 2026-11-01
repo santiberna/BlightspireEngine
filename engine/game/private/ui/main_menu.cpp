@@ -19,8 +19,8 @@ std::shared_ptr<MainMenu> MainMenu::Create(const bb::UIResources& resources, con
 
     glm::vec2 screenResFloat = screenResolution;
 
-    glm::vec2 titleImagePos = glm::vec2(screenResFloat.y * 0.09f);
-    glm::vec2 titleImageSize = glm::vec2(2.0f, 1.0f) * screenResFloat.y * 0.3f;
+    glm::vec2 titleImagePos = {-screenResFloat.x * 0.004f, -screenResFloat.y * 0.022f}; // offset to make sure the title image has no empty space on the top left.
+    glm::vec2 titleImageSize  = glm::vec2(864.f, 432.f);
     glm::vec2 titleImageBottomLeft = titleImagePos + glm::vec2(0.0f, titleImageSize.y);
     constexpr glm::vec2 buttonBaseSize = glm::vec2(87, 22) * 6.0f;
     glm::vec2 buttonPanelTopLeft = {
@@ -28,15 +28,20 @@ std::shared_ptr<MainMenu> MainMenu::Create(const bb::UIResources& resources, con
         titleImageBottomLeft.y
     };
 
+    auto titleAndButtonsCanvas = main->AddChild<Canvas>(glm::vec2{});
+    titleAndButtonsCanvas->SetLocation(glm::vec2{screenResFloat.y * 0.1f});
+    titleAndButtonsCanvas->SetLocation(glm::vec2{144, 144});
+    titleAndButtonsCanvas->anchorPoint = UIElement::AnchorPoint::eTopLeft;
+
     // Title
     {
-        auto logoElement = main->AddChild<UIImage>(resources.menu_title, titleImagePos, titleImageSize);
+        auto logoElement = titleAndButtonsCanvas->AddChild<UIImage>(resources.menu_title, titleImagePos, titleImageSize);
         logoElement->anchorPoint = UIElement::AnchorPoint::eTopLeft;
     }
 
 
     // Buttons
-    auto buttonPanel = main->AddChild<Canvas>(glm::vec2 { 0.0f, 0.0f });
+    auto buttonPanel = titleAndButtonsCanvas->AddChild<Canvas>(glm::vec2 { 0.0f, 0.0f });
     {
         buttonPanel->anchorPoint = UIElement::AnchorPoint::eTopLeft;
         buttonPanel->SetLocation(buttonPanelTopLeft);

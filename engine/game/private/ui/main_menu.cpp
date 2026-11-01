@@ -19,27 +19,32 @@ std::shared_ptr<MainMenu> MainMenu::Create(const bb::UIResources& resources, con
 
     glm::vec2 screenResFloat = screenResolution;
 
+    glm::vec2 titleImagePos = glm::vec2(screenResFloat.y * 0.09f);
+    glm::vec2 titleImageSize = glm::vec2(2.0f, 1.0f) * screenResFloat.y * 0.3f;
+    glm::vec2 titleImageBottomLeft = titleImagePos + glm::vec2(0.0f, titleImageSize.y);
+    constexpr glm::vec2 buttonBaseSize = glm::vec2(87, 22) * 6.0f;
+    glm::vec2 buttonPanelTopLeft = {
+        titleImageBottomLeft.x + ((titleImageSize.x - buttonBaseSize.x) / 2.0f),
+        titleImageBottomLeft.y
+    };
+
     // Title
     {
-        glm::vec2 pos = glm::vec2(screenResFloat.y * 0.1f);
-        glm::vec2 size = glm::vec2(2.0f, 1.0f) * screenResFloat.y * 0.5f;
-
-        auto logoElement = main->AddChild<UIImage>(resources.menu_title, pos, size);
+        auto logoElement = main->AddChild<UIImage>(resources.menu_title, titleImagePos, titleImageSize);
         logoElement->anchorPoint = UIElement::AnchorPoint::eTopLeft;
     }
 
+
     // Buttons
     auto buttonPanel = main->AddChild<Canvas>(glm::vec2 { 0.0f, 0.0f });
-
     {
         buttonPanel->anchorPoint = UIElement::AnchorPoint::eTopLeft;
-        buttonPanel->SetLocation(glm::vec2(screenResFloat.y * 0.35f, screenResFloat.y * 0.6f));
+        buttonPanel->SetLocation(buttonPanelTopLeft);
     }
 
     {
         glm::vec2 buttonPos = { 0.0f, 0.0f };
         constexpr glm::vec2 increment = { 0.0f, 140.0f };
-        constexpr glm::vec2 buttonBaseSize = glm::vec2(87, 22) * 6.0f;
         constexpr float textSize = 60;
 
         auto openLinkButton = main->AddChild<UIButton>(resources.button_style, glm::vec2(0), buttonBaseSize);
@@ -101,5 +106,6 @@ std::shared_ptr<MainMenu> MainMenu::Create(const bb::UIResources& resources, con
 
         main->UpdateAllChildrenAbsoluteTransform();
     }
+
     return main;
 }

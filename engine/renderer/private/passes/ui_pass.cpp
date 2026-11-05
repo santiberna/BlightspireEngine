@@ -54,11 +54,13 @@ void UIPass::CreatePipeLine()
         .pAttachments = &colorBlendAttachmentState,
     };
 
-    std::vector<std::byte> vertSpv = shader::ReadFile("shaders/bin/ui.vert.spv");
-    std::vector<std::byte> fragSpv = shader::ReadFile("shaders/bin/ui.frag.spv");
+    std::vector<std::byte> vertSpv = shader::ReadFile("slang_shaders/bin/ui.spv");
+    //std::vector<std::byte> vertSpv = shader::ReadFile("slang_shaders/bin/ui.spv");
+    //std::vector<std::byte> fragSpv = shader::ReadFile("shaders/bin/ui.frag.spv");
+    std::vector<std::byte> fragSpv = shader::ReadFile("slang_shaders/bin/ui.spv");
     GraphicsPipelineBuilder pipelineBuilder { _context };
-    pipelineBuilder.AddShaderStage(vk::ShaderStageFlagBits::eVertex, vertSpv);
-    pipelineBuilder.AddShaderStage(vk::ShaderStageFlagBits::eFragment, fragSpv);
+    pipelineBuilder.AddShaderStage(vk::ShaderStageFlagBits::eVertex, vertSpv, "main_vert");
+    pipelineBuilder.AddShaderStage(vk::ShaderStageFlagBits::eFragment, fragSpv, "main_frag");
     auto result = pipelineBuilder
                       .SetRasterizationState(rasterizationStateCreateInfo)
                       .SetColorBlendState(colorBlendStateCreateInfo)

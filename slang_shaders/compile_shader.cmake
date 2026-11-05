@@ -13,15 +13,15 @@ endforeach()
 
 # Enable debug symbols for Debug builds
 if(CMAKE_BUILD_TYPE EQUAL Debug)
-    set(DEBUG_CMD -g1)
+    set(DEBUG_CMD -g3)
 else()
     set(DEBUG_CMD -g0)
 endif()
 
 if(CMAKE_BUILD_TYPE EQUAL Release)
-    set(OPT_CMD -O0)
-else()
     set(OPT_CMD -O3)
+else()
+    set(OPT_CMD -O0)
 endif()
 
 execute_process(
@@ -29,9 +29,11 @@ execute_process(
         ${MODULE_DEPENDENCIES}
         ${SHADER_MODULE}
         -target spirv
+        -capability SPV_EXT_descriptor_indexing
         -o ${SHADER_OUTPUT}
         ${DEBUG_CMD} ${OPT_CMD}
     RESULT_VARIABLE RESULT
+    COMMAND_ECHO STDOUT
 )
 
 if(NOT RESULT EQUAL 0)

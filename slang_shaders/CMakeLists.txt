@@ -22,33 +22,41 @@ file(MAKE_DIRECTORY ${BIN_DIR})
 set(INTERMEDIATE_DIR "${CMAKE_CURRENT_BINARY_DIR}/slang-modules")
 file(MAKE_DIRECTORY ${INTERMEDIATE_DIR})
 
+function(set_shader_paths SHADER)
+    file(RELATIVE_PATH SHADER_REL ${SHADER_DIR} ${SHADER})
+    get_filename_component(SHADER_NAME ${SHADER_REL} NAME_WLE)
+    get_filename_component(SHADER_REL_DIR ${SHADER_REL} DIRECTORY)
+    set(SHADER_REL ${SHADER_REL_DIR}/${SHADER_NAME})
+    set(SHADER_SPV ${BIN_DIR}/${SHADER_REL}.spv)
+    set(SHADER_MODULE ${INTERMEDIATE_DIR}/${SHADER_REL}.slang-module)
+    set(SHADER_MODULE_DIR ${INTERMEDIATE_DIR}/${SHADER_REL_DIR})
+    set(SHADER_DEPFILE ${SHADER_MODULE}.deps)
+
+    set(SHADER_REL ${SHADER_REL} PARENT_SCOPE)
+    set(SHADER_SPV ${SHADER_SPV} PARENT_SCOPE)
+    set(SHADER_MODULE ${SHADER_MODULE} PARENT_SCOPE)
+    set(SHADER_MODULE_DIR ${SHADER_MODULE_DIR} PARENT_SCOPE)
+    set(SHADER_DEPFILE ${SHADER_DEPFILE} PARENT_SCOPE)
+endfunction()
+
 # Process all individual slang files into slang-modules
 foreach (SLANG_SHADER ${SLANG_SHADERS})
-    # Get the relative path of the file based on the shader directory
-    file(RELATIVE_PATH SLANG_SHADER_REL ${SHADER_DIR} ${SLANG_SHADER})
-    get_filename_component(SLANG_SHADER_REL_PATH ${SLANG_SHADER_REL} DIRECTORY)
-
-    # Set where the output of the .slang-module goes. Here we mimic the original folder structure.
-    set(SLANG_OUTPUT "${INTERMEDIATE_DIR}/${SLANG_SHADER_REL}-module")
-    get_filename_component(SLANG_SHADER_OUTPUT_DIR ${SLANG_OUTPUT} DIRECTORY)
+    set_shader_paths(${SLANG_SHADER})
 
     # Make sure a destination folder exists.
-    file(MAKE_DIRECTORY ${SLANG_OUTPUT_DIR})
-
-    # Will output the dependencies of the file. Useful for determining module dependencies.
-    set(DEP_FILE ${SLANG_OUTPUT}.deps)
+    file(MAKE_DIRECTORY ${SHADER_MODULE_DIR})
 
     add_custom_command(
-        OUTPUT ${SLANG_OUTPUT}
-        COMMAND "${SLANGC}" ${SLANG_SHADER} -o ${SLANG_OUTPUT} -depfile ${DEP_FILE} -I ${SHADER_DIR}
+        OUTPUT ${SHADER_MODULE}
+        COMMAND "${SLANGC}" ${SLANG_SHADER} -o ${SHADER_MODULE} -depfile ${SHADER_DEPFILE} -I ${SHADER_DIR}
         COMMAND_EXPAND_LISTS
         COMMENT "Compiling ${SLANG_SHADER} to slang-module"
-        DEPFILE ${DEPFILE}
-        BYPRODUCTS ${DEPFILE}
+        DEPFILE ${SHADER_DEPFILE}
+        BYPRODUCTS ${SHADER_DEPFILE}
         VERBATIM
     )
 
-    list(APPEND SLANG_MODULES ${SLANG_OUTPUT})
+    list(APPEND SLANG_MODULES ${SHADER_MODULE})
 endforeach ()
 
 list(APPEND ENTRY_POINTS main_vert)
@@ -77,13 +85,7 @@ endfunction()
 SET(PY_COMPILE_SHADER ${CMAKE_SOURCE_DIR}/scripts/compile_shader.py)
 
 foreach (SHADER ${SLANG_SHADERS})
-    file(RELATIVE_PATH SHADER_REL ${SHADER_DIR} ${SHADER})
-    get_filename_component(SHADER_NAME ${SHADER_REL} NAME_WLE)
-    get_filename_component(SHADER_REL_DIR ${SHADER_REL} DIRECTORY)
-    set(SHADER_REL ${SHADER_REL_DIR}/${SHADER_NAME})
-    set(SHADER_OUTPUT ${BIN_DIR}/${SHADER_REL}.spv)
-    set(SHADER_MODULE ${INTERMEDIATE_DIR}/${SHADER_REL}.slang-module)
-    set(SHADER_DEPFILE ${SHADER_MODULE}.deps)
+    set_shader_paths(${SHADER})
 
     gather_entry_points(${SHADER})
     if(FOUND_ENTRY_POINTS_LENGTH EQUAL 0)
@@ -92,13 +94,13 @@ foreach (SHADER ${SLANG_SHADERS})
 
 
     add_custom_command(
-        OUTPUT "${SHADER_OUTPUT}"
+        OUTPUT "${SHADER_SPV}"
         COMMAND
             ${Python3_EXECUTABLE}
             "${PY_COMPILE_SHADER}"
             "--slangc=${SLANGC}"
             "--dep-file=${SHADER_DEPFILE}"
-            "--shader-output=${SHADER_OUTPUT}"
+            "--shader-output=${SHADER_SPV}"
             "--shader-module=${SHADER_MODULE}"
             "--shader=${SHADER}"
             "--shader-dir=${SHADER_DIR}"
@@ -114,7 +116,7 @@ foreach (SHADER ${SLANG_SHADERS})
     )
 
     
-    list(APPEND SPV_FILES ${SHADER_OUTPUT})
+    list(APPEND SPV_FILES ${SHADER_SPV})
     set(SPV_FILES ${SPV_FILES} PARENT_SCOPE)
 endforeach()
 

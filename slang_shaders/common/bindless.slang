@@ -12,7 +12,7 @@ public SamplerCube bindless_cubemap_textures[];
 [vk::binding(0, 0)]
 public Sampler2DShadow bindless_shadowmap_textures[]; 
 
-[vk::binding(0, 1)]
+[vk::binding(1, 0)]
 [vk::image_format("r16f")]
 public RWTexture2D<float> bindless_storage_image_r16f; 
 
@@ -40,10 +40,10 @@ public struct Material
     public uint emissiveMapIndex;
 };
     
-struct Materials
+struct Materials_ // TODO: Rename after we fully move to slang
 {
     Material bindless_materials[64];
 };
 
-[vk::binding(0, 2)]
-ConstantBuffer<Material> materials;
+[vk::binding(2, 0)]
+ConstantBuffer<Materials_> Materials; // TODO: Rename after we fully move to slang

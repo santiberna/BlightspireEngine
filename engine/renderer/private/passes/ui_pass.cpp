@@ -55,8 +55,6 @@ void UIPass::CreatePipeLine()
     };
 
     std::vector<std::byte> vertSpv = shader::ReadFile("slang_shaders/bin/ui.spv");
-    //std::vector<std::byte> vertSpv = shader::ReadFile("slang_shaders/bin/ui.spv");
-    //std::vector<std::byte> fragSpv = shader::ReadFile("shaders/bin/ui.frag.spv");
     std::vector<std::byte> fragSpv = shader::ReadFile("slang_shaders/bin/ui.spv");
     GraphicsPipelineBuilder pipelineBuilder { _context };
     pipelineBuilder.AddShaderStage(vk::ShaderStageFlagBits::eVertex, vertSpv, "main_vert");

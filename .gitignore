@@ -434,4 +434,4 @@ scripts/build_system/steam/*
 
 # Shaders
 /slang_shaders/bin
-/slang_shaders/intermediate
+!/slang_shaders/debug/

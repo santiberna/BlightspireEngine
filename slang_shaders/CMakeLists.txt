@@ -1,4 +1,8 @@
 find_program(SLANGC slangc HINTS /usr/bin /usr/local/bin $ENV{VULKAN_SDK}/Bin/ $ENV{VULKAN_SDK}/Bin32/)
+find_package(Python3 REQUIRED COMPONENTS Interpreter)
+
+set(BB_SLANG_DEBUG_SYMBOLS 0 CACHE STRING "The debug level the shaders are generated with [0-3]")
+set(BB_SLANG_OPTIMIZATION_LEVEL 3 CACHE STRING "The optimization level the shaders are generated with [0-3]")
 
 if (NOT SLANGC)
     message(FATAL_ERROR "slangc not found at ${SLANGC}")
@@ -14,8 +18,8 @@ file(GLOB_RECURSE SLANG_SHADERS CONFIGURE_DEPENDS
 set(BIN_DIR "${CMAKE_CURRENT_SOURCE_DIR}/bin")
 file(MAKE_DIRECTORY ${BIN_DIR}) 
 
-# INTERMEDIATE_DIR is the output for the slang-module files. These will be linked to gether into spv binary.
-set(INTERMEDIATE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/intermediate")
+# INTERMEDIATE_DIR is the output for the slang-module files. These will be linked together into spv binary.
+set(INTERMEDIATE_DIR "${CMAKE_CURRENT_BINARY_DIR}/slang-modules")
 file(MAKE_DIRECTORY ${INTERMEDIATE_DIR})
 
 # Process all individual slang files into slang-modules
@@ -28,18 +32,19 @@ foreach (SLANG_SHADER ${SLANG_SHADERS})
     set(SLANG_OUTPUT "${INTERMEDIATE_DIR}/${SLANG_SHADER_REL}-module")
     get_filename_component(SLANG_SHADER_OUTPUT_DIR ${SLANG_OUTPUT} DIRECTORY)
 
-    # Make sure a desitination folder exists.
+    # Make sure a destination folder exists.
     file(MAKE_DIRECTORY ${SLANG_OUTPUT_DIR})
 
     # Will output the dependencies of the file. Useful for determining module dependencies.
     set(DEP_FILE ${SLANG_OUTPUT}.deps)
 
     add_custom_command(
-        OUTPUT ${SLANG_OUTPUT} ${DEP_FILE}
-        COMMAND "${SLANGC}" ${SLANG_SHADER} -o ${SLANG_OUTPUT} -depfile ${DEP_FILE}
+        OUTPUT ${SLANG_OUTPUT}
+        COMMAND "${SLANGC}" ${SLANG_SHADER} -o ${SLANG_OUTPUT} -depfile ${DEP_FILE} -I ${SHADER_DIR}
         COMMAND_EXPAND_LISTS
         COMMENT "Compiling ${SLANG_SHADER} to slang-module"
-        DEPENDS ${SLANG_SHADER}
+        DEPFILE ${DEPFILE}
+        BYPRODUCTS ${DEPFILE}
         VERBATIM
     )
 
@@ -50,7 +55,7 @@ list(APPEND ENTRY_POINTS main_vert)
 list(APPEND ENTRY_POINTS main_frag)
 list(APPEND ENTRY_POINTS main_comp)
 
-# Find what entry points this shader has (e.g. main_ver, main_frag, etc.)
+# Find what entry points this shader has (e.g. main_vert, main_frag, etc.)
 # and store them in the list ENTRY_POINTS with -entry prefixed
 function(gather_entry_points shader)
     file(READ ${shader} SHADER_SOURCE)
@@ -69,11 +74,15 @@ function(gather_entry_points shader)
     set(FOUND_ENTRY_POINTS_LENGTH ${FOUND_ENTRY_POINTS_LENGTH} PARENT_SCOPE)
 endfunction()
 
+SET(PY_COMPILE_SHADER ${CMAKE_SOURCE_DIR}/scripts/compile_shader.py)
+
 foreach (SHADER ${SLANG_SHADERS})
-    get_filename_component(FILE_NAME ${SHADER} NAME_WE)
     file(RELATIVE_PATH SHADER_REL ${SHADER_DIR} ${SHADER})
-    set(SHADER_OUTPUT "${BIN_DIR}/${FILE_NAME}.spv")
-    set(SHADER_MODULE ${INTERMEDIATE_DIR}/${SHADER_REL}-module)
+    get_filename_component(SHADER_NAME ${SHADER_REL} NAME_WLE)
+    get_filename_component(SHADER_REL_DIR ${SHADER_REL} DIRECTORY)
+    set(SHADER_REL ${SHADER_REL_DIR}/${SHADER_NAME})
+    set(SHADER_OUTPUT ${BIN_DIR}/${SHADER_REL}.spv)
+    set(SHADER_MODULE ${INTERMEDIATE_DIR}/${SHADER_REL}.slang-module)
     set(SHADER_DEPFILE ${SHADER_MODULE}.deps)
 
     gather_entry_points(${SHADER})
@@ -81,23 +90,29 @@ foreach (SHADER ${SLANG_SHADERS})
         continue()
     endif()
 
+
     add_custom_command(
         OUTPUT "${SHADER_OUTPUT}"
-        COMMAND ${CMAKE_COMMAND}
-            "-DDEP_FILE=${SHADER_DEPFILE}"
-            "-DSHADER_OUTPUT=${SHADER_OUTPUT}"
-            "-DSHADER_MODULE=${SHADER_MODULE}"
-            "-DSHADER=${SHADER}"
-            "-DSHADER_DIR=${SHADER_DIR}"
-            "-DINTERMEDIATE_DIR=${INTERMEDIATE_DIR}"
-            -P "${CMAKE_CURRENT_SOURCE_DIR}/compile_shader.cmake"
+        COMMAND
+            ${Python3_EXECUTABLE}
+            "${PY_COMPILE_SHADER}"
+            "--slangc=${SLANGC}"
+            "--dep-file=${SHADER_DEPFILE}"
+            "--shader-output=${SHADER_OUTPUT}"
+            "--shader-module=${SHADER_MODULE}"
+            "--shader=${SHADER}"
+            "--shader-dir=${SHADER_DIR}"
+            "--intermediate-dir=${INTERMEDIATE_DIR}"
+            "--debug-level=${SLANG_DEBUG_SYMBOLS}"
+            "--optimization-level=${SLANG_OPTIMIZATION_LEVEL}"
         DEPENDS
             ${SHADER}
             ${SHADER_MODULE}
             ${SHADER_DEPFILE}
-        DEPFILE ${SHADER_DEPFILE}
+            ${PY_COMPILE_SHADER}
         VERBATIM
     )
+
     
     list(APPEND SPV_FILES ${SHADER_OUTPUT})
     set(SPV_FILES ${SPV_FILES} PARENT_SCOPE)

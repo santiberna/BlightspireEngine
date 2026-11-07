@@ -126,12 +126,11 @@ void DebugPass::CreatePipeline()
         .topology = vk::PrimitiveTopology::eLineList,
     };
 
-    std::vector<std::byte> vertSpv = shader::ReadFile("slang_shaders/bin/debug.spv");
-    std::vector<std::byte> fragSpv = shader::ReadFile("slang_shaders/bin/debug.spv");
+    std::vector<std::byte> debugSpv = shader::ReadFile("slang_shaders/bin/debug/debug.spv");
 
     GraphicsPipelineBuilder pipelineBuilder { _context };
-    pipelineBuilder.AddShaderStage(vk::ShaderStageFlagBits::eVertex, vertSpv, "main_vert");
-    pipelineBuilder.AddShaderStage(vk::ShaderStageFlagBits::eFragment, fragSpv, "main_frag");
+    pipelineBuilder.AddShaderStage(vk::ShaderStageFlagBits::eVertex, debugSpv, "main_vert");
+    pipelineBuilder.AddShaderStage(vk::ShaderStageFlagBits::eFragment, debugSpv, "main_frag");
     auto result = pipelineBuilder
                       .SetColorBlendState(colorBlendStateCreateInfo)
                       .SetDepthStencilState(depthStencilStateCreateInfo)

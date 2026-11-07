@@ -14,7 +14,7 @@ def main():
     parser.add_argument("--shader-module", required=True)
     parser.add_argument("--shader", required=True)
     parser.add_argument("--shader-dir", required=True)
-    parser.add_argument("--intermediate-dir", required=True)
+    parser.add_argument("--shader-module-dir", required=True)
     parser.add_argument("--debug-level", required=True, type=int)
     parser.add_argument("--optimization-level", required=True, type=int)
 
@@ -40,7 +40,7 @@ def main():
         shader_rel = os.path.relpath(dependency, args.shader_dir)
 
         module_dependencies.append(
-            str(Path(args.intermediate_dir) / f"{shader_rel}-module")
+            str(Path(args.shader_module_dir) / f"{shader_rel}-module")
         )
 
     # Configure compiler flags
@@ -57,6 +57,9 @@ def main():
         args.shader_module,
         "-target", "spirv",
         "-o", args.shader_output,
+        "-reflection-json", args.shader_output + ".json",
+        "-warnings-disable", "39001", # Disable overlapping parameters warning, this is intended for our bindless set up.
+        "-preserve-params",           # TODO: Should be replaced when we remove SpirvReflect and move to use the reflection-json output.
         debug_cmd,
         opt_cmd,
     ]

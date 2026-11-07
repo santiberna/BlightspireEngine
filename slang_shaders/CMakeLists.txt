@@ -2,7 +2,7 @@ find_program(SLANGC slangc HINTS /usr/bin /usr/local/bin $ENV{VULKAN_SDK}/Bin/ $
 find_package(Python3 REQUIRED COMPONENTS Interpreter)
 
 set(BB_SLANG_DEBUG_SYMBOLS 0 CACHE STRING "The debug level the shaders are generated with [0-3]")
-set(BB_SLANG_OPTIMIZATION_LEVEL 3 CACHE STRING "The optimization level the shaders are generated with [0-3]")
+set(BB_SLANG_OPTIMIZATION_LEVEL 0 CACHE STRING "The optimization level the shaders are generated with [0-3]") # Optimization level >0 removes unused variables which breaks our descriptor layout system.
 
 if (NOT SLANGC)
     message(FATAL_ERROR "slangc not found at ${SLANGC}")
@@ -18,9 +18,9 @@ file(GLOB_RECURSE SLANG_SHADERS CONFIGURE_DEPENDS
 set(BIN_DIR "${CMAKE_CURRENT_SOURCE_DIR}/bin")
 file(MAKE_DIRECTORY ${BIN_DIR}) 
 
-# INTERMEDIATE_DIR is the output for the slang-module files. These will be linked together into spv binary.
-set(INTERMEDIATE_DIR "${CMAKE_CURRENT_BINARY_DIR}/slang-modules")
-file(MAKE_DIRECTORY ${INTERMEDIATE_DIR})
+# SHADER_MODULE_DIR is the output for the slang-module files. These will be linked together into spv binary.
+set(MODULE_DIR "${CMAKE_CURRENT_BINARY_DIR}/slang-modules")
+file(MAKE_DIRECTORY ${MODULE_DIR})
 
 function(set_shader_paths SHADER)
     file(RELATIVE_PATH SHADER_REL ${SHADER_DIR} ${SHADER})
@@ -28,8 +28,8 @@ function(set_shader_paths SHADER)
     get_filename_component(SHADER_REL_DIR ${SHADER_REL} DIRECTORY)
     set(SHADER_REL ${SHADER_REL_DIR}/${SHADER_NAME})
     set(SHADER_SPV ${BIN_DIR}/${SHADER_REL}.spv)
-    set(SHADER_MODULE ${INTERMEDIATE_DIR}/${SHADER_REL}.slang-module)
-    set(SHADER_MODULE_DIR ${INTERMEDIATE_DIR}/${SHADER_REL_DIR})
+    set(SHADER_MODULE ${MODULE_DIR}/${SHADER_REL}.slang-module)
+    set(SHADER_MODULE_DIR ${MODULE_DIR}/${SHADER_REL_DIR})
     set(SHADER_DEPFILE ${SHADER_MODULE}.deps)
 
     set(SHADER_REL ${SHADER_REL} PARENT_SCOPE)
@@ -104,14 +104,14 @@ foreach (SHADER ${SLANG_SHADERS})
             "--shader-module=${SHADER_MODULE}"
             "--shader=${SHADER}"
             "--shader-dir=${SHADER_DIR}"
-            "--intermediate-dir=${INTERMEDIATE_DIR}"
-            "--debug-level=${SLANG_DEBUG_SYMBOLS}"
-            "--optimization-level=${SLANG_OPTIMIZATION_LEVEL}"
+            "--shader-module-dir=${MODULE_DIR}"
+            "--debug-level=${BB_SLANG_DEBUG_SYMBOLS}"
+            "--optimization-level=${BB_SLANG_OPTIMIZATION_LEVEL}"
         DEPENDS
             ${SHADER}
             ${SHADER_MODULE}
             ${SHADER_DEPFILE}
-            ${PY_COMPILE_SHADER}
+            ${PY_COMPILE_SHADER} 
         VERBATIM
     )
 

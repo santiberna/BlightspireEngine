@@ -31,7 +31,17 @@ public:
         vk::DescriptorSet visibilityDescriptor;
 
     private:
-        vk::DescriptorSet CreateDescriptor(const std::shared_ptr<GraphicsContext>& context, vk::DescriptorSetLayout dsl, ResourceHandle<bb::Buffer> buffer);
+        struct BufferInfo
+        {
+            ResourceHandle<bb::Buffer> buffer{};
+            bb::u32 offset{0};
+            bb::u64 length{vk::WholeSize};
+
+            BufferInfo() = default;
+            BufferInfo(ResourceHandle<bb::Buffer> buffer) : buffer(buffer) {}
+            BufferInfo(ResourceHandle<bb::Buffer> buffer, bb::u32 offset, bb::u64 length = vk::WholeSize) : buffer(buffer), offset(offset), length(length) {}
+        };
+        vk::DescriptorSet CreateDescriptor(const std::shared_ptr<GraphicsContext>& context, vk::DescriptorSetLayout dsl, std::initializer_list<BufferInfo> list);
     };
 
     CameraBatch(const std::shared_ptr<GraphicsContext>& context, const std::string& name, const CameraResource& camera, ResourceHandle<GPUImage> depthImage, vk::DescriptorSetLayout drawDSL, vk::DescriptorSetLayout visibilityDSL, vk::DescriptorSetLayout redirectDSL);

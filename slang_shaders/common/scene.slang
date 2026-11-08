@@ -3,6 +3,9 @@ module scene;
 #define MAX_POINT_LIGHTS 8192
 #define MAX_DECALS 32
 
+namespace scene
+{
+
 public struct Camera
 {
     public float4x4 VP;
@@ -78,13 +81,13 @@ public struct Scene
 
 public struct Instance
 {
-    float4x4 model;
-    uint materialIndex;
-    float boundingRadius;
-    uint boneOffset;
-    bool isStaticDraw;
-    float transparency;
-    float padding[3];
+    public float4x4 model;
+    public uint materialIndex;
+    public float boundingRadius;
+    public uint boneOffset;
+    public bool isStaticDraw;
+    public float transparency;
+    public float padding[3]; // TODO: Remove? Improve?
 };
 
 static const float2 poissonDisk[16] = float2[](
@@ -138,7 +141,7 @@ static const uint METALLIC_BITS = 3u;
 static const uint ROUGHNESS_RANGE = (1u << ROUGHNESS_BITS) - 1u;
 static const uint METALLIC_RANGE = (1u << METALLIC_BITS) - 1u;
 
-float EncodeRM(float roughness, float metallic)
+public float EncodeRM(float roughness, float metallic)
 {
     uint r = uint(roughness * ROUGHNESS_RANGE) & ROUGHNESS_RANGE;
     uint m = uint(metallic * METALLIC_RANGE) & METALLIC_RANGE;
@@ -146,11 +149,13 @@ float EncodeRM(float roughness, float metallic)
     return float(c) * (1.0 / 255.0);
 }
 
-void DecodeRM(float pack, out float roughness, out float metallic)
+public void DecodeRM(float pack, out float roughness, out float metallic)
 {
     uint c = uint(pack * 255.0);
     uint r = (c >> METALLIC_BITS) & ROUGHNESS_RANGE;
     uint m = c & METALLIC_RANGE;
     roughness = float(r) / ROUGHNESS_RANGE;
     metallic = float(m) / METALLIC_RANGE;
+}
+
 }

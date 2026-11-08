@@ -24,15 +24,15 @@ CameraBatch::Draw::Draw(const std::shared_ptr<GraphicsContext>& context, const s
     bb::Flags<bb::BufferFlags> flagsVisBuf = { bb::BufferFlags::STORAGE_USAGE };
 
     drawBuffer = buffers.Create(instanceCount * sizeof(DrawIndexedIndirectCommand), flagsDrawBuf, drawBuf.c_str());
-    redirectBuffer = buffers.Create(sizeof(bb::u32) + (instanceCount * sizeof(bb::u32)), flagsRedirectBuf, redirectBuf.c_str());
+    redirectBuffer = buffers.Create(sizeof(bb::u32) * 4 + (instanceCount * sizeof(bb::u32)), flagsRedirectBuf, redirectBuf.c_str());
     visibilityBuffer = buffers.Create(instanceCount / 8, flagsVisBuf, visBuf.c_str());
 
-    drawDescriptor = CreateDescriptor(context, drawDSL, drawBuffer);
-    redirectDescriptor = CreateDescriptor(context, redirectDSL, redirectBuffer);
-    visibilityDescriptor = CreateDescriptor(context, visibilityDSL, visibilityBuffer);
+    drawDescriptor = CreateDescriptor(context, drawDSL, { drawBuffer });
+    redirectDescriptor = CreateDescriptor(context, redirectDSL, { BufferInfo{ redirectBuffer, sizeof(bb::u32) * 4 }, BufferInfo { redirectBuffer, 0, sizeof(bb::u32)} });
+    visibilityDescriptor = CreateDescriptor(context, visibilityDSL, { visibilityBuffer });
 }
 
-vk::DescriptorSet CameraBatch::Draw::CreateDescriptor(const std::shared_ptr<GraphicsContext>& context, vk::DescriptorSetLayout dsl, ResourceHandle<bb::Buffer> buffer)
+vk::DescriptorSet CameraBatch::Draw::CreateDescriptor(const std::shared_ptr<GraphicsContext>& context, vk::DescriptorSetLayout dsl, std::initializer_list<BufferInfo> list)
 {
     vk::DescriptorSetAllocateInfo allocateInfo {
         .descriptorPool = context->GetVulkanContext()->DescriptorPool(),
@@ -43,22 +43,31 @@ vk::DescriptorSet CameraBatch::Draw::CreateDescriptor(const std::shared_ptr<Grap
     vk::Device device = context->GetVulkanContext()->Device();
     vk::DescriptorSet descriptor = device.allocateDescriptorSets(allocateInfo).value.front();
 
-    vk::DescriptorBufferInfo bufferInfo {
-        .buffer = context->Resources()->GetBufferResourceManager().Access(buffer)->buffer,
-        .offset = 0,
-        .range = vk::WholeSize,
-    };
+    std::vector<vk::DescriptorBufferInfo> bufferInfos{};
+    std::vector<vk::WriteDescriptorSet> writes{};
+    bufferInfos.reserve(list.size());
+    writes.reserve(list.size());
+    for(auto it = list.begin(); it < list.end(); it++)
+    {
+        bb::u32 i = static_cast<bb::u32>(it - list.begin());
+        bufferInfos.emplace_back(vk::DescriptorBufferInfo {
+            .buffer = context->Resources()->GetBufferResourceManager().Access(it->buffer)->buffer,
+            .offset = it->offset,
+            .range = it->length,
+        });
 
-    vk::WriteDescriptorSet bufferWrite {
-        .dstSet = descriptor,
-        .dstBinding = 0,
-        .dstArrayElement = 0,
-        .descriptorCount = 1,
-        .descriptorType = vk::DescriptorType::eStorageBuffer,
-        .pBufferInfo = &bufferInfo,
-    };
+        writes.emplace_back(vk::WriteDescriptorSet {
+            .dstSet = descriptor,
+            .dstBinding = i,
+            .dstArrayElement = 0,
+            .descriptorCount = 1,
+            .descriptorType = vk::DescriptorType::eStorageBuffer,
+            .pBufferInfo = &bufferInfos[i],
+        });
+    }
 
-    device.updateDescriptorSets({ bufferWrite }, {});
+
+    device.updateDescriptorSets(writes, {});
     return descriptor;
 }
 

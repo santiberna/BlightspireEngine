@@ -14,8 +14,13 @@ layout (set = 2, binding = 0) uniform CameraUBO
 
 layout (set = 3, binding = 0) buffer RedirectBuffer
 {
-    uint count;
     uint redirect[];
+};
+
+layout (set = 3, binding = 1) buffer RedirectCountBuffer
+{
+    uint count;
+    uint padding[3];
 };
 
 layout (push_constant) uniform PushConstants

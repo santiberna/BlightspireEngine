@@ -1,7 +1,7 @@
 import common.scene;
 
 [vk::binding(0, 0)]
-ConstantBuffer<Camera> CameraUBO; // TODO: Rename after we fully move to slang
+ConstantBuffer<scene::Camera> CameraUBO; // TODO: Rename to camera
 
 struct VSInput
 {

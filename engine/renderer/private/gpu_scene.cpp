@@ -82,9 +82,14 @@ GPUScene::GPUScene(const GPUSceneCreation& creation, const Settings::Fog& settin
             .binding = 0,
             .descriptorType = vk::DescriptorType::eStorageBuffer,
             .descriptorCount = 1,
+            .stageFlags = vk::ShaderStageFlagBits::eCompute | vk::ShaderStageFlagBits::eAllGraphics },
+        vk::DescriptorSetLayoutBinding {
+            .binding = 1,
+            .descriptorType = vk::DescriptorType::eStorageBuffer,
+            .descriptorCount = 1,
             .stageFlags = vk::ShaderStageFlagBits::eCompute | vk::ShaderStageFlagBits::eAllGraphics }
     };
-    std::vector<std::string_view> namesRedirect { "RedirectBuffer" };
+    std::vector<std::string_view> namesRedirect { "RedirectBuffer", "RedirectCountBuffer" };
 
     _redirectDSL = PipelineBuilder::CacheDescriptorSetLayout(*_context->GetVulkanContext(), bindingsRedirect, namesRedirect);
 

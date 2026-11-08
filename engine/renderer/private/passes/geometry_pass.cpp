@@ -69,12 +69,13 @@ void GeometryPass::CreateStaticPipeline()
     for (bb::usize i = 0; i < DEFERRED_ATTACHMENT_COUNT; ++i)
         formats.at(i) = _context->Resources()->GetImageResourceManager().Access(_gBuffers.Attachments().at(i))->format;
 
-    std::vector<std::byte> vertSpv = shader::ReadFile("shaders/bin/geom.vert.spv");
-    std::vector<std::byte> fragSpv = shader::ReadFile("shaders/bin/geom.frag.spv");
+    //std::vector<std::byte> vertSpv = shader::ReadFile("shaders/bin/geom.vert.spv");
+    //std::vector<std::byte> fragSpv = shader::ReadFile("shaders/bin/geom.frag.spv");
+    std::vector<std::byte> geomSpv = shader::ReadFile("slang_shaders/bin/geom/geom.spv");
 
     GraphicsPipelineBuilder pipelineBuilder { _context };
-    pipelineBuilder.AddShaderStage(vk::ShaderStageFlagBits::eVertex, vertSpv);
-    pipelineBuilder.AddShaderStage(vk::ShaderStageFlagBits::eFragment, fragSpv);
+    pipelineBuilder.AddShaderStage(vk::ShaderStageFlagBits::eVertex, geomSpv, "main_vert");
+    pipelineBuilder.AddShaderStage(vk::ShaderStageFlagBits::eFragment, geomSpv, "main_frag");
     auto result = pipelineBuilder
                       .SetColorBlendState(colorBlendStateCreateInfo)
                       .SetDepthStencilState(depthStencilStateCreateInfo)

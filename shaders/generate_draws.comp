@@ -41,8 +41,13 @@ layout (set = 5, binding = 0) buffer VisibilityBuffer
 
 layout (set = 6, binding = 0) buffer RedirectBuffer
 {
-    uint count;
     uint redirect[];
+};
+
+layout (set = 6, binding = 1) buffer RedirectCountBuffer
+{
+    uint count;
+    uint padding[3];
 };
 
 layout (push_constant) uniform PushConstants

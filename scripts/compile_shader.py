@@ -60,6 +60,7 @@ def main():
         "-reflection-json", args.shader_output + ".json",
         "-warnings-disable", "39001", # Disable overlapping parameters warning, this is intended for our bindless set up.
         "-preserve-params",           # TODO: Should be replaced when we remove SpirvReflect and move to use the reflection-json output.
+        "-emit-spirv-directly",
         debug_cmd,
         opt_cmd,
     ]

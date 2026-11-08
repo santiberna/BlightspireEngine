@@ -644,7 +644,8 @@ void Renderer::Render(float deltaTime)
 
     RecordCommandBuffer(_commandBuffers[_currentFrame], imageIndex, deltaTime);
 
-    _commandBuffers[_currentFrame].end();
+    result = _commandBuffers[_currentFrame].end();
+    util::VK_ASSERT(result, "Failed to end the command buffer!");
 
     vk::Semaphore waitSemaphore = _imageAvailableSemaphores[_currentFrame];
     vk::PipelineStageFlags waitStage = vk::PipelineStageFlagBits::eColorAttachmentOutput;

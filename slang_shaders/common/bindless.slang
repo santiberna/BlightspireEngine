@@ -39,11 +39,6 @@ public struct Material
     public uint occlusionMapIndex;
     public uint emissiveMapIndex;
 };
-    
-struct Materials_ // TODO: Rename after we fully move to slang
-{
-    Material bindless_materials[64];
-};
 
 [vk::binding(2, 0)]
-ConstantBuffer<Materials_> Materials; // TODO: Rename after we fully move to slang
+public ConstantBuffer<Material[64]> Materials; // TODO: rename to bindless_materials

@@ -14,8 +14,13 @@ layout (set = 1, binding = 0) uniform SceneUBO
 
 layout (set = 2, binding = 0) buffer RedirectBuffer
 {
-    uint count;
     uint redirect[];
+};
+
+layout (set = 2, binding = 1) buffer RedirectCountBuffer
+{
+    uint count;
+    uint padding[3];
 };
 
 layout (location = 0) in vec3 inPosition;

@@ -29,6 +29,7 @@
 #include "passes/fxaa_pass.hpp"
 #include "passes/generate_draws_pass.hpp"
 #include "passes/geometry_pass.hpp"
+#include "passes/gpu_particle_effect_pass.hpp"
 #include "passes/ibl_pass.hpp"
 #include "passes/lighting_pass.hpp"
 #include "passes/particle_pass.hpp"
@@ -129,6 +130,7 @@ Renderer::Renderer(ApplicationModule& application, Viewport& viewport, const std
     _buildMainHzbPass = std::make_unique<BuildHzbPass>(_context, _gpuScene->MainCameraBatch(), _gpuScene->GetHZBDescriptorSetLayout());
     _buildShadowHzbPass = std::make_unique<BuildHzbPass>(_context, _gpuScene->ShadowCameraBatch(), _gpuScene->GetHZBDescriptorSetLayout());
     _geometryPass = std::make_unique<GeometryPass>(_context, *_gBuffers, _gpuScene->MainCameraBatch());
+    _gpuParticleEffectPass = std::make_unique<GPUParticleEffectPass>(_context);
     _shadowPass = std::make_unique<ShadowPass>(_context, *_gpuScene, _gpuScene->ShadowCameraBatch());
     _skydomePass = std::make_unique<SkydomePass>(_context, uvSphere, _hdrTarget, _bloomTarget, _environmentMap, *_gBuffers, *_bloomSettings);
     _volumetricPass = std::make_unique<VolumetricPass>(_context, _hdrTarget, _bloomTarget, _volumetricTarget, *_gBuffers, *_bloomSettings, _ecs);
@@ -215,6 +217,13 @@ Renderer::Renderer(ApplicationModule& application, Viewport& viewport, const std
         .AddOutput(_gBuffers->Depth(), FrameGraphResourceType::eAttachment)
         .AddOutput(_gBuffers->Attachments()[0], FrameGraphResourceType::eAttachment)
         .AddOutput(_gBuffers->Attachments()[1], FrameGraphResourceType::eAttachment);
+
+    FrameGraphNodeCreation gpuParticlePass { *_gpuParticleEffectPass };
+    gpuParticlePass.SetName("GPU particle effect pass")
+        .SetDebugLabelColor(GetColor(ColorType::Crimson))
+        .AddInput(_gBuffers->Depth(), FrameGraphResourceType::eTexture)
+        .AddInput(_gBuffers->Attachments()[1], FrameGraphResourceType::eTexture)
+        .AddOutput(_gBuffers->Attachments()[0], FrameGraphResourceType::eTexture);
 
     FrameGraphNodeCreation shadowPrepass { *_shadowPass };
     shadowPrepass.SetName("Shadow prepass")
@@ -346,6 +355,7 @@ Renderer::Renderer(ApplicationModule& application, Viewport& viewport, const std
         .AddNode(generateMainDrawsSecondPass)
         .AddNode(generateShadowDrawsSecondPass)
         .AddNode(geometrySecondPass)
+        .AddNode(gpuParticlePass)
         .AddNode(shadowSecondPass)
         .AddNode(ssaoPass)
         .AddNode(lightingPass)

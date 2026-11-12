@@ -21,6 +21,7 @@ class UIModule;
 class DebugPass;
 class Application;
 class GeometryPass;
+class GPUParticleEffectPass;
 class SSAOPass;
 class LightingPass;
 class SkydomePass;
@@ -96,6 +97,7 @@ private:
     std::unique_ptr<BuildHzbPass> _buildMainHzbPass;
     std::unique_ptr<BuildHzbPass> _buildShadowHzbPass;
     std::unique_ptr<GeometryPass> _geometryPass;
+    std::unique_ptr<GPUParticleEffectPass> _gpuParticleEffectPass;
     std::unique_ptr<ShadowPass> _shadowPass;
     std::unique_ptr<LightingPass> _lightingPass;
     std::unique_ptr<SkydomePass> _skydomePass;

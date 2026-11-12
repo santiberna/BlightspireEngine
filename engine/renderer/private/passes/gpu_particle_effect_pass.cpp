@@ -46,6 +46,13 @@ void GPUParticleEffectPass::RecordCommands(vk::CommandBuffer commandBuffer, bb::
 
     util::BeginLabel(commandBuffer, "Populating particle buffer", GetColor(ColorType::DarkRed));
 
+    struct PushConstants {
+        float deltaTime;
+    } pushConstants {
+        .deltaTime = scene.deltaTime
+    };
+
+    commandBuffer.pushConstants<PushConstants>(_pipelineLayout, vk::ShaderStageFlagBits::eCompute, 0, pushConstants);
     commandBuffer.bindPipeline(vk::PipelineBindPoint::eCompute, _pipeline);
     commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eCompute, _pipelineLayout, 0, { _descriptorSets[_index] }, {});
 

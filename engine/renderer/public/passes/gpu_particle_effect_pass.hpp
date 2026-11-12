@@ -25,7 +25,7 @@ private:
 
     struct Particle
     {
-        bb::u32 value;
+        float value;
     };
 
 private:

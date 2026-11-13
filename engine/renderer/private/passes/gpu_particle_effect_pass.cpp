@@ -37,6 +37,8 @@ GPUParticleEffectPass::~GPUParticleEffectPass()
     device.destroy(_initPipeline);
     device.destroy(_updatePipelineLayout);
     device.destroy(_updatePipeline);
+    device.destroy(_spawnPipelineLayout);
+    device.destroy(_spawnPipeline);
 
     device.destroy(_setLayout);
 }
@@ -53,11 +55,12 @@ void GPUParticleEffectPass::RecordCommands(vk::CommandBuffer commandBuffer, bb::
 
     BuildInitCommands(commandBuffer, scene);
     BuildUpdateCommands(commandBuffer, scene);
+    BuildSpawnCommands(commandBuffer);
 }
 
 void GPUParticleEffectPass::BuildInitCommands(vk::CommandBuffer commandBuffer, const RenderSceneDescription& scene)
 {
-    util::BeginLabel(commandBuffer, "Update particles", GetColor(ColorType::DarkRed));
+    util::BeginLabel(commandBuffer, "Init", GetColor(ColorType::DarkRed));
     
     struct PushConstants {
         uint32_t backBufferIndex;
@@ -73,25 +76,14 @@ void GPUParticleEffectPass::BuildInitCommands(vk::CommandBuffer commandBuffer, c
 
     commandBuffer.dispatch(1, 1, 1);
 
-    vk::MemoryBarrier2 memoryBarrier = {};
-    memoryBarrier.srcStageMask = vk::PipelineStageFlagBits2::eComputeShader;
-    memoryBarrier.srcAccessMask = vk::AccessFlagBits2::eShaderStorageWrite;
-    memoryBarrier.dstStageMask = vk::PipelineStageFlagBits2::eComputeShader;
-    memoryBarrier.dstAccessMask = vk::AccessFlagBits2::eShaderStorageRead;
-
-    vk::DependencyInfo dependencyInfo = {
-        .memoryBarrierCount = 1,
-        .pMemoryBarriers = &memoryBarrier
-    };
-
-    commandBuffer.pipelineBarrier2(dependencyInfo);
+    SyncComputeWriteToReadCommand(commandBuffer);
 
     util::EndLabel(commandBuffer);
 }
 
 void GPUParticleEffectPass::BuildUpdateCommands(vk::CommandBuffer commandBuffer, const RenderSceneDescription& scene)
 {
-    util::BeginLabel(commandBuffer, "Spawn particles", GetColor(ColorType::DarkRed));
+    util::BeginLabel(commandBuffer, "Update", GetColor(ColorType::DarkRed));
 
     struct PushConstants {
         float deltaTime;
@@ -109,8 +101,48 @@ void GPUParticleEffectPass::BuildUpdateCommands(vk::CommandBuffer commandBuffer,
 
     commandBuffer.dispatch(1, 1, 1);
 
+    SyncComputeWriteToReadCommand(commandBuffer);
+
     util::EndLabel(commandBuffer);
 }
+
+void GPUParticleEffectPass::BuildSpawnCommands(vk::CommandBuffer commandBuffer)
+{
+    util::BeginLabel(commandBuffer, "Spawn", GetColor(ColorType::DarkRed));
+
+    struct PushConstants {
+        uint32_t backBufferIndex;
+        uint32_t bufferIndex;
+    } pushConstants {
+        .backBufferIndex = _backBufferIndex,
+        .bufferIndex = _bufferIndex
+    };
+
+    commandBuffer.pushConstants<PushConstants>(_spawnPipelineLayout, vk::ShaderStageFlagBits::eCompute, 0, pushConstants);
+    commandBuffer.bindPipeline(vk::PipelineBindPoint::eCompute, _spawnPipeline);
+    commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eCompute, _spawnPipelineLayout, 0, _descriptorSet, {});
+
+    commandBuffer.dispatch(1, 1, 1);
+
+    util::EndLabel(commandBuffer);
+}
+
+void GPUParticleEffectPass::SyncComputeWriteToReadCommand(vk::CommandBuffer commandBuffer)
+{
+    vk::MemoryBarrier2 memoryBarrier = {};
+    memoryBarrier.srcStageMask = vk::PipelineStageFlagBits2::eComputeShader;
+    memoryBarrier.srcAccessMask = vk::AccessFlagBits2::eShaderStorageWrite;
+    memoryBarrier.dstStageMask = vk::PipelineStageFlagBits2::eComputeShader;
+    memoryBarrier.dstAccessMask = vk::AccessFlagBits2::eShaderStorageRead;
+
+    vk::DependencyInfo dependencyInfo = {
+        .memoryBarrierCount = 1,
+        .pMemoryBarriers = &memoryBarrier
+    };
+
+    commandBuffer.pipelineBarrier2(dependencyInfo);
+}
+
 
 void GPUParticleEffectPass::CreateBuffers()
 {
@@ -211,7 +243,7 @@ void GPUParticleEffectPass::CreatePipelines()
         vk::PushConstantRange pcRange{};
         pcRange.stageFlags = vk::ShaderStageFlagBits::eCompute;
         pcRange.offset = 0;
-        pcRange.size = 2 * sizeof(uint32_t);
+        pcRange.size = 2 * sizeof(int32_t);
 
         layoutInfo.pushConstantRangeCount = 1;
         layoutInfo.pPushConstantRanges = &pcRange;
@@ -250,7 +282,7 @@ void GPUParticleEffectPass::CreatePipelines()
         vk::PushConstantRange pcRange{};
         pcRange.stageFlags = vk::ShaderStageFlagBits::eCompute;
         pcRange.offset = 0;
-        pcRange.size = 2 * sizeof(uint32_t) + sizeof(float);
+        pcRange.size = 2 * sizeof(int32_t) + sizeof(float);
 
         layoutInfo.pushConstantRangeCount = 1;
         layoutInfo.pPushConstantRanges = &pcRange;
@@ -260,7 +292,7 @@ void GPUParticleEffectPass::CreatePipelines()
         layoutInfo.pushConstantRangeCount = 0;
         layoutInfo.pPushConstantRanges = nullptr;
 
-        std::vector<std::byte> shader = shader::ReadFile("slang_shaders/bin/particles/depthbuffer_sampled_particles.spv");
+        std::vector<std::byte> shader = shader::ReadFile("slang_shaders/bin/particles/particle_update.spv");
 
         vk::ShaderModuleCreateInfo moduleCi{
             .codeSize = shader.size(),
@@ -281,6 +313,46 @@ void GPUParticleEffectPass::CreatePipelines()
         };
 
         _updatePipeline = device.createComputePipeline(VK_NULL_HANDLE, pipelineCi).value;
+
+        device.destroy(shaderModule);
+    }
+
+      // Spawn pipeline
+    {
+        vk::PushConstantRange pcRange{};
+        pcRange.stageFlags = vk::ShaderStageFlagBits::eCompute;
+        pcRange.offset = 0;
+        pcRange.size = 2 * sizeof(int32_t);
+
+        layoutInfo.pushConstantRangeCount = 1;
+        layoutInfo.pPushConstantRanges = &pcRange;
+
+        _spawnPipelineLayout = device.createPipelineLayout(layoutInfo).value;
+
+        layoutInfo.pushConstantRangeCount = 0;
+        layoutInfo.pPushConstantRanges = nullptr;
+
+        std::vector<std::byte> shader = shader::ReadFile("slang_shaders/bin/particles/particle_spawn.spv");
+
+        vk::ShaderModuleCreateInfo moduleCi{
+            .codeSize = shader.size(),
+            .pCode = reinterpret_cast<const bb::u32*>(shader.data())
+        };
+
+        vk::ShaderModule shaderModule = device.createShaderModule(moduleCi).value;
+
+        vk::PipelineShaderStageCreateInfo stageCi{
+            .stage = vk::ShaderStageFlagBits::eCompute,
+            .module = shaderModule,
+            .pName = "main"
+        };
+
+        vk::ComputePipelineCreateInfo pipelineCi{
+            .stage = stageCi,
+            .layout = _spawnPipelineLayout
+        };
+
+        _spawnPipeline = device.createComputePipeline(VK_NULL_HANDLE, pipelineCi).value;
 
         device.destroy(shaderModule);
     }

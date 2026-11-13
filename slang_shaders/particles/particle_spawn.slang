@@ -1,7 +1,6 @@
 import particles.particle;
 
 struct PushConstant {
-    float deltaTime;
     uint32_t backBufferIndex;
     uint32_t bufferIndex;
 }
@@ -10,12 +9,15 @@ struct PushConstant {
 RWStructuredBuffer<TimedParticle>[2] particleBuffer;
 
 [vk::binding(1, 0)]
-RWStructuredBuffer<Atomic<uint32_t>>[2] counter;
+RWStructuredBuffer<Atomic<int32_t>>[2] counter;
 
 [numthreads(64, 1, 1)]
 [shader("compute")]
 void main_comp(uniform PushConstant pushConstant, uint3 ID : SV_DispatchThreadID)
 {
-    particleBuffer[pushConstant.bufferIndex][ID.x].Value = pushConstant.deltaTime;
-    counter[pushConstant.bufferIndex][0].increment();
+    int32_t index = counter[pushConstant.bufferIndex][0].increment();
+    if(index < 64)
+    {
+        particleBuffer[pushConstant.bufferIndex][index].Value = 2500.0f;
+    }
 }

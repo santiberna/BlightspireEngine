@@ -21,6 +21,9 @@ public:
 private:
     void BuildInitCommands(vk::CommandBuffer commandBuffer, const RenderSceneDescription& scene);
     void BuildUpdateCommands(vk::CommandBuffer commandBuffer, const RenderSceneDescription& scene);
+    void BuildSpawnCommands(vk::CommandBuffer commandBuffer);
+
+    void SyncComputeWriteToReadCommand(vk::CommandBuffer commandBuffer);
 
 private:
     void CreateDescriptorSetLayout();

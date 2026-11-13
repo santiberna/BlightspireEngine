@@ -66,6 +66,7 @@ list(APPEND ENTRY_POINTS main_comp)
 # Find what entry points this shader has (e.g. main_vert, main_frag, etc.)
 # and store them in the list ENTRY_POINTS with -entry prefixed
 function(gather_entry_points shader)
+    set(FOUND_ENTRY_POINTS "")
     file(READ ${shader} SHADER_SOURCE)
 
     foreach(ENTRY_POINT ${ENTRY_POINTS})

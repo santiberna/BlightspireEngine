@@ -31,7 +31,7 @@ void main_comp(uniform PushConstantArgs pushConstant)
     
     counterBuffers[pushConstant.bufferIndex][0].store(0);
 
-    argsBuffer[0].x = 2;
+    argsBuffer[0].x = 1;
     argsBuffer[0].y = 1;
     argsBuffer[0].z = 1;
 }

@@ -41,6 +41,7 @@ GPUParticleEffectPass::~GPUParticleEffectPass()
     device.destroy(_spawnPipeline);
 
     device.destroy(_setLayout);
+    device.destroy(_indirectArgSetLayout);
 }
 
 void GPUParticleEffectPass::RecordCommands(vk::CommandBuffer commandBuffer, bb::u32 frame, const RenderSceneDescription& scene)
@@ -72,7 +73,7 @@ void GPUParticleEffectPass::BuildInitCommands(vk::CommandBuffer commandBuffer, c
 
     commandBuffer.pushConstants<PushConstants>(_initPipelineLayout, vk::ShaderStageFlagBits::eCompute, 0, pushConstants);
     commandBuffer.bindPipeline(vk::PipelineBindPoint::eCompute, _initPipeline);
-    commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eCompute, _initPipelineLayout, 0, _descriptorSet, {});
+    commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eCompute, _initPipelineLayout, 0, {_descriptorSet, _indirectArgDescriptorSet}, {});
 
     commandBuffer.dispatch(1, 1, 1);
 
@@ -99,7 +100,10 @@ void GPUParticleEffectPass::BuildUpdateCommands(vk::CommandBuffer commandBuffer,
     commandBuffer.bindPipeline(vk::PipelineBindPoint::eCompute, _updatePipeline);
     commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eCompute, _updatePipelineLayout, 0, _descriptorSet, {});
 
-    commandBuffer.dispatch(1, 1, 1);
+    auto resources = _context->Resources();
+
+    commandBuffer.dispatchIndirect(resources->GetBufferResourceManager().Access(_indirectDispatchBuffer)->buffer, 0);
+    //commandBuffer.dispatch(1, 1, 1);
 
     SyncComputeWriteToReadCommand(commandBuffer);
 
@@ -163,27 +167,51 @@ void GPUParticleEffectPass::CreateBuffers()
             std::string("GPU Particle effect buffer atomic counter").append(std::to_string(i)).c_str()
         );
     }
+
+    bb::Flags<bb::BufferFlags> flags = { bb::BufferFlags::INDIRECT_USAGE, bb::BufferFlags::STORAGE_USAGE };
+
+    _indirectDispatchBuffer = resources->GetBufferResourceManager().Create(
+        sizeof(vk::DispatchIndirectCommand),
+        flags,
+        std::string("GPU Particle effects indirect dispatch buffer").c_str()
+    );
 }
 
 void GPUParticleEffectPass::CreateDescriptorSetLayout()
 {
     vk::Device device = _context->GetVulkanContext()->Device();
-
-    vk::DescriptorSetLayoutBinding layoutBindings[2] = {};
-    for(bb::u32 i = 0; i < 2; i++)
     {
-        layoutBindings[i].binding = i;
-        layoutBindings[i].descriptorCount = 2;
-        layoutBindings[i].descriptorType = vk::DescriptorType::eStorageBuffer;
-        layoutBindings[i].stageFlags = vk::ShaderStageFlagBits::eCompute;
+
+        vk::DescriptorSetLayoutBinding layoutBindings[2] = {};
+        for(bb::u32 i = 0; i < 2; i++)
+        {
+            layoutBindings[i].binding = i;
+            layoutBindings[i].descriptorCount = 2;
+            layoutBindings[i].descriptorType = vk::DescriptorType::eStorageBuffer;
+            layoutBindings[i].stageFlags = vk::ShaderStageFlagBits::eCompute;
+        }
+
+
+        vk::DescriptorSetLayoutCreateInfo layoutInfo{};
+        layoutInfo.bindingCount = 2;
+        layoutInfo.pBindings = layoutBindings;
+
+        _setLayout = device.createDescriptorSetLayout(layoutInfo).value;
     }
 
+    {
+        vk::DescriptorSetLayoutBinding layoutBinding = {};
+        layoutBinding.binding = 0;
+        layoutBinding.descriptorCount = 1;
+        layoutBinding.descriptorType = vk::DescriptorType::eStorageBuffer;
+        layoutBinding.stageFlags = vk::ShaderStageFlagBits::eCompute;
 
-    vk::DescriptorSetLayoutCreateInfo layoutInfo{};
-    layoutInfo.bindingCount = 2;
-    layoutInfo.pBindings = layoutBindings;
+        vk::DescriptorSetLayoutCreateInfo layoutInfo{};
+        layoutInfo.bindingCount = 1;
+        layoutInfo.pBindings = &layoutBinding;
 
-    _setLayout = device.createDescriptorSetLayout(layoutInfo).value;
+        _indirectArgSetLayout = device.createDescriptorSetLayout(layoutInfo).value;
+    }
 }
 
 void GPUParticleEffectPass::AllocateDescriptorSets()
@@ -192,41 +220,66 @@ void GPUParticleEffectPass::AllocateDescriptorSets()
     std::shared_ptr<VulkanContext> vkContext = _context->GetVulkanContext();
     vk::Device device = _context->GetVulkanContext()->Device();
 
-    vk::DescriptorSetAllocateInfo allocateInfo{};
-    allocateInfo.descriptorPool = vkContext->DescriptorPool();
-    allocateInfo.descriptorSetCount = 1;
-    allocateInfo.pSetLayouts = &_setLayout;
-    util::VK_ASSERT(device.allocateDescriptorSets(&allocateInfo, &_descriptorSet), 
-    "Failed to allocate gpu particle effect descriptor set");
-
-    vk::DescriptorBufferInfo particleBufferInfos[2] = {};
-    vk::DescriptorBufferInfo counterBufferInfos[2] = {};
-
-    for(bb::u8 i = 0; i < 2; i++)
     {
-        particleBufferInfos[i].buffer = resources->GetBufferResourceManager().Access(_particleBuffers[i].particleBuffer)->buffer;
-        particleBufferInfos[i].offset = 0;
-        particleBufferInfos[i].range = vk::WholeSize;
-        
-        counterBufferInfos[i].buffer = resources->GetBufferResourceManager().Access(_particleBuffers[i].atomicCounterBuffer)->buffer;
-        counterBufferInfos[i].offset = 0;
-        counterBufferInfos[i].range = vk::WholeSize;
+        vk::DescriptorSetAllocateInfo allocateInfo{};
+        allocateInfo.descriptorPool = vkContext->DescriptorPool();
+        allocateInfo.descriptorSetCount = 1;
+        allocateInfo.pSetLayouts = &_setLayout;
+        util::VK_ASSERT(device.allocateDescriptorSets(&allocateInfo, &_descriptorSet), 
+            "Failed to allocate gpu particle effect descriptor set");
+
+        vk::DescriptorBufferInfo particleBufferInfos[2] = {};
+        vk::DescriptorBufferInfo counterBufferInfos[2] = {};
+
+        for(bb::u8 i = 0; i < 2; i++)
+        {
+            particleBufferInfos[i].buffer = resources->GetBufferResourceManager().Access(_particleBuffers[i].particleBuffer)->buffer;
+            particleBufferInfos[i].offset = 0;
+            particleBufferInfos[i].range = vk::WholeSize;
+            
+            counterBufferInfos[i].buffer = resources->GetBufferResourceManager().Access(_particleBuffers[i].atomicCounterBuffer)->buffer;
+            counterBufferInfos[i].offset = 0;
+            counterBufferInfos[i].range = vk::WholeSize;
+        }
+
+        vk::WriteDescriptorSet writeSets[2] = {};
+        writeSets[0].dstSet = _descriptorSet;
+        writeSets[0].dstBinding = 0;
+        writeSets[0].descriptorType = vk::DescriptorType::eStorageBuffer;
+        writeSets[0].descriptorCount = 2;
+        writeSets[0].pBufferInfo = particleBufferInfos;
+
+        writeSets[1].dstSet = _descriptorSet;
+        writeSets[1].dstBinding = 1;
+        writeSets[1].descriptorType = vk::DescriptorType::eStorageBuffer;
+        writeSets[1].descriptorCount = 2;
+        writeSets[1].pBufferInfo = counterBufferInfos;
+
+        device.updateDescriptorSets(writeSets, {});
     }
 
-    vk::WriteDescriptorSet writeSets[2] = {};
-    writeSets[0].dstSet = _descriptorSet;
-    writeSets[0].dstBinding = 0;
-    writeSets[0].descriptorType = vk::DescriptorType::eStorageBuffer;
-    writeSets[0].descriptorCount = 2;
-    writeSets[0].pBufferInfo = particleBufferInfos;
+    {
+        vk::DescriptorSetAllocateInfo allocateInfo {};
+        allocateInfo.descriptorPool = vkContext->DescriptorPool();
+        allocateInfo.descriptorSetCount = 1;
+        allocateInfo.pSetLayouts = &_indirectArgSetLayout;
+        util::VK_ASSERT(device.allocateDescriptorSets(&allocateInfo, &_indirectArgDescriptorSet), 
+            "Failed to allocate gpu particles indirect arg descriptor set");
 
-    writeSets[1].dstSet = _descriptorSet;
-    writeSets[1].dstBinding = 1;
-    writeSets[1].descriptorType = vk::DescriptorType::eStorageBuffer;
-    writeSets[1].descriptorCount = 2;
-    writeSets[1].pBufferInfo = counterBufferInfos;
+        vk::DescriptorBufferInfo indirectBufferInfo{};
+        indirectBufferInfo.buffer = resources->GetBufferResourceManager().Access(_indirectDispatchBuffer)->buffer;
+        indirectBufferInfo.offset = 0;
+        indirectBufferInfo.range = vk::WholeSize;
 
-    device.updateDescriptorSets(2, writeSets, 0, nullptr);
+        vk::WriteDescriptorSet writeSet = {};
+        writeSet.dstSet = _indirectArgDescriptorSet;
+        writeSet.dstBinding = 0;
+        writeSet.descriptorType = vk::DescriptorType::eStorageBuffer;
+        writeSet.descriptorCount = 1;
+        writeSet.pBufferInfo = &indirectBufferInfo;
+
+        device.updateDescriptorSets(writeSet, {});
+    }
 }
 
 
@@ -248,7 +301,17 @@ void GPUParticleEffectPass::CreatePipelines()
         layoutInfo.pushConstantRangeCount = 1;
         layoutInfo.pPushConstantRanges = &pcRange;
 
+        vk::DescriptorSetLayout layouts[2] = {
+            _setLayout,
+            _indirectArgSetLayout
+        };
+        layoutInfo.setLayoutCount = 2;
+        layoutInfo.pSetLayouts = layouts;
+
         _initPipelineLayout = device.createPipelineLayout(layoutInfo).value;
+
+        layoutInfo.setLayoutCount = 1;
+        layoutInfo.pSetLayouts = &_setLayout;
 
         layoutInfo.pushConstantRangeCount = 0;
         layoutInfo.pPushConstantRanges = nullptr;

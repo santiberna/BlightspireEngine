@@ -57,7 +57,11 @@ private:
     // -RWStructuredBuffer<Atomic<uint32_t>[2]
     vk::DescriptorSetLayout _setLayout = {};
 
+    vk::DescriptorSetLayout _indirectArgSetLayout = {};
+
     vk::DescriptorSet _descriptorSet;
+
+    vk::DescriptorSet _indirectArgDescriptorSet = {};
 
     struct ParticleBuffer
     {
@@ -69,4 +73,5 @@ private:
     bb::u32 _backBufferIndex = 0;
     std::array<ParticleBuffer, PARTICLE_BUFFER_COUNT> _particleBuffers;
 
+    ResourceHandle<bb::Buffer> _indirectDispatchBuffer;
 };

@@ -15,6 +15,10 @@ class GraphicsContext;
 class GBuffers
 {
 public:
+    static const uint8_t AMR_ATTACHMENT_INDEX = 0;
+    static const uint8_t NORMAL_ATTACHMENT_INDEX = 1;
+    
+public:
     GBuffers(const std::shared_ptr<GraphicsContext>& context, glm::uvec2 size);
     ~GBuffers();
 

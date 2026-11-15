@@ -19,8 +19,8 @@ LightingPass::LightingPass(const std::shared_ptr<GraphicsContext>& context, cons
     , _brightnessTarget(brightnessTarget)
     , _bloomSettings(bloomSettings)
 {
-    _pushConstants.albedoMIndex = _gBuffers.Attachments()[0].getIndex();
-    _pushConstants.normalRIndex = _gBuffers.Attachments()[1].getIndex();
+    _pushConstants.albedoMIndex = _gBuffers.Attachments()[GBuffers::AMR_ATTACHMENT_INDEX].getIndex();
+    _pushConstants.normalRIndex = _gBuffers.Attachments()[GBuffers::NORMAL_ATTACHMENT_INDEX].getIndex();
     _pushConstants.ssaoIndex = ssaoTarget.getIndex();
     _pushConstants.depthIndex = _gBuffers.Depth().getIndex();
     _pushConstants.screenSize = glm::vec2 { _gBuffers.Size().x, _gBuffers.Size().y };

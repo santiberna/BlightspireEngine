@@ -11,10 +11,15 @@
 #include "vulkan_helper.hpp"
 #include "shaders/shader_loader.hpp"
 #include "gpu_scene.hpp"
+#include "vertex.hpp"
+#include "single_time_commands.hpp"
+#include "resource_management/image_resource_manager.hpp"
 
 
-GPUParticleEffectPass::GPUParticleEffectPass(const std::shared_ptr<GraphicsContext>& context)
+GPUParticleEffectPass::GPUParticleEffectPass(const std::shared_ptr<GraphicsContext>& context,
+    const GBuffers& gBuffers)
     : _context(context)
+    , _gBuffers(gBuffers)
 {
     CreateBuffers();
     CreateDescriptorSetLayout();
@@ -39,9 +44,11 @@ GPUParticleEffectPass::~GPUParticleEffectPass()
     device.destroy(_updatePipeline);
     device.destroy(_spawnPipelineLayout);
     device.destroy(_spawnPipeline);
+    device.destroy(_drawPipelineLayout);
 
     device.destroy(_setLayout);
     device.destroy(_indirectArgSetLayout);
+    device.destroy(_drawSetLayout);
 }
 
 void GPUParticleEffectPass::RecordCommands(vk::CommandBuffer commandBuffer, bb::u32 frame, const RenderSceneDescription& scene)
@@ -152,29 +159,33 @@ void GPUParticleEffectPass::CreateBuffers()
 {
     std::shared_ptr<GraphicsResources> resources = _context->Resources();
 
-    for (bb::u8 i = 0; i < PARTICLE_BUFFER_COUNT; i++)
     {
-        bb::Flags<bb::BufferFlags> flags = { bb::BufferFlags::STORAGE_USAGE };
+        for (bb::u8 i = 0; i < PARTICLE_BUFFER_COUNT; i++)
+        {
+            bb::Flags<bb::BufferFlags> flags = { bb::BufferFlags::STORAGE_USAGE };
 
-        _particleBuffers[i].particleBuffer = resources->GetBufferResourceManager().Create(
-            sizeof(Particle) * PARTICLE_BUFFER_ELEMENT_COUNT,
-            flags,
-            std::string("GPU Particle effect buffer ").append(std::to_string(i)).c_str());
+            _particleBuffers[i].particleBuffer = resources->GetBufferResourceManager().Create(
+                sizeof(Particle) * PARTICLE_BUFFER_ELEMENT_COUNT,
+                flags,
+                std::string("GPU Particle effect buffer ").append(std::to_string(i)).c_str());
 
-        _particleBuffers[i].atomicCounterBuffer = resources->GetBufferResourceManager().Create(
-            sizeof(bb::u32),
+            _particleBuffers[i].atomicCounterBuffer = resources->GetBufferResourceManager().Create(
+                sizeof(bb::u32),
+                flags,
+                std::string("GPU Particle effect buffer atomic counter").append(std::to_string(i)).c_str()
+            );
+        }
+
+    }
+    
+    {
+        bb::Flags<bb::BufferFlags> flags = { bb::BufferFlags::INDIRECT_USAGE, bb::BufferFlags::STORAGE_USAGE };
+        _indirectDispatchBuffer = resources->GetBufferResourceManager().Create(
+            sizeof(vk::DispatchIndirectCommand),
             flags,
-            std::string("GPU Particle effect buffer atomic counter").append(std::to_string(i)).c_str()
+            std::string("GPU Particle effects indirect dispatch buffer").c_str()
         );
     }
-
-    bb::Flags<bb::BufferFlags> flags = { bb::BufferFlags::INDIRECT_USAGE, bb::BufferFlags::STORAGE_USAGE };
-
-    _indirectDispatchBuffer = resources->GetBufferResourceManager().Create(
-        sizeof(vk::DispatchIndirectCommand),
-        flags,
-        std::string("GPU Particle effects indirect dispatch buffer").c_str()
-    );
 }
 
 void GPUParticleEffectPass::CreateDescriptorSetLayout()
@@ -200,7 +211,7 @@ void GPUParticleEffectPass::CreateDescriptorSetLayout()
     }
 
     {
-        vk::DescriptorSetLayoutBinding layoutBinding = {};
+        vk::DescriptorSetLayoutBinding layoutBinding{};
         layoutBinding.binding = 0;
         layoutBinding.descriptorCount = 1;
         layoutBinding.descriptorType = vk::DescriptorType::eStorageBuffer;
@@ -211,6 +222,25 @@ void GPUParticleEffectPass::CreateDescriptorSetLayout()
         layoutInfo.pBindings = &layoutBinding;
 
         _indirectArgSetLayout = device.createDescriptorSetLayout(layoutInfo).value;
+    }
+
+    {
+        vk::DescriptorSetLayoutBinding layoutBindings[2] = {};
+        layoutBindings[0].binding = 0;
+        layoutBindings[0].descriptorCount = 1;
+        layoutBindings[0].descriptorType = vk::DescriptorType::eUniformBuffer;
+        layoutBindings[0].stageFlags = vk::ShaderStageFlagBits::eVertex;
+
+        layoutBindings[1].binding = 1;
+        layoutBindings[1].descriptorCount = 1;
+        layoutBindings[1].descriptorType = vk::DescriptorType::eUniformBuffer;
+        layoutBindings[1].stageFlags = vk::ShaderStageFlagBits::eFragment;
+
+        vk::DescriptorSetLayoutCreateInfo layoutInfo{};
+        layoutInfo.bindingCount = 2;
+        layoutInfo.pBindings = layoutBindings;
+
+        _drawSetLayout = device.createDescriptorSetLayout(layoutInfo).value;
     }
 }
 
@@ -286,6 +316,7 @@ void GPUParticleEffectPass::AllocateDescriptorSets()
 void GPUParticleEffectPass::CreatePipelines()
 {
     vk::Device device = _context->GetVulkanContext()->Device();
+    auto resources = _context->Resources();
 
     vk::PipelineLayoutCreateInfo layoutInfo{};
     layoutInfo.setLayoutCount = 1;
@@ -418,5 +449,47 @@ void GPUParticleEffectPass::CreatePipelines()
         _spawnPipeline = device.createComputePipeline(VK_NULL_HANDLE, pipelineCi).value;
 
         device.destroy(shaderModule);
+    }
+
+    // drawing pipeline
+    {
+        layoutInfo = {};
+        layoutInfo.setLayoutCount = 1;
+        layoutInfo.pSetLayouts = &_drawSetLayout;
+
+        _drawPipelineLayout = device.createPipelineLayout(layoutInfo).value;
+
+        std::array<vk::PipelineColorBlendAttachmentState, 2> colorBlendAttachmentStates{};
+        {
+            vk::PipelineColorBlendAttachmentState attachmentState{};
+            attachmentState.blendEnable = vk::False;
+            attachmentState.colorWriteMask = vk::ColorComponentFlagBits::eR |
+            attachmentState.colorWriteMask = vk::ColorComponentFlagBits::eG |
+            attachmentState.colorWriteMask = vk::ColorComponentFlagBits::eB |
+            attachmentState.colorWriteMask = vk::ColorComponentFlagBits::eA;
+
+            colorBlendAttachmentStates.fill(attachmentState);
+        }
+
+        vk::PipelineColorBlendStateCreateInfo colorBlendStateCi{};
+        colorBlendStateCi.logicOpEnable = vk::False;
+        colorBlendStateCi.attachmentCount = colorBlendAttachmentStates.size();
+        colorBlendStateCi.pAttachments = colorBlendAttachmentStates.data();
+
+        vk::PipelineDepthStencilStateCreateInfo depthStencilStateCreateInfo{};
+        depthStencilStateCreateInfo.depthTestEnable = true;
+        depthStencilStateCreateInfo.depthWriteEnable = true; 
+        depthStencilStateCreateInfo.depthCompareOp = vk::CompareOp::eGreaterOrEqual;
+        depthStencilStateCreateInfo.depthBoundsTestEnable = false;
+        depthStencilStateCreateInfo.minDepthBounds = 0.0f;
+        depthStencilStateCreateInfo.maxDepthBounds = 1.0f;
+        depthStencilStateCreateInfo.stencilTestEnable = false;
+
+        std::vector<vk::Format> formats = {
+            resources->GetImageResourceManager().Access(_gBuffers.Attachments().at(GBuffers::AMR_ATTACHMENT_INDEX))->format
+        };
+
+        GraphicsPipelineBuilder pipelineBuilder {_context };
+
     }
 }

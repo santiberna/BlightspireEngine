@@ -3,6 +3,7 @@
 #include "frame_graph.hpp"
 #include "resource_manager.hpp"
 #include "vulkan/vulkan.hpp"
+#include "gbuffers.hpp"
 
 #include <array>
 #include <memory>
@@ -12,7 +13,7 @@ class GraphicsContext;
 class GPUParticleEffectPass : public FrameGraphRenderPass
 {
 public:
-    GPUParticleEffectPass(const std::shared_ptr<GraphicsContext>& context);
+    GPUParticleEffectPass(const std::shared_ptr<GraphicsContext>& context, const GBuffers& gBuffers);
     virtual ~GPUParticleEffectPass();
 
 
@@ -41,6 +42,7 @@ private:
     static constexpr bb::u32 PARTICLE_BUFFER_ELEMENT_COUNT = 64;
 
     std::shared_ptr<GraphicsContext> _context = {};
+    const GBuffers& _gBuffers;
 
     vk::PipelineLayout _initPipelineLayout{};
     vk::Pipeline _initPipeline{};
@@ -51,17 +53,20 @@ private:
     vk::PipelineLayout _spawnPipelineLayout{};
     vk::Pipeline _spawnPipeline{};
 
+    vk::PipelineLayout _drawPipelineLayout{};
+    vk::Pipeline _drawPipeline{};
+
     // We are using  a single layout for all different shaders
     // Push constants might differ
     // -RWStructuredBuffer<Particle>[2]
     // -RWStructuredBuffer<Atomic<uint32_t>[2]
     vk::DescriptorSetLayout _setLayout = {};
-
     vk::DescriptorSetLayout _indirectArgSetLayout = {};
+    vk::DescriptorSetLayout _drawSetLayout = {};
 
     vk::DescriptorSet _descriptorSet;
-
     vk::DescriptorSet _indirectArgDescriptorSet = {};
+    vk::DescriptorSet _drawDescriptorSet = {};
 
     struct ParticleBuffer
     {

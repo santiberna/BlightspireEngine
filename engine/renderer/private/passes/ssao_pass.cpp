@@ -22,7 +22,7 @@ SSAOPass::SSAOPass(const std::shared_ptr<GraphicsContext>& context, const Settin
     , _gBuffers(gBuffers)
     , _ssaoTarget(ssaoTarget)
 {
-    _pushConstants.normalIndex = _gBuffers.Attachments()[GBuffers::NORMAL_ATTACHMENT_INDEX].getIndex();
+    _pushConstants.normalIndex = _gBuffers.Attachments()[GBuffers::NORMAL_ATTACHMENT].getIndex();
     _pushConstants.depthIndex = _gBuffers.Depth().getIndex();
 
     CreateBuffers();

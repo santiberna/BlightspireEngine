@@ -35,7 +35,7 @@ VolumetricPass::VolumetricPass(const std::shared_ptr<GraphicsContext>& context, 
     _pushConstants.depthIndex = gBuffers.Depth().getIndex();
     _pushConstants.screenWidth = _gBuffers.Size().x / 4.0;
     _pushConstants.screenHeight = _gBuffers.Size().y / 4.0;
-    _pushConstants.normalRIndex = _gBuffers.Attachments()[GBuffers::NORMAL_ATTACHMENT_INDEX].getIndex();
+    _pushConstants.normalRIndex = _gBuffers.Attachments()[GBuffers::NORMAL_ATTACHMENT].getIndex();
 
     for (bb::usize i = 0; i < gunShots.size(); ++i)
     {

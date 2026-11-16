@@ -49,11 +49,11 @@ void GBuffers::CreateGBuffers()
     g_buffer_spec.height = _size.y;
     g_buffer_spec.format = bb::ImageFormat::R8G8B8A8_UNORM;
 
-    _attachments[AMR_ATTACHMENT_INDEX] = resources->GetImageResourceManager().Create(g_buffer_spec, flags, "Albedo Metallic Roughness GBuffer");
+    _attachments[AMR_ATTACHMENT] = resources->GetImageResourceManager().Create(g_buffer_spec, flags, "Albedo Metallic Roughness GBuffer");
 
     g_buffer_spec.format = bb::ImageFormat::R8G8_UNORM;
 
-    _attachments[NORMAL_ATTACHMENT_INDEX] = resources->GetImageResourceManager().Create(g_buffer_spec, flags, "Normal GBuffer");
+    _attachments[NORMAL_ATTACHMENT] = resources->GetImageResourceManager().Create(g_buffer_spec, flags, "Normal GBuffer");
 }
 
 void GBuffers::CreateDepthResources()

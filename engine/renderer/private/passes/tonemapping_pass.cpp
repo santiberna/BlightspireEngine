@@ -38,7 +38,7 @@ TonemappingPass::TonemappingPass(const std::shared_ptr<GraphicsContext>& context
     _tonemappingSettings.volumetricIndex = volumetricTarget.getIndex();
     _tonemappingSettings.screenWidth = _gBuffers.Size().x;
     _tonemappingSettings.screenHeight = _gBuffers.Size().y;
-    _tonemappingSettings.normalRIndex = _gBuffers.Attachments()[1].getIndex();
+    _tonemappingSettings.normalRIndex = _gBuffers.Attachments()[GBuffers::NORMAL_ATTACHMENT].getIndex();
 }
 
 TonemappingPass::~TonemappingPass()

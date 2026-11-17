@@ -202,8 +202,8 @@ Renderer::Renderer(ApplicationModule& application, Viewport& viewport, const std
         .AddInput(_gpuScene->MainCameraBatch().SkinnedDraw().drawBuffer, FrameGraphResourceType::eBuffer, vk::PipelineStageFlagBits2::eDrawIndirect)
         .AddInput(_gpuScene->MainCameraBatch().SkinnedDraw().redirectBuffer, FrameGraphResourceType::eBuffer, vk::PipelineStageFlagBits2::eDrawIndirect)
         .AddOutput(_gBuffers->Depth(), FrameGraphResourceType::eAttachment)
-        .AddOutput(_gBuffers->Attachments()[0], FrameGraphResourceType::eAttachment)
-        .AddOutput(_gBuffers->Attachments()[1], FrameGraphResourceType::eAttachment);
+        .AddOutput(_gBuffers->Attachments()[GBuffers::AMR_ATTACHMENT], FrameGraphResourceType::eAttachment)
+        .AddOutput(_gBuffers->Attachments()[GBuffers::NORMAL_ATTACHMENT], FrameGraphResourceType::eAttachment);
 
     FrameGraphNodeCreation geometrySecondPass { *_geometryPass };
     geometrySecondPass.SetName("Geometry second pass")
@@ -213,8 +213,8 @@ Renderer::Renderer(ApplicationModule& application, Viewport& viewport, const std
         .AddInput(_gpuScene->MainCameraBatch().SkinnedDraw().drawBuffer, FrameGraphResourceType::eBuffer, vk::PipelineStageFlagBits2::eDrawIndirect)
         .AddInput(_gpuScene->MainCameraBatch().SkinnedDraw().redirectBuffer, FrameGraphResourceType::eBuffer, vk::PipelineStageFlagBits2::eDrawIndirect)
         .AddOutput(_gBuffers->Depth(), FrameGraphResourceType::eAttachment)
-        .AddOutput(_gBuffers->Attachments()[0], FrameGraphResourceType::eAttachment)
-        .AddOutput(_gBuffers->Attachments()[1], FrameGraphResourceType::eAttachment);
+        .AddOutput(_gBuffers->Attachments()[GBuffers::AMR_ATTACHMENT], FrameGraphResourceType::eAttachment)
+        .AddOutput(_gBuffers->Attachments()[GBuffers::NORMAL_ATTACHMENT], FrameGraphResourceType::eAttachment);
 
     FrameGraphNodeCreation shadowPrepass { *_shadowPass };
     shadowPrepass.SetName("Shadow prepass")
@@ -239,15 +239,15 @@ Renderer::Renderer(ApplicationModule& application, Viewport& viewport, const std
     FrameGraphNodeCreation ssaoPass { *_ssaoPass };
     ssaoPass.SetName("SSAO pass")
         .SetDebugLabelColor(GetColor(ColorType::Mint))
-        .AddInput(_gBuffers->Attachments()[1], FrameGraphResourceType::eTexture)
+        .AddInput(_gBuffers->Attachments()[GBuffers::NORMAL_ATTACHMENT], FrameGraphResourceType::eTexture)
         .AddInput(_gBuffers->Depth(), FrameGraphResourceType::eTexture)
         .AddOutput(_ssaoTarget, FrameGraphResourceType::eAttachment);
 
     FrameGraphNodeCreation lightingPass { *_lightingPass };
     lightingPass.SetName("Lighting pass")
         .SetDebugLabelColor(GetColor(ColorType::Periwinkle))
-        .AddInput(_gBuffers->Attachments()[0], FrameGraphResourceType::eTexture)
-        .AddInput(_gBuffers->Attachments()[1], FrameGraphResourceType::eTexture)
+        .AddInput(_gBuffers->Attachments()[GBuffers::AMR_ATTACHMENT], FrameGraphResourceType::eTexture)
+        .AddInput(_gBuffers->Attachments()[GBuffers::NORMAL_ATTACHMENT], FrameGraphResourceType::eTexture)
         .AddInput(_gBuffers->Depth(), FrameGraphResourceType::eTexture)
         .AddInput(_ssaoTarget, FrameGraphResourceType::eTexture)
         .AddInput(_gpuScene->StaticShadow(), FrameGraphResourceType::eTexture)
@@ -284,7 +284,7 @@ Renderer::Renderer(ApplicationModule& application, Viewport& viewport, const std
         .SetDebugLabelColor(GetColor(ColorType::Goldenrod))
         .AddInput(_hdrTarget, FrameGraphResourceType::eTexture)
         .AddInput(_bloomTarget, FrameGraphResourceType::eTexture)
-        .AddInput(_gBuffers->Attachments()[1], FrameGraphResourceType::eTexture)
+        .AddInput(_gBuffers->Attachments()[GBuffers::NORMAL_ATTACHMENT], FrameGraphResourceType::eTexture)
         .AddInput(_gBuffers->Depth(), FrameGraphResourceType::eTexture)
         .AddOutput(_volumetricTarget, FrameGraphResourceType::eAttachment);
 
@@ -294,7 +294,7 @@ Renderer::Renderer(ApplicationModule& application, Viewport& viewport, const std
         .AddInput(_hdrTarget, FrameGraphResourceType::eTexture)
         .AddInput(_bloomTarget, FrameGraphResourceType::eTexture)
         .AddInput(_volumetricTarget, FrameGraphResourceType::eTexture)
-        .AddInput(_gBuffers->Attachments()[1], FrameGraphResourceType::eTexture)
+        .AddInput(_gBuffers->Attachments()[GBuffers::NORMAL_ATTACHMENT], FrameGraphResourceType::eTexture)
         .AddInput(_gBuffers->Depth(), FrameGraphResourceType::eTexture)
         .AddOutput(_tonemappingTarget, FrameGraphResourceType::eAttachment);
 
